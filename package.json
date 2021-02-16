@@ -1,0 +1,10 @@
+{
+  "name": "battle-arena",
+  "version": "0.1.0",
+  "main": "index.js",
+  "author": "Matt Nawrocki <mjnrock@umich.edu>",
+  "license": "MIT",
+  "dependencies": {
+    "esm": "^3.2.25"
+  }
+}
