@@ -18,17 +18,6 @@ function App() {
             <Segment>
                 Current: { state.current }
             </Segment>
-
-            <div className="flex">
-                {
-                    Array.from({ length: root.grid.width }, (v, i) => (
-                        <div
-                            key={ i }
-                            className="ba-cell pa3 ma1"
-                        >{ i }</div>
-                    ))
-                }
-            </div>
             {
                 root.grid.toArray().map((row, i) => {
                     return (
@@ -36,10 +25,6 @@ function App() {
                             key={ row.toString() }
                             className="flex"
                         >
-                            <div
-                                key={ i }
-                                className="ba-cell pa3"
-                            >{ i }</div>
                             {
                                 row.map(cell => (
                                     <div
