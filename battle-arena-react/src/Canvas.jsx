@@ -3,9 +3,7 @@ import React,{ useEffect } from "react";
 
 function Canvas(props) {    
     function draw(kanvas) {
-        kanvas.draw((_this) => {
-            _this.rect(Math.random() * 100, Math.random() * 100, 50, 50);
-        });
+        kanvas.draw(props.onDraw);
 
         requestAnimationFrame((...args) => draw(props.canvas));
     }
@@ -16,6 +14,7 @@ function Canvas(props) {
 
         if(props.canvas.canvas !== ref) {
             // Copy all props from original canvas before overwriting the reference
+            console.log(props.canvas.width, props.canvas.height);
             ref.width = props.canvas.width;
             ref.height = props.canvas.height;
             
@@ -30,7 +29,7 @@ function Canvas(props) {
             // Overwrite the reference to attach canvas to React
             props.canvas.canvas = ref;
 
-            if(props.animate) {
+            if(typeof props.onDraw === "function") {
                 requestAnimationFrame((...args) => draw(props.canvas));
             }
         }

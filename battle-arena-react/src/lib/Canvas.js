@@ -6,11 +6,14 @@ export default class Canvas {
             }
         };
         
+        this.canvas = canvas || document.createElement("canvas");
         if(canvas) {
             width = canvas.width;
             height = canvas.height;
+        } else {
+            this.canvas.width = width;
+            this.canvas.height = height;
         }
-        this.canvas = canvas || document.createElement("canvas", { width, height } = {});
 
         this.prop(props);
     }
@@ -287,6 +290,6 @@ export default class Canvas {
             this.clear();
         }
 
-        return drawFn(this, this.ctx, this.canvas);
+        return drawFn.call(this, this.ctx, this.canvas);
     }
 };
