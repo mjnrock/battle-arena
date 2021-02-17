@@ -1,47 +1,45 @@
 /* eslint-disable */
-import React,{ useEffect } from "react";
+import React,{ useEffect, useState } from "react";
 
 /**
  * Props
  * @canvas <Canvas>
  * @onDraw fn | Will be given @canvas as its scope
  */
-function Canvas(props) {    
-    function draw(kanvas) {
-        kanvas.draw(props.onDraw);
-
-        requestAnimationFrame((...args) => draw(props.canvas));
-    }
+function Canvas(props) {
+    const { canvas, ...rest } = props;
 
     const canvasRef = React.createRef();
     useEffect(() => {
         const ref = canvasRef.current;
 
-        if(props.canvas.canvas !== ref) {
+        if(canvas.canvas !== ref) {
             // Copy all props from original canvas before overwriting the reference
-            console.log(props.canvas.width, props.canvas.height);
-            ref.width = props.canvas.width;
-            ref.height = props.canvas.height;
+            ref.width = canvas.width;
+            ref.height = canvas.height;
             
             const ctx = ref.getContext("2d");
-            for(let key in props.canvas.ctx) {
-                const value = props.canvas.ctx[ key ];
+            for(let key in canvas.ctx) {
+                const value = canvas.ctx[ key ];
                 if(key !== "canvas" && typeof value !== "function" && ctx[ key ] !== value) {
                     ctx[ key ] = value;
                 }
             }
 
             // Overwrite the reference to attach canvas to React
-            props.canvas.canvas = ref;
+            canvas.canvas = ref;
+            canvas.start();
+        }
 
-            if(typeof props.onDraw === "function") {
-                requestAnimationFrame((...args) => draw(props.canvas));
-            }
+        return () => {
+            canvas.stop();
         }
     }, []);
 
     return (
-        <canvas ref={ canvasRef } />
+        <>
+            <canvas ref={ canvasRef } { ...rest } />
+        </>
     );
 }
 

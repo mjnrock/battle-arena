@@ -1,8 +1,8 @@
 import Canvas from "./Canvas";
 
 export default class GridCanvas extends Canvas {
-    constructor(tw, th, { canvas, width, height } = {}) {
-        super({ canvas, width, height });
+    constructor(tw, th, { canvas, width, height, props } = {}) {
+        super({ canvas, width, height, props });
 
         this.tile = {
             width: tw,
@@ -35,36 +35,8 @@ export default class GridCanvas extends Canvas {
         return this;
     }
 
-    /**
-     * 
-     * @param {string|number} round "floor"|"ceil"|/[0-9]/
-     */
-    pixelToGrid(xs = [], ys = [], { round = 0, asArray = false } = {}) {
-        if(String(round).match(/[0-9]/)) {
-            xs = xs.map(x => parseFloat(x).toFixed(round));
-            ys = ys.map(y => parseFloat(y).toFixed(round));
-        } else if(round in Math) {
-            xs = xs.map(x => Math[ round ](x));
-            ys = ys.map(y => Math[ round ](y));
-        }
-        
-        const tx = xs.map(x => this.tw * x);
-        const ty = ys.map(y => this.th * y);
-
-        if(asArray === true) {
-            return [
-                tx,
-                ty
-            ];
-        }
-
-        return {
-            x: tx,
-            y: ty,
-        };
-    }
-
     drawGrid({ fillStyle = "#000" } = {}) {
+        this.ctx.save();
         this.prop({ fillStyle });
 
         for(let x = 0; x < this.rows; x++) {
@@ -78,6 +50,7 @@ export default class GridCanvas extends Canvas {
                 )
             }
         }
+        this.ctx.restore();
 
         return this;
     }
@@ -99,48 +72,34 @@ export default class GridCanvas extends Canvas {
     /*
      *  All ctx modifications (e.g. color, stroke width, etc.) should be changed via .prop
      */
-    gErase(x, y, w, h, { round = 0 } = {}) {
-        const [[ tx, tw ], [ ty, th ]] = this.pixelToGrid([ x, w ], [ y, h ], { round, asArray: true });
-
-        this.erase(tx, ty, tw, th);
+    gErase(tx, ty, tw, th) {
+        this.erase(tx * this.tw, ty * this.th, tw * this.tw, th * this.th);
 
         return this;
     }
 
-    gPoint(x, y, { round } = {}) {
-        return this.gRect(x, y, 1, 1, { isFilled: true, round });
+    gPoint(tx, ty) {
+        return this.gRect(tx, ty, 1, 1, { isFilled: true });
     }
-    gRect(x, y, w, h, { isFilled = false, round } = {}) {
-        const [[ tx, tw ], [ ty, th ]] = this.pixelToGrid([ x, w ], [ y, h ], { round, asArray: true });
-
-        this.rect(tx, ty, tw, th, { isFilled });
+    gRect(tx, ty, tw, th, { isFilled = false } = {}) {
+        this.rect(tx * this.tw, ty * this.th, tw * this.tw, th * this.th, { isFilled });
 
         return this;
     }
-    gCircle(x, y, r, { isFilled = false, round } = {}) {
-        const [[ tx ], [ ty ]] = this.pixelToGrid([ x ], [ y ], { round, asArray: true });
-        
-        this.circle(tx, ty, r, { isFilled });
+    gCircle(tx, ty, r, { isFilled = false } = {}) {
+        this.circle(tx * this.tw, ty * this.th, r, { isFilled });
 
         return this;
     }
 
-    gTile(imageOrSrc, sx, sy, dx, dy, { round } = {}) {
-        const [[ tsx, tdx ], [ tsy, tdy ]] = this.pixelToGrid([ sx, dx ], [ sy, dy ], { round, asArray: true });
-
-        this.image(imageOrSrc, tsx, tsy, this.tw, this.th, tdx, tdy, this.tw, this.th);
-
-        return this;
-    }
-
-    gQuilt(x, y, w, h, { colorFn } = {}) {
+    gQuilt(tx, ty, tw, th, { colorFn } = {}) {
         this.ctx.save();
-        for(let i = 0; i < w; i++) {
-            for(let j = 0; j < h; j++) {
+        for(let i = 0; i < tw; i++) {
+            for(let j = 0; j < th; j++) {
                 let color;
 
                 if(typeof colorFn === "function") {
-                    color = colorFn({ x: x + i, y: y + j, i, j }, { tx: x, ty: y, w, h });
+                    color = colorFn({ x: (tx + i) * this.tw, y: (ty + j) * this.th, i, j }, { tx, ty, tw, th, width: this.tw, height: this.tile.hei });
                 } else {
                     color = `rgb(${ ~~(Math.random() * 255) }, ${ ~~(Math.random() * 255) }, ${ ~~(Math.random() * 255) })`;
                 }
@@ -149,7 +108,7 @@ export default class GridCanvas extends Canvas {
                     fillStyle: color,
                 });
 
-                this.gPoint(x + i, y + j);
+                this.gPoint(tx + i, ty + j);
             }
         }
         this.ctx.restore();
@@ -158,7 +117,7 @@ export default class GridCanvas extends Canvas {
     }
 
     pointToLocal(px, py, { asArray = false } = {}) {
-        const rect = canvas.getBoundingClientRect();
+        const rect = this.canvas.getBoundingClientRect();
         const x = px - rect.left;
         const y = py - rect.top;
         

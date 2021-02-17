@@ -1,22 +1,45 @@
 /* eslint-disable */
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Segment } from "semantic-ui-react";
 
-import Kanvas from "./lib/Canvas";
+import Lib from "./lib/package";
 
 import Canvas from "./Canvas";
 
-function App() {
-    const [ kanvas, setKanvas ] = useState(new Kanvas({ width: 500, height: 100, props: { fillStyle: "#F00", strokeStyle: "#000" } }));
+const state = {
+    canvas: new Lib.GridCanvas(25, 25, { width: 500, height: 500, props: { fillStyle: "rgba(0, 0, 255, 0.5)", strokeStyle: "#000" } }),
+};
 
+function App() {
+    const [ kanvas, setKanvas ] = useState(state.canvas);
+    const [ cursor, setCursor ] = useState([ 0, 0 ]);
+
+    useEffect(() => {
+        kanvas.onDraw = function() {
+            this.drawGrid();
+
+            const { tx, ty } = this.pointToTile(...cursor);
+            this.gRect(~~tx, ~~ty, 1, 1, { isFilled: true });
+        };
+    }, [ cursor ]);
+
+    useEffect(() => {
+        console.log("App.Update");
+    });
+
+    const { tx, ty } = kanvas.pointToTile(...cursor);
     return (
-        <>
+        <Segment textAlign="center">
+            <Segment>
+                <div>[TILE]: { ~~tx },{ ~~ty }</div>
+                <div>[CURSOR]: { cursor.toString() }</div>
+            </Segment>
+
             <Canvas
                 canvas={ kanvas }
-                onDraw={ function() {
-                    this.rect(Math.random() * this.width, Math.random() * this.height, 50, 50, { isFilled: true });
-                } }
+                onClick={ e => setCursor([ e.clientX, e.clientY ])}
             />
-        </>
+        </Segment>
     )
 }
 

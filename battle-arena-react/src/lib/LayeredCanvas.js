@@ -2,8 +2,8 @@ import Canvas from "./Canvas";
 import GridCanvas from "./GridCanvas";
 
 export default class LayeredCanvas extends GridCanvas {
-    constructor({ canvas, tw = 1, th = 1, width, height } = {}) {
-        super(tw, th, { canvas, width, height });
+    constructor({ canvas, tw = 1, th = 1, width, height, props } = {}) {
+        super(tw, th, { canvas, width, height, props });
 
         this.stack = new Map();
     }

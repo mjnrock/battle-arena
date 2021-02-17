@@ -1,6 +1,7 @@
 export default class Canvas {
     constructor({ canvas, width = 300, height = 150, props = {} } = {}) {
         this._config = {
+            isAnimating: false,
             normalization: {
                 arc: -Math.PI / 4,
             }
@@ -285,11 +286,31 @@ export default class Canvas {
         return this;
     }
 
-    draw(drawFn, { clearFirst = true } = {}) {
-        if(clearFirst === true) {
-            this.clear();
+    draw({ clearFirst = true } = {}) {
+        if(this._config.isAnimating === true) {
+            if(clearFirst === true) {
+                this.clear();
+            }
+    
+            this.onDraw.call(this, this.ctx, this.canvas);
+            
+            requestAnimationFrame(this.draw.bind(this));
         }
 
-        return drawFn.call(this, this.ctx, this.canvas);
+        return this;
+    }
+    onDraw() {}
+
+    start() {
+        this._config.isAnimating = true;
+
+        requestAnimationFrame(this.draw.bind(this));
+
+        return this;
+    }
+    stop() {
+        this._config.isAnimating = false;
+
+        return this;
     }
 };
