@@ -1,6 +1,11 @@
 /* eslint-disable */
 import React,{ useEffect } from "react";
 
+/**
+ * Props
+ * @canvas <Canvas>
+ * @onDraw fn | Will be given @canvas as its scope
+ */
 function Canvas(props) {    
     function draw(kanvas) {
         kanvas.draw(props.onDraw);
