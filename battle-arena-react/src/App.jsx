@@ -1,45 +1,26 @@
 /* eslint-disable */
-import { useState } from "react";
-import { Segment } from "semantic-ui-react";
+import { useState, useEffect } from "react";
+import { Button } from "semantic-ui-react";
 
-import Grid from "./lib/Grid";
+import Kanvas from "./lib/Canvas";
 
-const root = {
-    grid: new Grid({ width: 10, height: 6, seed: (x, y) => `${ x }.${ y }` }),
-};
+import Canvas from "./Canvas";
 
 function App() {
-    const [ state, setState ] = useState({
-        current: null,
-    });
+    const [ kanvas, setKanvas ] = useState(new Kanvas({ width: 500, height: 100, props: { fillStyle: "#999", strokeStyle: "#000" } }));
+    const [ animate, setAnimate ] = useState(true);
+
+    useEffect(() => {        
+        kanvas.draw((_this) => {
+            _this.rect(Math.random() * 100, Math.random() * 100, 50, 50, { isFilled: true });
+        });
+    }, []);
 
     return (
-        <Segment>
-            <Segment>
-                Current: { state.current }
-            </Segment>
-            {
-                root.grid.toArray().map((row, i) => {
-                    return (
-                        <div
-                            key={ row.toString() }
-                            className="flex"
-                        >
-                            {
-                                row.map(cell => (
-                                    <div
-                                        key={ cell }
-                                        className="ba-cell pa3 b br2 ba ma1"
-                                        onMouseOver={ e => setState({ current: cell })}
-                                    >{ cell }</div>
-                                ))
-                            }
-                        </div>
-                    )
-                })
-            }
-        </Segment>
-    );
+        <>
+            <Canvas canvas={ kanvas } animate={ animate } />
+        </>
+    )
 }
 
 export default App;
