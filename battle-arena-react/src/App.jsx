@@ -1,45 +1,37 @@
 /* eslint-disable */
-import { useEffect, useState } from "react";
-import { Segment } from "semantic-ui-react";
+import React, { useState, useEffect, useContext } from "react";
 
-import Lib from "./lib/package";
+import Game from "./lib/Game";
+import Main from "./Main";
 
-import Canvas from "./Canvas";
+export const Context = React.createContext(Game.$);
 
-const state = {
-    canvas: new Lib.GridCanvas(25, 25, { width: 500, height: 500, props: { fillStyle: "rgba(0, 0, 255, 0.5)", strokeStyle: "#000" } }),
+export function useGameContext(context) {
+    const ctx = useContext(context);
+    const [ state, setState ] = useState({});
+
+    useEffect(() => {
+        const fn = function(game) {
+            setState({
+                game,
+            });
+        };
+
+        ctx.game.on("tick", fn)
+
+        return () => {
+            ctx.game.off("tick", fn);
+        }
+    }, []);
+
+    return state;
 };
 
 function App() {
-    const [ kanvas, setKanvas ] = useState(state.canvas);
-    const [ cursor, setCursor ] = useState([ 0, 0 ]);
-
-    useEffect(() => {
-        kanvas.onDraw = function() {
-            this.drawGrid();
-
-            const { tx, ty } = this.pointToTile(...cursor);
-            this.gRect(~~tx, ~~ty, 1, 1, { isFilled: true });
-        };
-    }, [ cursor ]);
-
-    useEffect(() => {
-        console.log("App.Update");
-    });
-
-    const { tx, ty } = kanvas.pointToTile(...cursor);
     return (
-        <Segment textAlign="center">
-            <Segment>
-                <div>[TILE]: { ~~tx },{ ~~ty }</div>
-                <div>[CURSOR]: { cursor.toString() }</div>
-            </Segment>
-
-            <Canvas
-                canvas={ kanvas }
-                onClick={ e => setCursor([ e.clientX, e.clientY ])}
-            />
-        </Segment>
+        <Context.Provider value={{ game: Game.$ }}>
+            <Main />
+        </Context.Provider>
     )
 }
 

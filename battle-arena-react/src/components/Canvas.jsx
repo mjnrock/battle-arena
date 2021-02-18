@@ -13,7 +13,7 @@ function Canvas(props) {
     useEffect(() => {
         const ref = canvasRef.current;
 
-        if(canvas.canvas !== ref) {
+        if(canvas && canvas.canvas !== ref) {
             // Copy all props from original canvas before overwriting the reference
             ref.width = canvas.width;
             ref.height = canvas.height;

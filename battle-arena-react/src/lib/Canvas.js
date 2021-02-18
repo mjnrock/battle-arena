@@ -292,7 +292,7 @@ export default class Canvas {
                 this.clear();
             }
     
-            this.onDraw.call(this, this.ctx, this.canvas);
+            this.onDraw(this, this.ctx, this.canvas);
             
             requestAnimationFrame(this.draw.bind(this));
         }
