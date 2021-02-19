@@ -14,6 +14,17 @@ import Game from "./lib/Game";
 
 export const Context = React.createContext(Game.$);
 
+Game.$.addReducer("test", (state, msg, ...args) => {
+    console.log(msg, ...args);
+
+    const sturt = {
+        ...state,
+        now: Date.now(),
+    };
+
+    return sturt;
+});
+
 function App() {
     return (
         <Router>
