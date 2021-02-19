@@ -14,7 +14,7 @@ export default class Game extends Agency.Context {
         this.canvas.onDraw = (cvs) => {
             cvs.drawGrid();
 
-            cvs.gRect(Lib.Util.Dice.d25(), Lib.Util.Dice.d25(), 1, 1, { isFilled: true });
+            cvs.gRect(Agency.Util.Dice.d25(), Agency.Util.Dice.d25(), 1, 1, { isFilled: true });
         };
 
         // Create Singleton pattern
