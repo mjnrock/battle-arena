@@ -27,8 +27,8 @@ export default class Game extends Agency.Context {
     static get $() {
         if(!Game.Instance) {
             Game.Instance = new Game();
-
-            Game.$.loop.start();
+            
+            // Game.$.loop.start();
         }
 
         return Game.Instance;
