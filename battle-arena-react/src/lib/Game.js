@@ -4,7 +4,7 @@ import GameLoop from "./GameLoop";
 import Lib from "./package";
 
 export default class Game extends Agency.Context {
-    constructor({ fps = 5 } = {}) {
+    constructor({ fps = 24 } = {}) {
         super({
             loop: new GameLoop(fps),
             canvas: new Lib.GridCanvas(25, 25, { width: 500, height: 500, props: { fillStyle: "rgba(0, 0, 255, 0.5)", strokeStyle: "#000" } })
@@ -28,7 +28,8 @@ export default class Game extends Agency.Context {
         if(!Game.Instance) {
             Game.Instance = new Game();
             
-            // Game.$.loop.start();
+            Game.$.canvas._config.clearBeforeDraw = true;
+            Game.$.loop.start();
         }
 
         return Game.Instance;

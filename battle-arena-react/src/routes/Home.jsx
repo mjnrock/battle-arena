@@ -12,7 +12,8 @@ export default function Home() {
     if(!Object.keys(game).length) {
         return (
             <>
-                <button onClick={ e => Game.$.dispatch("test", Date.now(), 123456) }>Click me!</button>
+                {/*//* Dispatch Example */}
+                <button onClick={ e => Game.$.dispatch("test", Date.now(), 123456) }>Dispatch</button>
             </>
         );
     }
@@ -24,6 +25,8 @@ export default function Home() {
             <Canvas
                 canvas={ game.canvas }
             />
+            
+            <button onClick={ e => Game.$.dispatch("test", Date.now(), 123456) }>Dispatch</button>
         </>
     )
 }

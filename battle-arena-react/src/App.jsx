@@ -14,16 +14,30 @@ import Game from "./lib/Game";
 
 export const Context = React.createContext(Game.$);
 
-Game.$.addReducer("test", (state, msg, ...args) => {
-    console.log(msg, ...args);
+//*  Reducer Example
+// Game.$.addReducer("test", (state, msg, ...args) => {
+//     console.log(`[Reducer]`, msg, ...args);
 
-    const sturt = {
-        ...state,
-        now: Date.now(),
-    };
+//     const sturt = {
+//         ...state,
+//         now: Date.now(),
+//     };
 
-    return sturt;
-});
+//     return sturt;
+// });
+
+//*  Effect Example
+// const obs = new Agency.Observer(Game.$);
+// const obs = new Agency.Observer(Game.$, (state, [,msg = {}]) => {
+//     if(msg.type === "test") {
+//         console.log(`[Effect]`, msg);
+//     }
+// });
+// obs.add((state, [,msg = {}]) => {
+//     if(msg.type === "cat") {
+//         console.log(`[Effect]`, msg);
+//     }
+// });
 
 function App() {
     return (

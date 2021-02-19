@@ -2,6 +2,7 @@ export default class Canvas {
     constructor({ canvas, width = 300, height = 150, props = {} } = {}) {
         this._config = {
             isAnimating: false,
+            clearBeforeDraw: true,
             normalization: {
                 arc: -Math.PI / 4,
             }
@@ -286,9 +287,9 @@ export default class Canvas {
         return this;
     }
 
-    draw({ clearFirst = true } = {}) {
+    draw() {
         if(this._config.isAnimating === true) {
-            if(clearFirst === true) {
+            if(this._config.clearBeforeDraw === true) {
                 this.clear();
             }
     
