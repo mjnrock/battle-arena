@@ -1405,9 +1405,9 @@
     chalk "^4.0.0"
 
 "@lespantsfancy/agency@^0.1.4":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.1.5.tgz#c10a850af9bb9f93f1f1acc3767d098e38bd9704"
-  integrity sha512-YwY2iWUCg9gLYko3jbYmrqRr2uOft728x+50sOMuQGFaDQsEOU0kxmncmTELP2ghlLV0YJC7ImeSMjQta2quiw==
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.1.8.tgz#6cba45ed78e9c314642ab6251e1b510b85c672a4"
+  integrity sha512-BoHTtCd2xxszt4n87UembMagdaT3calHj16wVqXMewC9gTm6JbmZMvGhy4sUodvuyaE0I/Mimsl3RPK7sQTcEQ==
   dependencies:
     esm "^3.2.25"
     object-hash "^2.1.1"

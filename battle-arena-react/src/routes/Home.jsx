@@ -1,11 +1,12 @@
 /* eslint-disable */
+import { useObserver } from "@lespantsfancy/agency/lib/react";
 import React from "react";
 
-import { useGameContext, Context } from "./../App";
+import { Context } from "./../App";
 import Canvas from "./../components/Canvas";
 
 export default function Home(props) {
-    const game = useGameContext(Context);
+    const game = useObserver(Context, "game");
 
     if(!Object.keys(game).length) {
         return null;
