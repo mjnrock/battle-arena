@@ -1,9 +1,16 @@
 /* eslint-disable */
 import Agency from "@lespantsfancy/agency";
 import React, { useState, useEffect, useContext } from "react";
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+} from "react-router-dom";
+
+import ScrollToTop from "./ScrollToTop";
+import Routes from "./routes/package";
 
 import Game from "./lib/Game";
-import Main from "./Main";
 
 export const Context = React.createContext(Game.$);
 
@@ -34,9 +41,17 @@ const ctx = {
 
 function App() {
     return (
-        <Context.Provider value={ ctx }>
-            <Main />
-        </Context.Provider>
+        <Router>
+            <ScrollToTop>
+                <Context.Provider value={ ctx }>
+                    <Switch>                            
+                        <Route path="/">
+                            <Routes.Home />
+                        </Route>
+                    </Switch>
+                </Context.Provider>
+            </ScrollToTop>
+        </Router>
     )
 }
 

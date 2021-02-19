@@ -1,10 +1,10 @@
 /* eslint-disable */
 import React from "react";
 
-import { useGameContext, Context } from "./App";
-import Canvas from "./components/Canvas";
+import { useGameContext, Context } from "./../App";
+import Canvas from "./../components/Canvas";
 
-function Main() {
+export default function Home(props) {
     const game = useGameContext(Context);
 
     if(!Object.keys(game).length) {
@@ -21,5 +21,3 @@ function Main() {
         </>
     )
 }
-
-export default Main;
