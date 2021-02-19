@@ -28,6 +28,7 @@ export function useGameContext(context) {
         let obs = new Agency.Observer(ctx.game, fn);
 
         return () => {
+            obs.unwatch(ctx.game);
             obs = null;
         }
     }, []);
