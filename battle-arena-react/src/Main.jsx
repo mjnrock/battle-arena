@@ -5,9 +5,9 @@ import { useGameContext, Context } from "./App";
 import Canvas from "./components/Canvas";
 
 function Main() {
-    const { game } = useGameContext(Context);
+    const game = useGameContext(Context);
 
-    if(!game) {
+    if(!Object.keys(game).length) {
         return null;
     }
 

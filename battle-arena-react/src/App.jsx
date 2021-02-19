@@ -1,4 +1,5 @@
 /* eslint-disable */
+import Agency from "@lespantsfancy/agency";
 import React, { useState, useEffect, useContext } from "react";
 
 import Game from "./lib/Game";
@@ -13,23 +14,27 @@ export function useGameContext(context) {
     useEffect(() => {
         const fn = function(game) {
             setState({
-                game,
+                ...game
             });
         };
 
-        ctx.game.on("tick", fn)
+        let obs = new Agency.Observer(ctx.game, fn);
 
         return () => {
-            ctx.game.off("tick", fn);
+            obs = null;
         }
     }, []);
 
     return state;
 };
 
+const ctx = {
+    game: Game.$,
+};
+
 function App() {
     return (
-        <Context.Provider value={{ game: Game.$ }}>
+        <Context.Provider value={ ctx }>
             <Main />
         </Context.Provider>
     )

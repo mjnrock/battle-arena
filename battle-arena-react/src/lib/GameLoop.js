@@ -53,7 +53,7 @@ export default class GameLoop {
     update(dt) {
         this.ticks += 1;
 
-        Game.$.emit("tick", Game.$);
+        Game.$.run();
     }
 
     /**

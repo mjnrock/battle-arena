@@ -1,14 +1,17 @@
 import Agency from "@lespantsfancy/agency";
+import EventEmitter from "events";
 import GameLoop from "./GameLoop";
 
 import Lib from "./package";
 
-export default class Game extends Agency.Context {
+console.log(Agency)
+
+export default class Game extends EventEmitter {
     constructor({ fps = 5 } = {}) {
-        super({
-            loop: new GameLoop(fps),
-            canvas: new Lib.GridCanvas(25, 25, { width: 500, height: 500, props: { fillStyle: "rgba(0, 0, 255, 0.5)", strokeStyle: "#000" } })
-        });
+        super();
+
+        this.loop = new GameLoop(fps);
+        this.canvas = new Lib.GridCanvas(25, 25, { width: 500, height: 500, props: { fillStyle: "rgba(0, 0, 255, 0.5)", strokeStyle: "#000" } });
 
         console.log(this.canvas)
         this.canvas.onDraw = (cvs) => {
