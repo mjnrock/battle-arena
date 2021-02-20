@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Agency from "@lespantsfancy/agency";
 import Component from "./Component";
 import Entity from "./Entity";
@@ -33,21 +34,55 @@ export default class Game extends Agency.Context {
                     level: 1,
                 },
             }));
+            player.gain(new Component("condition", {
+                current: "IDLE",
+            }));
             this.entities.register(player, "player");
-
-            // const ob = new Agency.Observer(player.components, console.log);
 
             window.onkeydown = e => {
                 if(e.which === 68 || e.which === 39) {
                     ++player.components.position.x;
+
+                    player.components.condition.current = "RUNNING";
                 } else if(e.which === 65 || e.which === 37) {
                     --player.components.position.x;
+
+                    player.components.condition.current = "RUNNING";
                 } else if(e.which === 87 || e.which === 38) {
                     --player.components.position.y;
+
+                    player.components.condition.current = "RUNNING";
                 } else if(e.which === 83 || e.which === 40) {
                     ++player.components.position.y;
+
+                    player.components.condition.current = "RUNNING";
                 }
             };
+            window.onkeyup = e => {
+                player.components.condition.current = "IDLE";
+            };
+
+            this.selections = new Map();
+            this.on("input", (type, buttons, { txi, tyi } = {}) => {
+                if(buttons === 2) {
+                    this.selections = [];
+                } else if(buttons === 1 && type === "mousemove") {
+                    this.selections.set(`${ txi }.${ tyi }`, [ buttons, txi, tyi ]);
+                } else if(type === "click") {
+                    this.selections.set(`${ txi }.${ tyi }`, [ buttons, txi, tyi ]);
+                }
+            });
+
+            const obs = new Agency.Observer(this, () => {
+                this.selections.delete(`${ player.components.position.x }.${ player.components.position.y }`);
+            });
+            const ob = new Agency.Observer(player.components.condition, (state, [,,condition ]) => {
+                if(condition === "IDLE") {
+                    Game.$.canvas.prop({ fillStyle: "rgba(0, 0, 255, 0.5)" });
+                } else if(condition === "RUNNING") {
+                    Game.$.canvas.prop({ fillStyle: "rgba(255, 0, 255, 0.5)" });
+                }
+            });
         // //? ====    /LOGIC   ====
 
 
@@ -55,6 +90,10 @@ export default class Game extends Agency.Context {
             console.log(this.canvas)
             this.canvas.onDraw = (cvs) => {
                 cvs.drawGrid();
+
+                this.selections.forEach(([ buttons, x, y ]) => {
+                    cvs.save().prop({ fillStyle: "rgba(150, 255, 150, 0.5)" }).gRect(x, y, 1, 1, { isFilled: true }).restore();
+                });
 
                 const { x, y } = player.components.position;
                 cvs.gRect(x, y, 1, 1, { isFilled: true });

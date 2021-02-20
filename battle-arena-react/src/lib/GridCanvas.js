@@ -133,7 +133,7 @@ export default class GridCanvas extends Canvas {
         const tx = x / this.tw;
         const ty = y / this.th;
         if(asArray === true) {
-            return [ tx, ty, Math.floor(tx), Math.floor(ty) ];
+            return [ tx, ty, Math.floor(tx), Math.floor(ty), x, y ];
         }
 
         return {
@@ -141,6 +141,8 @@ export default class GridCanvas extends Canvas {
             ty,
             txi: Math.floor(tx),
             tyi: Math.floor(ty),
+            x,
+            y,
         };
     }
 }

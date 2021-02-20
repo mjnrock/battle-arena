@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React,{ useEffect, useState } from "react";
+import React,{ useEffect } from "react";
 
 /**
  * Props
@@ -26,6 +26,32 @@ function Canvas(props) {
                 }
             }
 
+            ref.oncontextmenu = e => { e.preventDefault(); };
+            if(typeof props.handlers.onMouseDown === "function") {
+                ref.onmousedown = e => {
+                    e.preventDefault();
+                    props.handlers.onMouseDown(e.buttons, e.x, e.y)
+                };
+            }
+            if(typeof props.handlers.onMouseUp === "function") {
+                ref.onmouseup = e => {
+                    e.preventDefault();
+                    props.handlers.onMouseUp(e.buttons, e.x, e.y);
+                }
+            }
+            if(typeof props.handlers.onClick === "function") {
+                ref.onclick = e => {
+                    e.preventDefault();
+                    props.handlers.onClick(e.buttons, e.x, e.y);
+                }
+            }
+            if(typeof props.handlers.onMouseMove === "function") {
+                ref.onmousemove = e => {
+                    e.preventDefault();
+                    props.handlers.onMouseMove(e.buttons, e.x, e.y);
+                }
+            }
+
             // Overwrite the reference to attach canvas to React
             canvas.canvas = ref;
             canvas.start();
@@ -38,7 +64,10 @@ function Canvas(props) {
 
     return (
         <>
-            <canvas ref={ canvasRef } { ...rest } />
+            <canvas
+                ref={ canvasRef }
+                { ...rest }
+            />
         </>
     );
 }

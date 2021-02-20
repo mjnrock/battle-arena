@@ -302,6 +302,17 @@ export default class Canvas {
     }
     onDraw() {}
 
+    save() {
+        this.ctx.save();
+
+        return this;
+    }
+    restore() {
+        this.ctx.restore();
+
+        return this;
+    }
+
     start() {
         this._config.isAnimating = true;
 
