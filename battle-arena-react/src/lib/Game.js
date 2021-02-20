@@ -39,6 +39,34 @@ export default class Game extends Agency.Context {
             }));
             this.entities.register(player, "player");
 
+            for(let i = 0; i < 2; i++) {                
+                const entity = new Entity();
+                entity.gain(new Component("position", {
+                    x: Agency.Util.Dice.d25(1, -1),
+                    y: Agency.Util.Dice.d25(1, -1),
+                }));
+                entity.gain(new Component("attributes", {
+                    ATK: 2,
+                    DEF: 1,
+                    HP: {
+                        current: 10,
+                        max: 10,
+                    },
+                    XP: {
+                        current: 0,
+                        max: 100,
+                        level: 1,
+                    },
+                }));
+                entity.gain(new Component("condition", {
+                    current: "IDLE",
+                }));
+
+                this.entities.register(entity);
+            }
+
+
+
             window.onkeydown = e => {
                 if(e.which === 68 || e.which === 39) {
                     ++player.components.position.x;
@@ -62,20 +90,25 @@ export default class Game extends Agency.Context {
                 player.components.condition.current = "IDLE";
             };
 
-            this.selections = new Map();
-            this.on("input", (type, buttons, { txi, tyi } = {}) => {
-                if(buttons === 2) {
-                    this.selections = [];
-                } else if(buttons === 1 && type === "mousemove") {
-                    this.selections.set(`${ txi }.${ tyi }`, [ buttons, txi, tyi ]);
-                } else if(type === "click") {
-                    this.selections.set(`${ txi }.${ tyi }`, [ buttons, txi, tyi ]);
-                }
-            });
 
-            const obs = new Agency.Observer(this, () => {
-                this.selections.delete(`${ player.components.position.x }.${ player.components.position.y }`);
-            });
+
+            // this.selections = new Map();
+            // this.on("input", (type, buttons, { txi, tyi } = {}) => {
+            //     if(buttons === 2) {
+            //         this.selections = [];
+            //     } else if(buttons === 1 && type === "mousemove") {
+            //         this.selections.set(`${ txi }.${ tyi }`, [ buttons, txi, tyi ]);
+            //     } else if(type === "click") {
+            //         this.selections.set(`${ txi }.${ tyi }`, [ buttons, txi, tyi ]);
+            //     }
+            // });
+
+            // const obs = new Agency.Observer(this, () => {
+            //     this.selections.delete(`${ player.components.position.x }.${ player.components.position.y }`);
+            // });
+
+
+
             const ob = new Agency.Observer(player.components.condition, (state, [,,condition ]) => {
                 if(condition === "IDLE") {
                     Game.$.canvas.prop({ fillStyle: "rgba(0, 0, 255, 0.5)" });
@@ -91,12 +124,13 @@ export default class Game extends Agency.Context {
             this.canvas.onDraw = (cvs) => {
                 cvs.drawGrid();
 
-                this.selections.forEach(([ buttons, x, y ]) => {
-                    cvs.save().prop({ fillStyle: "rgba(150, 255, 150, 0.5)" }).gRect(x, y, 1, 1, { isFilled: true }).restore();
+                // this.selections.forEach(([ buttons, x, y ]) => {
+                //     cvs.save().prop({ fillStyle: "rgba(150, 255, 150, 0.5)" }).gRect(x, y, 1, 1, { isFilled: true }).restore();
+                // });
+                this.entities.values.forEach(entity => {
+                    const { x, y } = entity.components.position;
+                    cvs.save().prop({ fillStyle: entity === this.entities.player ? "rgba(150, 255, 150, 0.5)" : "rgba(255, 150, 150, 0.5)" }).gRect(x, y, 1, 1, { isFilled: true }).restore();
                 });
-
-                const { x, y } = player.components.position;
-                cvs.gRect(x, y, 1, 1, { isFilled: true });
             };
         //! ====    /RENDER   ====
 

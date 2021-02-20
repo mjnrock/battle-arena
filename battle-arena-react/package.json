@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
-        "@lespantsfancy/agency": "0.1.31",
+        "@lespantsfancy/agency": "0.1.33",
         "mainloop.js": "^1.0.4",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
