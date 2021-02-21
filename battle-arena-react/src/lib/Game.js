@@ -125,7 +125,7 @@ export default class Game extends Agency.Context {
                     } else if(condition === "RUNNING") {
                         cvs.prop({ fillStyle: "rgba(255, 0, 255, 0.5)" });
                     } else if(condition === "ATTACKING") {
-                        cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.roll(0, 255) }, ${ Agency.Util.Dice.roll(0, 255) }, 0.5)` });
+                        cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.random(0, 255) }, 0.5)` });
                     }
                     cvs.gRect(x, y, 1, 1, { isFilled: true });
                     cvs.restore();
