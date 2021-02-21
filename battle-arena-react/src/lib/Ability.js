@@ -33,4 +33,17 @@ export default class Ability {
 
         return results;
     }
+
+    static FromSchema(schemaOrObj, schemaParamObject = {}) {
+        let ability = new Ability();
+        for(let [ key, value ] of Object.entries(schemaOrObj)) {
+            if(typeof value === "function") {
+                ability[ key ] = value(...(schemaParamObject[ key ] || []));
+            } else {
+                ability[ key ] = value;
+            }
+        }
+    
+        return ability;
+    }
 }

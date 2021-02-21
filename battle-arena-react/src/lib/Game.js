@@ -1,50 +1,76 @@
 /* eslint-disable */
 import Agency from "@lespantsfancy/agency";
-import Entity from "./Entity";
+
+import KeyManager from "./KeyManager";
+import MouseManager from "./MouseManager";
 import GameLoop from "./GameLoop";
 
 import Lib from "./package";
 
-import entitySchema from "./data/schemas/entity";
+import Entity from "./Entity";
 import Ability from "./Ability";
+
+import entitySchema from "./data/schemas/entity";
+import { EnumSchemaTemplate as EnumPatternType } from "./data/schemas/patterns";
 
 export default class Game extends Agency.Context {
     constructor({ fps = 24 } = {}) {
         super({
             loop: new GameLoop(fps),
             entities: new Agency.Registry(),
-            canvas: new Lib.GridCanvas(25, 25, { width: 500, height: 500, props: { fillStyle: "rgba(0, 0, 255, 0.5)", strokeStyle: "#000" } })
+            canvas: new Lib.GridCanvas(25, 25, { width: 500, height: 500, props: { fillStyle: "rgba(0, 0, 255, 0.5)", strokeStyle: "#000" } }),
+            station: new Agency.Channel(),
         });
 
+        this._state.station.subscribe((ctx, type, ...args) => {
+            if(type === "input") {
+                const [ eventType ] = args;
+
+                if(eventType === "keyup") {
+                    this.entities.player.components.condition.current = "IDLE";
+                } else if(eventType === "keydown") {
+                    const which = args[ 1 ];
+
+                    if(which === 68 || which === 39) {
+                        ++this.entities.player.components.position.x;
+    
+                        this.entities.player.components.condition.current = "RUNNING";
+                    } else if(which === 65 || which === 37) {
+                        --this.entities.player.components.position.x;
+    
+                        this.entities.player.components.condition.current = "RUNNING";
+                    } else if(which === 87 || which === 38) {
+                        --this.entities.player.components.position.y;
+    
+                        this.entities.player.components.condition.current = "RUNNING";
+                    } else if(which === 83 || which === 40) {
+                        ++this.entities.player.components.position.y;
+    
+                        this.entities.player.components.condition.current = "RUNNING";
+                    } else if(which === 32) {
+                        this.entities.player.components.condition.current = "ATTACKING";
+    
+                        abilities(0);
+                    } else if(which >= 49 && which <= 57) {
+                        this.entities.player.components.condition.current = "ATTACKING";
+    
+                        abilities(which - 48);
+                    }
+                }
+            }
+        });
+        this._state.station.watch("input", KeyManager.$);
+        this._state.station.watch("input", MouseManager.$);
 
         //? ====    LOGIC   ====
             const player = Entity.FromSchema(entitySchema, {
                 position: [ 3, 3 ],
                 abilities: [
-                    new Ability({ pattern: [
-                        [ 0, -1, true ],
-                    ]}),
-                    new Ability({ pattern: [
-                        [ 0, -1, true ],
-                        [ 0, -2, true ],
-                    ]}),
-                    new Ability({ pattern: [
-                        [ 0, -1, true ],
-                        [ -1, 0, true ],
-                        [ 1, 0, true ],
-                        [ 0, 1, true ],
-                    ]}),
-                    new Ability({ pattern: [
-                        [ 0, -1, true ],
-                        [ -1, 0, true ],
-                        [ 1, 0, true ],
-                        [ 0, 1, true ],
-
-                        [ 2, 2, true ],
-                        [ 2, -2, true ],
-                        [ -2, 2, true ],
-                        [ -2, -2, true ],
-                    ]})
+                    new Ability({ pattern: EnumPatternType.SELF(true) }),
+                    new Ability({ pattern: EnumPatternType.UP(true) }),
+                    new Ability({ pattern: EnumPatternType.UP2(true) }),
+                    new Ability({ pattern: EnumPatternType.SURROUND(true) }),
+                    new Ability({ pattern: EnumPatternType.SURROUND_PLUS(true) }),
                 ]
             });
             this.entities.register(player, "player");
@@ -56,6 +82,10 @@ export default class Game extends Agency.Context {
 
 
             function abilities(key) {
+                if(!player.components.abilities.all[ key ]) {
+                    return;
+                }
+
                 const points = player.components.abilities.all[ key ].points(player.components.position.x, player.components.position.y);
                 for(let [ x, y, effect ] of points) {
                     const entity = Entity.FromSchema(entitySchema, {
@@ -65,37 +95,6 @@ export default class Game extends Agency.Context {
                     Game.$.entities.register(entity);
                 }
             }
-
-            window.onkeydown = e => {
-                if(e.which === 68 || e.which === 39) {
-                    ++player.components.position.x;
-
-                    player.components.condition.current = "RUNNING";
-                } else if(e.which === 65 || e.which === 37) {
-                    --player.components.position.x;
-
-                    player.components.condition.current = "RUNNING";
-                } else if(e.which === 87 || e.which === 38) {
-                    --player.components.position.y;
-
-                    player.components.condition.current = "RUNNING";
-                } else if(e.which === 83 || e.which === 40) {
-                    ++player.components.position.y;
-
-                    player.components.condition.current = "RUNNING";
-                } else if(e.which === 32) {
-                    player.components.condition.current = "ATTACKING";
-
-                    abilities(0);
-                } else if(e.which >= 49 && e.which <= 51) {
-                    player.components.condition.current = "ATTACKING";
-
-                    abilities(e.which - 48);
-                }
-            };
-            window.onkeyup = e => {
-                player.components.condition.current = "IDLE";
-            };
 
 
             // const ob = new Agency.Observer(player.components.condition, (state, [,,condition ]) => {
@@ -125,7 +124,7 @@ export default class Game extends Agency.Context {
                     } else if(condition === "RUNNING") {
                         cvs.prop({ fillStyle: "rgba(255, 0, 255, 0.5)" });
                     } else if(condition === "ATTACKING") {
-                        cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.random(0, 255) }, 0.5)` });
+                        cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.roll(0, 255) }, ${ Agency.Util.Dice.roll(0, 255) }, 0.5)` });
                     }
                     cvs.gRect(x, y, 1, 1, { isFilled: true });
                     cvs.restore();
