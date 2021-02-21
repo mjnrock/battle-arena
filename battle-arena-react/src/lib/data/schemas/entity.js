@@ -1,4 +1,5 @@
 import componentPosition from "./component-position";
+import componentAbilities from "./component-abilities";
 
 const schema = {
     ...componentPosition,
@@ -21,16 +22,7 @@ const schema = {
     condition: (cond) => ({
         current: cond || "IDLE",
     }),
-    abilities: (current, ...rest) => ({
-        current: current || {
-            name: "attack",
-            range: [ 1, "facing" ],
-        },
-        all: [
-            current,
-            ...rest,
-        ],
-    })
+    ...componentAbilities,
 };
 
 export default schema;

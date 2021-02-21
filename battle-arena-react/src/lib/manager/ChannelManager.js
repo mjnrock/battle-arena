@@ -53,16 +53,16 @@ export default class ChannelManager extends Agency.Channel {
                     }
                 }
             });
-            // this.subscribe("mouse", (ctx, eventType, buttons, obj) => {
-            //     if(eventType === "click") {
-            //         const { txi, tyi } = obj;
-            //         for(let entity of this.game.entities.values) {
-            //             if(entity.components.position.x === txi && entity.components.position.y === tyi) {
-            //                 console.log(entity.components.toObject());
-            //             }
-            //         }
-            //     }
-            // });
+            this.subscribe("mouse", (ctx, eventType, buttons, obj) => {
+                if(eventType === "click") {
+                    const { txi, tyi } = obj;
+                    for(let entity of this.game.entities.values) {
+                        if(entity.components.position.x === txi && entity.components.position.y === tyi) {
+                            console.log(entity.components.toObject());
+                        }
+                    }
+                }
+            });
         }
     }
 
