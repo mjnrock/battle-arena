@@ -11,7 +11,7 @@ import EntityManager from "./manager/EntityManager";
 
 import Entity from "./Entity";
 
-import entitySchema from "./data/schemas/entity";
+import entityEffectSchema from "./data/schemas/entity-effect";
 
 export default class Game extends Agency.Context {
     constructor({ fps = 24 } = {}) {
@@ -23,6 +23,7 @@ export default class Game extends Agency.Context {
             render: new RenderManager(),
         });
 
+        
         this.channel.addGame(this);
         this.render.addGame(this);
         this.entities.addGame(this);
@@ -41,9 +42,9 @@ export default class Game extends Agency.Context {
 
         const points = this.entities.player.components.abilities.all[ key ].points(this.entities.player.components.position.x, this.entities.player.components.position.y);
         for(let [ x, y, effect ] of points) {
-            const entity = Entity.FromSchema(entitySchema, {
+            const entity = Entity.FromSchema(entityEffectSchema, {
                 position: [ x, y ],
-                condition: [ "ATTACKING" ],
+                condition: [ "IDLE" ],
             });
             this.entities.register(entity);
         }

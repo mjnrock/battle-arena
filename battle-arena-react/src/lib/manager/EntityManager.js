@@ -14,6 +14,8 @@ export default class EntityManager extends Agency.Registry {
         super({
             game,
         });
+
+        this.addGame(game);
     }
 
     addGame(game) {
