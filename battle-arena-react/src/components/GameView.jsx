@@ -5,7 +5,7 @@ import { Segment } from "semantic-ui-react";
 
 import { Context } from "../App";
 import Game from "../lib/Game";
-import MouseManager from "../lib/MouseManager";
+import MouseManager from "../lib/manager/MouseManager";
 import Canvas from "./Canvas";
 
 export default function GameView() {
@@ -27,10 +27,10 @@ export default function GameView() {
             <Canvas
                 canvas={ game.canvas }
                 handlers={{
-                    onMouseDown: (buttons, x, y) => MouseManager.$.emit("input", "mousedown", buttons, game.canvas.pointToTile(x, y)),
-                    onMouseUp: (buttons, x, y) => MouseManager.$.emit("input", "mouseup", buttons, game.canvas.pointToTile(x, y)),
-                    onClick: (buttons, x, y) => MouseManager.$.emit("input", "click", buttons, game.canvas.pointToTile(x, y)),
-                    onMouseMove: (buttons, x, y) => MouseManager.$.emit("input", "mousemove", buttons, game.canvas.pointToTile(x, y)),
+                    onMouseDown: (buttons, x, y) => MouseManager.$.emit("mouse", "down", buttons, game.canvas.pointToTile(x, y)),
+                    onMouseUp: (buttons, x, y) => MouseManager.$.emit("mouse", "up", buttons, game.canvas.pointToTile(x, y)),
+                    onClick: (buttons, x, y) => MouseManager.$.emit("mouse", "click", buttons, game.canvas.pointToTile(x, y)),
+                    onMouseMove: (buttons, x, y) => MouseManager.$.emit("mouse", "move", buttons, game.canvas.pointToTile(x, y)),
                 }}
             />
         </Segment>

@@ -1,8 +1,7 @@
 /* eslint-disable */
 import Agency from "@lespantsfancy/agency";
 
-import KeyManager from "./KeyManager";
-import MouseManager from "./MouseManager";
+import RenderManager from "./manager/RenderManager";
 import GameLoop from "./GameLoop";
 
 import Lib from "./package";
@@ -12,58 +11,21 @@ import Ability from "./Ability";
 
 import entitySchema from "./data/schemas/entity";
 import { EnumSchemaTemplate as EnumPatternType } from "./data/schemas/patterns";
+import ChannelManager from "./manager/ChannelManager";
+import EntityManager from "./manager/EntityManager";
 
 export default class Game extends Agency.Context {
     constructor({ fps = 24 } = {}) {
         super({
             loop: new GameLoop(fps),
-            entities: new Agency.Registry(),
+            entities: new EntityManager(),
             canvas: new Lib.GridCanvas(25, 25, { width: 500, height: 500, props: { fillStyle: "rgba(0, 0, 255, 0.5)", strokeStyle: "#000" } }),
-            station: new Agency.Channel(),
+            channel: new ChannelManager(),
+            render: new RenderManager(),
         });
-
-        this._state.station.subscribe((ctx, type, ...args) => {
-            if(type === "input") {
-                const [ eventType ] = args;
-
-                if(eventType === "keyup") {
-                    this.entities.player.components.condition.current = "IDLE";
-                } else if(eventType === "keydown") {
-                    const which = args[ 1 ];
-
-                    if(which === 68 || which === 39) {
-                        ++this.entities.player.components.position.x;
-    
-                        this.entities.player.components.condition.current = "RUNNING";
-                    } else if(which === 65 || which === 37) {
-                        --this.entities.player.components.position.x;
-    
-                        this.entities.player.components.condition.current = "RUNNING";
-                    } else if(which === 87 || which === 38) {
-                        --this.entities.player.components.position.y;
-    
-                        this.entities.player.components.condition.current = "RUNNING";
-                    } else if(which === 83 || which === 40) {
-                        ++this.entities.player.components.position.y;
-    
-                        this.entities.player.components.condition.current = "RUNNING";
-                    } else if(which === 32) {
-                        this.entities.player.components.condition.current = "ATTACKING";
-    
-                        abilities(0);
-                    } else if(which >= 49 && which <= 57) {
-                        this.entities.player.components.condition.current = "ATTACKING";
-    
-                        abilities(which - 48);
-                    }
-                }
-            }
-        });
-        this._state.station.watch("input", KeyManager.$);
-        this._state.station.watch("input", MouseManager.$);
 
         //? ====    LOGIC   ====
-            const player = Entity.FromSchema(entitySchema, {
+            const player = this.entities.create(entitySchema, {
                 position: [ 3, 3 ],
                 abilities: [
                     new Ability({ pattern: EnumPatternType.SELF(true) }),
@@ -72,73 +34,34 @@ export default class Game extends Agency.Context {
                     new Ability({ pattern: EnumPatternType.SURROUND(true) }),
                     new Ability({ pattern: EnumPatternType.SURROUND_PLUS(true) }),
                 ]
-            });
-            this.entities.register(player, "player");
+            }, "player");
 
-            for(let i = 0; i < 5; i++) {
-                const entity = Entity.FromSchema(entitySchema);
-                this.entities.register(entity);
-            }
-
-
-            function abilities(key) {
-                if(!player.components.abilities.all[ key ]) {
-                    return;
-                }
-
-                const points = player.components.abilities.all[ key ].points(player.components.position.x, player.components.position.y);
-                for(let [ x, y, effect ] of points) {
-                    const entity = Entity.FromSchema(entitySchema, {
-                        position: [ x, y ],
-                        condition: [ "ATTACKING" ],
-                    });
-                    Game.$.entities.register(entity);
-                }
-            }
-
-
-            // const ob = new Agency.Observer(player.components.condition, (state, [,,condition ]) => {
-            //     if(condition === "IDLE") {
-            //         Game.$.canvas.prop({ fillStyle: "rgba(0, 0, 255, 0.5)" });
-            //     } else if(condition === "RUNNING") {
-            //         Game.$.canvas.prop({ fillStyle: "rgba(255, 0, 255, 0.5)" });
-            //     } else if(condition === "ATTACKING") {
-            //         Game.$.canvas.prop({ fillStyle: "rgba(255, 0, 0, 0.5)" });
-            //     }
-            // });
+            this.entities.spawn(5, entitySchema);
         // //? ====    /LOGIC   ====
 
 
-        // //! ====    RENDER   ====
-            console.log(this.canvas)
-            this.canvas.onDraw = (cvs) => {
-                cvs.drawGrid();
-
-                this.entities.values.forEach(entity => {
-                    const { x, y } = entity.components.position;
-                    const condition = entity.components.condition.current;
-
-                    cvs.save();
-                    if(condition === "IDLE") {
-                        cvs.prop({ fillStyle: "rgba(0, 0, 255, 0.5)" });
-                    } else if(condition === "RUNNING") {
-                        cvs.prop({ fillStyle: "rgba(255, 0, 255, 0.5)" });
-                    } else if(condition === "ATTACKING") {
-                        cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.roll(0, 255) }, ${ Agency.Util.Dice.roll(0, 255) }, 0.5)` });
-                    }
-                    cvs.gRect(x, y, 1, 1, { isFilled: true });
-                    cvs.restore();
-                });
-            };
-        //! ====    /RENDER   ====
-
-
-
+        this.channel.addGame(this);
+        this.render.addGame(this);
 
 
         // Create Singleton pattern
         if(!Game.Instance) {
             Game.Instance = this;
+        }
+    }
+    
+    abilities(key) {
+        if(!this.entities.player.components.abilities.all[ key ]) {
+            return;
+        }
+
+        const points = this.entities.player.components.abilities.all[ key ].points(this.entities.player.components.position.x, this.entities.player.components.position.y);
+        for(let [ x, y, effect ] of points) {
+            const entity = Entity.FromSchema(entitySchema, {
+                position: [ x, y ],
+                condition: [ "ATTACKING" ],
+            });
+            this.entities.register(entity);
         }
     }
 
