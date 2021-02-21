@@ -10,6 +10,8 @@ import Entity from "./Entity";
 import Ability from "./Ability";
 
 import entitySchema from "./data/schemas/entity";
+import entityZombieSchema from "./data/schemas/entity-zombie";
+
 import { EnumSchemaTemplate as EnumPatternType } from "./data/schemas/patterns";
 import ChannelManager from "./manager/ChannelManager";
 import EntityManager from "./manager/EntityManager";
@@ -36,7 +38,7 @@ export default class Game extends Agency.Context {
                 ]
             }, "player");
 
-            this.entities.spawn(5, entitySchema);
+            this.entities.spawn(5, entityZombieSchema);
         // //? ====    /LOGIC   ====
 
 

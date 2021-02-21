@@ -19,13 +19,12 @@ export default class ChannelManager extends Agency.Channel {
             this.watch("key", KeyManager.$);
             this.watch("mouse", MouseManager.$);
 
-            this.subscribe("key", (ctx, ...args) => {
-                const [ eventType ] = args;
+            this.subscribe("key", (ctx, eventType, ...args) => {
 
                 if(eventType === "up") {
                     this.game.entities.player.components.condition.current = "IDLE";
                 } else if(eventType === "down") {
-                    const which = args[ 1 ];
+                    const [ which ] = args;
 
                     if(which === 68 || which === 39) {
                         ++this.game.entities.player.components.position.x;
@@ -54,6 +53,16 @@ export default class ChannelManager extends Agency.Channel {
                     }
                 }
             });
+            // this.subscribe("mouse", (ctx, eventType, buttons, obj) => {
+            //     if(eventType === "click") {
+            //         const { txi, tyi } = obj;
+            //         for(let entity of this.game.entities.values) {
+            //             if(entity.components.position.x === txi && entity.components.position.y === tyi) {
+            //                 console.log(entity.components.toObject());
+            //             }
+            //         }
+            //     }
+            // });
         }
     }
 

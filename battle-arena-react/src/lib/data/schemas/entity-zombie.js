@@ -3,14 +3,14 @@ import componentPosition from "./component-position";
 const schema = {
     ...componentPosition,
     type: {
-        current: "FRIENDLY",
+        current: "HOSTILE",
     },
     attributes: (...args) => ({
-        ATK: Math.random() * 10,
-        DEF: Math.random() * 10,
+        ATK: 2,
+        DEF: 1,
         HP: {
-            current: 10,
-            max: 10,
+            current: 5,
+            max: 5,
         },
         XP: {
             current: 0,
@@ -22,10 +22,7 @@ const schema = {
         current: cond || "IDLE",
     }),
     abilities: (current, ...rest) => ({
-        current: current || {
-            name: "attack",
-            range: [ 1, "facing" ],
-        },
+        current,
         all: [
             current,
             ...rest,
