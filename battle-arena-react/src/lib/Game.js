@@ -1,10 +1,12 @@
 /* eslint-disable */
 import Agency from "@lespantsfancy/agency";
-import Component from "./Component";
 import Entity from "./Entity";
 import GameLoop from "./GameLoop";
 
 import Lib from "./package";
+
+import entitySchema from "./data/schemas/entity";
+import Ability from "./Ability";
 
 export default class Game extends Agency.Context {
     constructor({ fps = 24 } = {}) {
@@ -16,56 +18,53 @@ export default class Game extends Agency.Context {
 
 
         //? ====    LOGIC   ====
-            const player = new Entity();
-            player.gain(new Component("position", {
-                x: 3,
-                y: 5,
-            }));
-            player.gain(new Component("attributes", {
-                ATK: 2,
-                DEF: 1,
-                HP: {
-                    current: 10,
-                    max: 10,
-                },
-                XP: {
-                    current: 0,
-                    max: 100,
-                    level: 1,
-                },
-            }));
-            player.gain(new Component("condition", {
-                current: "IDLE",
-            }));
+            const player = Entity.FromSchema(entitySchema, {
+                position: [ 3, 3 ],
+                abilities: [
+                    new Ability({ pattern: [
+                        [ 0, -1, true ],
+                    ]}),
+                    new Ability({ pattern: [
+                        [ 0, -1, true ],
+                        [ 0, -2, true ],
+                    ]}),
+                    new Ability({ pattern: [
+                        [ 0, -1, true ],
+                        [ -1, 0, true ],
+                        [ 1, 0, true ],
+                        [ 0, 1, true ],
+                    ]}),
+                    new Ability({ pattern: [
+                        [ 0, -1, true ],
+                        [ -1, 0, true ],
+                        [ 1, 0, true ],
+                        [ 0, 1, true ],
+
+                        [ 2, 2, true ],
+                        [ 2, -2, true ],
+                        [ -2, 2, true ],
+                        [ -2, -2, true ],
+                    ]})
+                ]
+            });
             this.entities.register(player, "player");
 
-            for(let i = 0; i < 2; i++) {                
-                const entity = new Entity();
-                entity.gain(new Component("position", {
-                    x: Agency.Util.Dice.d25(1, -1),
-                    y: Agency.Util.Dice.d25(1, -1),
-                }));
-                entity.gain(new Component("attributes", {
-                    ATK: 2,
-                    DEF: 1,
-                    HP: {
-                        current: 10,
-                        max: 10,
-                    },
-                    XP: {
-                        current: 0,
-                        max: 100,
-                        level: 1,
-                    },
-                }));
-                entity.gain(new Component("condition", {
-                    current: "IDLE",
-                }));
-
+            for(let i = 0; i < 5; i++) {
+                const entity = Entity.FromSchema(entitySchema);
                 this.entities.register(entity);
             }
 
 
+            function abilities(key) {
+                const points = player.components.abilities.all[ key ].points(player.components.position.x, player.components.position.y);
+                for(let [ x, y, effect ] of points) {
+                    const entity = Entity.FromSchema(entitySchema, {
+                        position: [ x, y ],
+                        condition: [ "ATTACKING" ],
+                    });
+                    Game.$.entities.register(entity);
+                }
+            }
 
             window.onkeydown = e => {
                 if(e.which === 68 || e.which === 39) {
@@ -84,6 +83,14 @@ export default class Game extends Agency.Context {
                     ++player.components.position.y;
 
                     player.components.condition.current = "RUNNING";
+                } else if(e.which === 32) {
+                    player.components.condition.current = "ATTACKING";
+
+                    abilities(0);
+                } else if(e.which >= 49 && e.which <= 51) {
+                    player.components.condition.current = "ATTACKING";
+
+                    abilities(e.which - 48);
                 }
             };
             window.onkeyup = e => {
@@ -91,31 +98,15 @@ export default class Game extends Agency.Context {
             };
 
 
-
-            // this.selections = new Map();
-            // this.on("input", (type, buttons, { txi, tyi } = {}) => {
-            //     if(buttons === 2) {
-            //         this.selections = [];
-            //     } else if(buttons === 1 && type === "mousemove") {
-            //         this.selections.set(`${ txi }.${ tyi }`, [ buttons, txi, tyi ]);
-            //     } else if(type === "click") {
-            //         this.selections.set(`${ txi }.${ tyi }`, [ buttons, txi, tyi ]);
+            // const ob = new Agency.Observer(player.components.condition, (state, [,,condition ]) => {
+            //     if(condition === "IDLE") {
+            //         Game.$.canvas.prop({ fillStyle: "rgba(0, 0, 255, 0.5)" });
+            //     } else if(condition === "RUNNING") {
+            //         Game.$.canvas.prop({ fillStyle: "rgba(255, 0, 255, 0.5)" });
+            //     } else if(condition === "ATTACKING") {
+            //         Game.$.canvas.prop({ fillStyle: "rgba(255, 0, 0, 0.5)" });
             //     }
             // });
-
-            // const obs = new Agency.Observer(this, () => {
-            //     this.selections.delete(`${ player.components.position.x }.${ player.components.position.y }`);
-            // });
-
-
-
-            const ob = new Agency.Observer(player.components.condition, (state, [,,condition ]) => {
-                if(condition === "IDLE") {
-                    Game.$.canvas.prop({ fillStyle: "rgba(0, 0, 255, 0.5)" });
-                } else if(condition === "RUNNING") {
-                    Game.$.canvas.prop({ fillStyle: "rgba(255, 0, 255, 0.5)" });
-                }
-            });
         // //? ====    /LOGIC   ====
 
 
@@ -124,12 +115,20 @@ export default class Game extends Agency.Context {
             this.canvas.onDraw = (cvs) => {
                 cvs.drawGrid();
 
-                // this.selections.forEach(([ buttons, x, y ]) => {
-                //     cvs.save().prop({ fillStyle: "rgba(150, 255, 150, 0.5)" }).gRect(x, y, 1, 1, { isFilled: true }).restore();
-                // });
                 this.entities.values.forEach(entity => {
                     const { x, y } = entity.components.position;
-                    cvs.save().prop({ fillStyle: entity === this.entities.player ? "rgba(150, 255, 150, 0.5)" : "rgba(255, 150, 150, 0.5)" }).gRect(x, y, 1, 1, { isFilled: true }).restore();
+                    const condition = entity.components.condition.current;
+
+                    cvs.save();
+                    if(condition === "IDLE") {
+                        cvs.prop({ fillStyle: "rgba(0, 0, 255, 0.5)" });
+                    } else if(condition === "RUNNING") {
+                        cvs.prop({ fillStyle: "rgba(255, 0, 255, 0.5)" });
+                    } else if(condition === "ATTACKING") {
+                        cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.roll(0, 255) }, ${ Agency.Util.Dice.roll(0, 255) }, 0.5)` });
+                    }
+                    cvs.gRect(x, y, 1, 1, { isFilled: true });
+                    cvs.restore();
                 });
             };
         //! ====    /RENDER   ====

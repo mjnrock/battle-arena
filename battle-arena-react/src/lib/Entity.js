@@ -43,4 +43,17 @@ export default class Entity extends Agency.Registry {
 
         return this;
     }
+
+    static FromSchema(schemaOrObj, schemaParamObject = {}) {
+        let entity = new Entity();
+        for(let [ key, value ] of Object.entries(schemaOrObj)) {
+            if(typeof value === "function") {
+                entity.gain(new Component(key, value(...(schemaParamObject[ key ] || []))));
+            } else {
+                entity.gain(new Component(key, value));
+            }
+        }
+    
+        return entity;
+    }
 }

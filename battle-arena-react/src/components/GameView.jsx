@@ -20,7 +20,9 @@ export default function GameView() {
     }
 
     return (
-        <Segment textAlign="center">            
+        <Segment textAlign="center">
+            <div>[ X, Y ]: { game.entities.player.components.position.x }, { game.entities.player.components.position.y }</div>
+            
             <Canvas
                 canvas={ game.canvas }
                 handlers={{
