@@ -45,22 +45,26 @@ export default class EntityManager extends Agency.Registry {
             new Agency.Observer(this.game, function() {  //  @this will be <Game>
                 const now = Date.now();
                 for(let entity of this.entities.values) {
-                    if(entity.components.type.current === "EFFECT" && (now - entity._born) > 1000) {
+                    if(entity.components.type.current === "EFFECT" && (now - entity._born) > 350) {
                         this.entities.destroy(entity);
                     } else if(entity.components.attributes && entity.components.attributes.HP.current <= 0) {
                         this.entities.destroy(entity);
+                    }
+
+                    if(entity.components.type.current === "HOSTILE" && Agency.Util.Dice.random(1, 100) > 98) {
+                        this.entities.useAbility(entity, 0);
                     }
                 }
             });
         }
     }
     
-    useAbility(key) {
-        if(!this.game.entities.player.components.abilities.all[ key ]) {
+    useAbility(entity, key) {
+        if(!entity.components.abilities.all[ key ]) {
             return;
         }
 
-        const points = this.game.entities.player.components.abilities.all[ key ].perform(this.game.entities.player.components.position.x, this.game.entities.player.components.position.y);
+        const points = entity.components.abilities.all[ key ].perform(entity.components.position.x, entity.components.position.y);
         for(let [ x, y, effect, magnitudeFn ] of points) {
             const entity = Entity.FromSchema(entityEffectSchema, {
                 position: [ x, y ],
@@ -71,7 +75,7 @@ export default class EntityManager extends Agency.Registry {
             for(let e of this.game.entities.values) {
                 if(e.components.type.current !== "EFFECT" && e.components.position.x === x && e.components.position.y === y) {
                     if(typeof magnitudeFn === "function") {
-                        effect.affect(e, magnitudeFn(e, this.game.entities.player));       // Dynamically calculate magnitude based on target and/or source entity
+                        effect.affect(e, magnitudeFn(e, entity));       // Dynamically calculate magnitude based on target and/or source entity
                     } else if(!Number.isNaN(+magnitudeFn)) {
                         effect.affect(e, +magnitudeFn);     // Numerically declare magnitude
                     } else {
@@ -99,6 +103,9 @@ export default class EntityManager extends Agency.Registry {
             entities.push(this.create(schema, {
                 //FIXME Debug code
                 position: [ Agency.Util.Dice.d25(1, -1), Agency.Util.Dice.d25(1, -1) ],
+                abilities: [
+                    new Ability({ pattern: EnumPatternType.SURROUND(Effect.FromSchema(effectDamageSchema), 2) }),
+                ],
                 ...args,
             }, ...synonyms));
         }

@@ -44,10 +44,10 @@ export default class ChannelManager extends Agency.Channel {
                         setCondition(player, "RUNNING");
                     } else if(which === 32) {
                         setCondition(player, "ATTACKING");
-                        this.game.entities.useAbility(0);
+                        this.game.entities.useAbility(this.game.entities.player, 0);
                     } else if(which >= 49 && which <= 57) {
                         setCondition(player, "ATTACKING");
-                        this.game.entities.useAbility(which - 48);
+                        this.game.entities.useAbility(this.game.entities.player, which - 48);
                     }
                 }
             });
