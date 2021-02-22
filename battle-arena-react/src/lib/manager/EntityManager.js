@@ -19,8 +19,6 @@ export default class EntityManager extends Agency.Registry {
         });
 
         this.addGame(game);
-
-        console.log(Effect.FromSchema(effectHealSchema, 2).effect.toString());
     }
 
     addGame(game) {
@@ -39,6 +37,10 @@ export default class EntityManager extends Agency.Registry {
             }, "player");
             this.game.entities.spawn(5, entityZombieSchema);
         }
+    }
+
+    destroy(entity) {
+        this.unregister(entity);
     }
 
     create(schema, args = {}, ...synonyms) {

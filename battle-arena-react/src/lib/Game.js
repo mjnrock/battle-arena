@@ -28,6 +28,17 @@ export default class Game extends Agency.Context {
         this.render.addGame(this);
         this.entities.addGame(this);
 
+        //  Process results of the tick update
+        new Agency.Observer(this, function() {  //  @this will be <Game>
+            const now = Date.now();
+            for(let entity of this.entities.values) {
+                if(entity.components.type.current === "EFFECT" && (now - entity._born) > 1000) {
+                    this.entities.destroy(entity);
+                } else if(entity.components.attributes && entity.components.attributes.HP.current <= 0) {
+                    this.entities.destroy(entity);
+                }
+            }
+        });
 
         // Create Singleton pattern
         if(!Game.Instance) {
@@ -44,7 +55,7 @@ export default class Game extends Agency.Context {
         for(let [ x, y, effect, magnitudeFn ] of points) {
             const entity = Entity.FromSchema(entityEffectSchema, {
                 position: [ x, y ],
-                condition: [ effect.type === 1 ? "ATTACKING" : "IDLE" ],
+                condition: [ effect.type === 1 ? "ATTACKING" : "IDLE" ],    // Debug way to render different colors
             });
             this.entities.register(entity);
 

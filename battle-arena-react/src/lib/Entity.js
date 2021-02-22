@@ -10,6 +10,8 @@ export default class Entity extends Agency.Registry {
         this.register(new Agency.Registry(), "components");
 
         this.gain(...components);
+
+        this._born = Date.now();
     }
 
     get id() {
