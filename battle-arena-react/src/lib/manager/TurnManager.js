@@ -23,8 +23,6 @@ export default class TurnManager extends Agency.Context {
     addGame(game) {
         if(game instanceof Game) {
             this.game = game;
-
-            console.log(this.current)
         }
     }
 
