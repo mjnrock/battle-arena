@@ -1,15 +1,26 @@
 export default class Ability {
-    constructor({ offset, pattern, } = {}) {
-        this.offset = offset || {
-            x: 0,
-            y: 0,
+    constructor({ offsetX = 0, offsetY = 0, pattern, } = {}) {
+        this.pattern = pattern;
+        this.offset = {
+            x: offsetX,
+            y: offsetY,
         };
-        this.pattern = pattern || [
-            [ 0, 0, true ],
-        ];
+
+        console.log(this.pattern)
     }
 
-    toLocalPoint(x, y, { asArray = false } = {}) {
+    add(x, y, effect, magnitudeFn) {
+        this.pattern.push([ x, y, effect, magnitudeFn ]);
+
+        return this;
+    }
+    remove(x, y) {
+        this.pattern = this.pattern.filter(([ xf, yf ]) => xf !== x && yf !== y);
+
+        return this;
+    }
+
+    localPoint(x, y, { asArray = false } = {}) {
         if(asArray === true) {
             return [
                 x + this.offset.x,
@@ -23,12 +34,12 @@ export default class Ability {
         };
     }
 
-    points(x0, y0) {
-        const { x, y } = this.toLocalPoint(x0, y0);
+    perform(x, y) {
+        const { x: xl, y: yl } = this.localPoint(x, y);
         const results = [];
 
-        this.pattern.forEach(([ dx, dy, effect]) => {
-            results.push([ x + dx, y + dy, effect ]);
+        this.pattern.forEach(([ dx, dy, effect, magnitudeFn ]) => {
+            results.push([ xl + dx, yl + dy, effect, magnitudeFn ]);
         });
 
         return results;

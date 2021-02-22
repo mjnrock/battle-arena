@@ -35,18 +35,30 @@ export default class Game extends Agency.Context {
         }
     }
     
-    abilities(key) {
+    useAbility(key) {
         if(!this.entities.player.components.abilities.all[ key ]) {
             return;
         }
 
-        const points = this.entities.player.components.abilities.all[ key ].points(this.entities.player.components.position.x, this.entities.player.components.position.y);
-        for(let [ x, y, effect ] of points) {
+        const points = this.entities.player.components.abilities.all[ key ].perform(this.entities.player.components.position.x, this.entities.player.components.position.y);
+        for(let [ x, y, effect, magnitudeFn ] of points) {
             const entity = Entity.FromSchema(entityEffectSchema, {
                 position: [ x, y ],
                 condition: [ "IDLE" ],
             });
             this.entities.register(entity);
+
+            for(let e of this.entities.values) {
+                if(e.components.type.current !== "EFFECT" && e.components.position.x === x && e.components.position.y === y) {
+                    if(typeof magnitudeFn === "function") {
+                        effect.affect(e, magnitudeFn(e));
+                    } else if(!Number.isNaN(+magnitudeFn)) {
+                        effect.affect(e, +magnitudeFn);
+                    } else {
+                        effect.affect(e);
+                    }
+                }
+            }
         }
     }
 

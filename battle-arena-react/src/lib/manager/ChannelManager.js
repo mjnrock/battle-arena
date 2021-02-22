@@ -5,6 +5,9 @@ import KeyManager from "./KeyManager";
 import MouseManager from "./MouseManager";
 import Game from "./../Game";
 
+import { move } from "./../data/commands/movement";
+import { setCondition } from "./../data/commands/component-condition";
+
 export default class ChannelManager extends Agency.Channel {
     constructor(game) {
         super();
@@ -22,34 +25,29 @@ export default class ChannelManager extends Agency.Channel {
             this.subscribe("key", (ctx, eventType, ...args) => {
 
                 if(eventType === "up") {
-                    this.game.entities.player.components.condition.current = "IDLE";
+                    setCondition(this.game.entities.player, "IDLE");
                 } else if(eventType === "down") {
                     const [ which ] = args;
+                    const player = this.game.entities.player;
 
                     if(which === 68 || which === 39) {
-                        ++this.game.entities.player.components.position.x;
-
-                        this.game.entities.player.components.condition.current = "RUNNING";
+                        move(player, 1, 0, true);
+                        setCondition(player, "RUNNING");
                     } else if(which === 65 || which === 37) {
-                        --this.game.entities.player.components.position.x;
-
-                        this.game.entities.player.components.condition.current = "RUNNING";
+                        move(player, -1, 0, true);
+                        setCondition(player, "RUNNING");
                     } else if(which === 87 || which === 38) {
-                        --this.game.entities.player.components.position.y;
-
-                        this.game.entities.player.components.condition.current = "RUNNING";
+                        move(player, 0, -1, true);
+                        setCondition(player, "RUNNING");
                     } else if(which === 83 || which === 40) {
-                        ++this.game.entities.player.components.position.y;
-
-                        this.game.entities.player.components.condition.current = "RUNNING";
+                        move(player, 0, 1, true);
+                        setCondition(player, "RUNNING");
                     } else if(which === 32) {
-                        this.game.entities.player.components.condition.current = "ATTACKING";
-
-                        this.game.abilities(0);
+                        setCondition(player, "ATTACKING");
+                        this.game.useAbility(0);
                     } else if(which >= 49 && which <= 57) {
-                        this.game.entities.player.components.condition.current = "ATTACKING";
-
-                        this.game.abilities(which - 48);
+                        setCondition(player, "ATTACKING");
+                        this.game.useAbility(which - 48);
                     }
                 }
             });
@@ -57,8 +55,8 @@ export default class ChannelManager extends Agency.Channel {
                 if(eventType === "click") {
                     const { txi, tyi } = obj;
                     for(let entity of this.game.entities.values) {
-                        if(entity.components.position.x === txi && entity.components.position.y === tyi) {
-                            console.log(entity.components.toObject());
+                        if(entity.components.type.current !== "EFFECT" && entity.components.position.x === txi && entity.components.position.y === tyi) {
+                            console.log(entity.components.attributes.toObject().HP);
                         }
                     }
                 }
