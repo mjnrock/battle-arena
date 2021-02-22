@@ -131,4 +131,12 @@ export default class Value extends EventEmitter {
 
         return this;
     }
+
+    toData() {
+        return {
+            current: this.current,
+            min: this.min,
+            max: this.max,
+        };
+    }
 }

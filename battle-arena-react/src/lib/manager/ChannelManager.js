@@ -44,10 +44,10 @@ export default class ChannelManager extends Agency.Channel {
                         setCondition(player, "RUNNING");
                     } else if(which === 32) {
                         setCondition(player, "ATTACKING");
-                        this.game.useAbility(0);
+                        this.game.entities.useAbility(0);
                     } else if(which >= 49 && which <= 57) {
                         setCondition(player, "ATTACKING");
-                        this.game.useAbility(which - 48);
+                        this.game.entities.useAbility(which - 48);
                     }
                 }
             });
@@ -56,7 +56,7 @@ export default class ChannelManager extends Agency.Channel {
                     const { txi, tyi } = obj;
                     for(let entity of this.game.entities.values) {
                         if(entity.components.type.current !== "EFFECT" && entity.components.position.x === txi && entity.components.position.y === tyi) {
-                            console.log(entity.components.attributes.toObject().HP);
+                            console.log(entity.components.attributes.HP.toData());
                         }
                     }
                 }

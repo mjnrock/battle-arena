@@ -8,6 +8,7 @@ import Effect from "./../Effect";
 
 import entitySchema from "./../data/schemas/entity";
 import entityZombieSchema from "./../data/schemas/entity-zombie";
+import entityEffectSchema from "./../data/schemas/entity-effect";
 import { EnumPatternType as EnumPatternType } from "../data/enums/patterns";
 import effectDamageSchema from "../data/schemas/effect-damage";
 import effectHealSchema from "../data/schemas/effect-heal";
@@ -19,6 +20,8 @@ export default class EntityManager extends Agency.Registry {
         });
 
         this.addGame(game);
+
+        console.log(Agency.Util.Dice.d25())
     }
 
     addGame(game) {
@@ -35,7 +38,47 @@ export default class EntityManager extends Agency.Registry {
                     new Ability({ pattern: EnumPatternType.SURROUND_PLUS(Effect.FromSchema(effectDamageSchema), 3) }),
                 ]
             }, "player");
-            this.game.entities.spawn(5, entityZombieSchema);
+            
+            this.game.entities.spawn(10, entityZombieSchema);
+
+            //  Process results of the tick update
+            new Agency.Observer(this.game, function() {  //  @this will be <Game>
+                const now = Date.now();
+                for(let entity of this.entities.values) {
+                    if(entity.components.type.current === "EFFECT" && (now - entity._born) > 1000) {
+                        this.entities.destroy(entity);
+                    } else if(entity.components.attributes && entity.components.attributes.HP.current <= 0) {
+                        this.entities.destroy(entity);
+                    }
+                }
+            });
+        }
+    }
+    
+    useAbility(key) {
+        if(!this.game.entities.player.components.abilities.all[ key ]) {
+            return;
+        }
+
+        const points = this.game.entities.player.components.abilities.all[ key ].perform(this.game.entities.player.components.position.x, this.game.entities.player.components.position.y);
+        for(let [ x, y, effect, magnitudeFn ] of points) {
+            const entity = Entity.FromSchema(entityEffectSchema, {
+                position: [ x, y ],
+                condition: [ effect.type === 1 ? "ATTACKING" : "IDLE" ],    // Debug way to render different colors
+            });
+            this.game.entities.register(entity);
+
+            for(let e of this.game.entities.values) {
+                if(e.components.type.current !== "EFFECT" && e.components.position.x === x && e.components.position.y === y) {
+                    if(typeof magnitudeFn === "function") {
+                        effect.affect(e, magnitudeFn(e, this.game.entities.player));       // Dynamically calculate magnitude based on target and/or source entity
+                    } else if(!Number.isNaN(+magnitudeFn)) {
+                        effect.affect(e, +magnitudeFn);     // Numerically declare magnitude
+                    } else {
+                        effect.affect(e);   // Magnitude not relevant to this effect (e.g. kill, teleport, etc.);
+                    }
+                }
+            }
         }
     }
 
@@ -53,7 +96,11 @@ export default class EntityManager extends Agency.Registry {
     spawn(qty, schema, args = {}, ...synonyms) {
         const entities = [];
         for(let i = 0; i < qty; i++) {
-            entities.push(this.create(schema, args, ...synonyms));
+            entities.push(this.create(schema, {
+                //FIXME Debug code
+                position: [ Agency.Util.Dice.d25(1, -1), Agency.Util.Dice.d25(1, -1) ],
+                ...args,
+            }, ...synonyms));
         }
         
         return entities;

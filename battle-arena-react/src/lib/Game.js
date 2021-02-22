@@ -9,10 +9,6 @@ import Lib from "./package";
 import ChannelManager from "./manager/ChannelManager";
 import EntityManager from "./manager/EntityManager";
 
-import Entity from "./Entity";
-
-import entityEffectSchema from "./data/schemas/entity-effect";
-
 export default class Game extends Agency.Context {
     constructor({ fps = 24 } = {}) {
         super({
@@ -28,48 +24,9 @@ export default class Game extends Agency.Context {
         this.render.addGame(this);
         this.entities.addGame(this);
 
-        //  Process results of the tick update
-        new Agency.Observer(this, function() {  //  @this will be <Game>
-            const now = Date.now();
-            for(let entity of this.entities.values) {
-                if(entity.components.type.current === "EFFECT" && (now - entity._born) > 1000) {
-                    this.entities.destroy(entity);
-                } else if(entity.components.attributes && entity.components.attributes.HP.current <= 0) {
-                    this.entities.destroy(entity);
-                }
-            }
-        });
-
         // Create Singleton pattern
         if(!Game.Instance) {
             Game.Instance = this;
-        }
-    }
-    
-    useAbility(key) {
-        if(!this.entities.player.components.abilities.all[ key ]) {
-            return;
-        }
-
-        const points = this.entities.player.components.abilities.all[ key ].perform(this.entities.player.components.position.x, this.entities.player.components.position.y);
-        for(let [ x, y, effect, magnitudeFn ] of points) {
-            const entity = Entity.FromSchema(entityEffectSchema, {
-                position: [ x, y ],
-                condition: [ effect.type === 1 ? "ATTACKING" : "IDLE" ],    // Debug way to render different colors
-            });
-            this.entities.register(entity);
-
-            for(let e of this.entities.values) {
-                if(e.components.type.current !== "EFFECT" && e.components.position.x === x && e.components.position.y === y) {
-                    if(typeof magnitudeFn === "function") {
-                        effect.affect(e, magnitudeFn(e, this.entities.player));       // Dynamically calculate magnitude based on target and/or source entity
-                    } else if(!Number.isNaN(+magnitudeFn)) {
-                        effect.affect(e, +magnitudeFn);     // Numerically declare magnitude
-                    } else {
-                        effect.affect(e);   // Magnitude not relevant to this effect (e.g. kill, teleport, etc.);
-                    }
-                }
-            }
         }
     }
 

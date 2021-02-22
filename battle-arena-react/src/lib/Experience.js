@@ -32,7 +32,7 @@ export default class Experience extends Value {
     }
 
     recalculate() {
-        this.max = this.formula.call(this, level);
+        this.max = this.formula.call(this, this.level);
     }
 
     onMax() {
@@ -48,6 +48,13 @@ export default class Experience extends Value {
 
         if(this.current >= this.max) {
             this.emit("max");
+        }
+    }
+
+    toData() {
+        return {
+            ...super.toData(),
+            level: this.level,
         }
     }
 }
