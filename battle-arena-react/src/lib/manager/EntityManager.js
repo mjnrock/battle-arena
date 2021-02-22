@@ -8,10 +8,11 @@ import Effect from "./../Effect";
 
 import entitySchema from "./../data/schemas/entity";
 import entityZombieSchema from "./../data/schemas/entity-zombie";
-import entityEffectSchema from "./../data/schemas/entity-effect";
 import { EnumPatternType as EnumPatternType } from "../data/enums/patterns";
 import effectDamageSchema from "../data/schemas/effect-damage";
 import effectHealSchema from "../data/schemas/effect-heal";
+
+import { cast } from "./../data/commands/combat";
 
 export default class EntityManager extends Agency.Registry {
     constructor(game) {
@@ -50,40 +51,13 @@ export default class EntityManager extends Agency.Registry {
                     }
 
                     if(entity.components.type.current === "HOSTILE" && Agency.Util.Dice.random(1, 100) > 98) {
-                        this.entities.useAbility(entity, +Agency.Util.Dice.coin());
+                        cast(entity, +Agency.Util.Dice.coin());
                     }
                 }
             });
         }
     }
     
-    useAbility(entity, key) {
-        if(!entity.components.abilities.all[ key ]) {
-            return;
-        }
-
-        const points = entity.components.abilities.all[ key ].perform(entity.components.position.x, entity.components.position.y);
-        for(let [ x, y, effect, magnitudeFn ] of points) {
-            const entity = Entity.FromSchema(entityEffectSchema, {
-                position: [ x, y ],
-                condition: [ effect.type === 1 ? "ATTACKING" : "IDLE" ],    // Debug way to render different colors
-            });
-            this.game.entities.register(entity);
-
-            for(let e of this.game.entities.values) {
-                if(e.components.type.current !== "EFFECT" && e.components.position.x === x && e.components.position.y === y) {
-                    if(typeof magnitudeFn === "function") {
-                        effect.affect(e, magnitudeFn(e, entity));       // Dynamically calculate magnitude based on target and/or source entity
-                    } else if(!Number.isNaN(+magnitudeFn)) {
-                        effect.affect(e, +magnitudeFn);     // Numerically declare magnitude
-                    } else {
-                        effect.affect(e);   // Magnitude not relevant to this effect (e.g. kill, teleport, etc.);
-                    }
-                }
-            }
-        }
-    }
-
     destroy(entity) {
         this.unregister(entity);
     }

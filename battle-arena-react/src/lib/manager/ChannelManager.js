@@ -7,6 +7,7 @@ import Game from "./../Game";
 
 import { move } from "./../data/commands/movement";
 import { setCondition } from "./../data/commands/component-condition";
+import { cast } from "./../data/commands/combat";
 
 export default class ChannelManager extends Agency.Channel {
     constructor(game) {
@@ -44,10 +45,10 @@ export default class ChannelManager extends Agency.Channel {
                         setCondition(player, "RUNNING");
                     } else if(which === 32) {
                         setCondition(player, "ATTACKING");
-                        this.game.entities.useAbility(this.game.entities.player, 0);
+                        cast(this.game.entities.player, 0);
                     } else if(which >= 49 && which <= 57) {
                         setCondition(player, "ATTACKING");
-                        this.game.entities.useAbility(this.game.entities.player, which - 48);
+                        cast(this.game.entities.player, which - 48);
                     }
                 }
             });

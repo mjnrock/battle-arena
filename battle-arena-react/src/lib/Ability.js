@@ -32,7 +32,7 @@ export default class Ability {
         };
     }
 
-    perform(x, y) {
+    perform(x = 0, y = 0) {
         const { x: xl, y: yl } = this.localPoint(x, y);
         const results = [];
 
