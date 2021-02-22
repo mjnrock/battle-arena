@@ -44,18 +44,18 @@ export default class Game extends Agency.Context {
         for(let [ x, y, effect, magnitudeFn ] of points) {
             const entity = Entity.FromSchema(entityEffectSchema, {
                 position: [ x, y ],
-                condition: [ "IDLE" ],
+                condition: [ effect.type === 1 ? "ATTACKING" : "IDLE" ],
             });
             this.entities.register(entity);
 
             for(let e of this.entities.values) {
                 if(e.components.type.current !== "EFFECT" && e.components.position.x === x && e.components.position.y === y) {
                     if(typeof magnitudeFn === "function") {
-                        effect.affect(e, magnitudeFn(e));
+                        effect.affect(e, magnitudeFn(e, this.entities.player));       // Dynamically calculate magnitude based on target and/or source entity
                     } else if(!Number.isNaN(+magnitudeFn)) {
-                        effect.affect(e, +magnitudeFn);
+                        effect.affect(e, +magnitudeFn);     // Numerically declare magnitude
                     } else {
-                        effect.affect(e);
+                        effect.affect(e);   // Magnitude not relevant to this effect (e.g. kill, teleport, etc.);
                     }
                 }
             }

@@ -1,3 +1,5 @@
+import { EnumEffectType } from "../../Effect";
+
 export const damage = (entity, amount, { method = "+" } = {}) => {
     if(!entity) {
         return;
@@ -19,6 +21,7 @@ export const damage = (entity, amount, { method = "+" } = {}) => {
 };
 
 export const schema = {
+    type: EnumEffectType.DAMAGE,
     effect: damage,
     only: 0,
     ignore: 0,

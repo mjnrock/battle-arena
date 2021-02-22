@@ -5,8 +5,6 @@ export default class Ability {
             x: offsetX,
             y: offsetY,
         };
-
-        console.log(this.pattern)
     }
 
     add(x, y, effect, magnitudeFn) {

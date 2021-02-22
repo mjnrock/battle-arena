@@ -35,7 +35,11 @@ export default class RenderManager extends Agency.Context {
                     if(entity.components.type.current === "HOSTILE") {
                         cvs.prop({ fillStyle: "rgba(255, 0, 0, 0.5)" });
                     } else if(entity.components.type.current === "EFFECT") {
-                        cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.random(0, 255) }, 0.5)` });
+                        if(condition === "ATTACKING") {
+                            cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(100, 200) }, ${ Agency.Util.Dice.random(0, 100) }, 0, 0.5)` });
+                        } else {
+                            cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.random(0, 255) }, 0.5)` });
+                        }
                     }
 
                     cvs.gRect(x, y, 1, 1, { isFilled: true });

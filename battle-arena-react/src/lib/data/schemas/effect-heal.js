@@ -1,3 +1,5 @@
+import { EnumEffectType } from "../../Effect";
+
 export const heal = (entity, amount, { method = "+" } = {}) => {
     if(!entity) {
         return;
@@ -19,6 +21,7 @@ export const heal = (entity, amount, { method = "+" } = {}) => {
 };
 
 export const schema = {
+    type: EnumEffectType.HEAL,
     effect: heal,
     only: 0,
     ignore: 0,

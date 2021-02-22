@@ -1,3 +1,10 @@
+export const EnumEffectType = {
+    GENERIC: 0,
+
+    DAMAGE: 1,
+    HEAL: 2,
+};
+
 export default class Effect {
     /**
      * This is functionally an abstract class, and should be treated as such
@@ -5,8 +12,9 @@ export default class Effect {
      * @param {fn:bool} only [ 0 ] | A function that only affects true-result entities
      * @param {fn:bool} ignore [ 0 ] | A function that ignores true-result entities
      */
-    constructor(effect, { only = 0, ignore = 0 } = {}) {;
+    constructor(effect, { only = 0, ignore = 0, type = EnumEffectType.GENERIC } = {}) {;
         this.effect = effect;
+        this.type = type;
 
         this.only = only;
         this.ignore = ignore;
