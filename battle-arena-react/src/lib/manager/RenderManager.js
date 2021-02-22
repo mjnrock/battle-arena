@@ -17,7 +17,10 @@ export default class RenderManager extends Agency.Context {
             this.game = game;
             
             this.game.canvas.onDraw = (cvs) => {
-                cvs.drawGrid();
+                cvs.drawGrid({
+                    isFilled: true,
+                    fillStyle: `rgba(30, 100, 30, 0.3)`
+                });
     
                 this.game.entities.values.forEach(entity => {
                     const { x, y } = entity.components.position;
@@ -33,7 +36,7 @@ export default class RenderManager extends Agency.Context {
                     }
 
                     if(entity.components.type.current === "HOSTILE") {
-                        cvs.prop({ fillStyle: "rgba(255, 0, 0, 0.5)" });
+                        cvs.prop({ fillStyle: "rgba(0, 0, 0, 0.5)" });
                     } else if(entity.components.type.current === "EFFECT") {
                         if(condition === "ATTACKING") {
                             cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(100, 200) }, ${ Agency.Util.Dice.random(0, 100) }, 0, 0.5)` });

@@ -35,7 +35,7 @@ export default class GridCanvas extends Canvas {
         return this;
     }
 
-    drawGrid({ fillStyle = "#000" } = {}) {
+    drawGrid({ fillStyle = "#000", isFilled = false } = {}) {
         this.ctx.save();
         this.prop({ fillStyle });
 
@@ -46,7 +46,7 @@ export default class GridCanvas extends Canvas {
                     y,
                     1,
                     1,
-                    { isFilled: false }
+                    { isFilled }
                 )
             }
         }

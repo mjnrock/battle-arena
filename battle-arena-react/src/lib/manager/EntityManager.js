@@ -20,8 +20,6 @@ export default class EntityManager extends Agency.Registry {
         });
 
         this.addGame(game);
-
-        console.log(Agency.Util.Dice.d25())
     }
 
     addGame(game) {
@@ -52,7 +50,7 @@ export default class EntityManager extends Agency.Registry {
                     }
 
                     if(entity.components.type.current === "HOSTILE" && Agency.Util.Dice.random(1, 100) > 98) {
-                        this.entities.useAbility(entity, 0);
+                        this.entities.useAbility(entity, +Agency.Util.Dice.coin());
                     }
                 }
             });
@@ -104,7 +102,8 @@ export default class EntityManager extends Agency.Registry {
                 //FIXME Debug code
                 position: [ Agency.Util.Dice.d25(1, -1), Agency.Util.Dice.d25(1, -1) ],
                 abilities: [
-                    new Ability({ pattern: EnumPatternType.SURROUND(Effect.FromSchema(effectDamageSchema), 2) }),
+                    new Ability({ pattern: EnumPatternType.SURROUND(Effect.FromSchema(effectDamageSchema), 3) }),
+                    new Ability({ pattern: EnumPatternType.SURROUND_PLUS(Effect.FromSchema(effectDamageSchema), 2) }),
                 ],
                 ...args,
             }, ...synonyms));
