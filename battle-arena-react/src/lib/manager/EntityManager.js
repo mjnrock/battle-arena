@@ -40,6 +40,8 @@ export default class EntityManager extends Agency.Registry {
             
             this.game.entities.spawn(10, entityZombieSchema);
 
+            this.game.turn.addEntity(...(this.game.entities.values.filter(e => e !== this.game.entities.player)));
+
             //  Process results of the tick update
             new Agency.Observer(this.game, function() {  //  @this will be <Game>
                 const now = Date.now();
@@ -49,12 +51,13 @@ export default class EntityManager extends Agency.Registry {
                     } else if(entity.components.attributes && entity.components.attributes.HP.current <= 0) {
                         this.entities.destroy(entity);
                     }
-
-                    if(entity.components.type.current === "HOSTILE" && Agency.Util.Dice.random(1, 100) > 98) {
-                        cast(entity, +Agency.Util.Dice.coin());
-                    }
                 }
             });
+
+            //FIXME Automatic "turn" simulator
+            setInterval(() => {
+                Game.$.turn.perform("cast", +Agency.Util.Dice.coin());
+            }, 350);
         }
     }
     

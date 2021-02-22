@@ -5,8 +5,8 @@ import Game from "../Game";
 
 import { cast } from "../data/commands/combat";
 
-export default class TurnManager extends Agency.Registry {
-    constructor(game, { entities = [], current } = {}) {
+export default class TurnManager extends Agency.Context {
+    constructor(game, { entities = [], current = 0 } = {}) {
         super({
             game,
             entities,
@@ -17,17 +17,22 @@ export default class TurnManager extends Agency.Registry {
     }
 
     get actor() {
-        return this.entities[ this.current ];
+        return this._state.entities[ this._state.current ];
     }
 
     addGame(game) {
         if(game instanceof Game) {
             this.game = game;
+
+            console.log(this.current)
         }
     }
 
-    addEntity(entity) {
-        this.entities.push(entity);
+    addEntity(...entities) {
+        this.entities = [
+            ...this.entities,
+            ...entities,
+        ];
 
         return this;
     }
@@ -43,7 +48,11 @@ export default class TurnManager extends Agency.Registry {
         return this;
     }
 
-    perform(action, ...args) {        
+    perform(action, ...args) {
+        if(!this.actor) {
+            return;
+        }
+
         if(action === "cast") {
             cast(this.actor, ...args);
         }
