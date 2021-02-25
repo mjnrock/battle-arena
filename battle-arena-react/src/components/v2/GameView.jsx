@@ -1,9 +1,9 @@
 /* eslint-disable */
 import React from "react";
 import { Segment } from "semantic-ui-react";
+import { useObserver } from "@lespantsfancy/agency/lib/react";
 
 import { Context } from "./../../App";
-import { useObserver } from "@lespantsfancy/agency/lib/react";
 
 export default function GameView() {
     const [ data, game ] = useObserver(Context, "game");

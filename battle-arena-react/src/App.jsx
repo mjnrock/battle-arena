@@ -26,6 +26,11 @@ export const ctx = new Agency.Observable.Factory({
 // });
 export const Context = React.createContext(ctx);
 
+//? Passive update test
+// setInterval(() => {
+//     ctx.cats += 1;
+// }, 1000);
+
 function App() {
     return (
         <Router>
