@@ -1,4 +1,5 @@
 /* eslint-disable */
+import Agency from "@lespantsfancy/agency";
 import React,{ useEffect } from "react";
 
 /**
@@ -7,7 +8,7 @@ import React,{ useEffect } from "react";
  * @onDraw fn | Will be given @canvas as its scope
  */
 function Canvas(props) {
-    const { canvas, ...rest } = props;
+    const { canvas, handlers = {}, ...rest } = props;
 
     const canvasRef = React.createRef();
     useEffect(() => {
@@ -27,33 +28,37 @@ function Canvas(props) {
             }
 
             ref.oncontextmenu = e => { e.preventDefault(); };
-            if(typeof props.handlers.onMouseDown === "function") {
+            if(typeof handlers.onMouseDown === "function") {
                 ref.onmousedown = e => {
                     e.preventDefault();
-                    props.handlers.onMouseDown(e.buttons, e.x, e.y)
+                    handlers.onMouseDown(e.buttons, e.x, e.y)
                 };
             }
-            if(typeof props.handlers.onMouseUp === "function") {
+            if(typeof handlers.onMouseUp === "function") {
                 ref.onmouseup = e => {
                     e.preventDefault();
-                    props.handlers.onMouseUp(e.buttons, e.x, e.y);
+                    handlers.onMouseUp(e.buttons, e.x, e.y);
                 }
             }
-            if(typeof props.handlers.onClick === "function") {
+            if(typeof handlers.onClick === "function") {
                 ref.onclick = e => {
                     e.preventDefault();
-                    props.handlers.onClick(e.buttons, e.x, e.y);
+                    handlers.onClick(e.buttons, e.x, e.y);
                 }
             }
-            if(typeof props.handlers.onMouseMove === "function") {
+            if(typeof handlers.onMouseMove === "function") {
                 ref.onmousemove = e => {
                     e.preventDefault();
-                    props.handlers.onMouseMove(e.buttons, e.x, e.y);
+                    handlers.onMouseMove(e.buttons, e.x, e.y);
                 }
             }
 
             // Overwrite the reference to attach canvas to React
             canvas.canvas = ref;
+            
+            //! DEBUG
+            canvas.onDraw = () => canvas.gRect(Agency.Util.Dice.d25(1, -1), Agency.Util.Dice.d25(1, -1), 1, 1, { isFilled: true });
+
             canvas.start();
         }
 
