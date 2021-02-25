@@ -55,11 +55,6 @@ function Canvas(props) {
 
             // Overwrite the reference to attach canvas to React
             canvas.canvas = ref;
-            
-            //FIXME
-            canvas.onDraw = () => canvas.gRect(Agency.Util.Dice.d25(1, -1), Agency.Util.Dice.d25(1, -1), 1, 1, { isFilled: true });
-            console.log(12341513254)
-
             canvas.start();
         }
 

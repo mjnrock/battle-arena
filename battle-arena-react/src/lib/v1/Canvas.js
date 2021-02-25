@@ -316,6 +316,7 @@ export default class Canvas {
     start() {
         this._config.isAnimating = true;
 
+        console.log("879742398074892hjkjk23h4jk23h4jkh")
         requestAnimationFrame(this.draw.bind(this));
 
         return this;

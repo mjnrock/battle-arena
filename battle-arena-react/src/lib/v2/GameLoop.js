@@ -1,6 +1,7 @@
 /* eslint-disable */
 import MainLoop from "mainloop.js";
-import Game from "../Game";
+
+import Game from "./Game";
 
 export default class GameLoop {
     constructor(fps = 30) {
@@ -51,9 +52,7 @@ export default class GameLoop {
      * @param {number} dt Frame delta in ms
      */
     update(dt) {
-        this.ticks += 1;
-
-        Game.$.run();
+        Game.$._lastUpdate = Date.now();
     }
 
     /**

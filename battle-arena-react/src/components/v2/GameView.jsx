@@ -18,7 +18,7 @@ export default function GameView() {
             <div>{ data.cats }</div>
             
             <Canvas
-                canvas={ game.map }
+                canvas={ game.canvas }
             />
         </Segment>
     )
