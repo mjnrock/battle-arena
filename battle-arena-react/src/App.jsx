@@ -13,6 +13,7 @@ import Routes from "./routes/package";
 import GridCanvas from "./lib/v2/GridCanvas";
 
 export const ctx = new Agency.Observable.Factory({
+    cats: 2,
     map: new GridCanvas(25, 25, { width: 500, height: 500, props: { fillStyle: "rgba(0, 0, 255, 0.5)", strokeStyle: "#000" } }),
 }, false);
 // export const ctx = new Agency.Context.Factory({
@@ -30,9 +31,9 @@ export const ctx = new Agency.Observable.Factory({
 export const Context = React.createContext(ctx);
 
 //? Passive update test
-// setInterval(() => {
-//     ctx.cats += 1;
-// }, 1000);
+setInterval(() => {
+    ctx.cats += 1;
+}, 1000);
 
 function App() {
     return (
