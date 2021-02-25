@@ -10,9 +10,20 @@ import {
 import ScrollToTop from "./ScrollToTop";
 import Routes from "./routes/package";
 
-export const ctx = new Agency.Context.Factory({
+export const ctx = new Agency.Observable.Factory({
     cats: 2,
 });
+// export const ctx = new Agency.Context.Factory({
+//     cats: 2,
+// });
+// export const ctx = new Agency.Store.Factory({
+//     cats: 2,
+// }, (state, prop, value) => {
+//     return {
+//         ...state,
+//         [ prop ]: Number.isNaN(state[ prop ]) ? 0 : state[ prop ] + 1,
+//     }
+// });
 export const Context = React.createContext(ctx);
 
 function App() {

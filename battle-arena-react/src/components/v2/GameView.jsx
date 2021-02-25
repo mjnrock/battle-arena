@@ -1,6 +1,5 @@
 /* eslint-disable */
-import Agency from "@lespantsfancy/agency";
-import React, { useState, useEffect, useContext } from "react";
+import React from "react";
 import { Segment } from "semantic-ui-react";
 
 import { Context } from "./../../App";
@@ -21,8 +20,7 @@ export default function GameView() {
             <button
                 onClick={ e => {
                     game.cats += 1;
-
-                    console.log(game, data);
+                    // game.dispatch("cats", 1);
                 } }
             >Click</button>
         </Segment>
