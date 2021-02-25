@@ -24,7 +24,6 @@ export default class ChannelManager extends Agency.Channel {
             this.watch("mouse", MouseManager.$);
 
             this.subscribe("key", (ctx, eventType, ...args) => {
-
                 if(eventType === "up") {
                     setCondition(this.game.entities.player, "IDLE");
                 } else if(eventType === "down") {

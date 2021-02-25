@@ -10,41 +10,17 @@ import {
 import ScrollToTop from "./ScrollToTop";
 import Routes from "./routes/package";
 
-import Game from "./lib/Game";
-
-export const Context = React.createContext(Game.$);
-
-//*  Reducer Example
-// Game.$.addReducer("test", (state, msg, ...args) => {
-//     console.log(`[Reducer]`, msg, ...args);
-
-//     const sturt = {
-//         ...state,
-//         now: Date.now(),
-//     };
-
-//     return sturt;
-// });
-
-//*  Effect Example
-// const obs = new Agency.Observer(Game.$);
-// const obs = new Agency.Observer(Game.$, (state, [,msg = {}]) => {
-//     if(msg.type === "test") {
-//         console.log(`[Effect]`, msg);
-//     }
-// });
-// obs.add((state, [,msg = {}]) => {
-//     if(msg.type === "cat") {
-//         console.log(`[Effect]`, msg);
-//     }
-// });
+export const ctx = new Agency.Context.Factory({
+    cats: 2,
+});
+export const Context = React.createContext(ctx);
 
 function App() {
     return (
         <Router>
             <ScrollToTop>
                 <Context.Provider value={{
-                    game: Game.$,
+                    game: ctx,
                 }}>
                     <Switch>                            
                         <Route path="/">

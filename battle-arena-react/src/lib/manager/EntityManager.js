@@ -12,8 +12,6 @@ import { EnumPatternType as EnumPatternType } from "../data/enums/patterns";
 import effectDamageSchema from "../data/schemas/effect-damage";
 import effectHealSchema from "../data/schemas/effect-heal";
 
-import { cast } from "./../data/commands/combat";
-
 export default class EntityManager extends Agency.Registry {
     constructor(game) {
         super({

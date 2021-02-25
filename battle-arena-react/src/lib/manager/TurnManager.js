@@ -23,6 +23,12 @@ export default class TurnManager extends Agency.Context {
     addGame(game) {
         if(game instanceof Game) {
             this.game = game;
+
+            new Agency.Observer(this.game.entities.player, (...args) => {
+                if(!Array.isArray(args[ 0 ])) {
+                    console.log(...args);
+                }
+            });
         }
     }
 

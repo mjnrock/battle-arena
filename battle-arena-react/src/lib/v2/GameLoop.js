@@ -1,6 +1,6 @@
 /* eslint-disable */
 import MainLoop from "mainloop.js";
-import Game from "./Game";
+import Game from "../Game";
 
 export default class GameLoop {
     constructor(fps = 30) {
