@@ -1,17 +1,20 @@
 /* eslint-disable */
 import React from "react";
 import { Segment } from "semantic-ui-react";
-import { useObserver } from "@lespantsfancy/agency/lib/react";
+import { useBeacon } from "@lespantsfancy/agency/lib/react";
 
 import Canvas from "./Canvas";
 import { Context } from "./../../App";
 
 export default function GameView() {
-    const [ data, game ] = useObserver(Context, "game");
+    const { data, beacon: game } = useBeacon(Context, "game");
     
     if(Object.keys(data).length === 0) {
         return null;
     }
+
+    // console.log(data)
+    // console.log(game)
 
     return (
         <Segment textAlign="center">

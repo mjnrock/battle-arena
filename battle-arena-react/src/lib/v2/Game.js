@@ -3,22 +3,19 @@ import Agency from "@lespantsfancy/agency";
 
 import TileCanvas from "./TileCanvas";
 
-export default class Game extends Agency.Observable {
+export default class Game extends Agency.Beacon {
     constructor({ fps = 2 } = {}) {
         super(false);
         
-        this._lastUpdate = 0;
-        
-        this.loop = Agency.Pulse.Generate(fps, { autostart: false }, ({ now }) => {
-            console.log(now);
-            this._lastUpdate = now;
-        });
+        this.loop = Agency.Pulse.Generate(fps, { autostart: false });
         this.canvas = new TileCanvas(25, 25, { width: 1000, height: 800, props: { fillStyle: "rgba(0, 0, 255, 1.0)", strokeStyle: "#000" } });
 
         // Create Singleton pattern
         if(!Game.Instance) {
             Game.Instance = this;
         }
+        
+        this.attach(this.loop);
     }
 
     // Access Singleton pattern via Game.$
