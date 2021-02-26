@@ -1404,12 +1404,13 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@lespantsfancy/agency@0.2.17":
-  version "0.2.17"
-  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.2.17.tgz#9c6963ddd13c28b85490e31d366a26d8002da06b"
-  integrity sha512-8c/kDSKNjJt90iZvTSfktOOUi6EUno73gegZW4E9gHNUjzd+24wZ128f+81sRlaHNbI902ep4D205BCKMdYasg==
+"@lespantsfancy/agency@^0.2.21":
+  version "0.2.21"
+  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.2.21.tgz#4856d15c9a51a84f774f7ebef84f827a58477d91"
+  integrity sha512-ASDuuQxsxWboRvnLmKasXuuv705WCHmzfcorRQxPQfgLL9ChQWY0nAtPrHnykmh+taYHz+GDVVViv5x8NSlS8Q==
   dependencies:
     esm "^3.2.25"
+    mainloop.js "^1.0.4"
     node-fetch "^2.6.1"
     object-hash "^2.1.1"
     uuid "^8.3.2"
