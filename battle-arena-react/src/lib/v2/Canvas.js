@@ -287,6 +287,16 @@ export default class Canvas {
         return this;
     }
 
+    eraseFirst() {
+        this._config.clearBeforeDraw = true;
+
+        return this;
+    }
+    dontEraseFirst() {        
+        this._config.clearBeforeDraw = false;
+
+        return this;
+    }
     draw() {
         if(this._config.isAnimating === true) {
             if(this._config.clearBeforeDraw === true) {

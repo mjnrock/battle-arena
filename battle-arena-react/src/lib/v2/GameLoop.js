@@ -14,8 +14,6 @@ export default class GameLoop {
             .setDraw(this.draw.bind(this))
             .setEnd(this.post.bind(this))
             .setSimulationTimestep(this.spf);
-
-        this.ticks = 0;
     }
 
     get fps() {

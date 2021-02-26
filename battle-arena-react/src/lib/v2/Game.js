@@ -11,7 +11,7 @@ export default class Game extends Agency.Observable {
         this._lastUpdate = 0;
         
         this.loop = new GameLoop(fps, this.onTick);
-        this.canvas = new TileCanvas(25, 25, { width: 500, height: 500, props: { fillStyle: "rgba(0, 0, 255, 0.5)", strokeStyle: "#000" } });
+        this.canvas = new TileCanvas(25, 25, { width: 1000, height: 800, props: { fillStyle: "rgba(0, 0, 255, 1.0)", strokeStyle: "#000" } });
 
         // Create Singleton pattern
         if(!Game.Instance) {
@@ -28,9 +28,14 @@ export default class Game extends Agency.Observable {
         if(!Game.Instance) {
             Game.Instance = new Game();
             
-            Game.$.canvas._config.clearBeforeDraw = true;
+            Game.$.canvas.eraseFirst();
             Game.$.canvas.onDraw = () => {
-                Game.$.canvas.tRect(Agency.Util.Dice.d25(1, -1), Agency.Util.Dice.d25(1, -1), 1, 1, { isFilled: true });
+                Game.$.canvas.drawGrid();
+                Game.$.canvas.tRect(
+                    Agency.Util.Dice.random(0, Game.$.canvas.rows),
+                    Agency.Util.Dice.random(0, Game.$.canvas.cols),
+                    1, 1, { isFilled: true }
+                );
             }
             Game.$.loop.start();
         }

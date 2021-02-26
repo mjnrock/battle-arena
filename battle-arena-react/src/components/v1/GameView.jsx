@@ -3,10 +3,10 @@ import { useObserver } from "@lespantsfancy/agency/lib/react";
 import React from "react";
 import { Segment } from "semantic-ui-react";
 
-import { Context } from "../App";
+import { Context } from "../../App";
 import Game from "../lib/Game";
 import MouseManager from "../lib/manager/MouseManager";
-import Canvas from "./v2/Canvas";
+import Canvas from "../v2/Canvas";
 
 export default function GameView() {
     const game = useObserver(Context, "game");
