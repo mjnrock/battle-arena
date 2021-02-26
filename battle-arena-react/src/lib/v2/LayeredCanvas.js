@@ -1,7 +1,7 @@
 import Canvas from "./Canvas";
-import GridCanvas from "./GridCanvas";
+import TileCanvas from "./TileCanvas";
 
-export default class LayeredCanvas extends GridCanvas {
+export default class LayeredCanvas extends TileCanvas {
     constructor({ canvas, tw = 1, th = 1, width, height, props } = {}) {
         super(tw, th, { canvas, width, height, props });
 

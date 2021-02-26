@@ -5,7 +5,7 @@ import Effect from "./Effect";
 import Experience from "./Experience";
 import GameLoop from "./GameLoop";
 import Grid from "./Grid";
-import GridCanvas from "./GridCanvas";
+import TileCanvas from "./TileCanvas";
 import LayeredCanvas from "./LayeredCanvas";
 import Value from "./Value";
 
@@ -16,7 +16,7 @@ export default {
     Experience,
     GameLoop,
     Grid,
-    GridCanvas,
+    TileCanvas,
     LayeredCanvas,
     Value,
 };

@@ -1,11 +1,13 @@
 /* eslint-disable */
 import MainLoop from "mainloop.js";
 
-import Game from "./Game";
-
 export default class GameLoop {
-    constructor(fps = 30) {
+    constructor(fps = 30, onTick) {
         this._fps = fps;
+
+        if(typeof onTick === "function") {
+            this.onTick = onTick;
+        }
 
         this.loop = MainLoop.setBegin(this.pre.bind(this))
             .setUpdate(this.update.bind(this))
@@ -52,8 +54,9 @@ export default class GameLoop {
      * @param {number} dt Frame delta in ms
      */
     update(dt) {
-        Game.$._lastUpdate = Date.now();
+        this.onTick(dt, Date.now());
     }
+    onTick() {}
 
     /**
      * @param {number} interpolationPercentage A factor between 0.0 and 1.0, used as a scaling weight similar to delta time

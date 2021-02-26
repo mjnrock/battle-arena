@@ -1,6 +1,6 @@
-import EventEmitter from "events";
+import Agency from "@lespantsfancy/agency";
 
-export default class Value extends EventEmitter {
+export default class Value extends Agency.Observable {
     constructor(current, { min, max, softMax = false, softMin = false } = {}) {
         super();
 
@@ -8,21 +8,21 @@ export default class Value extends EventEmitter {
         this._min = min;
         this._max = max;
         
-        this._config = {
+        this.__config = {
             softMax,
             softMin,
         };
     }
 
     get current() {
-        if(this._current >= this._max) {
-            if(this._config.softMax) {
+        if(!Number.isNaN(+this._max) && this._current >= this._max) {
+            if(this.__config.softMax) {
                 return this._current;
             }
 
             return this._max;
-        } else if(this._current <= this._min) {
-            if(this._config.softMin) {
+        } else if(!Number.isNaN(+this._min) && this._current <= this._min) {
+            if(this.__config.softMin) {
                 return this._current;
             }
 
@@ -32,19 +32,15 @@ export default class Value extends EventEmitter {
         return this._current;
     }
     set current(value) {
-        if(value >= this._max) {
-            this._current = this._config.softMax ? value : this._max;
-
-            this.emit("max");
-        } else if(value <= this._min) {
-            this._current = this._config.softMin ? value : this._min;
-
-            this.emit("min");
+        if(!Number.isNaN(+this._max) && value >= this._max) {
+            this._current = this.__config.softMax ? value : this._max;
+        } else if(!Number.isNaN(+this._max) && value <= this._min) {
+            this._current = this.__config.softMin ? value : this._min;
+        } else {
+            this._current = value;
         }
 
-        this._current = value;
-
-        this.emit("current", this._current);
+        return this;
     }
 
     get min() {
@@ -112,22 +108,22 @@ export default class Value extends EventEmitter {
 
     
     softMax() {
-        this._config.softMax = true;
+        this.__config.softMax = true;
 
         return this;
     }
     hardMax() {
-        this._config.softMax = false;
+        this.__config.softMax = false;
 
         return this;
     }
     softMin() {
-        this._config.softMin = true;
+        this.__config.softMin = true;
 
         return this;
     }
     hardMin() {
-        this._config.softMin = false;
+        this.__config.softMin = false;
 
         return this;
     }

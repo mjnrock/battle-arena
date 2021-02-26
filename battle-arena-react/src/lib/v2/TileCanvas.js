@@ -1,6 +1,6 @@
 import Canvas from "./Canvas";
 
-export default class GridCanvas extends Canvas {
+export default class TileCanvas extends Canvas {
     constructor(tw, th, { canvas, width, height, props } = {}) {
         super({ canvas, width, height, props });
 
@@ -41,7 +41,7 @@ export default class GridCanvas extends Canvas {
 
         for(let x = 0; x < this.rows; x++) {
             for(let y = 0; y < this.cols; y++) {
-                this.gRect(
+                this.tRect(
                     x,
                     y,
                     1,
@@ -72,27 +72,27 @@ export default class GridCanvas extends Canvas {
     /*
      *  All ctx modifications (e.g. color, stroke width, etc.) should be changed via .prop
      */
-    gErase(tx, ty, tw, th) {
+    tErase(tx, ty, tw, th) {
         this.erase(tx * this.tw, ty * this.th, tw * this.tw, th * this.th);
 
         return this;
     }
 
-    gPoint(tx, ty) {
-        return this.gRect(tx, ty, 1, 1, { isFilled: true });
+    tPoint(tx, ty) {
+        return this.tRect(tx, ty, 1, 1, { isFilled: true });
     }
-    gRect(tx, ty, tw, th, { isFilled = false } = {}) {
+    tRect(tx, ty, tw, th, { isFilled = false } = {}) {
         this.rect(tx * this.tw, ty * this.th, tw * this.tw, th * this.th, { isFilled });
 
         return this;
     }
-    gCircle(tx, ty, r, { isFilled = false } = {}) {
+    tCircle(tx, ty, r, { isFilled = false } = {}) {
         this.circle(tx * this.tw, ty * this.th, r, { isFilled });
 
         return this;
     }
 
-    gQuilt(tx, ty, tw, th, { colorFn } = {}) {
+    tQuilt(tx, ty, tw, th, { colorFn } = {}) {
         this.ctx.save();
         for(let i = 0; i < tw; i++) {
             for(let j = 0; j < th; j++) {
@@ -108,7 +108,7 @@ export default class GridCanvas extends Canvas {
                     fillStyle: color,
                 });
 
-                this.gPoint(tx + i, ty + j);
+                this.tPoint(tx + i, ty + j);
             }
         }
         this.ctx.restore();

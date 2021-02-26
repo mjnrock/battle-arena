@@ -8,12 +8,23 @@ export default class Experience extends Value {
         this.level = level;
 
         this.recalculate();
-
-        this.on("max", (...args) => this.onMax(...args));
     }
 
     __default(level) {
-        return level * 100;
+        return level * 1000;
+    }
+
+    get current() {
+        return super.current;
+    }
+    set current(value) {
+        super.current = value;
+
+        if(!Number.isNaN(+this._max) && this._current >= this._max) {
+            this.onMax();
+        }
+
+        return this;
     }
 
     get formula() {
@@ -37,17 +48,15 @@ export default class Experience extends Value {
 
     onMax() {
         if(this.current >= this.max) {
-            this.current -= this.max;
-        } else {
-            this.current = 0;
+            this._current -= this.max;
         }
-        
+
         this.level += 1;
         this.recalculate();
-        this.emit("level");
+        this.next("level", this.level);
 
         if(this.current >= this.max) {
-            this.emit("max");
+            this.onMax();
         }
     }
 
