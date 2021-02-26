@@ -30,7 +30,7 @@ export default class Game extends Agency.Observable {
             
             Game.$.canvas._config.clearBeforeDraw = true;
             Game.$.canvas.onDraw = () => {
-                Game.$.canvas.gRect(Agency.Util.Dice.d25(1, -1), Agency.Util.Dice.d25(1, -1), 1, 1, { isFilled: true });
+                Game.$.canvas.tRect(Agency.Util.Dice.d25(1, -1), Agency.Util.Dice.d25(1, -1), 1, 1, { isFilled: true });
             }
             Game.$.loop.start();
         }

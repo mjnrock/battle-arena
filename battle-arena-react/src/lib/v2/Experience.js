@@ -2,7 +2,7 @@ import Value from "./Value";
 
 export default class Experience extends Value {
     constructor(value, { level = 1, formula, ...opts } = {}) {
-        super(value, { softMax: true, ...opts });
+        super(value, { softMax: true, min: 0, ...opts });
 
         this._formula = formula || this.__default;  // @formula is used to calculate this.max
         this.level = level;
@@ -40,6 +40,15 @@ export default class Experience extends Value {
         }
 
         this._formula = this.__default;
+    }
+
+    get total() {
+        let xp = this.current;
+        for(let i = 1; i < this.level; i++) {
+            xp += this.formula(i);
+        }
+
+        return xp;
     }
 
     recalculate() {
