@@ -42,31 +42,17 @@ export default class Game extends Agency.Beacon {
             const component = Component.FromSchema(componentPosition, 4, 7);
             entity.position = component;
 
+            const entities = {  // Simulate an entity map
+                [ entity.__id ]: entity,
+            };
+
             setInterval(() => {
-                // effectMove.Random(null, entity, Game.$.canvas.cols, Game.$.canvas.rows);
-                const action = new Action(filterProximity.Range, effectMove.Random);
-                action.perform({
-                    [ entity.__id ]: entity,
-                }, [
-                    entity.position.x,
-                    entity.position.y,
-                    2,
-                ], [
+                Action.Spawn(
+                    filterProximity.Range(entity.position.x, entity.position.y, 2),
+                    effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
                     entity,
-                    Game.$.canvas.cols,
-                    Game.$.canvas.rows,
-                ]);
-                // action.perform([
-                //     entity,
-                // ], [
-                //     entity.position.x,
-                //     entity.position.y,
-                //     2,
-                // ], [
-                //     entity,
-                //     Game.$.canvas.cols,
-                //     Game.$.canvas.rows,
-                // ]);
+                    entities,
+                );
             }, 750);
             
             Game.$.canvas.eraseFirst();

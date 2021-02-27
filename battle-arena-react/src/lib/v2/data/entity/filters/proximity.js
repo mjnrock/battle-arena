@@ -1,6 +1,6 @@
 import Entity from "./../../../Entity";
 
-export function Range(eid, entity, x, y, r = 0) {
+export const Range = (x, y, r = 0) => (eid, entity) => {
     return entity instanceof Entity
         && entity.position
         && entity.position.x >= x - r
