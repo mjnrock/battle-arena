@@ -18,10 +18,10 @@ export default class TileCanvas extends Canvas {
     }
 
     get rows() {
-        return this.canvas.width / this.tw;
+        return this.canvas.height / this.th;
     }
     get cols() {
-        return this.canvas.height / this.th;
+        return this.canvas.width / this.tw;
     }
 
     resizeTile(tw, th) {
@@ -39,8 +39,8 @@ export default class TileCanvas extends Canvas {
         this.ctx.save();
         this.prop({ fillStyle });
 
-        for(let x = 0; x < this.rows; x++) {
-            for(let y = 0; y < this.cols; y++) {
+        for(let x = 0; x < this.cols; x++) {
+            for(let y = 0; y < this.rows; y++) {
                 this.tRect(
                     x,
                     y,
