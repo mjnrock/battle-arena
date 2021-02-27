@@ -1,7 +1,9 @@
-import { Grid, Table } from "semantic-ui-react";
+import React, { useState } from "react";
+import { Grid, Table, Input } from "semantic-ui-react";
 
 export default function Observable(props) {
     const { observable } = props;
+    const [ isEditMode, setIsEditMode ] = useState();
 
     const data = JSON.parse(JSON.stringify(observable.toData()));
 
@@ -45,10 +47,37 @@ export default function Observable(props) {
                     <Table.Cell>{ observable.__id }</Table.Cell>
                 </Table.Row>
                 {
-                    toDataArray(data).map(([ key, value ]) => (
+                    toDataArray(data).map(([ key, jsx ]) => (
                         <Table.Row key={ key }>
                             <Table.Cell key={ `${ key }-1` }>{ key }</Table.Cell>
-                            <Table.Cell key={ `${ key }-2` }>{ value }</Table.Cell>
+
+                            {
+                                isEditMode === key ? (
+                                    <Table.Cell
+                                        key={ `${ key }-2` }
+                                        onClick={ e => {
+                                            setIsEditMode(null) ;
+                                        }}
+                                        onKeyPress={ e => {
+                                            if(e.which === 13) {
+                                                setIsEditMode(null) ;
+                                            }
+                                        }}
+                                    >
+                                        <Input
+                                            defaultValue={ observable[ key ] }
+                                            onChange={ e => observable[ key ] = e.target.value }
+                                        />
+                                    </Table.Cell>
+                                ) : (
+                                    <Table.Cell
+                                        key={ `${ key }-2` }
+                                        onClick={ e => {
+                                            setIsEditMode(key);
+                                        }}
+                                    >{ jsx }</Table.Cell>
+                                )
+                            }
                         </Table.Row>
                     ))
                 }
