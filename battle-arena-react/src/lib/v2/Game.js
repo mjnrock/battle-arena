@@ -38,28 +38,31 @@ export default class Game extends Agency.Beacon {
             //STUB START "World Dynamics"
                 game.world = new World(25, 25);
 
-                const entity = new Entity();
+                const player = new Entity();
                 const component = Component.FromSchema(componentPosition, 4, 7);
-                entity.position = component;            
-                game.world.join(entity, "player");
+                player.position = component;            
+                game.world.join(player, "player");
 
-                const e2 = new Entity();
-                const c2 = Component.FromSchema(componentPosition, 4, 7);
-                e2.position = c2;            
-                game.world.join(e2);
+                for(let i = 0; i < 10; i++) {
+                    const e = new Entity();
+                    const comp = Component.FromSchema(componentPosition, Agency.Util.Dice.d10(), Agency.Util.Dice.d10());
+                    e.position = comp;
+                    game.world.join(e);
+                }
 
                 game.canvas = new TileCanvas(
                     600 / game.world.width,
                     600 / game.world.height,
-                    { width: 600, height: 600, props: { fillStyle: "rgba(0, 0, 255, 1.0)", strokeStyle: "#000" }
+                    { width: 600, height: 600, props: { fillStyle: "rgba(0, 0, 255, 0.3)", strokeStyle: "#000" }
                 });
 
+                const _rangeVar = 4;
                 setInterval(() => {
                     const entities = Game.$.world.entities.values;
 
                     Action.Spawn(
-                        entity,
-                        filterProximity.Range(entity.position.x, entity.position.y, 0),
+                        player,
+                        filterProximity.Range(player.position.x, player.position.y, _rangeVar),
                         effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
                         entities,
                     );
@@ -68,6 +71,14 @@ export default class Game extends Agency.Beacon {
                 game.canvas.eraseFirst();
                 game.canvas.onDraw = () => {
                     game.canvas.drawGrid();
+                    
+                    game.canvas.save();
+                    game.canvas.prop({ fillStyle: "rgba(0, 255, 20, 0.15)" }).tRect(
+                        player.position.x - _rangeVar,
+                        player.position.y - _rangeVar,
+                        _rangeVar * 2 + 1, _rangeVar * 2 + 1, { isFilled: true }
+                    );
+                    game.canvas.restore();
 
                     for(let ent of Game.$.world.entities.values) {
                         game.canvas.tRect(
