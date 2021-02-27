@@ -8,6 +8,8 @@ export default class Game extends Agency.Beacon {
         super(false);
         
         this.loop = Agency.Pulse.Generate(fps, { autostart: false });
+        this.render = null;
+
         this.canvas = new TileCanvas(25, 25, { width: 1000, height: 800, props: { fillStyle: "rgba(0, 0, 255, 1.0)", strokeStyle: "#000" } });
 
         // Create Singleton pattern

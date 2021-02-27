@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React from "react";
 import { Segment } from "semantic-ui-react";
-import { useBeacon } from "@lespantsfancy/agency/lib/react";
+import { useBeacon } from "@lespantsfancy/agency/lib/react/package";
 
 import Canvas from "./Canvas";
 import { Context } from "./../../App";
