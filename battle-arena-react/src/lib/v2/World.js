@@ -1,7 +1,5 @@
 import Agency from "@lespantsfancy/agency";
 
-import Registry from "./Registry";
-
 export class World extends Agency.Observable {
     constructor(width, height) {
         super();
@@ -9,7 +7,7 @@ export class World extends Agency.Observable {
         this.width = width;
         this.height = height;
 
-        this.entities = new Registry();
+        this.entities = new Agency.Registry();
         this.terrain = new Agency.Context({
             rules: {
                 "*": (nv, v, { prop, target }) => {
