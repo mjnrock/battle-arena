@@ -1,10 +1,15 @@
 import Agency from "@lespantsfancy/agency";
 
+import Registry from "./Registry";
+
 export class World extends Agency.Observable {
-    constructor() {
+    constructor(width, height) {
         super();
 
-        this.entities = new Agency.Registry();
+        this.width = width;
+        this.height = height;
+
+        this.entities = new Registry();
         this.terrain = new Agency.Context({
             rules: {
                 "*": (nv, v, { prop, target }) => {
@@ -15,8 +20,8 @@ export class World extends Agency.Observable {
         });
     }
 
-    join(entity) {
-        this.entities.register(entity);
+    join(entity, ...synonyms) {
+        this.entities.register(entity, ...synonyms);
     }
     leave(entity) {
         this.entities.unregister(entity);

@@ -22,8 +22,6 @@ export default class Game extends Agency.Beacon {
         this.loop = Agency.Pulse.Generate(fps, { autostart: false });
         this.render = null;
 
-        this.canvas = new TileCanvas(25, 25, { width: 800, height: 600, props: { fillStyle: "rgba(0, 0, 255, 1.0)", strokeStyle: "#000" } });
-
         // Create Singleton pattern
         if(!Game.Instance) {
             Game.Instance = this;
@@ -38,33 +36,48 @@ export default class Game extends Agency.Beacon {
             Game.Instance = new Game();
 
             //STUB  Any random stuff to try out on load
+            Game.Instance.world = new World(25, 25);
+
             const entity = new Entity();
             const component = Component.FromSchema(componentPosition, 4, 7);
-            entity.position = component;
+            entity.position = component;            
+            Game.Instance.world.join(entity, "player");
 
-            const entities = {  // Simulate an entity map
-                [ entity.__id ]: entity,
-            };
+            const e2 = new Entity();
+            const c2 = Component.FromSchema(componentPosition, 4, 7);
+            e2.position = c2;            
+            Game.Instance.world.join(e2);
+
+            Game.Instance.canvas = new TileCanvas(
+                600 / Game.Instance.world.width,
+                600 / Game.Instance.world.height,
+                { width: 600, height: 600, props: { fillStyle: "rgba(0, 0, 255, 1.0)", strokeStyle: "#000" }
+            });
 
             setInterval(() => {
+                const entities = Game.$.world.entities.values;
+
                 Action.Spawn(
-                    filterProximity.Range(entity.position.x, entity.position.y, 2),
-                    effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
                     entity,
+                    filterProximity.Range(entity.position.x, entity.position.y, 0),
+                    effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
                     entities,
                 );
             }, 750);
             
-            Game.$.canvas.eraseFirst();
-            Game.$.canvas.onDraw = () => {
-                Game.$.canvas.drawGrid();
-                Game.$.canvas.tRect(
-                    entity.position.x,
-                    entity.position.y,
-                    1, 1, { isFilled: true }
-                );
+            Game.Instance.canvas.eraseFirst();
+            Game.Instance.canvas.onDraw = () => {
+                Game.Instance.canvas.drawGrid();
+
+                for(let ent of Game.$.world.entities.values) {
+                    Game.Instance.canvas.tRect(
+                        ent.position.x,
+                        ent.position.y,
+                        1, 1, { isFilled: true }
+                    );
+                }
             }
-            Game.$.loop.subject.start();
+            Game.Instance.loop.subject.start();
         }
 
         return Game.Instance;

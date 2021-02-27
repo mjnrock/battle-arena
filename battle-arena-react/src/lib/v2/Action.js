@@ -15,7 +15,7 @@ export class Action extends Agency.Mutator {
 export function Factory(filter, ...effects) {
     return new Action(filter, ...effects);
 }
-export function Spawn(filter, effects = [], source, entities = {}, selectionArgs = [], applyArgs = []) {
+export function Spawn(source, filter, effects = [], entities = {}, selectionArgs = [], applyArgs = []) {
     if(!Array.isArray(effects)) {
         effects = [ effects ];
     }
