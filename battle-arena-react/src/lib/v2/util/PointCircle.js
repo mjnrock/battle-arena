@@ -7,7 +7,7 @@ export class PointCircle extends Circle {
         this.radius = Math.round(parseFloat(r));
     }
 
-    getPoints() {
+    getPerimeterPoints() {
         let d = Math.round(Math.PI - (2 *  this.radius));
         let x = 0;
         let y = this.radius;
@@ -37,7 +37,7 @@ export class PointCircle extends Circle {
     }
 }
 
-export function GetPoints(x, y, r) {
+export function GetPerimeterPoints(x, y, r) {
     let tc;
     if(x instanceof Circle) {
         tc = new PointCircle(x.x, x.y, x.radius);
@@ -45,9 +45,35 @@ export function GetPoints(x, y, r) {
         tc = new PointCircle(x, y, r);
     }
 
-    return tc.getPoints();
+    return tc.getPerimeterPoints();
 }
 
-PointCircle.GetPoints = GetPoints;
+PointCircle.GetPerimeterPoints = GetPerimeterPoints;
 
 export default PointCircle;
+
+
+
+//! This doesn't make a nice looking circle for many radii, really more of a rounded-edge square
+//!     but kept here as a working point forward, or a quick solution, when needed
+// function getAllCirclePoints(xc, yc, r) {
+//     const points = [];
+//     for(let x = xc - r; x <= xc; x++) {
+//         for(let y = yc - r; y <= yc; y++) {
+//             if((x - xc) * (x - xc) + (y - yc) * (y - yc) <= r * r) {
+//                 let xSym = xc - (x - xc);
+//                 let ySym = yc - (y - yc);
+                
+//                 points.push([ x, y ]);
+//                 points.push([ x, ySym ]);
+//                 points.push([ xSym, y ]);
+//                 points.push([ xSym, ySym ]);
+//             }
+//         }
+//     }
+
+//     points.forEach(([ x, y ]) => {
+//         game.canvas.prop({ fillStyle: "rgba(255, 255, 0, 0.25)" }).tPoint(x, y);
+//     })
+// }
+// getAllCirclePoints(5, 5, 5);

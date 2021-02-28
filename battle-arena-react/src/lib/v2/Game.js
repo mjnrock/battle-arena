@@ -80,7 +80,7 @@ export default class Game extends Agency.Beacon {
                     Action.Spawn(
                         player,
                         // filterProximity.Range(rect),
-                        filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPoints(circle)),
+                        filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
                         effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
                         entities,
                     );
