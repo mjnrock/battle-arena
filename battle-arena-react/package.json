@@ -25,7 +25,12 @@
         "extends": [
             "react-app",
             "react-app/jest"
-        ]
+        ],
+        "rules": {
+            "import/no-anonymous-default-export": "off",
+            "no-useless-constructor": "off",
+            "no-unused-vars": "off"
+        }
     },
     "browserslist": {
         "production": [
