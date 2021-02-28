@@ -8,6 +8,13 @@ export class Rectangle extends Point {
         this.height = h;
     }
 
+    get origin() {
+        return {
+            x: this.x + this.width / 2,
+            y: this.y + this.height / 2,
+        };
+    }
+
     get xw() {
         return this.x + this.width;
     }

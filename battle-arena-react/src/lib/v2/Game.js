@@ -47,9 +47,9 @@ export default class Game extends Agency.Beacon {
                 player.position = component;            
                 game.world.join(player, "player");
 
-                for(let i = 0; i < 10; i++) {
+                for(let i = 0; i < 20; i++) {
                     const e = new Entity();
-                    const comp = Component.FromSchema(componentPosition, Agency.Util.Dice.d10(), Agency.Util.Dice.d10());
+                    const comp = Component.FromSchema(componentPosition, Agency.Util.Dice.random(0, 29), Agency.Util.Dice.random(0, 29));
                     e.position = comp;
 
                     if(i === 0) {
@@ -66,37 +66,35 @@ export default class Game extends Agency.Beacon {
                     { width: 600, height: 600, props: { fillStyle: "rgba(0, 0, 255, 0.3)", strokeStyle: "#000" }
                 });
 
-                const _rangeVar = 3;
+                const targets = [
+                    player,
+                    // nemesis,
+                    // ...Game.$.world.entities.values.slice(2, 5)
+                ];
+                const _rangeVar = 10;
                 setInterval(() => {
-                    const entities = Object.fromEntries(Game.$.world.entities.values.map(e => [ e.__id, e ]));
+                    const entities = Game.$.world.entities.values;
                     
-                    const rectangle = Rectangle.Centered(
-                        player.position.x,
-                        player.position.y,
-                        _rangeVar,
-                        _rangeVar,
-                    );
-                    const circle = new Circle(
-                        nemesis.position.x,
-                        nemesis.position.y,
-                        _rangeVar,
-                    );
-
-                    Action.Spawn(
-                        player,
-                        filterIntersection.IsEntityWithinRectangle(rectangle),
-                        // filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
-                        effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
-                        entities,
-                    );
-
-                    Action.Spawn(
-                        nemesis,
-                        // filterIntersection.IsEntityWithinRectangle(rectangle),
-                        filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
-                        effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
-                        entities,
-                    );
+                    for(let target of targets) {
+                        const circle = new Circle(
+                            target.position.x,
+                            target.position.y,
+                            _rangeVar,
+                        );
+    
+                        Action.Spawn(
+                            target,
+                            filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
+                            effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
+                            target,
+                        );
+                        Action.Spawn(
+                            target,
+                            filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
+                            effectMove.CenterPoint(circle),
+                            entities,
+                        );
+                    }
                 }, 750);
                 
                 game.canvas.eraseFirst();
@@ -105,21 +103,16 @@ export default class Game extends Agency.Beacon {
                     
 
                     //STUB
-                    game.canvas.save();
-                    game.canvas.prop({ fillStyle: "rgba(0, 255, 20, 0.15)" }).tRect(                        
-                        player.position.x - _rangeVar,
-                        player.position.y - _rangeVar,
-                        _rangeVar * 2 + 1,
-                        _rangeVar * 2 + 1,
-                        { isFilled: true },
-                    );
-                    game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.25)", strokeStyle: "rgba(0, 255, 255, 0.75)" }).tCircle(
-                        nemesis.position.x,
-                        nemesis.position.y,
-                        _rangeVar,
-                        { isFilled: true },
-                    );
-                    game.canvas.restore();
+                    for(let target of targets) {
+                        game.canvas.save();
+                        game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.25)", strokeStyle: "rgba(0, 255, 255, 0.75)" }).tCircle(
+                            target.position.x,
+                            target.position.y,
+                            _rangeVar,
+                            { isFilled: true },
+                        );
+                        game.canvas.restore();
+                    }
 
 
                     for(let ent of Game.$.world.entities.values) {

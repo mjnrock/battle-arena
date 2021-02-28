@@ -7,6 +7,13 @@ export class Circle extends Point {
         this.radius = r;
     }
 
+    get origin() {
+        return {
+            x: this.x,
+            y: this.y,
+        };
+    }
+
     hasIntersection(x, y) {
         return (x - this.x) ** 2 + (y - this.y) ** 2 <= this.radius ** 2;
     }
