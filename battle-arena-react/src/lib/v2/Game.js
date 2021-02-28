@@ -51,8 +51,14 @@ export default class Game extends Agency.Beacon {
                     const e = new Entity();
                     const comp = Component.FromSchema(componentPosition, Agency.Util.Dice.d10(), Agency.Util.Dice.d10());
                     e.position = comp;
+
+                    if(i === 0) {
+                        game.world.join(e, "nemesis");
+                    }
+                    
                     game.world.join(e);
                 }
+                const nemesis = game.world.entities.nemesis;
 
                 game.canvas = new TileCanvas(
                     600 / game.world.width,
@@ -70,16 +76,24 @@ export default class Game extends Agency.Beacon {
                         _rangeVar,
                         _rangeVar,
                     );
-                    // const circle = new Circle(
-                    //     player.position.x,
-                    //     player.position.y,
-                    //     _rangeVar,
-                    // );
+                    const circle = new Circle(
+                        nemesis.position.x,
+                        nemesis.position.y,
+                        _rangeVar,
+                    );
 
                     Action.Spawn(
                         player,
                         filterIntersection.IsEntityWithinRectangle(rectangle),
                         // filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
+                        effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
+                        entities,
+                    );
+
+                    Action.Spawn(
+                        nemesis,
+                        // filterIntersection.IsEntityWithinRectangle(rectangle),
+                        filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
                         effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
                         entities,
                     );
@@ -99,12 +113,12 @@ export default class Game extends Agency.Beacon {
                         _rangeVar * 2 + 1,
                         { isFilled: true },
                     );
-                    // game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.25)", strokeStyle: "rgba(0, 255, 255, 0.75)" }).tCircle(
-                    //     player.position.x,
-                    //     player.position.y,
-                    //     _rangeVar,
-                    //     { isFilled: true },
-                    // );
+                    game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.25)", strokeStyle: "rgba(0, 255, 255, 0.75)" }).tCircle(
+                        nemesis.position.x,
+                        nemesis.position.y,
+                        _rangeVar,
+                        { isFilled: true },
+                    );
                     game.canvas.restore();
 
 
