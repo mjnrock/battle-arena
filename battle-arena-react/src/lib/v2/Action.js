@@ -5,8 +5,8 @@ export class Action extends Agency.Mutator {
         super(effects, filter);
     }
 
-    perform(source, entities = {}, selectionArgs = [], applyArgs = []) {
-        const selected = this.select(entities, ...selectionArgs);
+    perform(source, selectionArgs = [], applyArgs = [], entities = {}) {
+        const selected = this.qualify(entities, ...selectionArgs);
         
         return this.apply(selected, source, ...applyArgs);
     }
@@ -21,7 +21,7 @@ export function Spawn(source, filter, effects = [], entities = {}, selectionArgs
     }
     const action = Factory(filter, ...effects);
     
-    return action.perform(source, entities, selectionArgs, applyArgs);
+    return action.perform(source, selectionArgs, applyArgs, entities);
 }
 
 Action.Factory = Factory;

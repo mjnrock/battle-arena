@@ -58,7 +58,7 @@ export default class Game extends Agency.Beacon {
 
                 const _rangeVar = 4;
                 setInterval(() => {
-                    const entities = Game.$.world.entities.values;
+                    const entities = Object.fromEntries(Game.$.world.entities.values.map(e => [ e.__id, e ]));
 
                     Action.Spawn(
                         player,
