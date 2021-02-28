@@ -11,7 +11,6 @@ import TileCanvas from "./TileCanvas";
 
     import componentPosition from "./data/entity/components/position";
 
-    import filterProximity from "./data/entity/filters/proximity";
     import filterIntersection from "./data/entity/filters/intersection";
     import effectMove from "./data/entity/effects/move";
 
