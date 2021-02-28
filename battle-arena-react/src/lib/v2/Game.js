@@ -65,7 +65,7 @@ export default class Game extends Agency.Beacon {
                 setInterval(() => {
                     const entities = Object.fromEntries(Game.$.world.entities.values.map(e => [ e.__id, e ]));
                     
-                    const rect = Rectangle.Centered(
+                    const rectangle = Rectangle.Centered(
                         player.position.x,
                         player.position.y,
                         _rangeVar,
@@ -79,7 +79,7 @@ export default class Game extends Agency.Beacon {
 
                     Action.Spawn(
                         player,
-                        filterIntersection.IsEntityWithinRectangle(rect),
+                        filterIntersection.IsEntityWithinRectangle(rectangle),
                         // filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
                         effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
                         entities,
@@ -90,8 +90,9 @@ export default class Game extends Agency.Beacon {
                 game.canvas.onDraw = () => {
                     game.canvas.drawGrid();
                     
-                    game.canvas.save();
+
                     //STUB
+                    game.canvas.save();
                     game.canvas.prop({ fillStyle: "rgba(0, 255, 20, 0.15)" }).tRect(                        
                         player.position.x - _rangeVar,
                         player.position.y - _rangeVar,
@@ -99,16 +100,14 @@ export default class Game extends Agency.Beacon {
                         _rangeVar * 2 + 1,
                         { isFilled: true },
                     );
-
-                    //STUB
                     // game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.25)", strokeStyle: "rgba(0, 255, 255, 0.75)" }).tCircle(
                     //     player.position.x,
                     //     player.position.y,
                     //     _rangeVar,
                     //     { isFilled: true },
                     // );
-
                     game.canvas.restore();
+
 
                     for(let ent of Game.$.world.entities.values) {
                         game.canvas.tRect(
