@@ -23,6 +23,18 @@ export const IsEntityWithinCircle = (circle, perimeterTiles = []) => (eid, entit
     return false;
 }
 
+export const IsEntityWithinRectangle = (rectangle) => (eid, entity) => {
+    if(entity instanceof Entity && entity.position) {
+        return rectangle.hasIntersection(
+            Math.floor(entity.position.x),
+            Math.floor(entity.position.y),
+        );
+    }
+
+    return false;
+}
+
 export default {
-    IsEntityWithinCircle
+    IsEntityWithinCircle,
+    IsEntityWithinRectangle,
 };

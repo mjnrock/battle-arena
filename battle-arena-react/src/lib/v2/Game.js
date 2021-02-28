@@ -65,22 +65,22 @@ export default class Game extends Agency.Beacon {
                 setInterval(() => {
                     const entities = Object.fromEntries(Game.$.world.entities.values.map(e => [ e.__id, e ]));
                     
-                    // const rect = Rectangle.Centered(
-                    //     player.position.x,
-                    //     player.position.y,
-                    //     _rangeVar,
-                    //     _rangeVar,
-                    // );
-                    const circle = new Circle(
+                    const rect = Rectangle.Centered(
                         player.position.x,
                         player.position.y,
                         _rangeVar,
+                        _rangeVar,
                     );
+                    // const circle = new Circle(
+                    //     player.position.x,
+                    //     player.position.y,
+                    //     _rangeVar,
+                    // );
 
                     Action.Spawn(
                         player,
-                        // filterProximity.Range(rect),
-                        filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
+                        filterIntersection.IsEntityWithinRectangle(rect),
+                        // filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
                         effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
                         entities,
                     );
@@ -91,38 +91,22 @@ export default class Game extends Agency.Beacon {
                     game.canvas.drawGrid();
                     
                     game.canvas.save();
-                    // game.canvas.prop({ fillStyle: "rgba(0, 255, 20, 0.15)" }).tRect(                        
-                    //     player.position.x - _rangeVar,
-                    //     player.position.y - _rangeVar,
-                    //     _rangeVar * 2 + 1,
-                    //     _rangeVar * 2 + 1,
-                    //     { isFilled: true },
-                    // );
+                    //STUB
+                    game.canvas.prop({ fillStyle: "rgba(0, 255, 20, 0.15)" }).tRect(                        
+                        player.position.x - _rangeVar,
+                        player.position.y - _rangeVar,
+                        _rangeVar * 2 + 1,
+                        _rangeVar * 2 + 1,
+                        { isFilled: true },
+                    );
 
                     //STUB
-                        // const tcPoints = PointCircle.GetPoints(player.position.x, player.position.y, _rangeVar);
-                        game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.25)", strokeStyle: "rgba(0, 255, 255, 0.75)" }).tCircle(
-                            player.position.x,
-                            player.position.y,
-                            _rangeVar,
-                            { isFilled: true },
-                        );
-                        // game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.25)", strokeStyle: "transparent" }).tCircle(
-                        //     player.position.x + 0.5,
-                        //     player.position.y + 0.5,
-                        //     _rangeVar,
-                        //     { isFilled: true },
-                        // );
-                        // const tcPoints = PointCircle.GetPoints(player.position.x, player.position.y, _rangeVar);
-                        // for(let [ x, y ] of tcPoints) {
-                        //     game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.75)" }).tRect(
-                        //         x,
-                        //         y,
-                        //         1,
-                        //         1,
-                        //         { isFilled: true },
-                        //     );
-                        // }
+                    // game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.25)", strokeStyle: "rgba(0, 255, 255, 0.75)" }).tCircle(
+                    //     player.position.x,
+                    //     player.position.y,
+                    //     _rangeVar,
+                    //     { isFilled: true },
+                    // );
 
                     game.canvas.restore();
 
