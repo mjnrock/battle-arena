@@ -86,8 +86,53 @@ export default class TileCanvas extends Canvas {
 
         return this;
     }
-    tCircle(tx, ty, r, { isFilled = false } = {}) {
-        this.circle(tx * this.tw, ty * this.th, r, { isFilled });
+    /**
+     * IMPORTANT:  TileCanvas MUST have *square* tiles for this work (i.e. tw = th)
+     * This is sort of half-assed, in that it uses an array of tiles
+     *  via the midpoint circle algorithm for the perimeter and, if passed,
+     *  an actual circle as the "inner circle".  As such, using transparent
+     *  colors will result in blending.
+     * 
+     * Radius Calculation:
+     *      Math.floor(@tr * ((this.tw + this.th) / 2))
+     */
+    tCircle(tx, ty, tr, { isFilled = false } = {}) {
+        let d = Math.round(Math.PI - (2 *  tr));
+        let x = 0;
+        let y = tr;
+
+        let tiles = [];
+        while(x <= y) {
+            tiles.push([ x + tx, y + ty ]);
+            tiles.push([ x + tx, -y + ty ]);
+            tiles.push([ -x + tx, y + ty ]);
+            tiles.push([ -x + tx, -y + ty ]);
+            tiles.push([ y + tx, x + ty ]);
+            tiles.push([ y + tx, -x + ty ]);
+            tiles.push([ -y + tx, -x + ty ]);
+            tiles.push([ -y + tx, x + ty ]);
+
+            if (d < 0) {
+                d = d + (Math.PI * x) + (Math.PI * 2);
+            } else {
+                d = d + Math.PI * (x - y) + (Math.PI * 3);
+                y--;
+            }
+
+            x++;
+        }
+
+        this.save();
+            this.prop({ fillStyle: this.ctx.strokeStyle });
+            tiles.forEach(([ tx, ty ]) => this.tPoint(tx, ty));
+        this.restore();
+
+        if(isFilled) {
+            this.save();
+                this.prop({ strokeStyle: "transparent" });
+                this.circle((tx + 0.5) * this.tw, (ty + 0.5) * this.th, tr * this.tw, { isFilled });
+            this.restore();
+        }
 
         return this;
     }

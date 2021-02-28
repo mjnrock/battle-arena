@@ -1404,10 +1404,10 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@lespantsfancy/agency@0.3.12":
-  version "0.3.12"
-  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.3.12.tgz#843115bd5ec6a6d7a726caa6555e1459ce14e3be"
-  integrity sha512-Wii2ZcZSgFCxz4E5oG9WMkXn3tkjHzow3VOEfOVaAjyru99tt09op0Y6btYh4N5+NawobSbaiunIMJ7KekhTmw==
+"@lespantsfancy/agency@0.3.13":
+  version "0.3.13"
+  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.3.13.tgz#d904c4cdc2ac0a5c200518495cf4d41f7cd23a9a"
+  integrity sha512-Lf0vlSR28IEigZZUPfBtxBeLNmjkNSEziov+P0Tw4A3cU/aWaqunLw1P35STWVmWy8fAzgn/qfst2GokJBNifw==
   dependencies:
     esm "^3.2.25"
     mainloop.js "^1.0.4"

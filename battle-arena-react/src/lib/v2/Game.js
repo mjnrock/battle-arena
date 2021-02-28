@@ -12,7 +12,12 @@ import TileCanvas from "./TileCanvas";
     import componentPosition from "./data/entity/components/position";
 
     import filterProximity from "./data/entity/filters/proximity";
+    import filterIntersection from "./data/entity/filters/intersection";
     import effectMove from "./data/entity/effects/move";
+
+    import Rectangle from "./util/Rectangle";
+    import Circle from "./util/Circle";
+    import PointCircle from "./util/PointCircle";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
@@ -36,7 +41,7 @@ export default class Game extends Agency.Beacon {
             const game = new Game();
 
             //STUB START "World Dynamics"
-                game.world = new World(25, 25);
+                game.world = new World(30, 30);
 
                 const player = new Entity();
                 const component = Component.FromSchema(componentPosition, 4, 7);
@@ -56,13 +61,26 @@ export default class Game extends Agency.Beacon {
                     { width: 600, height: 600, props: { fillStyle: "rgba(0, 0, 255, 0.3)", strokeStyle: "#000" }
                 });
 
-                const _rangeVar = 4;
+                const _rangeVar = 3;
                 setInterval(() => {
                     const entities = Object.fromEntries(Game.$.world.entities.values.map(e => [ e.__id, e ]));
+                    
+                    // const rect = Rectangle.Centered(
+                    //     player.position.x,
+                    //     player.position.y,
+                    //     _rangeVar,
+                    //     _rangeVar,
+                    // );
+                    const circle = new Circle(
+                        player.position.x,
+                        player.position.y,
+                        _rangeVar,
+                    );
 
                     Action.Spawn(
                         player,
-                        filterProximity.Range(player.position.x, player.position.y, _rangeVar),
+                        // filterProximity.Range(rect),
+                        filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPoints(circle)),
                         effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
                         entities,
                     );
@@ -73,11 +91,39 @@ export default class Game extends Agency.Beacon {
                     game.canvas.drawGrid();
                     
                     game.canvas.save();
-                    game.canvas.prop({ fillStyle: "rgba(0, 255, 20, 0.15)" }).tRect(
-                        player.position.x - _rangeVar,
-                        player.position.y - _rangeVar,
-                        _rangeVar * 2 + 1, _rangeVar * 2 + 1, { isFilled: true }
-                    );
+                    // game.canvas.prop({ fillStyle: "rgba(0, 255, 20, 0.15)" }).tRect(                        
+                    //     player.position.x - _rangeVar,
+                    //     player.position.y - _rangeVar,
+                    //     _rangeVar * 2 + 1,
+                    //     _rangeVar * 2 + 1,
+                    //     { isFilled: true },
+                    // );
+
+                    //STUB
+                        // const tcPoints = PointCircle.GetPoints(player.position.x, player.position.y, _rangeVar);
+                        game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.25)", strokeStyle: "rgba(0, 255, 255, 0.75)" }).tCircle(
+                            player.position.x,
+                            player.position.y,
+                            _rangeVar,
+                            { isFilled: true },
+                        );
+                        // game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.25)", strokeStyle: "transparent" }).tCircle(
+                        //     player.position.x + 0.5,
+                        //     player.position.y + 0.5,
+                        //     _rangeVar,
+                        //     { isFilled: true },
+                        // );
+                        // const tcPoints = PointCircle.GetPoints(player.position.x, player.position.y, _rangeVar);
+                        // for(let [ x, y ] of tcPoints) {
+                        //     game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.75)" }).tRect(
+                        //         x,
+                        //         y,
+                        //         1,
+                        //         1,
+                        //         { isFilled: true },
+                        //     );
+                        // }
+
                     game.canvas.restore();
 
                     for(let ent of Game.$.world.entities.values) {
