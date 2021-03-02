@@ -136,12 +136,15 @@ export default class Canvas {
      * Starts the arc "north", by adding -Math.PI / 2 to @start
      * @counterClockwise self-explanatory, but toggling will quickly invert the shape
      */
-    pie(x, y, radius, startRadian, endRadian, { isFilled = false, counterClockwise = false } = {}) {
+    pie(x, y, radius, startRadian, endRadian, { isFilled = false, alignment = -Math.PI / 2, counterClockwise = false } = {}) {
+        let dx = radius * Math.cos(alignment),
+            dy = radius * Math.sin(alignment);
+
         if(isFilled) {
             this.ctx.beginPath();
             this.ctx.moveTo(x, y);
-            this.ctx.lineTo(x, y - radius); // This would change if "north" is not the starting point
-            this.ctx.arc(x, y, radius, startRadian - Math.PI / 2, endRadian - Math.PI / 2, counterClockwise);
+            this.ctx.lineTo(x + dx, y + dy); // This would change if "north" is not the starting point
+            this.ctx.arc(x, y, radius, startRadian + alignment, endRadian + alignment, counterClockwise);
             this.ctx.lineTo(x, y);
             this.ctx.closePath();
             this.ctx.fill();
@@ -149,8 +152,8 @@ export default class Canvas {
         } else {
             this.ctx.beginPath();
             this.ctx.moveTo(x, y);
-            this.ctx.lineTo(x, y - radius);
-            this.ctx.arc(x, y, radius, startRadian - Math.PI / 2, endRadian - Math.PI / 2, counterClockwise);
+            this.ctx.lineTo(x + dx, y + dy);
+            this.ctx.arc(x, y, radius, startRadian + alignment, endRadian + alignment, counterClockwise);
             this.ctx.lineTo(x, y);
             this.ctx.closePath();
             this.ctx.stroke();
@@ -330,7 +333,7 @@ export default class Canvas {
                 this.clear();
             }
     
-            this.onDraw(this, this.ctx, this.canvas, elapsed - this.__lastDraw);
+            this.onDraw(elapsed - this.__lastDraw, this.ctx, this.canvas, this);
             this.__lastDraw = elapsed;
             
             requestAnimationFrame(this.draw.bind(this));

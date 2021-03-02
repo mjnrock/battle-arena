@@ -42,13 +42,17 @@ export default class Game extends Agency.Beacon {
 
             //STUB START "World Dynamics"
                 game.world = new World(30, 30);
+                game.canvas = new TileCanvas(
+                    600 / game.world.width,
+                    600 / game.world.height,
+                    { width: 600, height: 600, props: { fillStyle: "rgba(0, 0, 255, 0.3)", strokeStyle: "#000" }
+                });
 
                 const player = new Entity();
                 const compPosition = Component.FromSchema(componentPosition, 4, 7);
                 player.position = compPosition;
                 const compTask = Component.FromSchema(componentTask);
                 player.task = compTask;
-                player.task.timeout = 350;
                 game.world.join(player, "player");
 
                 for(let i = 0; i < 10; i++) {
@@ -57,89 +61,25 @@ export default class Game extends Agency.Beacon {
                     e.position = comp;
                     const compTask = Component.FromSchema(componentTask);
                     e.task = compTask;
-                    e.task.timeout = Agency.Util.Dice.random(0, 999);
-
-                    if(i === 0) {
-                        game.world.join(e, "nemesis");
-                    }
-                    
                     game.world.join(e);
                 }
-                const nemesis = game.world.entities.nemesis;
-
-                game.canvas = new TileCanvas(
-                    600 / game.world.width,
-                    600 / game.world.height,
-                    { width: 600, height: 600, props: { fillStyle: "rgba(0, 0, 255, 0.3)", strokeStyle: "#000" }
-                });
-
-                const targets = [
-                    player,
-                    // nemesis,
-                    // ...Game.$.world.entities.values.slice(2, 5)
-                ];
-                const _rangeVar = 10;
-                // setInterval(() => {
-                //     const entities = Game.$.world.entities.values;
-                    
-                //     for(let target of targets) {
-                //         const circle = new Circle(
-                //             target.position.x,
-                //             target.position.y,
-                //             _rangeVar,
-                //         );
-    
-                //         Action.Spawn(
-                //             target,
-                //             filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
-                //             effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
-                //             target,
-                //         );
-                //         Action.Spawn(
-                //             target,
-                //             filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
-                //             effectMove.Attract(circle, 1.0, 0.5),
-                //             // circular density function
-
-                //             entities,
-                //         );
-                //     }
-                // }, 750);
-                    for(let ent of Game.$.world.entities.values) {
-                        console.log(ent.task.timeout)
-                    }
                 
                 game.canvas.eraseFirst();
-                game.canvas.onDraw = (Cvs, ctx, cvs, dt) => {
+                game.canvas.onDraw = (dt) => {
                     game.canvas.drawGrid();
-                    
-
-                    //STUB
-                    for(let target of targets) {
-                        game.canvas.save();
-                        game.canvas.prop({ fillStyle: "rgba(0, 255, 255, 0.25)", strokeStyle: "rgba(0, 255, 255, 0.75)" }).tCircle(
-                            target.position.x,
-                            target.position.y,
-                            _rangeVar,
-                            { isFilled: true },
-                        );
-                        game.canvas.restore();
-                    }
-
 
                     for(let ent of Game.$.world.entities.values) {
-                        game.canvas.tRect(
+                        game.canvas.save();
+                        game.canvas.prop({ fillStyle: ent === player ? "rgba(0, 150, 100, 0.3)" : "rgba(0, 0, 255, 0.3)"}).tRect(
                             ent.position.x,
                             ent.position.y,
                             1, 1, { isFilled: true }
                         );
+                        game.canvas.restore();
                         
                         const GCD = 2500;
-                        if(!isNaN(dt) && dt <= game.loop.subject.spb) {
-                            ent.task.timeout = (ent.task.timeout >= GCD) ? dt : (ent.task.timeout + dt);
-                        }
-                        let prog = ent.task.timeout / GCD;
-                        let g = ~~(prog > 0.75 ? 0 : 255 - (255 * prog * 0.5));
+                        let prog = (Date.now() - ent.task.timeoutStart) / GCD;
+                        let g = 150; //~~(prog > 0.75 ? 0 : 255 - (255 * prog * 0.5));
                         let r = ~~(prog <= 0.75 ? 0 : 255 * prog);
                         game.canvas.save();
                             game.canvas.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
@@ -156,7 +96,7 @@ export default class Game extends Agency.Beacon {
                                 7,
                                 0,
                                 prog * Math.PI * 2,
-                                { isFilled: true },
+                                { isFilled: true, counterClockwise: true },
                             );
                         game.canvas.restore();
                     }

@@ -20,9 +20,13 @@ export class World extends Agency.Observable {
 
     join(entity, ...synonyms) {
         this.entities.register(entity, ...synonyms);
+        
+        entity.onTurn();
     }
     leave(entity) {
         this.entities.unregister(entity);
+
+        entity.offTurn();
     }
 
     select(filter) {
