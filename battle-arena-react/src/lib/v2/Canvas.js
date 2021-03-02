@@ -132,6 +132,33 @@ export default class Canvas {
         return this;
     }
 
+    /**
+     * Starts the arc "north", by adding -Math.PI / 2 to @start
+     * @counterClockwise self-explanatory, but toggling will quickly invert the shape
+     */
+    pie(x, y, radius, startRadian, endRadian, { isFilled = false, counterClockwise = false } = {}) {
+        if(isFilled) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, y);
+            this.ctx.lineTo(x, y - radius); // This would change if "north" is not the starting point
+            this.ctx.arc(x, y, radius, startRadian - Math.PI / 2, endRadian - Math.PI / 2, counterClockwise);
+            this.ctx.lineTo(x, y);
+            this.ctx.closePath();
+            this.ctx.fill();
+            this.ctx.stroke();
+        } else {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, y);
+            this.ctx.lineTo(x, y - radius);
+            this.ctx.arc(x, y, radius, startRadian - Math.PI / 2, endRadian - Math.PI / 2, counterClockwise);
+            this.ctx.lineTo(x, y);
+            this.ctx.closePath();
+            this.ctx.stroke();
+        }
+
+        return this;
+    }
+
     circle(x, y, radius, { isFilled = false } = {}) {
         if(isFilled) {
             this.ctx.beginPath();
@@ -297,13 +324,14 @@ export default class Canvas {
 
         return this;
     }
-    draw() {
+    draw(elapsed) {
         if(this._config.isAnimating === true) {
             if(this._config.clearBeforeDraw === true) {
                 this.clear();
             }
     
-            this.onDraw(this, this.ctx, this.canvas);
+            this.onDraw(this, this.ctx, this.canvas, elapsed - this.__lastDraw);
+            this.__lastDraw = elapsed;
             
             requestAnimationFrame(this.draw.bind(this));
         }
@@ -332,6 +360,8 @@ export default class Canvas {
     }
     stop() {
         this._config.isAnimating = false;
+        
+        delete this.__lastDraw;
 
         return this;
     }

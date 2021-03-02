@@ -10,6 +10,7 @@ import TileCanvas from "./TileCanvas";
     import World from "./World";
 
     import componentPosition from "./data/entity/components/position";
+    import componentTask from "./data/entity/components/task";
 
     import filterIntersection from "./data/entity/filters/intersection";
     import effectMove from "./data/entity/effects/move";
@@ -43,14 +44,20 @@ export default class Game extends Agency.Beacon {
                 game.world = new World(30, 30);
 
                 const player = new Entity();
-                const component = Component.FromSchema(componentPosition, 4, 7);
-                player.position = component;            
+                const compPosition = Component.FromSchema(componentPosition, 4, 7);
+                player.position = compPosition;
+                const compTask = Component.FromSchema(componentTask);
+                player.task = compTask;
+                player.task.timeout = 350;
                 game.world.join(player, "player");
 
-                for(let i = 0; i < 20; i++) {
+                for(let i = 0; i < 10; i++) {
                     const e = new Entity();
                     const comp = Component.FromSchema(componentPosition, Agency.Util.Dice.random(0, 29), Agency.Util.Dice.random(0, 29));
                     e.position = comp;
+                    const compTask = Component.FromSchema(componentTask);
+                    e.task = compTask;
+                    e.task.timeout = Agency.Util.Dice.random(0, 999);
 
                     if(i === 0) {
                         game.world.join(e, "nemesis");
@@ -72,33 +79,38 @@ export default class Game extends Agency.Beacon {
                     // ...Game.$.world.entities.values.slice(2, 5)
                 ];
                 const _rangeVar = 10;
-                setInterval(() => {
-                    const entities = Game.$.world.entities.values;
+                // setInterval(() => {
+                //     const entities = Game.$.world.entities.values;
                     
-                    for(let target of targets) {
-                        const circle = new Circle(
-                            target.position.x,
-                            target.position.y,
-                            _rangeVar,
-                        );
+                //     for(let target of targets) {
+                //         const circle = new Circle(
+                //             target.position.x,
+                //             target.position.y,
+                //             _rangeVar,
+                //         );
     
-                        Action.Spawn(
-                            target,
-                            filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
-                            effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
-                            target,
-                        );
-                        Action.Spawn(
-                            target,
-                            filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
-                            effectMove.CenterPoint(circle),
-                            entities,
-                        );
+                //         Action.Spawn(
+                //             target,
+                //             filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
+                //             effectMove.Random(Game.$.canvas.cols, Game.$.canvas.rows),
+                //             target,
+                //         );
+                //         Action.Spawn(
+                //             target,
+                //             filterIntersection.IsEntityWithinCircle(circle, PointCircle.GetPerimeterPoints(circle)),
+                //             effectMove.Attract(circle, 1.0, 0.5),
+                //             // circular density function
+
+                //             entities,
+                //         );
+                //     }
+                // }, 750);
+                    for(let ent of Game.$.world.entities.values) {
+                        console.log(ent.task.timeout)
                     }
-                }, 750);
                 
                 game.canvas.eraseFirst();
-                game.canvas.onDraw = () => {
+                game.canvas.onDraw = (Cvs, ctx, cvs, dt) => {
                     game.canvas.drawGrid();
                     
 
@@ -121,6 +133,32 @@ export default class Game extends Agency.Beacon {
                             ent.position.y,
                             1, 1, { isFilled: true }
                         );
+                        
+                        const GCD = 2500;
+                        if(!isNaN(dt) && dt <= game.loop.subject.spb) {
+                            ent.task.timeout = (ent.task.timeout >= GCD) ? dt : (ent.task.timeout + dt);
+                        }
+                        let prog = ent.task.timeout / GCD;
+                        let g = ~~(prog > 0.75 ? 0 : 255 - (255 * prog * 0.5));
+                        let r = ~~(prog <= 0.75 ? 0 : 255 * prog);
+                        game.canvas.save();
+                            game.canvas.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
+                                ent.position.x * game.canvas.tw + game.canvas.tw / 2,
+                                ent.position.y * game.canvas.th - game.canvas.tw / 2,
+                                8,
+                                { isFilled: true },
+                            );
+                        game.canvas.restore();
+                        game.canvas.save();
+                            game.canvas.prop({ fillStyle: `rgba(${ r }, ${ g }, 0, 0.75)`, strokeStyle: `rgba(${ r }, ${ g }, 0, 0.75)` }).pie(
+                                ent.position.x * game.canvas.tw + game.canvas.tw / 2,
+                                ent.position.y * game.canvas.th - game.canvas.tw / 2,
+                                7,
+                                0,
+                                prog * Math.PI * 2,
+                                { isFilled: true },
+                            );
+                        game.canvas.restore();
                     }
                 }
                 game.loop.subject.start();

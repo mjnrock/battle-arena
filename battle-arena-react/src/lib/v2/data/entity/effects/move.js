@@ -35,39 +35,46 @@ export const Random = (xmax, ymax) => (target, source) =>{
     }
 }
 
-export const CenterPoint = (shape, goto = false) => (target, source) => {
+export const CenterPoint = (shape) => (target, source) => {
     if(target instanceof Entity && target.position && shape instanceof Point) {
-        if(goto === true) {
-            const { x, y } = shape.origin;
-    
-            target.position.x = x;
-            target.position.y = y;
-        } else {
-            const { x, y } = shape.origin;
-            const { cos, sin } = getTrig(
-                target.position.x,
-                target.position.y,
-                x,
-                y,
-            );
-            
-            let dx = 0;
-            if(cos >= 0.5) {
-                dx = 1;
-            } else if(cos <= -0.5) {
-                dx = -1;
-            }
+        const { x, y } = shape.origin;
 
-            let dy = 0;
-            if(sin >= 0.5) {
-                dy = 1;
-            } else if(sin <= -0.5) {
-                dy = -1;
-            }
-    
-            target.position.x += dx;
-            target.position.y += dy;
+        target.position.x = x;
+        target.position.y = y;
+    }
+}
+export const Attract = (shape, amplify = 1.0, threshold = 0) => (target, source) => {
+    if(target instanceof Entity && target.position && shape instanceof Point) {
+        const { x, y } = shape.origin;
+
+        let trig;
+        const { cos, sin, hypot, vx, vy } = trig = getTrig(
+            target.position.x,
+            target.position.y,
+            x,
+            y,
+        );
+
+        if(typeof amplify === "function") {
+            amplify = amplify(trig, target, source);
         }
+            
+        let dx = 0;
+        if(cos > threshold) {
+            dx = (vx * cos / hypot) * amplify;
+        } else if(cos <= -threshold) {
+            dx = -(vx * cos / hypot) * amplify;
+        }
+
+        let dy = 0;
+        if(sin > threshold) {
+            dy = (vy * sin / hypot) * amplify;
+        } else if(sin <= -threshold) {
+            dy = -(vy * sin / hypot) * amplify;
+        }
+
+        target.position.x = Math.round(parseFloat(target.position.x + dx));
+        target.position.y = Math.round(parseFloat(target.position.y + dy));
     }
 }
 
@@ -76,4 +83,5 @@ export default {
 
     Random,
     CenterPoint,
+    Attract,
 };
