@@ -26,15 +26,13 @@ export class Entity extends Observable {
             this.position.y += random();
     
             this.task.timeout = setTimeout(this.onTurn.bind(this), GCD);
-            if(this.task.timeout) {
-                this.task.timeoutStart = Date.now();
-            }
+            this.task.timeoutStart = Date.now();
         }
     }
     offTurn() {
         clearInterval(this.task.timeout);
-        this.task.timeout = null;
-        this.task.timeoutStart = null;
+        this.task.timeout = void 0;
+        this.task.timeoutStart = 0;
     }
 }
 

@@ -4,6 +4,7 @@ import { Grid, Table, Input } from "semantic-ui-react";
 import AgencyObservable from "./../../lib/v2/Observable";
 
 //TODO  Pass the edit functionality to any nested <Observable>
+//TODO  This is presently newer than that in =agency=
 
 export default function Observable(props) {
     const { observable } = props;

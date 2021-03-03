@@ -2,6 +2,8 @@ import Agency from "@lespantsfancy/agency";
 
 import { v4 as uuidv4 } from "uuid";
 
+//TODO  This is presently newer than that in =agency=
+
 //TODO Consider merging to a scheme with syntactic naming
 /**
  * These would all affect how .toData() and .next() process them
@@ -143,11 +145,11 @@ export class Observable {
 export function Factory(state = {}, isDeep = true) {
     const obs = new Observable(isDeep);
     
-    if(state instanceof Observable) {
-        state = state.toData();
-    }
+    // if(state instanceof Observable) {
+    //     state = state.toData();
+    // }
 
-    if(typeof state === "object") {
+    if(typeof state === "object" || state instanceof Observable) {
         for(let [ key, value ] of Object.entries(state)) {
             obs[ key ] = value;
         }

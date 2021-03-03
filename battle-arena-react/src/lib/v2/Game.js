@@ -79,8 +79,17 @@ export default class Game extends Agency.Beacon {
                         
                         const GCD = 2500;
                         let prog = (Date.now() - ent.task.timeoutStart) / GCD;
-                        let g = 150; //~~(prog > 0.75 ? 0 : 255 - (255 * prog * 0.5));
-                        let r = ~~(prog <= 0.75 ? 0 : 255 * prog);
+                        if(prog > 2) {
+                            console.warn(`ERROR`, ent)
+                            ent.offTurn();
+                            ent.onTurn();
+                        }
+                        let color = `rgba(95, 160, 80, 0.75)`;
+                        if(prog >= 0.75) {
+                            color = `rgba(196, 74, 74, 0.75)`;
+                        } else if(prog >= 0.55) {
+                            color = `rgba(201, 199, 72, 0.75)`;
+                        }
                         game.canvas.save();
                             game.canvas.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
                                 ent.position.x * game.canvas.tw + game.canvas.tw / 2,
@@ -90,7 +99,7 @@ export default class Game extends Agency.Beacon {
                             );
                         game.canvas.restore();
                         game.canvas.save();
-                            game.canvas.prop({ fillStyle: `rgba(${ r }, ${ g }, 0, 0.75)`, strokeStyle: `rgba(${ r }, ${ g }, 0, 0.75)` }).pie(
+                            game.canvas.prop({ fillStyle: color, strokeStyle: `rgba(0, 0, 0, 0.35)` }).pie(
                                 ent.position.x * game.canvas.tw + game.canvas.tw / 2,
                                 ent.position.y * game.canvas.th - game.canvas.tw / 2,
                                 7,
