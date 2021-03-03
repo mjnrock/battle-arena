@@ -5,6 +5,12 @@ const _name = "task";
 
 export const schema = {
     [ _name ]: (timeout) => ({
+        current: (entity) => {
+            const random = () => Math.round(parseFloat((Agency.Util.Dice.random(-5, 5) / 5)));
+            
+            entity.position.x += random();
+            entity.position.y += random();
+        },
         timeout,
         timeoutStart: 0,
     }),

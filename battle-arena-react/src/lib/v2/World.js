@@ -1,4 +1,5 @@
 import Agency from "@lespantsfancy/agency";
+import timeout from "p-timeout";
 
 export class World extends Agency.Observable {
     constructor(width, height) {
@@ -22,6 +23,10 @@ export class World extends Agency.Observable {
         this.entities.register(entity, ...synonyms);
         
         entity.onTurn();
+        // entity.task.timeoutStart = Date.now();
+        // timeout(new Promise((resolve, reject) => {
+        //     resolve(entity.onTurn());
+        // }), 2500);
     }
     leave(entity) {
         this.entities.unregister(entity);

@@ -27,6 +27,12 @@ export default class Game extends Agency.Beacon {
         this.loop = Agency.Pulse.Generate(fps, { autostart: false });
         this.render = null;
 
+        let img = new Image();
+        img.src = "./assets/images/squirrel.png";
+        img.onload = e => {
+            this.SQUIRREL_IMAGE = img;
+        };
+
         // Create Singleton pattern
         if(!Game.Instance) {
             Game.Instance = this;
@@ -41,11 +47,11 @@ export default class Game extends Agency.Beacon {
             const game = new Game();
 
             //STUB START "World Dynamics"
-                game.world = new World(30, 30);
+                game.world = new World(20, 20);
                 game.canvas = new TileCanvas(
-                    600 / game.world.width,
-                    600 / game.world.height,
-                    { width: 600, height: 600, props: { fillStyle: "rgba(0, 0, 255, 0.3)", strokeStyle: "#000" }
+                    640 / game.world.width,
+                    640 / game.world.height,
+                    { width: 640, height: 640, props: { fillStyle: "rgba(0, 0, 255, 0.3)", strokeStyle: "#000" }
                 });
 
                 const player = new Entity();
@@ -57,7 +63,7 @@ export default class Game extends Agency.Beacon {
 
                 for(let i = 0; i < 10; i++) {
                     const e = new Entity();
-                    const comp = Component.FromSchema(componentPosition, Agency.Util.Dice.random(0, 29), Agency.Util.Dice.random(0, 29));
+                    const comp = Component.FromSchema(componentPosition, Agency.Util.Dice.random(0, 19), Agency.Util.Dice.random(0, 19));
                     e.position = comp;
                     const compTask = Component.FromSchema(componentTask);
                     e.task = compTask;
@@ -68,24 +74,38 @@ export default class Game extends Agency.Beacon {
                 game.canvas.onDraw = (dt) => {
                     game.canvas.drawGrid();
 
-                    for(let ent of Game.$.world.entities.values) {
-                        game.canvas.save();
-                        game.canvas.prop({ fillStyle: ent === player ? "rgba(0, 150, 100, 0.3)" : "rgba(0, 0, 255, 0.3)"}).tRect(
-                            ent.position.x,
-                            ent.position.y,
-                            1, 1, { isFilled: true }
-                        );
-                        game.canvas.restore();
+                    for(let ent of game.world.entities.values) {
+                        if(game.SQUIRREL_IMAGE) {
+                            game.canvas.image(
+                                game.SQUIRREL_IMAGE,
+                                0,
+                                0,
+                                game.canvas.tw,
+                                game.canvas.th,
+                                ent.position.x * game.canvas.tw,
+                                ent.position.y * game.canvas.th,
+                                game.canvas.tw,
+                                game.canvas.th,
+                            );
+                        } else {
+                            game.canvas.save();
+                            game.canvas.prop({ fillStyle: ent === player ? "rgba(0, 150, 100, 0.3)" : "rgba(0, 0, 255, 0.3)"}).tRect(
+                                ent.position.x,
+                                ent.position.y,
+                                1, 1, { isFilled: true }
+                            );
+                            game.canvas.restore();
+                        }
                         
                         const GCD = 2500;
                         let prog = (Date.now() - ent.task.timeoutStart) / GCD;
-                        if(prog > 2) {
-                            console.warn(`ERROR`, ent)
-                            ent.offTurn();
-                            ent.onTurn();
-                        }
+                        // if(prog > 2) {
+                        //     // console.warn(`ERROR`, ent)
+                        //     ent.offTurn();
+                        //     ent.onTurn();
+                        // }
                         let color = `rgba(95, 160, 80, 0.75)`;
-                        if(prog >= 0.75) {
+                        if(prog >= 0.80) {
                             color = `rgba(196, 74, 74, 0.75)`;
                         } else if(prog >= 0.55) {
                             color = `rgba(201, 199, 72, 0.75)`;

@@ -1,4 +1,5 @@
 import Agency from "@lespantsfancy/agency";
+import timeout from "p-timeout";
 // export class Entity extends Agency.Observable {
 
 import Observable from "./Observable";
@@ -8,6 +9,17 @@ export class Entity extends Observable {
     }
 
     onTurn() {
+        // const GCD = 2500;       //STUB  Move to somewhere elsed
+        
+        // this.task.current(this);
+        // const entity = this;
+        // timeout(new Promise((resolve, reject) => {
+        //     resolve(entity.onTurn());
+        // }), GCD);
+
+
+
+
         const GCD = 2500;       //STUB  Move to somewhere elsed
         if(Date.now() - this.task.timeoutStart < GCD) {
             return;
@@ -21,13 +33,13 @@ export class Entity extends Observable {
         } else {
             clearTimeout(this.task.timeout);
     
-            const random = () => Math.round(parseFloat((Agency.Util.Dice.random(-5, 5) / 5)));
-            this.position.x += random();
-            this.position.y += random();
+            this.task.current(this);
     
             this.task.timeout = setTimeout(this.onTurn.bind(this), GCD);
             this.task.timeoutStart = Date.now();
         }
+
+        
     }
     offTurn() {
         clearInterval(this.task.timeout);
