@@ -1,6 +1,8 @@
 import Agency from "@lespantsfancy/agency";
+// export class Entity extends Agency.Observable {
 
-export class Entity extends Agency.Observable {
+import Observable from "./Observable";
+export class Entity extends Observable {
     constructor() {
         super();
     }

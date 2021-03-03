@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Grid, Table, Input } from "semantic-ui-react";
 
+import AgencyObservable from "./../../lib/v2/Observable";
+
+//TODO  Pass the edit functionality to any nested <Observable>
+
 export default function Observable(props) {
     const { observable } = props;
     const [ isEditMode, setIsEditMode ] = useState();
@@ -11,13 +15,17 @@ export default function Observable(props) {
         let obj = {};
         for(let [ key, value ] of Object.entries(data)) {
             const dot = `${ prop }.${ key }`;
-            if(typeof value === "object") {
+            if(observable[ dot ] instanceof AgencyObservable) {
                 obj[ key ] = (
-                    <Grid key={ dot }>{                        
+                    <Observable observable={ observable[ dot ] } />
+                );
+            } else if(typeof value === "object") {
+                obj[ key ] = (
+                    <Grid key={ dot } celled padded>{                        
                         toDataArray(value, dot).map(([ key, value ]) => (
                             <Grid.Row key={ key }>
-                                <Grid.Column>{ key }</Grid.Column>
-                                <Grid.Column>{ value }</Grid.Column>
+                                <Grid.Column width={ 2 }>{ key }</Grid.Column>
+                                <Grid.Column width={ 14 }>{ value }</Grid.Column>
                             </Grid.Row>
                         ))
                     }</Grid>
@@ -30,6 +38,49 @@ export default function Observable(props) {
         }
 
         return Object.entries(obj);
+    }
+
+    function objectToEditJsx(obj, prop, dot) {
+        if(!dot) {
+            dot = `$`;
+        }
+
+        const dotprop = `${ dot }.${ prop }`;
+        if(typeof obj[ prop ] === "object") {
+            let jsx = [];
+            for(let [ key, value ] of Object.entries(obj[ prop ])) {
+                jsx.push((
+                    <Grid key={ key } celled>
+                        <Grid.Row key={ key }>
+                            <Grid.Column width={ 2 }>{ key }</Grid.Column>
+                            <Grid.Column width={ 14 }>{
+                                objectToEditJsx(value, key, dotprop)
+                            }</Grid.Column>
+                        </Grid.Row>
+                    </Grid>
+                ));
+            }
+
+            return jsx;
+        }
+        
+        if(!isNaN(parseFloat(observable[ dotprop ])) && isFinite(observable[ dotprop ])) {
+            return (
+                <Input
+                    type="number"
+                    defaultValue={ observable[ dotprop ] }
+                    onChange={ e => observable[ dotprop ] = parseFloat(e.target.value) }
+                />
+            );
+        }
+
+        return (
+            <Input
+                type="text"
+                defaultValue={ observable[ dotprop ] }
+                onChange={ e => observable[ dotprop ] = e.target.value }
+            />
+        );
     }
 
     return (
@@ -55,7 +106,7 @@ export default function Observable(props) {
                                 isEditMode === key ? (
                                     <Table.Cell
                                         key={ `${ key }-2` }
-                                        onClick={ e => {
+                                        onBlur={ e => {
                                             setIsEditMode(null) ;
                                         }}
                                         onKeyPress={ e => {
@@ -64,10 +115,9 @@ export default function Observable(props) {
                                             }
                                         }}
                                     >
-                                        <Input
-                                            defaultValue={ observable[ key ] }
-                                            onChange={ e => observable[ key ] = e.target.value }
-                                        />
+                                        {
+                                            objectToEditJsx(data, key)
+                                        }
                                     </Table.Cell>
                                 ) : (
                                     <Table.Cell

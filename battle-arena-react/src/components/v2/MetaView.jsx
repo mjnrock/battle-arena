@@ -4,10 +4,12 @@ import { useBeacon, Components } from "@lespantsfancy/agency/lib/react/package";
 
 import { Context } from "./../../App";
 
+import Observable from "./Observable";
+
 export default function MetaView() {
     const { data, beacon: game } = useBeacon(Context, "game");
     
-    if(Object.keys(data).length === 0) {
+    if(Object.keys(data).length === 0 || !game) {
         return null;
     }
 
@@ -15,8 +17,8 @@ export default function MetaView() {
         <Segment textAlign="center">
             <Header style={{ fontFamily: "monospace" }} as="h3" textAlign="center">Meta Data</Header>
 
-            <Components.Beacon
-                beacon={ game }
+            <Observable
+                observable={ game.world.entities.player }
             />
             {/* <Components.Observer
                 observer={ game.loop }
