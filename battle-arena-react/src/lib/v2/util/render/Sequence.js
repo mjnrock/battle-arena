@@ -3,6 +3,14 @@ export class Sequence {
         this.score = score;
 
         this.duration = this.getTotalTime();
+
+        if(Array.isArray(this.score)) {  // no source data
+            this.pattern = this.score;
+        } else if(typeof this.score === "object") {  // source data
+            this.pattern = this.score.pattern;
+        } else {
+            return false;
+        }
     }
 
     getTotalTime() {
@@ -18,17 +26,11 @@ export class Sequence {
     }
 
     getKey(elapsed) {
-        let pattern;
-        if(Array.isArray(this.score)) {  // no source data
-            pattern = this.score;
-        } else if(typeof this.score === "object") {  // source data
-            pattern = this.score.pattern;
-        }
+        elapsed = elapsed % this.duration;  // Loop pattern
 
-        elapsed = elapsed % this.duration;
         let time = 0;
-        for(let i = 0; i < pattern.length; i++) {
-            const [ key, dur ] = pattern[ i ];
+        for(let i = 0; i < this.pattern.length; i++) {
+            const [ key, dur ] = this.pattern[ i ];
 
             if(elapsed <= time + dur) {
                 return key;

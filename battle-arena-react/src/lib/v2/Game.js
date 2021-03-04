@@ -102,7 +102,7 @@ export default class Game extends Agency.Beacon {
                         }
                         
                         //ANCHOR    "Turn Timer"
-                        const GCD = 2500;
+                        const GCD = 5000;
                         let prog = ((Date.now() - ent.turn.timeoutStart) % GCD) / GCD;      // % GCD hides information and should only be used for testing
                         // let prog = (Date.now() - ent.turn.timeoutStart) / GCD;
                         let color = `rgba(95, 160, 80, 0.75)`;
