@@ -32,6 +32,11 @@ export default class Game extends Agency.Beacon {
         img.onload = e => {
             this.SQUIRREL_IMAGE = img;
         };
+        let img2 = new Image();
+        img2.src = "./assets/images/bunny.png";
+        img2.onload = e => {
+            this.BUNNY_IMAGE = img2;
+        };
 
         // Create Singleton pattern
         if(!Game.Instance) {
@@ -75,18 +80,32 @@ export default class Game extends Agency.Beacon {
                     game.canvas.drawGrid();
 
                     for(let ent of game.world.entities.values) {
-                        if(game.SQUIRREL_IMAGE) {
-                            game.canvas.image(
-                                game.SQUIRREL_IMAGE,
-                                0,
-                                0,
-                                game.canvas.tw,
-                                game.canvas.th,
-                                ent.position.x * game.canvas.tw,
-                                ent.position.y * game.canvas.th,
-                                game.canvas.tw,
-                                game.canvas.th,
-                            );
+                        if(game.SQUIRREL_IMAGE && game.BUNNY_IMAGE) {
+                            if(ent === player) {
+                                game.canvas.image(
+                                    game.SQUIRREL_IMAGE,
+                                    0,
+                                    0,
+                                    game.canvas.tw,
+                                    game.canvas.th,
+                                    ent.position.x * game.canvas.tw,
+                                    ent.position.y * game.canvas.th,
+                                    game.canvas.tw,
+                                    game.canvas.th,
+                                );
+                            } else {
+                                game.canvas.image(
+                                    game.BUNNY_IMAGE,
+                                    0,
+                                    0,
+                                    game.canvas.tw,
+                                    game.canvas.th,
+                                    ent.position.x * game.canvas.tw,
+                                    ent.position.y * game.canvas.th,
+                                    game.canvas.tw,
+                                    game.canvas.th,
+                                );
+                            }
                         } else {
                             game.canvas.save();
                             game.canvas.prop({ fillStyle: ent === player ? "rgba(0, 150, 100, 0.3)" : "rgba(0, 0, 255, 0.3)"}).tRect(

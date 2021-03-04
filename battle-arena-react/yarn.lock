@@ -1404,10 +1404,10 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@lespantsfancy/agency@0.3.13":
-  version "0.3.13"
-  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.3.13.tgz#d904c4cdc2ac0a5c200518495cf4d41f7cd23a9a"
-  integrity sha512-Lf0vlSR28IEigZZUPfBtxBeLNmjkNSEziov+P0Tw4A3cU/aWaqunLw1P35STWVmWy8fAzgn/qfst2GokJBNifw==
+"@lespantsfancy/agency@0.3.14":
+  version "0.3.14"
+  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.3.14.tgz#89f84448c551cd4f60dd87e9d5fdb638af84d43f"
+  integrity sha512-jMHf6UKEqhP53GWAccaYQJ1XdoGWEPcXMokVj3dnNOETdIod6d3dEXGxnlaWvWD8qZ9OEbCiaIdN/H/A8Cmd/g==
   dependencies:
     esm "^3.2.25"
     mainloop.js "^1.0.4"
@@ -7749,11 +7749,6 @@ p-retry@^3.0.1:
   integrity sha512-XE6G4+YTTkT2a0UWb2kjZe8xNwf8bIbnqpc/IS/idOBVhyves0mK5OJgeocjx7q5pvX/6m23xuzVPYT1uGM73w==
   dependencies:
     retry "^0.12.0"
-
-p-timeout@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/p-timeout/-/p-timeout-4.1.0.tgz#788253c0452ab0ffecf18a62dff94ff1bd09ca0a"
-  integrity sha512-+/wmHtzJuWii1sXn3HCuH/FTwGhrp4tmJTxSKJbfS+vkipci6osxXM5mY0jUiRzWKMTgUT8l7HFbeSwZAynqHw==
 
 p-try@^1.0.0:
   version "1.0.0"

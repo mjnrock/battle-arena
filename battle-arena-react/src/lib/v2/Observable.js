@@ -2,8 +2,6 @@ import Agency from "@lespantsfancy/agency";
 
 import { v4 as uuidv4 } from "uuid";
 
-//TODO  This is presently newer than that in =agency=
-
 //TODO Consider merging to a scheme with syntactic naming
 /**
  * These would all affect how .toData() and .next() process them

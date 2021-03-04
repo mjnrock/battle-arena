@@ -3,9 +3,8 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
-        "@lespantsfancy/agency": "0.3.13",
+        "@lespantsfancy/agency": "0.3.14",
         "mainloop.js": "^1.0.4",
-        "p-timeout": "^4.1.0",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
         "react-router": "^5.2.0",
