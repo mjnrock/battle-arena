@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Agency from "@lespantsfancy/agency";
 
-import TileCanvas from "./TileCanvas";
+import TileCanvas from "./util/TileCanvas";
 
 //STUB START "Imports" for stub below
     import World from "./World";
@@ -56,7 +56,7 @@ export default class Game extends Agency.Beacon {
                 const player = game.world.entities.player;
 
                 game.world.entities.spawn(10, [
-                    [ componentPosition, { x: () => Agency.Util.Dice.random(0, 19), y: () => Agency.Util.Dice.random(0, 19) } ],
+                    [ componentPosition, { x: () => Agency.Util.Dice.random(0, game.world.width - 1), y: () => Agency.Util.Dice.random(0, game.world.height - 1) } ],
                     [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499) } ],
                 ]);     // ], (i) => `enemy-${ i }`);
                 
@@ -103,7 +103,8 @@ export default class Game extends Agency.Beacon {
                         
                         //ANCHOR    "Turn Timer"
                         const GCD = 2500;
-                        let prog = ((Date.now() - ent.turn.timeoutStart) % GCD) / GCD;
+                        let prog = ((Date.now() - ent.turn.timeoutStart) % GCD) / GCD;      // % GCD hides information and should only be used for testing
+                        // let prog = (Date.now() - ent.turn.timeoutStart) / GCD;
                         let color = `rgba(95, 160, 80, 0.75)`;
                         if(prog >= 0.80) {
                             color = `rgba(196, 74, 74, 0.75)`;

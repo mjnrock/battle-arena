@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Grid, Table, Input } from "semantic-ui-react";
 
-import AgencyObservable from "./../../lib/v2/Observable";
+import AgencyObservable from "./../../lib/v2/util/Observable";
 
 //TODO  Pass the edit functionality to any nested <Observable>
 
