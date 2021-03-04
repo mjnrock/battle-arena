@@ -16,24 +16,21 @@ export function Factory(state = {}, opts) {
     return comp;
 }
 
-/**
- * If a schema returns an object, this assumes it to be state
- * If a schema returns an array, it assumes it to be Factory() args
- */
-export function FromSchema(obj, ...args) {
-    for(let [ key, value ] of Object.entries(obj)) {
-        let nv;
+export function FromSchema(schema, argObj = {}) {
+    //? There should only ever be ONE (1) entry in a component schema, thus .values not .entries
+    for(let value of Object.values(schema)) {
         if(typeof value === "function") {
-            nv = value(...args);
+            const obj = { ...argObj };
+            for(let [ k, v ] of Object.entries(obj)) {
+                if(typeof v === "function") {
+                    obj[ k ] = v();
+                }
+            }
+
+            return Component.Factory(value(obj));
         } else {
-            nv = value;
+            return Component.Factory(value);
         }
-
-        if(Array.isArray(nv)) {
-            return Component.Factory(...nv);
-        }
-
-        return Component.Factory(nv);
     }
 }
 

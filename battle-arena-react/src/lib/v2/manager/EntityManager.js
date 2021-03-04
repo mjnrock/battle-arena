@@ -7,17 +7,25 @@ export class EntityManager extends Agency.Registry {
         super();        
     }    
     
-    create(schema, args = {}, ...synonyms) {
-        const entity = Entity.FromSchema(schema, args);
+    create(comps = [], ...synonyms) {
+        const entity = Entity.FromSchema(comps);
 
         this.register(entity, ...synonyms);
 
         return entity;
     }
-    spawn(qty, schema, args = {}, ...synonyms) {
+    spawn(qty, comps = [], synonymFunction) {
         const entities = [];
         for(let i = 0; i < qty; i++) {
-            entities.push(this.create(schema, args, ...synonyms));
+            const synonyms = typeof synonymFunction === "function" ? synonymFunction(i) : null;
+
+            if(Array.isArray(synonyms)) {
+                entities.push(this.create(comps, ...synonyms));
+            } else if(synonyms) {
+                entities.push(this.create(comps, synonyms));
+            } else {
+                entities.push(this.create(comps));
+            }
         }
         
         return entities;

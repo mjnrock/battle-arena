@@ -2,7 +2,7 @@
 const _name = "position";
 
 export const schema = {
-    [ _name ]: (x, y, facing = 0) => ({
+    [ _name ]: ({ x, y, facing = 0 } = {}) => ({
         facing,
         x: x,
         y: y,

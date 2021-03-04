@@ -1,10 +1,10 @@
 import Agency from "@lespantsfancy/agency";
 
 //! Component Schemas should always be functions
-const _name = "task";
+const _name = "turn";
 
 export const schema = {
-    [ _name ]: (timeout) => ({
+    [ _name ]: ({ timeout, timeoutStart = 0 } = {}) => ({
         current: (entity) => {
             const random = () => Math.round(parseFloat((Agency.Util.Dice.random(-5, 5) / 5)));
             
@@ -12,11 +12,11 @@ export const schema = {
             entity.position.y = Math.max(0, Math.min(19, entity.position.y + random()));
         },
         timeout,
-        timeoutStart: 0,
+        timeoutStart,
     }),
 };
 
-export function hasTask(entity = {}) {
+export function hasTurn(entity = {}) {
     return _name in entity;
 }
 

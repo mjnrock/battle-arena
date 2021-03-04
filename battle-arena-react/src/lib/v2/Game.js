@@ -4,20 +4,10 @@ import Agency from "@lespantsfancy/agency";
 import TileCanvas from "./TileCanvas";
 
 //STUB START "Imports" for stub below
-    import Component from "./Component";
-    import Entity from "./Entity";
-    import Action from "./Action";
     import World from "./World";
 
     import componentPosition from "./data/entity/components/position";
-    import componentTask from "./data/entity/components/task";
-
-    import filterIntersection from "./data/entity/filters/intersection";
-    import effectMove from "./data/entity/effects/move";
-
-    import Rectangle from "./util/Rectangle";
-    import Circle from "./util/Circle";
-    import PointCircle from "./util/PointCircle";
+    import componentTurn from "./data/entity/components/turn";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
@@ -59,21 +49,16 @@ export default class Game extends Agency.Beacon {
                     { width: 640, height: 640, props: { fillStyle: "rgba(0, 0, 255, 0.3)", strokeStyle: "#000" }
                 });
 
-                const player = new Entity();
-                const compPosition = Component.FromSchema(componentPosition, 4, 7);
-                player.position = compPosition;
-                const compTask = Component.FromSchema(componentTask);
-                player.task = compTask;
-                game.world.join(player, "player");
+                game.world.entities.create([
+                    [ componentPosition, { x: 4, y: 7 } ],
+                    [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499) } ],
+                ], "player");
+                const player = game.world.entities.player;
 
-                for(let i = 0; i < 10; i++) {
-                    const e = new Entity();
-                    const comp = Component.FromSchema(componentPosition, Agency.Util.Dice.random(0, 19), Agency.Util.Dice.random(0, 19));
-                    e.position = comp;
-                    const compTask = Component.FromSchema(componentTask);
-                    e.task = compTask;
-                    game.world.join(e);
-                }
+                game.world.entities.spawn(10, [
+                    [ componentPosition, { x: () => Agency.Util.Dice.random(0, 19), y: () => Agency.Util.Dice.random(0, 19) } ],
+                    [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499) } ],
+                ]);     // ], (i) => `enemy-${ i }`);
                 
                 game.canvas.eraseFirst();
                 game.canvas.onDraw = (dt) => {
@@ -116,13 +101,9 @@ export default class Game extends Agency.Beacon {
                             game.canvas.restore();
                         }
                         
+                        //ANCHOR    "Turn Timer"
                         const GCD = 2500;
-                        let prog = (Date.now() - ent.task.timeoutStart) / GCD;
-                        // if(prog > 2) {
-                        //     // console.warn(`ERROR`, ent)
-                        //     ent.offTurn();
-                        //     ent.onTurn();
-                        // }
+                        let prog = ((Date.now() - ent.turn.timeoutStart) % GCD) / GCD;
                         let color = `rgba(95, 160, 80, 0.75)`;
                         if(prog >= 0.80) {
                             color = `rgba(196, 74, 74, 0.75)`;
