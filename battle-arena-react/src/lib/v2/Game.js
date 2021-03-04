@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Agency from "@lespantsfancy/agency";
 
-import TileCanvas from "./util/TileCanvas";
+import TileCanvas from "./util/render/TileCanvas";
 
 //STUB START "Imports" for stub below
     import World from "./World";
