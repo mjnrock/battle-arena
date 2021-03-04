@@ -1404,12 +1404,13 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@lespantsfancy/agency@0.3.14":
-  version "0.3.14"
-  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.3.14.tgz#89f84448c551cd4f60dd87e9d5fdb638af84d43f"
-  integrity sha512-jMHf6UKEqhP53GWAccaYQJ1XdoGWEPcXMokVj3dnNOETdIod6d3dEXGxnlaWvWD8qZ9OEbCiaIdN/H/A8Cmd/g==
+"@lespantsfancy/agency@0.3.16":
+  version "0.3.16"
+  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.3.16.tgz#54ddd45c3cddb222ccdbc71da7ebc416a1511759"
+  integrity sha512-By2eNwZV5Wp7D4zuPCWxwgqOxNg/xa+FNItsgNCpav77SYcrpDzjn4i36EnEz8aXVUmyCpg61lGcGuRnlWmEcw==
   dependencies:
     esm "^3.2.25"
+    is-base64 "^1.1.0"
     mainloop.js "^1.0.4"
     node-fetch "^2.6.1"
     object-hash "^2.1.1"
@@ -5768,6 +5769,11 @@ is-arrayish@^0.3.1:
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/is-arrayish/-/is-arrayish-0.3.2.tgz#4574a2ae56f7ab206896fb431eaeed066fdf8f03"
   integrity sha512-eVRqCvVlZbuw3GrM63ovNSNAeA1K16kaR/LRY/92w0zxQ5/1YzwblUX652i4Xs9RwAGjW9d9y6X88t8OaAJfWQ==
+
+is-base64@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/is-base64/-/is-base64-1.1.0.tgz#8ce1d719895030a457c59a7dcaf39b66d99d56b4"
+  integrity sha512-Nlhg7Z2dVC4/PTvIFkgVVNvPHSO2eR/Yd0XzhGiXCXEvWnptXlXa/clQ8aePPiMuxEGcWfzWbGw2Fe3d+Y3v1g==
 
 is-binary-path@^1.0.0:
   version "1.0.1"

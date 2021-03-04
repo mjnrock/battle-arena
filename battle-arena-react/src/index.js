@@ -6,6 +6,26 @@ import "./css/tachyons.min.css";
 import "semantic-ui-css/semantic.min.css";
 // import reportWebVitals from "./reportWebVitals";
 
+import Agency from "@lespantsfancy/agency";
+import { ToGrid } from "./lib/v2/data/image/tessellator/grid";
+import Tessellation from "./lib/v2/util/render/Tessellation";
+
+Agency.Util.Base64.FileDecode("./assets/images/skwrl.txt").then(canvas => ToGrid(32, 32, canvas, { asJson: true })).then(data => {
+    const tessellation = new Tessellation(data);
+
+    tessellation.relative(30)
+        .add(`0.0`, 3)
+        .add(`1.0`, 6);
+
+    console.log(...tessellation.score());
+
+    const sequence = tessellation.toSequence();
+
+    console.log(sequence.getKey(100));
+    console.log(sequence.getKey(220));
+    console.log(sequence.getKey(401));
+});
+
 ReactDOM.render(
     <React.StrictMode>
         <App />
