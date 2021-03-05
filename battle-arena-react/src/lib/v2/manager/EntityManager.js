@@ -3,8 +3,12 @@ import Agency from "@lespantsfancy/agency";
 import Entity from "./../Entity";
 
 export class EntityManager extends Agency.Registry {
-    constructor() {
-        super();        
+    constructor(entities = []) {
+        super();
+
+        for(let entity of entities) {
+            this.register(entity);
+        }
     }    
     
     create(comps = [], ...synonyms) {
@@ -14,7 +18,7 @@ export class EntityManager extends Agency.Registry {
 
         return entity;
     }
-    spawn(qty, comps = [], synonymFunction) {
+    createMany(qty, comps = [], synonymFunction) {
         const entities = [];
         for(let i = 0; i < qty; i++) {
             const synonyms = typeof synonymFunction === "function" ? synonymFunction(i) : null;

@@ -55,7 +55,7 @@ export default class Game extends Agency.Beacon {
                 ], "player");
                 const player = game.world.entities.player;
 
-                game.world.entities.spawn(10, [
+                game.world.entities.createMany(10, [
                     [ componentPosition, { x: () => Agency.Util.Dice.random(0, game.world.width - 1), y: () => Agency.Util.Dice.random(0, game.world.height - 1) } ],
                     [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499) } ],
                 ]);     // ], (i) => `enemy-${ i }`);
