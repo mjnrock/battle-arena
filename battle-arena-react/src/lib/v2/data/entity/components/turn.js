@@ -1,4 +1,3 @@
-import Agency from "@lespantsfancy/agency";
 import { random } from "../ai/random";
 
 //! Component Schemas should always be functions

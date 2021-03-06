@@ -13,7 +13,7 @@ import TileCanvas from "./util/render/TileCanvas";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
-    constructor({ fps = 2, GCD = 2500 } = {}) {
+    constructor({ fps = 24, GCD = 1500 } = {}) {
         super(false);
         
         this.loop = Agency.Pulse.Generate(fps, { autostart: false });
@@ -51,17 +51,18 @@ export default class Game extends Agency.Beacon {
 
                 game.world.entities.createMany(10, [
                     [ componentPosition, { x: () => Agency.Util.Dice.random(0, game.world.width - 1), y: () => Agency.Util.Dice.random(0, game.world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
-                    [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499) } ],
+                    [ componentTurn, { timeoutStart: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
                 ], (i) => `enemy-${ i }`);
 
                 worldEntityLayer.init(game);
 
                 game.on("next", (type, { dt, now }) => {
                     if(type === "tick") {
+                        const now = Date.now();
                         for(let entity of game.world.entities.values) {
-                            if(Date.now() - entity.turn.timeoutStart >= game.config.GCD) {
+                            if(now - entity.turn.timeoutStart >= game.config.GCD) {
                                 entity.turn.current(entity);
-                                entity.turn.timeoutStart = Date.now();
+                                entity.turn.timeoutStart = now;
                             }
                         }
                     }
