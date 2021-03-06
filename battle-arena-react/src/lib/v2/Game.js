@@ -8,8 +8,10 @@ import TileCanvas from "./util/render/TileCanvas";
 
     import componentPosition from "./data/entity/components/position";
     import componentTurn from "./data/entity/components/turn";
-import RenderGroup from "./manager/RenderGroup";
-import ImageRegistry from "./manager/ImageRegistry";
+    import RenderGroup from "./manager/RenderGroup";
+    import ImageRegistry from "./manager/ImageRegistry";
+
+    import { ToCanvasMap } from "./data/image/tessellator/grid";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
@@ -18,17 +20,6 @@ export default class Game extends Agency.Beacon {
         
         this.loop = Agency.Pulse.Generate(fps, { autostart: false });
         this.render = null;
-
-        let img = new Image();
-        img.src = "./assets/images/squirrel.png";
-        img.onload = e => {
-            this.SQUIRREL_IMAGE = img;
-        };
-        let img2 = new Image();
-        img2.src = "./assets/images/bunny.png";
-        img2.onload = e => {
-            this.BUNNY_IMAGE = img2;
-        };
 
         // Create Singleton pattern
         if(!Game.Instance) {
@@ -71,16 +62,38 @@ export default class Game extends Agency.Beacon {
                 //     ], { resolve: () => console.log(renderGroup.image("squirrel", 0, 0).toDataURL()) })
                 // );
 
+                Agency.Util.Base64.FileDecode("./assets/images/skwrl.txt")
+                .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
+                .then(tessellation => {
+                    tessellation.relative(30)
+                        .add(`0.0`, 3)
+                        .add(`1.0`, 6)
+                        .add(`2.0`, 9)
+                        .add(`3.0`, 12);
+                        
+                    game.SQUIRREL_IMAGE = tessellation.toSprite();
+                });
+                Agency.Util.Base64.FileDecode("./assets/images/bunny.txt")
+                .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
+                .then(tessellation => {
+                    tessellation.relative(30)
+                        .add(`0.0`, 3)
+                        .add(`1.0`, 6)
+                        .add(`2.0`, 9)
+                        .add(`3.0`, 12);
+                        
+                    game.BUNNY_IMAGE = tessellation.toSprite();
+                });
                 
                 game.canvas.eraseFirst();
-                game.canvas.onDraw = (dt) => {
+                game.canvas.onDraw = (dt, elapsed) => {
                     game.canvas.drawGrid();
 
                     for(let ent of game.world.entities.values) {
                         if(game.SQUIRREL_IMAGE && game.BUNNY_IMAGE) {
                             if(ent === player) {
                                 game.canvas.image(
-                                    game.SQUIRREL_IMAGE,
+                                    game.SQUIRREL_IMAGE.get(elapsed),
                                     0,
                                     0,
                                     game.canvas.tw,
@@ -92,7 +105,7 @@ export default class Game extends Agency.Beacon {
                                 );
                             } else {
                                 game.canvas.image(
-                                    game.BUNNY_IMAGE,
+                                    game.BUNNY_IMAGE.get(elapsed),
                                     0,
                                     0,
                                     game.canvas.tw,

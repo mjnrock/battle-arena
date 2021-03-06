@@ -333,7 +333,7 @@ export default class Canvas {
                 this.clear();
             }
     
-            this.onDraw(elapsed - this.__lastDraw, this.ctx, this.canvas, this);
+            this.onDraw(elapsed - this.__lastDraw, elapsed, this.ctx, this.canvas, this);
             this.__lastDraw = elapsed;
             
             requestAnimationFrame(this.draw.bind(this));
