@@ -1,18 +1,14 @@
-import Sequence from "./Sequence";
+import { Sprite } from "../../manager/Sprite";
 
 export class Tessellation {
-    constructor(tessellationObj = {}) {
-        if(typeof tessellationObj !== "object") {
-            this.source = JSON.parse(tessellationObj);
-        } else {
-            this.source = tessellationObj;
-        }
+    constructor(canvasMap = {}) {
+        this.source = canvasMap;
 
         this.mode = "absolute";
         this.data = [];
     }
 
-    clear() {
+    reset() {
         this.data = [];
 
         return this;
@@ -20,12 +16,12 @@ export class Tessellation {
     absolute() {
         this.mode = "absolute";
         
-        return this.clear();
+        return this.reset();
     }
     relative(bps) {
         this.mode = "relative";
 
-        this.clear();
+        this.reset();
 
         return this.bps(bps);
     }
@@ -80,8 +76,14 @@ export class Tessellation {
         return pattern;
     }
 
-    toSequence(includeSource = false) {
-        return new Sequence(this.score(includeSource));
+    toSprite({ purgePattern = false } = {}) {
+        const score = this.score(false).map(([ key, duration ]) => [ this.source[ key ], duration, key ]);
+        
+        if(purgePattern) {
+            this.reset();
+        }
+
+        return new Sprite(score);
     }
 }
 

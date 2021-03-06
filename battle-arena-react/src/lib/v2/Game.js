@@ -8,6 +8,8 @@ import TileCanvas from "./util/render/TileCanvas";
 
     import componentPosition from "./data/entity/components/position";
     import componentTurn from "./data/entity/components/turn";
+import RenderGroup from "./manager/RenderGroup";
+import ImageRegistry from "./manager/ImageRegistry";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
@@ -59,6 +61,16 @@ export default class Game extends Agency.Beacon {
                     [ componentPosition, { x: () => Agency.Util.Dice.random(0, game.world.width - 1), y: () => Agency.Util.Dice.random(0, game.world.height - 1) } ],
                     [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499) } ],
                 ]);     // ], (i) => `enemy-${ i }`);
+
+
+                //TODO  This just raw dumps the file, but needs to be tessellated and sequenced, first
+                // const renderGroup = new RenderGroup(
+                //     game.world.entities,
+                //     ImageRegistry.FromFiles([
+                //         [ "./assets/images/skwrl.txt", "squirrel", 0, 0 ],
+                //     ], { resolve: () => console.log(renderGroup.image("squirrel", 0, 0).toDataURL()) })
+                // );
+
                 
                 game.canvas.eraseFirst();
                 game.canvas.onDraw = (dt) => {

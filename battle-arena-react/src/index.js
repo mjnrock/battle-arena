@@ -7,23 +7,24 @@ import "semantic-ui-css/semantic.min.css";
 // import reportWebVitals from "./reportWebVitals";
 
 import Agency from "@lespantsfancy/agency";
-import { ToGrid } from "./lib/v2/data/image/tessellator/grid";
-import Tessellation from "./lib/v2/util/render/Tessellation";
+import { ToCanvasMap } from "./lib/v2/data/image/tessellator/grid";
 
-Agency.Util.Base64.FileDecode("./assets/images/skwrl.txt").then(canvas => ToGrid(32, 32, canvas, { asJson: true })).then(data => {
-    const tessellation = new Tessellation(data);
-
+Agency.Util.Base64.FileDecode("./assets/images/skwrl.txt")
+.then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
+.then(tessellation => {
     tessellation.relative(30)
         .add(`0.0`, 3)
         .add(`1.0`, 6);
+        
+    const sprite = tessellation.toSprite();
 
-    console.log(...tessellation.score());
-
-    const sequence = tessellation.toSequence();
-
-    console.log(sequence.getKey(100));
-    console.log(sequence.getKey(220));
-    console.log(sequence.getKey(401));
+    console.log(sprite.get(0).toDataURL())
+    console.log(sprite.get(100).toDataURL())
+    console.log(sprite.get(200).toDataURL())
+    console.log(sprite.get(300).toDataURL())
+    console.log(sprite.get(400).toDataURL())
+    console.log(sprite.find("1.0").toDataURL())
+    console.log(sprite.find(1).toDataURL())
 });
 
 ReactDOM.render(
