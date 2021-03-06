@@ -1,4 +1,4 @@
-import EntityManager from "./EntityManager";
+import EntityManager from "./../../manager/EntityManager";
 import ImageRegistry from "./ImageRegistry";
 
 export class RenderGroup {
@@ -16,7 +16,10 @@ export class RenderGroup {
         }
     }
 
-    image(...coords) {
+    get entities() {
+        return this.entityManager.values;
+    }
+    sprite(...coords) {
         return this.imageRegistry.get(...coords);
     }
 

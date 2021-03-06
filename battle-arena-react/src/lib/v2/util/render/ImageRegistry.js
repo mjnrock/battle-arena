@@ -7,15 +7,13 @@ export const EnumEntity = {
 
 export const EnumState = {
     IDLE: 0,
-    MOVING: 1,
-    ATTACKING: 2,
 };
 
 export const EnumFacing = {
-    NORTH: 0,
     SOUTH: 180,
-    EAST: 90,
+    NORTH: 0,
     WEST: 270,
+    EAST: 90,
 };
 
 export const EntityTemplate = [
