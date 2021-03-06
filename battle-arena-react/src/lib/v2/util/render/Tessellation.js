@@ -1,4 +1,4 @@
-import { Sprite } from "../../manager/Sprite";
+import { Sprite } from "./Sprite";
 
 export class Tessellation {
     constructor(canvasMap = {}) {

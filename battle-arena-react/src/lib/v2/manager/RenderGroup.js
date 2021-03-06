@@ -2,17 +2,17 @@ import EntityManager from "./EntityManager";
 import ImageRegistry from "./ImageRegistry";
 
 export class RenderGroup {
-    constructor(entities = [], base64s = [], { imageRegistryCallback, lookupFns = [] } = {}) {
+    constructor(entities = [], dimensions, { spriteCoords = [], lookupFns = [] } = {}) {
         if(entities instanceof EntityManager) {
             this.entityManager = entities;
         } else {
             this.entityManager = new EntityManager(entities);
         }
 
-        if(base64s instanceof ImageRegistry) {
-            this.imageRegistry = base64s;
+        if(dimensions instanceof ImageRegistry) {
+            this.imageRegistry = dimensions;
         } else {
-            this.imageRegistry = new ImageRegistry(base64s, { callback: imageRegistryCallback, lookupFns });
+            this.imageRegistry = new ImageRegistry(dimensions, { spriteCoords, lookupFns });
         }
     }
 

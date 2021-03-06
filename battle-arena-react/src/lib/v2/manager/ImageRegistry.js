@@ -25,15 +25,12 @@ export const EntityTemplate = [
 ];
 
 export class ImageRegistry extends Agency.Util.CrossMap {
-    constructor(base64Coords = [], { callback, lookupFns = [] } = {}) {
-        super(EntityTemplate);
+    constructor(dimensions, { spriteCoords = [], lookupFns = [] } = {}) {
+        super(dimensions);
 
-        let promises = [];
-        for(let [ path, ...coords ] of base64Coords) {
-            promises.push(Agency.Util.Base64.Decode(path).then(canvas => this.set(canvas, ...coords)));
+        for(let [ sprite, ...coords ] of spriteCoords) {
+            this.set(sprite, ...coords);
         }
-
-        Promise.all(promises).then(callback.bind(this));
 
         for(let fn of lookupFns) {
             this.addLookup(fn);

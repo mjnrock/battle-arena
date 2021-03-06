@@ -9,7 +9,7 @@ import TileCanvas from "./util/render/TileCanvas";
     import componentPosition from "./data/entity/components/position";
     import componentTurn from "./data/entity/components/turn";
     import RenderGroup from "./manager/RenderGroup";
-    import ImageRegistry from "./manager/ImageRegistry";
+    import { EntityTemplate as EntityImageRegistryTemplate } from "./manager/ImageRegistry";
 
     import { ToCanvasMap } from "./data/image/tessellator/grid";
 //STUB END "Imports"
@@ -53,47 +53,50 @@ export default class Game extends Agency.Beacon {
                     [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499) } ],
                 ]);     // ], (i) => `enemy-${ i }`);
 
+                (async () => {                    
+                    Agency.Util.Base64.FileDecode("./assets/images/squirrel.png")
+                    .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
+                    .then(tessellation => {
+                        tessellation.relative(24)
+                            .add(`0.0`, 12)
+                            .add(`1.0`, 12)
+                            .add(`2.0`, 12)
+                            .add(`3.0`, 12);
+                            
+                        game.SQUIRREL_IMAGE = tessellation.toSprite();
+                    });
 
-                //TODO  This just raw dumps the file, but needs to be tessellated and sequenced, first
-                // const renderGroup = new RenderGroup(
-                //     game.world.entities,
-                //     ImageRegistry.FromFiles([
-                //         [ "./assets/images/skwrl.txt", "squirrel", 0, 0 ],
-                //     ], { resolve: () => console.log(renderGroup.image("squirrel", 0, 0).toDataURL()) })
-                // );
-
-                Agency.Util.Base64.FileDecode("./assets/images/skwrl.txt")
-                .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
-                .then(tessellation => {
-                    tessellation.relative(30)
-                        .add(`0.0`, 3)
-                        .add(`1.0`, 6)
-                        .add(`2.0`, 9)
-                        .add(`3.0`, 12);
-                        
-                    game.SQUIRREL_IMAGE = tessellation.toSprite();
-                });
-                Agency.Util.Base64.FileDecode("./assets/images/bunny.txt")
-                .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
-                .then(tessellation => {
-                    tessellation.relative(30)
-                        .add(`0.0`, 3)
-                        .add(`1.0`, 6)
-                        .add(`2.0`, 9)
-                        .add(`3.0`, 12);
-                        
-                    game.BUNNY_IMAGE = tessellation.toSprite();
+                    Agency.Util.Base64.FileDecode("./assets/images/bunny.png")
+                    .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
+                    .then(tessellation => {
+                        tessellation.relative(24)
+                            .add(`0.0`, 12)
+                            .add(`1.0`, 12)
+                            .add(`2.0`, 12)
+                            .add(`3.0`, 12);
+                            
+                        game.BUNNY_IMAGE = tessellation.toSprite();
+                    });
+                })().then(() => {
+                    const renderGroup = new RenderGroup(
+                        game.world.entities,
+                        EntityImageRegistryTemplate,
+                    );
                 });
                 
+                //ANCHOR    "Turn Timer"
+                const GCD = 5000;
                 game.canvas.eraseFirst();
                 game.canvas.onDraw = (dt, elapsed) => {
                     game.canvas.drawGrid();
 
                     for(let ent of game.world.entities.values) {
+                        let prog = ((Date.now() - ent.turn.timeoutStart) % GCD) / GCD;      // % GCD hides information and should only be used for testing
+                        
                         if(game.SQUIRREL_IMAGE && game.BUNNY_IMAGE) {
                             if(ent === player) {
                                 game.canvas.image(
-                                    game.SQUIRREL_IMAGE.get(elapsed),
+                                    game.SQUIRREL_IMAGE.get(prog * game.SQUIRREL_IMAGE.duration),
                                     0,
                                     0,
                                     game.canvas.tw,
@@ -105,7 +108,7 @@ export default class Game extends Agency.Beacon {
                                 );
                             } else {
                                 game.canvas.image(
-                                    game.BUNNY_IMAGE.get(elapsed),
+                                    game.BUNNY_IMAGE.get(prog * game.BUNNY_IMAGE.duration),
                                     0,
                                     0,
                                     game.canvas.tw,
@@ -126,9 +129,6 @@ export default class Game extends Agency.Beacon {
                             game.canvas.restore();
                         }
                         
-                        //ANCHOR    "Turn Timer"
-                        const GCD = 5000;
-                        let prog = ((Date.now() - ent.turn.timeoutStart) % GCD) / GCD;      // % GCD hides information and should only be used for testing
                         // let prog = (Date.now() - ent.turn.timeoutStart) / GCD;
                         let color = `rgba(95, 160, 80, 0.75)`;
                         if(prog >= 0.80) {
