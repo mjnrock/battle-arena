@@ -47,13 +47,12 @@ export async function init(game) {
 
     load(game, renderEntity);
 
-    const GCD = 5000;
     game.canvas.eraseFirst();
     game.canvas.onDraw = (dt, elapsed) => {
         game.canvas.drawGrid();
 
         for(let ent of renderEntity.entities) {
-            const prog = ((Date.now() - ent.turn.timeoutStart) % GCD) / GCD;      // % GCD hides information and should only be used for testing
+            const prog = ((Date.now() - ent.turn.timeoutStart) % game.config.GCD) / game.config.GCD;      // % game.config.GCD hides information and should only be used for testing
             const sprite = renderEntity.sprite({ entity: ent });
 
             if(sprite) {

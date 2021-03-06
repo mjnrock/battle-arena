@@ -1,16 +1,12 @@
 import Agency from "@lespantsfancy/agency";
+import { random } from "../ai/random";
 
 //! Component Schemas should always be functions
 const _name = "turn";
 
 export const schema = {
     [ _name ]: ({ timeout, timeoutStart = 0 } = {}) => ({
-        current: (entity) => {
-            const random = () => Math.round(parseFloat((Agency.Util.Dice.random(-5, 5) / 5)));
-            
-            entity.position.x = Math.max(0, Math.min(19, entity.position.x + random()));
-            entity.position.y = Math.max(0, Math.min(19, entity.position.y + random()));
-        },
+        current: random,
         timeout,
         timeoutStart,
     }),

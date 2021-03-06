@@ -13,11 +13,15 @@ import TileCanvas from "./util/render/TileCanvas";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
-    constructor({ fps = 2 } = {}) {
+    constructor({ fps = 2, GCD = 2500 } = {}) {
         super(false);
         
         this.loop = Agency.Pulse.Generate(fps, { autostart: false });
         this.render = null;
+
+        this.config = {
+            GCD,
+        };
 
         // Create Singleton pattern
         if(!Game.Instance) {
@@ -51,6 +55,17 @@ export default class Game extends Agency.Beacon {
                 ], (i) => `enemy-${ i }`);
 
                 worldEntityLayer.init(game);
+
+                game.on("next", (type, { dt, now }) => {
+                    if(type === "tick") {
+                        for(let entity of game.world.entities.values) {
+                            if(Date.now() - entity.turn.timeoutStart >= game.config.GCD) {
+                                entity.turn.current(entity);
+                                entity.turn.timeoutStart = Date.now();
+                            }
+                        }
+                    }
+                });
 
                 game.loop.subject.start();
             //STUB END "World Dynamics"
