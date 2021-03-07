@@ -1,8 +1,9 @@
 import Agency from "@lespantsfancy/agency";
 
 import Entity from "./../Entity";
+import Registry from "./../util/Registry";
 
-export class EntityManager extends Agency.Registry {
+export class EntityManager extends Registry {
     constructor(entities = []) {
         super();
 

@@ -4,10 +4,6 @@ import { useBeacon } from "@lespantsfancy/agency/lib/react/package";
 
 import { Context } from "./../../App";
 
-import Beacon from "./Beacon";
-import Observer from "./Observer";
-import Observable from "./Observable";
-
 export default function MetaView() {
     const { data, beacon: game } = useBeacon(Context, "game");
     
@@ -22,9 +18,9 @@ export default function MetaView() {
             {/* <Beacon
                 beacon={ game }
             /> */}
-            <Observable
+            {/* <Observable
                 observable={ game.world.entities }
-            />
+            /> */}
             {/* <Observer
                 observer={ game.worldObserver }
             /> */}
