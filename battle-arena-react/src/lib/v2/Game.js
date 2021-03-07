@@ -8,8 +8,11 @@ import TileCanvas from "./util/render/TileCanvas";
 
     import componentPosition from "./data/entity/components/position";
     import componentTurn from "./data/entity/components/turn";
+    import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 
     import worldEntityLayer from "./data/render/world-entity-layer";
+    import worldTerrainLayer from "./data/render/world-terrain-layer";
+    import RenderManager from "./manager/RenderManager";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
@@ -38,11 +41,21 @@ export default class Game extends Agency.Beacon {
 
             //STUB START "World Dynamics"
                 game.world = new World(20, 20);
-                game.canvas = new TileCanvas(
-                    640 / game.world.width,
-                    640 / game.world.height,
-                    { width: 640, height: 640, props: { fillStyle: "rgba(0, 0, 255, 0.3)", strokeStyle: "#000" }
-                });
+                // game.canvas = new TileCanvas(
+                //     640 / game.world.width,
+                //     640 / game.world.height,
+                //     { width: 640, height: 640, props: { fillStyle: "rgba(0, 0, 255, 0.3)", strokeStyle: "#000" }
+                // });
+
+                for(let x = 0; x < game.world.width; x++) {
+                    for(let y = 0; y < game.world.height; y++) {
+                        game.world.terrain.create([
+                            [ componentTerrain, Math.random() > 0.75 ? DictTerrain.GRASS : DictTerrain.WATER ],
+                            [ componentPosition, { x, y, facing: 0 } ],
+                            [ componentTurn, { timeoutStart: 0 } ],
+                        ]);
+                    }
+                }
 
                 game.world.entities.create([
                     [ componentPosition, { x: 4, y: 7 } ],
@@ -54,7 +67,14 @@ export default class Game extends Agency.Beacon {
                     [ componentTurn, { timeoutStart: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
                 ], (i) => `enemy-${ i }`);
 
-                worldEntityLayer.init(game);
+                game.canvas = new RenderManager(640, 640);
+                worldTerrainLayer.init(game).then(group => game.canvas.addGroup(group));
+                worldEntityLayer.init(game).then(group => game.canvas.addGroup(group));
+
+                game.canvas.eraseFirst();
+                game.canvas.onDraw = (dt, elapsed) => {
+                    game.canvas.drawLayers();
+                };
 
                 game.on("next", (type, { dt, now }) => {
                     if(type === "tick") {

@@ -5,6 +5,12 @@ export const EnumEntity = {
     BUNNY: "bunny",
 };
 
+export const EnumTerrain = {
+    VOID: "void",
+    GRASS: "grass",
+    WATER: "water",
+};
+
 export const EnumState = {
     IDLE: 0,
 };
@@ -18,6 +24,12 @@ export const EnumFacing = {
 
 export const EntityTemplate = [
     [ ...Object.values(EnumEntity) ],
+    [ ...Object.values(EnumState) ],
+    [ ...Object.values(EnumFacing) ],
+];
+
+export const TerrainTemplate = [
+    [ ...Object.values(EnumTerrain) ],
     [ ...Object.values(EnumState) ],
     [ ...Object.values(EnumFacing) ],
 ];

@@ -47,25 +47,28 @@ export async function init(game) {
 
     load(game, renderEntity);
 
-    game.canvas.eraseFirst();
-    game.canvas.onDraw = (dt, elapsed) => {
-        game.canvas.drawGrid();
+    renderEntity.eraseFirst();
+    renderEntity.onDraw = (dt, elapsed) => {
+        if(renderEntity.canvas.width !== game.canvas.width || renderEntity.canvas.height !== game.canvas.height) {
+            renderEntity.canvas.width = game.canvas.width;
+            renderEntity.canvas.height = game.canvas.height;
+        }
 
         for(let ent of renderEntity.entities) {
             const prog = ((Date.now() - ent.turn.timeoutStart) % game.config.GCD) / game.config.GCD;      // % game.config.GCD hides information and should only be used for testing
             const sprite = renderEntity.sprite({ entity: ent });
 
             if(sprite) {
-                game.canvas.image(
+                renderEntity.image(
                     sprite.get(prog * sprite.duration),
                     0,
                     0,
-                    game.canvas.tw,
-                    game.canvas.th,
-                    ent.position.x * game.canvas.tw,
-                    ent.position.y * game.canvas.th,
-                    game.canvas.tw,
-                    game.canvas.th,
+                    renderEntity.tw,
+                    renderEntity.th,
+                    ent.position.x * renderEntity.tw,
+                    ent.position.y * renderEntity.th,
+                    renderEntity.tw,
+                    renderEntity.th,
                 );
                 
                 //? Draw Pie Timer
@@ -75,27 +78,29 @@ export async function init(game) {
                 } else if(prog >= 0.55) {
                     color = `rgba(201, 199, 72, 0.75)`;
                 }
-                game.canvas.save();
-                    game.canvas.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
-                        ent.position.x * game.canvas.tw + game.canvas.tw / 2,
-                        ent.position.y * game.canvas.th - game.canvas.tw / 2,
+                renderEntity.save();
+                    renderEntity.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
+                        ent.position.x * renderEntity.tw + renderEntity.tw / 2,
+                        ent.position.y * renderEntity.th - renderEntity.tw / 2,
                         8,
                         { isFilled: true },
                     );
-                game.canvas.restore();
-                game.canvas.save();
-                    game.canvas.prop({ fillStyle: color, strokeStyle: `rgba(0, 0, 0, 0.35)` }).pie(
-                        ent.position.x * game.canvas.tw + game.canvas.tw / 2,
-                        ent.position.y * game.canvas.th - game.canvas.tw / 2,
+                renderEntity.restore();
+                renderEntity.save();
+                    renderEntity.prop({ fillStyle: color, strokeStyle: `rgba(0, 0, 0, 0.35)` }).pie(
+                        ent.position.x * renderEntity.tw + renderEntity.tw / 2,
+                        ent.position.y * renderEntity.th - renderEntity.tw / 2,
                         7,
                         0,
                         prog * Math.PI * 2,
                         { isFilled: true, counterClockwise: true },
                     );
-                game.canvas.restore();
+                renderEntity.restore();
             }
         }
     }
+
+    return renderEntity;
 }
 
 export default {

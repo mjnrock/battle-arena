@@ -11,14 +11,7 @@ export class World extends Agency.Observable {
         this.height = height;
 
         this.entities = new EntityManager();
-        this.terrain = new Agency.Context({
-            rules: {
-                "*": (nv, v, { prop, target }) => {
-                    return true;
-                    // return nv instanceof Terrain;
-                }
-            }
-        });
+        this.terrain = new EntityManager();
     }
 
     join(entity, ...synonyms) {

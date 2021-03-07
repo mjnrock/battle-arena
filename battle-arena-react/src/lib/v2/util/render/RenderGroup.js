@@ -1,8 +1,11 @@
 import EntityManager from "./../../manager/EntityManager";
+import TileCanvas from "./TileCanvas";
 import ImageRegistry from "./ImageRegistry";
 
-export class RenderGroup {
-    constructor(entities = [], dimensions, { spriteCoords = [], lookupFns = [] } = {}) {
+export class RenderGroup extends TileCanvas {
+    constructor(entities = [], dimensions, { tw = 32, th = 32, spriteCoords = [], lookupFns = [] } = {}) {
+        super(tw, th);
+
         if(entities instanceof EntityManager) {
             this.entityManager = entities;
         } else {
@@ -14,6 +17,8 @@ export class RenderGroup {
         } else {
             this.imageRegistry = new ImageRegistry(dimensions, { spriteCoords, lookupFns });
         }
+
+        this.start();
     }
 
     get entities() {
