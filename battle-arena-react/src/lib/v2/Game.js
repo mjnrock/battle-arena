@@ -70,6 +70,23 @@ export default class Game extends Agency.Beacon {
                 ], (i) => `enemy-${ i }`);
 
 
+                //STUB  Async testing
+                setTimeout(() => {
+                    const player = game.world.entities.player;
+                    const nodes = game.world.getNodes(
+                        player.position.x,
+                        player.position.y,
+                        2,
+                        2,
+                        { asGrid: true, centered: true }
+                    );
+
+                    game.loop.subject.stop()
+
+                    console.log(nodes);
+                }, 2000);
+
+
                 //STUB  Testing cases for entities
                 // for(let entity of game.world.entities.values) {
                 //     console.log(entity.health.value.rate);
