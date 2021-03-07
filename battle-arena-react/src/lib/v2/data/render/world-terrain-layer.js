@@ -18,10 +18,10 @@ export async function load(game, renderGroup) {
             Agency.Util.Base64.FileDecode(`./assets/images/${ file }.png`)
                 .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true, includeMeta: true }))
                 .then(([ tessellation, meta ]) => {
-                    tessellation.absolute(24);
+                    tessellation.relative(~~(meta.width / meta.tw));
 
                     for(let i = 0; i < meta.width; i += meta.tw) {
-                        tessellation.add(`${ i / meta.tw }.0`, 250);
+                        tessellation.add(`${ i / meta.tw }.0`, 1);    // The @key pulls that <Canvas> from the canvas map
                     }
 
                     renderGroup.imageRegistry.set(
@@ -65,7 +65,7 @@ export async function init(game) {
 
             if(sprite) {
                 renderTerrain.image(
-                    sprite.get(prog * sprite.duration),
+                    sprite.get(elapsed),
                     0,
                     0,
                     renderTerrain.tw,

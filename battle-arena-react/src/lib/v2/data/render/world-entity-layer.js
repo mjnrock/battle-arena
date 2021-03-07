@@ -60,7 +60,7 @@ export async function init(game) {
 
             if(sprite) {
                 renderEntity.image(
-                    sprite.get(prog * sprite.duration),
+                    sprite.get(elapsed),
                     0,
                     0,
                     renderEntity.tw,

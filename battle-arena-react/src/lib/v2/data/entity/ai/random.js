@@ -5,7 +5,7 @@ export function random(entity) {
             
     entity.position.x = Math.max(0, Math.min(19, entity.position.x + random()));
     entity.position.y = Math.max(0, Math.min(19, entity.position.y + random()));
-    entity.position.facing = Math.floor(Math.random() * 3) * 90;
+    entity.position.facing = Math.floor(Math.random() * 4) * 90;
 }
 
 export default {
