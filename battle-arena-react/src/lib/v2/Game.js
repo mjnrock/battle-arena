@@ -69,9 +69,10 @@ export default class Game extends Agency.Beacon {
                 ], (i) => `enemy-${ i }`);
 
 
-                for(let entity of game.world.entities.values) {
-                    console.log(entity.health.value.rate);
-                }
+                //STUB  Testing cases for entities
+                // for(let entity of game.world.entities.values) {
+                //     console.log(entity.health.value.rate);
+                // }
 
                 game.canvas = new RenderManager(640, 640);
                 worldTerrainLayer.init(game).then(group => game.canvas.addGroup(group));
