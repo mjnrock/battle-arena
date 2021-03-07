@@ -2,7 +2,10 @@ import Agency from "@lespantsfancy/agency";
 
 export class Component extends Agency.Context {
     constructor(opts = {}) {
-        super(opts);
+        super({
+            deep: false,
+            ...opts,
+        });
     }
 }
 

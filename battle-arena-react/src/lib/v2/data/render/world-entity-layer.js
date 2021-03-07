@@ -96,6 +96,30 @@ export async function init(game) {
                         { isFilled: true, counterClockwise: true },
                     );
                 renderEntity.restore();
+                
+                //? Draw Health bar
+                let hp = `rgba(95, 160, 80, 0.75)`;
+                if(ent.health.value.rate <= 0.3) {
+                    hp = `rgba(196, 74, 74, 0.75)`;
+                } else if(ent.health.value.rate <= 0.6) {
+                    hp = `rgba(201, 199, 72, 0.75)`;
+                }
+                renderEntity.save();
+                    renderEntity.prop({ fillStyle: `rgba(0, 0, 0, 0.35)`, strokeStyle: `rgba(0, 0, 0, 0.35)` }).rect(
+                        ent.position.x * renderEntity.tw,
+                        ent.position.y * renderEntity.th - renderEntity.th / 4 + 2,
+                        renderEntity.tw,
+                        5,
+                        { isFilled: true },
+                    );
+                    renderEntity.prop({ fillStyle: hp }).rect(
+                        ent.position.x * renderEntity.tw + 1,
+                        ent.position.y * renderEntity.th - renderEntity.th / 4 + 2 + 1,
+                        ent.health.value.rate * (renderEntity.tw - 2),
+                        3,
+                        { isFilled: true },
+                    );
+                renderEntity.restore();
             }
         }
     }

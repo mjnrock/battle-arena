@@ -8,6 +8,7 @@ import TileCanvas from "./util/render/TileCanvas";
 
     import componentPosition from "./data/entity/components/position";
     import componentTurn from "./data/entity/components/turn";
+    import componentHealth from "./data/entity/components/health";
     import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 
     import worldEntityLayer from "./data/render/world-entity-layer";
@@ -56,15 +57,21 @@ export default class Game extends Agency.Beacon {
 
                 game.world.entities.create([
                     [ componentPosition, { x: 4, y: 7 } ],
+                    [ componentHealth, { current: 10, max: 10 } ],
                     [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499) } ],
                 ], "player");
 
+
                 game.world.entities.createMany(10, [
                     [ componentPosition, { x: () => Agency.Util.Dice.random(0, game.world.width - 1), y: () => Agency.Util.Dice.random(0, game.world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
+                    [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
                     [ componentTurn, { timeoutStart: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
                 ], (i) => `enemy-${ i }`);
 
 
+                for(let entity of game.world.entities.values) {
+                    console.log(entity.health.value.rate);
+                }
 
                 game.canvas = new RenderManager(640, 640);
                 worldTerrainLayer.init(game).then(group => game.canvas.addGroup(group));

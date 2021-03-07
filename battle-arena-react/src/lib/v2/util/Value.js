@@ -2,7 +2,7 @@ import Agency from "@lespantsfancy/agency";
 
 export default class Value extends Agency.Observable {
     constructor(current, { min, max, softMax = false, softMin = false } = {}) {
-        super();
+        super(false);
 
         this._current = current;
         this._min = min;
@@ -41,6 +41,16 @@ export default class Value extends Agency.Observable {
         }
 
         return this;
+    }
+
+    get rate() {
+        return this.current / this.max;
+    }
+    get percent() {
+        return 100 * this.rate;
+    }
+    get permill() {
+        return 1000 * this.rate;
     }
 
     get min() {
