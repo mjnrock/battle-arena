@@ -6,6 +6,8 @@ import { useBeacon } from "@lespantsfancy/agency/lib/react/package";
 import Canvas from "./Canvas";
 import { Context } from "./../../App";
 
+
+
 export default function GameView() {
     const { data, beacon: game } = useBeacon(Context, "game");
     
@@ -13,15 +15,10 @@ export default function GameView() {
         return null;
     }
 
-    // console.log(data)
-    // console.log(game)
-
     return (
         <Segment textAlign="center">
-            <div>{ data.cats }</div>
-            
             <Canvas
-                canvas={ game.canvas }
+                canvas={ game.render }
             />
         </Segment>
     )

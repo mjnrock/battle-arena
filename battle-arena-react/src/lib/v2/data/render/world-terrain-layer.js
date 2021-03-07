@@ -54,9 +54,9 @@ export async function init(game) {
 
     renderTerrain.eraseFirst();
     renderTerrain.onDraw = (dt, elapsed) => {
-        if(renderTerrain.canvas.width !== game.canvas.width || renderTerrain.canvas.height !== game.canvas.height) {
-            renderTerrain.canvas.width = game.canvas.width;
-            renderTerrain.canvas.height = game.canvas.height;
+        if(renderTerrain.canvas.width !== game.render.width || renderTerrain.canvas.height !== game.render.height) {
+            renderTerrain.canvas.width = game.render.width;
+            renderTerrain.canvas.height = game.render.height;
         }
 
         for(let terrain of renderTerrain.entities) {

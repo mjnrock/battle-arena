@@ -1,9 +1,11 @@
 /* eslint-disable */
 import { Segment, Header } from "semantic-ui-react";
-import { useBeacon, Components } from "@lespantsfancy/agency/lib/react/package";
+import { useBeacon } from "@lespantsfancy/agency/lib/react/package";
 
 import { Context } from "./../../App";
 
+import Beacon from "./Beacon";
+import Observer from "./Observer";
 import Observable from "./Observable";
 
 export default function MetaView() {
@@ -17,14 +19,14 @@ export default function MetaView() {
         <Segment textAlign="center">
             <Header style={{ fontFamily: "monospace" }} as="h3" textAlign="center">Meta Data</Header>
 
+            {/* <Beacon
+                beacon={ game }
+            /> */}
             <Observable
-                observable={ game.world.entities.player }
+                observable={ game.world.entities }
             />
-            {/* <Components.Observer
-                observer={ game.loop }
-            />
-            <Components.Observable
-                observable={ game.loop.subject }
+            {/* <Observer
+                observer={ game.worldObserver }
             /> */}
         </Segment>
     )

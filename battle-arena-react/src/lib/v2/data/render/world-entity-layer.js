@@ -49,9 +49,9 @@ export async function init(game) {
 
     renderEntity.eraseFirst();
     renderEntity.onDraw = (dt, elapsed) => {
-        if(renderEntity.canvas.width !== game.canvas.width || renderEntity.canvas.height !== game.canvas.height) {
-            renderEntity.canvas.width = game.canvas.width;
-            renderEntity.canvas.height = game.canvas.height;
+        if(renderEntity.canvas.width !== game.render.width || renderEntity.canvas.height !== game.render.height) {
+            renderEntity.canvas.width = game.render.width;
+            renderEntity.canvas.height = game.render.height;
         }
 
         for(let ent of renderEntity.entities) {

@@ -21,7 +21,6 @@ export default class Game extends Agency.Beacon {
         super(false);
         
         this.loop = Agency.Pulse.Generate(fps, { autostart: false });
-        this.render = null;
 
         this.config = {
             GCD,
@@ -42,6 +41,8 @@ export default class Game extends Agency.Beacon {
 
             //STUB START "World Dynamics"
                 game.world = new World(20, 20);
+                // const obs = new Agency.Observer(game.world);
+                // obs.on("next", (...args) => console.log(...args));
 
                 for(let x = 0; x < game.world.width; x++) {
                     for(let y = 0; y < game.world.height; y++) {
@@ -74,13 +75,13 @@ export default class Game extends Agency.Beacon {
                 //     console.log(entity.health.value.rate);
                 // }
 
-                game.canvas = new RenderManager(640, 640);
-                worldTerrainLayer.init(game).then(group => game.canvas.addGroup(group));
-                worldEntityLayer.init(game).then(group => game.canvas.addGroup(group));
+                game.render = new RenderManager(640, 640);
+                worldTerrainLayer.init(game).then(group => game.render.addGroup(group));
+                worldEntityLayer.init(game).then(group => game.render.addGroup(group));
 
-                game.canvas.eraseFirst();
-                game.canvas.onDraw = (dt, elapsed) => {
-                    game.canvas.drawLayers();
+                game.render.eraseFirst();
+                game.render.onDraw = (dt, elapsed) => {
+                    game.render.drawLayers();
                 };
 
 
