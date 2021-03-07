@@ -16,18 +16,14 @@ export async function load(game, renderGroup) {
     for(let file of files) {
         promises.push(
             Agency.Util.Base64.FileDecode(`./assets/images/${ file }.png`)
-                .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
-                .then(tessellation => {
-                    // for(let i = 0; i <= 270; i += 90) {
-                    //     tessellation.absolute(24).add(`${ i / 90 }.0`, 1000);
-                    //     renderGroup.imageRegistry.set(
-                    //         tessellation.toSprite({ purgePattern: true }),
-                    //         file,
-                    //         0,
-                    //         i,
-                    //     );
-                    // }
-                    tessellation.absolute(24).add(`0.0`, 1000);
+                .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true, includeMeta: true }))
+                .then(([ tessellation, meta ]) => {
+                    tessellation.absolute(24);
+
+                    for(let i = 0; i < meta.width; i += meta.tw) {
+                        tessellation.add(`${ i / meta.tw }.0`, 250);
+                    }
+
                     renderGroup.imageRegistry.set(
                         tessellation.toSprite({ purgePattern: true }),
                         file,
