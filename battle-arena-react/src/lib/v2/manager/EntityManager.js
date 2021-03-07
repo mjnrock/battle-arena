@@ -37,7 +37,7 @@ export class EntityManager extends Agency.Registry {
 
     select(filter) {
         if(typeof filter === "function") {
-            return filter(this.values);
+            return this.values.filter(filter);
         }
 
         return [];

@@ -12,6 +12,17 @@ export class World extends Agency.Observable {
 
         this.entities = new EntityManager();
         this.terrain = new EntityManager();
+
+        //TODO  World expansion ideas
+        // this.biomes = [
+        //     {
+        //         type,
+        //         shape, // <Shape> describing the inscribed terrain tiles
+        //         temperature,
+        //         precipitation,
+        //         timeOfDay,
+        //     },
+        // ];
     }
 
     join(entity, ...synonyms) {
