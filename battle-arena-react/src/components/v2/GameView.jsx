@@ -20,6 +20,7 @@ export default function GameView() {
             <Canvas
                 canvas={ game.render }
                 mouseHandler={ (type, canvas, buttons, x, y) => {
+                    //STUB
                     if(type === "click") {
                         const { left, top } = canvas.getBoundingClientRect();
                         const pos = {
@@ -31,10 +32,7 @@ export default function GameView() {
                         pos.txi = Math.floor(pos.tx);
                         pos.tyi = Math.floor(pos.ty);
 
-                        const ent = game.world.entities.select(e => e.position.x === pos.txi && e.position.y === pos.tyi).map(e => e.toData());
-                        console.info(pos.txi, pos.tyi, ent.length, ...ent);
-
-                        console.log(game.world.getNode(pos.txi, pos.tyi));
+                        console.info(pos.txi, pos.tyi, game.world.getNode(pos.txi, pos.tyi));
                     }
                 }}
             />

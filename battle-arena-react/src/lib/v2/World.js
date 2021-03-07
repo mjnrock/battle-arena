@@ -13,8 +13,8 @@ export class World extends Beacon {
         this.width = width;
         this.height = height;
 
-        this.entities = new EntityManager();
-        this.terrain = new EntityManager();
+        this.__entities = EntityManager.Generate();
+        this.__terrain = EntityManager.Generate();
 
         this._cache = {};
         this.nodes = Agency.Util.CrossMap.CreateGrid([ height, width ], { seedFn: () => new Set() });
@@ -22,8 +22,15 @@ export class World extends Beacon {
         this.on("position.x", (value, entity) => this.moveToNode(entity));
         this.on("position.y", (value, entity) => this.moveToNode(entity));
 
-        this.attach(new Observer(this.entities));
-        this.attach(new Observer(this.terrain));
+        this.attach(this.__entities);
+        this.attach(this.__terrain);
+    }
+
+    get entities() {
+        return this.__entities.subject;
+    }
+    get terrain() {
+        return this.__terrain.subject;
     }
 
     /**

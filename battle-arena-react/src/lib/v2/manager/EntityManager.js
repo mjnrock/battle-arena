@@ -2,6 +2,7 @@ import Agency from "@lespantsfancy/agency";
 
 import Entity from "./../Entity";
 import Registry from "./../util/Registry";
+import Observer from "./../util/Observer";
 
 export class EntityManager extends Registry {
     constructor(entities = []) {
@@ -44,5 +45,16 @@ export class EntityManager extends Registry {
         return [];
     }
 }
+
+export function Factory(entities = []) {
+    return new EntityManager(entities);
+};
+
+export function Generate(entities = []) {
+    return new Observer(EntityManager.Factory(entities));
+};
+
+EntityManager.Factory = Factory;
+EntityManager.Generate = Generate;
 
 export default EntityManager;
