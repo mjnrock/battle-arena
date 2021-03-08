@@ -132,11 +132,11 @@ export function Factory(deep) {
     return new Registry(deep);
 };
 
-export function Generate(deep = true) {
+export function SubjectFactory(deep = true) {
     return new Agency.Observer(Registry.Factory(deep));
 };
 
 Registry.Factory = Factory;
-Registry.Generate = Generate;
+Registry.SubjectFactory = SubjectFactory;
 
 export default Registry;

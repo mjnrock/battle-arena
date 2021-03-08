@@ -50,11 +50,11 @@ export function Factory(entities = []) {
     return new EntityManager(entities);
 };
 
-export function Generate(entities = []) {
+export function SubjectFactory(entities = []) {
     return new Observer(EntityManager.Factory(entities));
 };
 
 EntityManager.Factory = Factory;
-EntityManager.Generate = Generate;
+EntityManager.SubjectFactory = SubjectFactory;
 
 export default EntityManager;

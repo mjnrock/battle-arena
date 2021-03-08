@@ -50,11 +50,11 @@ export function Factory(observable) {
 };
 
 //  Create an <Observer> from an NON-EXISTING <Observable> via Observable.Factory(...args)
-export function Generate(state = {}, isDeep = true) {
+export function SubjectFactory(state = {}, isDeep = true) {
     return new Observer(Observable.Factory(state, isDeep));
 };
 
 Observer.Factory = Factory;
-Observer.Generate = Generate;
+Observer.SubjectFactory = SubjectFactory;
 
 export default Observer;

@@ -20,7 +20,7 @@ export default class Game extends Agency.Beacon {
     constructor({ fps = 24, GCD = 1500 } = {}) {
         super(false);
         
-        this.loop = Agency.Pulse.Generate(fps, { autostart: false });
+        this.loop = Agency.Pulse.SubjectFactory(fps, { autostart: false });
 
         this.config = {
             GCD,

@@ -14,8 +14,8 @@ export class World extends Beacon {
         this.width = width;
         this.height = height;
 
-        this.__entities = EntityManager.Generate(); // <Observer>-wrapped <Observable>
-        this.__terrain = EntityManager.Generate();  // <Observer>-wrapped <Observable>
+        this.__entities = EntityManager.SubjectFactory(); // <Observer>-wrapped <Observable>
+        this.__terrain = EntityManager.SubjectFactory();  // <Observer>-wrapped <Observable>
 
         this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
 
