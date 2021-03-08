@@ -14,10 +14,16 @@ export class World extends Beacon {
         this.width = width;
         this.height = height;
 
-        this.__entities = EntityManager.Generate();
-        this.__terrain = EntityManager.Generate();
+        this.__entities = EntityManager.Generate(); // <Observer>-wrapped <Observable>
+        this.__terrain = EntityManager.Generate();  // <Observer>-wrapped <Observable>
 
-        this.__nodes = new NodeManager(this, this.__entities);
+        this.__nodes = new NodeManager(this, this.__entities);  // Entities only
+
+        //  To include entities and terrain
+        // this.attach(this.__entities);
+        // this.attach(this.__terrain);
+
+        // this.__nodes = new NodeManager(this, this);
     }
 
     get entities() {
@@ -28,13 +34,13 @@ export class World extends Beacon {
     }
 
     get nodes() {
-        return this.__nodes.nodes;
+        return this.__nodes.nodes;  // Agency..CrossMap
     }
     get node() {
-        return this.__nodes.node;
+        return this.__nodes.node;   // fn
     }
     get range() {
-        return this.__nodes.range;
+        return this.__nodes.range;  // fn
     }
 
     join(entity, ...synonyms) {
