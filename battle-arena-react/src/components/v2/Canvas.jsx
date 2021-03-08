@@ -2,6 +2,8 @@
 import Agency from "@lespantsfancy/agency";
 import React,{ useEffect } from "react";
 
+import EventObservable from "./EventObservable";
+
 /**
  * Props
  * @canvas <Canvas>
@@ -28,23 +30,24 @@ function Canvas(props) {
             }
 
             if(typeof mouseHandler === "function") {
-                ref.oncontextmenu = e => { e.preventDefault(); };
-                ref.onclick = e => {
-                    e.preventDefault();
-                    mouseHandler("click", ref, e.buttons, e.x, e.y);
-                };
-                // ref.onmousedown = e => {
-                //     e.preventDefault();
-                //     mouseHandler("down", e.buttons, e.x, e.y);
-                // };
-                // ref.onmouseup = e => {
-                //     e.preventDefault();
-                //     mouseHandler("up", e.buttons, e.x, e.y);
-                // };
-                // ref.onmousemove = e => {
-                //     e.preventDefault();
-                //     mouseHandler("move", e.buttons, e.x, e.y);
-                // };
+                //NOTE  Presumably this gc's itself on @ref:@canvas.canvas destruction, but I haven't tested it
+                EventObservable.SubjectFactory(ref, [
+                    "click",
+                    "contextmenu",
+                    "mousedown",
+                    "mouseup",
+                    "mousemove",
+                ], {
+                    insertRef: true,
+                    next: (type, { data }) => {
+                        const [ e ] = data;
+                        if(type === "click") {
+                            mouseHandler("click", ref, e.buttons, e.x, e.y);
+                        } else if(type === "contextmenu") {
+                            e.preventDefault();
+                        }
+                    },
+                });
             }
 
             // Overwrite the reference to attach canvas to React
