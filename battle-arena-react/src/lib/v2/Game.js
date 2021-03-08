@@ -70,10 +70,10 @@ export default class Game extends Agency.Beacon {
                 ], (i) => `enemy-${ i }`);
 
 
-                //STUB  Async testing
+                // STUB  Async testing
                 // setTimeout(() => {
                 //     const player = game.world.entities.player;
-                //     const nodes = game.world.getNodes(
+                //     const nodes = game.world.range(
                 //         player.position.x,
                 //         player.position.y,
                 //         2,

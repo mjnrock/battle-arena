@@ -5,6 +5,7 @@ import { hasPosition as hasComponentPosition } from "./data/entity/components/po
 
 import Observer from "./util/Observer";
 import Beacon from "./util/Beacon";
+import NodeManager from "./manager/NodeManager";
 
 export class World extends Beacon {
     constructor(width, height) {
@@ -16,14 +17,7 @@ export class World extends Beacon {
         this.__entities = EntityManager.Generate();
         this.__terrain = EntityManager.Generate();
 
-        this._cache = {};
-        this.nodes = Agency.Util.CrossMap.CreateGrid([ height, width ], { seedFn: () => new Set() });
-
-        this.on("position.x", (value, entity) => this.moveToNode(entity));
-        this.on("position.y", (value, entity) => this.moveToNode(entity));
-
-        this.attach(this.__entities);
-        this.attach(this.__terrain);
+        this.__nodes = new NodeManager(this, this.__entities);
     }
 
     get entities() {
@@ -33,93 +27,14 @@ export class World extends Beacon {
         return this.__terrain.subject;
     }
 
-    /**
-     * If [@centered=true], then consider @w and @h as radii
-     */
-    getNodes(x, y, w, h, { asGrid = false, centered = false } = {}) {
-        const nodes = [];
-
-        if(centered) {  // Refactor values to become center point and radii
-            x -= w;
-            y -= h;
-            w *= 2;
-            h *= 2;
-            w += 1;
-            h += 1;
-        }
-
-        if(asGrid) {
-            for(let j = y; j < y + h; j++) {
-                let row = [];
-                for(let i = x; i < x + w; i++) {
-                    row.push(this.getNode(i, j));
-                }
-
-                nodes.push(row);
-            }
-        } else {
-            for(let j = y; j < y + h; j++) {
-                for(let i = x; i < x + w; i++) {
-                    nodes.push(this.getNode(i, j));
-                }
-            }
-        }        
-
-        return nodes;
+    get nodes() {
+        return this.__nodes.nodes;
     }
-    getNode(x, y) {
-        return this.nodes.get(x, y);
+    get node() {
+        return this.__nodes.node;
     }
-    joinNode(entity) {
-        const node = this.nodes.get(entity.position.x, entity.position.y);
-
-        if(node instanceof Set) {
-            node.add(entity);
-            this._cache[ entity.__id ] = {
-                x: entity.position.x,
-                y: entity.position.y,
-            };
-
-            return true;
-        }
-
-        return false;
-    }
-    leaveNode(entity) {
-        const { x, y } = this._cache[ entity.__id ] || {};
-        if(x !== void 0 && y !== void 0) {
-            const node = this.nodes.get(x, y);
-    
-            if(node instanceof Set) {
-                node.delete(entity);
-    
-                return true;
-            }
-
-            return false;
-        }
-
-        return false;
-    }
-    moveToNode(entity) {
-        this.leaveNode(entity);
-        this.joinNode(entity);
-
-        return this;
-    }
-    clearFromNodes(entity) {
-        console.log(32432)
-        for(let row of this.nodes.toLeaf()) {
-            for(let cell of row) {
-                if(cell instanceof Set) {
-                    if(cell.delete(entity)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
+    get range() {
+        return this.__nodes.range;
     }
 
     join(entity, ...synonyms) {
@@ -134,8 +49,8 @@ export class World extends Beacon {
     leave(entity) {
         this.entities.unregister(entity);
 
-        if(!this.leaveNode(entity)) {
-            this.clearFromNodes(entity);
+        if(!this.__leaveNode(entity)) {
+            this.__clearFromNodes(entity);
         }
         
         delete this._cache[ entity.__id ];

@@ -32,7 +32,7 @@ export default function GameView() {
                         pos.txi = Math.floor(pos.tx);
                         pos.tyi = Math.floor(pos.ty);
 
-                        console.info(pos.txi, pos.tyi, [ ...game.world.getNode(pos.txi, pos.tyi) ].map(e => e.toData()));
+                        console.info(pos.txi, pos.tyi, [ ...game.world.node(pos.txi, pos.tyi) ].map(e => e.toData()));
                     }
                 }}
             />
