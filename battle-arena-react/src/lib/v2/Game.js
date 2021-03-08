@@ -84,9 +84,27 @@ export default class Game extends Agency.Beacon {
                     // game.loop.subject.stop()
 
                     // console.log(nodes);
-                    
-                    console.log(EventObservable.GetRef(game.render.canvas));
-                }, 2000);
+
+                    //TODO  Move this somewhere more appropriate--currently requires async to compensate for mount times
+                    EventObservable.GetRef(game.render.canvas).on("next", (type, { data }) => {
+                        const [ e ] = data;
+                        const { target: canvas, buttons, clientX: x, clientY: y } = e;
+    
+                        if(type === "click") {
+                            const { left, top } = canvas.getBoundingClientRect();
+                            const pos = {
+                                px: x - left,
+                                py: y - top,
+                            };
+                            pos.tx = pos.px / 32;
+                            pos.ty = pos.py / 32;
+                            pos.txi = Math.floor(pos.tx);
+                            pos.tyi = Math.floor(pos.ty);
+    
+                            console.info(pos.txi, pos.tyi, [ ...game.world.node(pos.txi, pos.tyi) ].map(e => e.toData()));
+                        }
+                    });
+                }, 500);
 
 
                 //STUB  Testing cases for entities

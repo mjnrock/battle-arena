@@ -29,26 +29,19 @@ function Canvas(props) {
                 }
             }
 
-            if(typeof mouseHandler === "function") {
-                //NOTE  Presumably this gc's itself on @ref:@canvas.canvas destruction, but I haven't tested it
-                EventObservable.SubjectFactory(ref, [
-                    "click",
-                    "contextmenu",
-                    "mousedown",
-                    "mouseup",
-                    "mousemove",
-                ], {
-                    insertRef: true,
-                    next: (type, { data }) => {
-                        const [ e ] = data;
-                        if(type === "click") {
-                            mouseHandler("click", ref, e.buttons, e.x, e.y);
-                        } else if(type === "contextmenu") {
-                            e.preventDefault();
-                        }
-                    },
-                });
-            }
+            //NOTE  Presumably this gc's itself on @ref:@canvas.canvas destruction, but I haven't tested it
+            EventObservable.SubjectFactory(ref, [
+                "click",
+                "contextmenu",
+                "mousedown",
+                "mouseup",
+                "mousemove",
+            ], {
+                insertRef: true,
+                middleware: {
+                    contextmenu: e => e.preventDefault(),
+                },
+            });
 
             // Overwrite the reference to attach canvas to React
             canvas.canvas = ref;
