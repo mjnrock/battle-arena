@@ -1,8 +1,6 @@
 /* eslint-disable */
 import Agency from "@lespantsfancy/agency";
 
-import EventObservable from "./../../components/v2/EventObservable";
-
 //STUB START "Imports" for stub below
     import World from "./World";
 
@@ -86,7 +84,7 @@ export default class Game extends Agency.Beacon {
                     // console.log(nodes);
 
                     //TODO  Move this somewhere more appropriate--currently requires async to compensate for mount times
-                    EventObservable.GetRef(game.render.canvas).on("next", (type, { data }) => {
+                    Agency.EventObservable.GetRef(game.render.canvas).on("next", (type, { data }) => {
                         const [ e ] = data;
                         const { target: canvas, buttons, clientX: x, clientY: y } = e;
     
