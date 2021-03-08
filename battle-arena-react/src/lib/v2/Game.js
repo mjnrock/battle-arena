@@ -1,4 +1,3 @@
-/* eslint-disable */
 import Agency from "@lespantsfancy/agency";
 
 //STUB START "Imports" for stub below
