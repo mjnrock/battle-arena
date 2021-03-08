@@ -3,13 +3,11 @@ import Agency from "@lespantsfancy/agency";
 import Beacon from "./../util/Beacon";
 
 export class NodeManager extends Beacon {
-    constructor(world, observer) {
+    constructor(size = [ 1, 1 ], observer) {
         super();
         
-        this.__world = world;
         this.__cache = {};
-
-        this.nodes = Agency.Util.CrossMap.CreateGrid([ world.height, world.width ], { seedFn: () => new Set() });
+        this.nodes = Agency.Util.CrossMap.CreateGrid([ ...size ], { seedFn: () => new Set() });
 
         this.on("position.x", (value, entity) => this.__moveToNode(entity));
         this.on("position.y", (value, entity) => this.__moveToNode(entity));

@@ -17,13 +17,13 @@ export class World extends Beacon {
         this.__entities = EntityManager.Generate(); // <Observer>-wrapped <Observable>
         this.__terrain = EntityManager.Generate();  // <Observer>-wrapped <Observable>
 
-        this.__nodes = new NodeManager(this, this.__entities);  // Entities only
+        this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
 
         //  To include entities and terrain
         // this.attach(this.__entities);
         // this.attach(this.__terrain);
 
-        // this.__nodes = new NodeManager(this, this);
+        // this.__nodes = new NodeManager([ width, height ], this);
     }
 
     get entities() {
@@ -55,11 +55,11 @@ export class World extends Beacon {
     leave(entity) {
         this.entities.unregister(entity);
 
-        if(!this.__leaveNode(entity)) {
-            this.__clearFromNodes(entity);
+        if(!this.__nodes.__leaveNode(entity)) {
+            this.__nodes.__clearFromNodes(entity);
         }
         
-        delete this._cache[ entity.__id ];
+        delete this.__nodes.__cache[ entity.__id ];
     }
 }
 

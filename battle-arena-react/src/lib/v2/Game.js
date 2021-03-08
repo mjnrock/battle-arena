@@ -71,20 +71,20 @@ export default class Game extends Agency.Beacon {
 
 
                 // STUB  Async testing
-                setTimeout(() => {
-                    const player = game.world.entities.player;
-                    const nodes = game.world.range(
-                        player.position.x,
-                        player.position.y,
-                        2,
-                        2,
-                        { asGrid: true, centered: true }
-                    );
+                // setTimeout(() => {
+                //     const player = game.world.entities.player;
+                //     const nodes = game.world.range(
+                //         player.position.x,
+                //         player.position.y,
+                //         2,
+                //         2,
+                //         { asGrid: true, centered: true }
+                //     );
 
-                    game.loop.subject.stop()
+                //     game.loop.subject.stop()
 
-                    console.log(nodes);
-                }, 2000);
+                //     console.log(nodes);
+                // }, 2000);
 
 
                 //STUB  Testing cases for entities
