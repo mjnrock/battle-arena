@@ -10,7 +10,7 @@ export async function load(game, renderGroup) {
     let files = [
         "grass",
         "water",
-        "water2",
+        "fire",
     ];
 
     let promises = [];

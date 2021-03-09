@@ -12,6 +12,8 @@ export const EnumTerrain = {
     VOID: "void",
     GRASS: "grass",
     WATER: "water",
+    
+    FIRE: "fire",
 };
 
 export const EnumState = {

@@ -9,7 +9,8 @@ export async function load(game, renderGroup) {
     let files = [
         `squirrel`,
         `bunny`,
-        `ghost-squirrel2`,
+        // `fire`,
+        // `ghost-squirrel`,
         // `ghost-bunny`,
     ];
 
@@ -20,7 +21,7 @@ export async function load(game, renderGroup) {
                 .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
                 .then(tessellation => {
                     for(let i = 0; i <= 270; i += 90) {
-                        tessellation.absolute(24).add(`${ i / 90 }.0`, 1000);
+                        tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
                         renderGroup.imageRegistry.set(
                             tessellation.toSprite({ purgePattern: true }),
                             file,
