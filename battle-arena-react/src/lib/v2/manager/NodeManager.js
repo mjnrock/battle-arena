@@ -3,7 +3,7 @@ import Agency from "@lespantsfancy/agency";
 import Beacon from "./../util/Beacon";
 
 export class NodeManager extends Beacon {
-    constructor(size = [ 1, 1 ], observer) {
+    constructor(size = [ 1, 1 ], ...observers) {
         super();
         
         this.__cache = {};
@@ -12,7 +12,9 @@ export class NodeManager extends Beacon {
         this.on("position.x", (value, entity) => this.__moveToNode(entity));
         this.on("position.y", (value, entity) => this.__moveToNode(entity));
 
-        this.attach(observer);
+        for(let observer of observers) {
+            this.attach(observer);
+        }
     }
 
     node(x, y) {

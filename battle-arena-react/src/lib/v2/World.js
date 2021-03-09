@@ -17,13 +17,9 @@ export class World extends Beacon {
         this.__entities = EntityManager.SubjectFactory(); // <Observer>-wrapped <Observable>
         this.__terrain = EntityManager.SubjectFactory();  // <Observer>-wrapped <Observable>
 
+        //TODO Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
         this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
-
-        //  To include entities and terrain
-        // this.attach(this.__entities);
-        // this.attach(this.__terrain);
-
-        // this.__nodes = new NodeManager([ width, height ], this);
+        // this.__nodes = new NodeManager([ width, height ], this.__entities, this.__terrain);
     }
 
     get entities() {

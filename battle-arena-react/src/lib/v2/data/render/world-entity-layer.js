@@ -5,9 +5,12 @@ import { EntityTemplate as EntityImageRegistryTemplate } from "../../util/render
 import { ToCanvasMap } from "../image/tessellator/grid";
 
 export async function load(game, renderGroup) {
+    //NOTE  If you want to add more files, they MUST have a corresponding "1st dimension" key in renderGroup (cf. ImageRegistry.EntityTemplate)
     let files = [
         `squirrel`,
         `bunny`,
+        `ghost-squirrel2`,
+        // `ghost-bunny`,
     ];
 
     let promises = [];
@@ -26,6 +29,7 @@ export async function load(game, renderGroup) {
                         );
                     }
                 })
+                .catch(e => console.error(`[Tessellation Failed]:  Ensure "${ file }" is present in the WorldEntityLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
         );
     }
     
@@ -45,7 +49,7 @@ export async function init(game) {
         }
     );
 
-    load(game, renderEntity);
+    await load(game, renderEntity);
 
     renderEntity.eraseFirst();
     renderEntity.onDraw = (dt, elapsed) => {
