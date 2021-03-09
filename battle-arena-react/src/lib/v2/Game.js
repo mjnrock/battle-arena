@@ -3,11 +3,6 @@ import Agency from "@lespantsfancy/agency";
 //STUB START "Imports" for stub below
     import World from "./World";
 
-    import componentPosition from "./data/entity/components/position";
-    import componentTurn from "./data/entity/components/turn";
-    import componentHealth from "./data/entity/components/health";
-    import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
-
     import worldEntityLayer from "./data/render/world-entity-layer";
     import worldTerrainLayer from "./data/render/world-terrain-layer";
     import RenderManager from "./manager/RenderManager";
@@ -36,104 +31,73 @@ export default class Game extends Agency.Beacon {
         if(!Game.Instance) {
             const game = new Game();
 
-            //STUB START "World Dynamics"
-                game.world = new World(20, 20);
-                // const obs = new Agency.Observer(game.world);
-                // obs.on("next", (...args) => console.log(...args));
+            game.world = World.CreateRandom(20, 20, 10);
 
-                for(let x = 0; x < game.world.width; x++) {
-                    for(let y = 0; y < game.world.height; y++) {
-                        game.world.terrain.create([
-                            [ componentTerrain, Math.random() <= 0.75 ? DictTerrain.GRASS : DictTerrain.WATER ],
-                            [ componentPosition, { x, y, facing: 0 } ],
-                            [ componentTurn, { timeoutStart: 0 } ],
-                        ], `${ x }.${ y }`);
-                    }
-                }
-                // console.log(game.world.terrain[ "3.4" ]);
+            // STUB  Async testing
+            setTimeout(() => {
+                // const player = game.world.entities.player;
+                // const nodes = game.world.range(
+                //     player.position.x,
+                //     player.position.y,
+                //     2,
+                //     2,
+                //     { asGrid: true, centered: true }
+                // );
 
+                // game.loop.subject.stop()
 
-                game.world.entities.create([
-                    [ componentPosition, { x: 4, y: 7 } ],
-                    [ componentHealth, { current: 10, max: 10 } ],
-                    [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499) } ],
-                ], "player");
+                // console.log(nodes);
 
+                //TODO  Move this somewhere more appropriate--currently requires async to compensate for mount times
+                Agency.EventObservable.GetRef(game.render.canvas).on("next", (type, { data }) => {
+                    const [ e ] = data;
+                    const { target: canvas, buttons, clientX: x, clientY: y } = e;
 
-                game.world.entities.createMany(10, [
-                    [ componentPosition, { x: () => Agency.Util.Dice.random(0, game.world.width - 1), y: () => Agency.Util.Dice.random(0, game.world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
-                    [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
-                    [ componentTurn, { timeoutStart: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
-                ], (i) => `enemy-${ i }`);
+                    if(type === "click") {
+                        const { left, top } = canvas.getBoundingClientRect();
+                        const pos = {
+                            px: x - left,
+                            py: y - top,
+                        };
+                        pos.tx = pos.px / 32;
+                        pos.ty = pos.py / 32;
+                        pos.txi = Math.floor(pos.tx);
+                        pos.tyi = Math.floor(pos.ty);
 
-
-                // STUB  Async testing
-                setTimeout(() => {
-                    // const player = game.world.entities.player;
-                    // const nodes = game.world.range(
-                    //     player.position.x,
-                    //     player.position.y,
-                    //     2,
-                    //     2,
-                    //     { asGrid: true, centered: true }
-                    // );
-
-                    // game.loop.subject.stop()
-
-                    // console.log(nodes);
-
-                    //TODO  Move this somewhere more appropriate--currently requires async to compensate for mount times
-                    Agency.EventObservable.GetRef(game.render.canvas).on("next", (type, { data }) => {
-                        const [ e ] = data;
-                        const { target: canvas, buttons, clientX: x, clientY: y } = e;
-    
-                        if(type === "click") {
-                            const { left, top } = canvas.getBoundingClientRect();
-                            const pos = {
-                                px: x - left,
-                                py: y - top,
-                            };
-                            pos.tx = pos.px / 32;
-                            pos.ty = pos.py / 32;
-                            pos.txi = Math.floor(pos.tx);
-                            pos.tyi = Math.floor(pos.ty);
-    
-                            console.info(pos.txi, pos.tyi, [ ...game.world.node(pos.txi, pos.tyi) ].map(e => e.toData()));
-                        }
-                    });
-                }, 500);
-
-
-                //STUB  Testing cases for entities
-                // for(let entity of game.world.entities.values) {
-                //     console.log(entity.health.value.rate);
-                // }
-
-                game.render = new RenderManager(640, 640);
-                worldTerrainLayer.init(game).then(group => game.render.addGroup(group));
-                worldEntityLayer.init(game).then(group => game.render.addGroup(group));
-
-                game.render.eraseFirst();
-                game.render.onDraw = (dt, elapsed) => {
-                    game.render.drawLayers();
-                };
-
-
-
-                game.on("next", (type, { dt, now }) => {
-                    if(type === "tick") {
-                        const now = Date.now();
-                        for(let entity of game.world.entities.values) {
-                            if(now - entity.turn.timeoutStart >= game.config.GCD) {
-                                entity.turn.current(entity);
-                                entity.turn.timeoutStart = now;
-                            }
-                        }
+                        console.info(pos.txi, pos.tyi, JSON.stringify([ ...game.world.node(pos.txi, pos.tyi) ].map(e => e.toData())));
                     }
                 });
+            }, 500);
 
-                game.loop.subject.start();
-            //STUB END "World Dynamics"
+            //STUB  Testing cases for entities
+            // for(let entity of game.world.entities.values) {
+            //     console.log(entity.health.value.rate);
+            // }
+
+            //? Bootstrap the rendering
+            game.render = new RenderManager(640, 640);
+            worldTerrainLayer.init(game).then(group => game.render.addGroup(group));
+            worldEntityLayer.init(game).then(group => game.render.addGroup(group));
+
+            game.render.eraseFirst();
+            game.render.onDraw = (dt, elapsed) => {
+                game.render.drawLayers();
+            };
+
+            //? Perform an action whenever able
+            game.on("next", (type, { dt, now }) => {
+                if(type === "tick") {
+                    const now = Date.now();
+                    for(let entity of game.world.entities.values) {
+                        if(now - entity.turn.timeoutStart >= game.config.GCD) {
+                            entity.turn.current(entity);
+                            entity.turn.timeoutStart = now;
+                        }
+                    }
+                }
+            });
+
+            game.loop.subject.start();
 
             Game.Instance = game;
         }
