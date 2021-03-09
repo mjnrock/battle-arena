@@ -1,7 +1,4 @@
-/* eslint-disable */
 import Agency from "@lespantsfancy/agency";
-
-import TileCanvas from "./util/render/TileCanvas";
 
 //STUB START "Imports" for stub below
     import World from "./World";
@@ -20,7 +17,7 @@ export default class Game extends Agency.Beacon {
     constructor({ fps = 24, GCD = 1500 } = {}) {
         super(false);
         
-        this.loop = Agency.Pulse.Generate(fps, { autostart: false });
+        this.loop = Agency.Pulse.SubjectFactory(fps, { autostart: false });
 
         this.config = {
             GCD,
@@ -68,6 +65,43 @@ export default class Game extends Agency.Beacon {
                     [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
                     [ componentTurn, { timeoutStart: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
                 ], (i) => `enemy-${ i }`);
+
+
+                // STUB  Async testing
+                setTimeout(() => {
+                    // const player = game.world.entities.player;
+                    // const nodes = game.world.range(
+                    //     player.position.x,
+                    //     player.position.y,
+                    //     2,
+                    //     2,
+                    //     { asGrid: true, centered: true }
+                    // );
+
+                    // game.loop.subject.stop()
+
+                    // console.log(nodes);
+
+                    //TODO  Move this somewhere more appropriate--currently requires async to compensate for mount times
+                    Agency.EventObservable.GetRef(game.render.canvas).on("next", (type, { data }) => {
+                        const [ e ] = data;
+                        const { target: canvas, buttons, clientX: x, clientY: y } = e;
+    
+                        if(type === "click") {
+                            const { left, top } = canvas.getBoundingClientRect();
+                            const pos = {
+                                px: x - left,
+                                py: y - top,
+                            };
+                            pos.tx = pos.px / 32;
+                            pos.ty = pos.py / 32;
+                            pos.txi = Math.floor(pos.tx);
+                            pos.tyi = Math.floor(pos.ty);
+    
+                            console.info(pos.txi, pos.tyi, [ ...game.world.node(pos.txi, pos.tyi) ].map(e => e.toData()));
+                        }
+                    });
+                }, 500);
 
 
                 //STUB  Testing cases for entities

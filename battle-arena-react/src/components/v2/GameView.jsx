@@ -6,8 +6,6 @@ import { useBeacon } from "@lespantsfancy/agency/lib/react/package";
 import Canvas from "./Canvas";
 import { Context } from "./../../App";
 
-
-
 export default function GameView() {
     const { data, beacon: game } = useBeacon(Context, "game");
     

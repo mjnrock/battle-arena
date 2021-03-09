@@ -3,12 +3,17 @@ import Agency from "@lespantsfancy/agency";
 export const EnumEntity = {
     SQUIRREL: "squirrel",
     BUNNY: "bunny",
+
+    GHOST_SQUIRREL: "ghost-squirrel",
+    GHOST_BUNNY: "ghost-bunny",
 };
 
 export const EnumTerrain = {
     VOID: "void",
     GRASS: "grass",
     WATER: "water",
+    
+    FIRE: "fire",
 };
 
 export const EnumState = {

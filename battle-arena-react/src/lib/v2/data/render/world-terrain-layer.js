@@ -10,6 +10,7 @@ export async function load(game, renderGroup) {
     let files = [
         "grass",
         "water",
+        "fire",
     ];
 
     let promises = [];
@@ -31,6 +32,7 @@ export async function load(game, renderGroup) {
                         0,
                     );
                 })
+                .catch(e => console.error(`[Tessellation Failed]:  Ensure "${ file }" is present in the WorldTerrainLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
         );
     }
     
@@ -50,7 +52,7 @@ export async function init(game) {
         }
     );
 
-    load(game, renderTerrain);
+    await load(game, renderTerrain);
 
     renderTerrain.eraseFirst();
     renderTerrain.onDraw = (dt, elapsed) => {

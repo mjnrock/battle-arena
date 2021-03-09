@@ -8,7 +8,7 @@ import React,{ useEffect } from "react";
  * @onDraw fn | Will be given @canvas as its scope
  */
 function Canvas(props) {
-    const { canvas, handlers = {}, ...rest } = props;
+    const { canvas, mouseHandler, ...rest } = props;
 
     const canvasRef = React.createRef();
     useEffect(() => {
@@ -27,31 +27,19 @@ function Canvas(props) {
                 }
             }
 
-            ref.oncontextmenu = e => { e.preventDefault(); };
-            if(typeof handlers.onMouseDown === "function") {
-                ref.onmousedown = e => {
-                    e.preventDefault();
-                    handlers.onMouseDown(e.buttons, e.x, e.y)
-                };
-            }
-            if(typeof handlers.onMouseUp === "function") {
-                ref.onmouseup = e => {
-                    e.preventDefault();
-                    handlers.onMouseUp(e.buttons, e.x, e.y);
-                }
-            }
-            if(typeof handlers.onClick === "function") {
-                ref.onclick = e => {
-                    e.preventDefault();
-                    handlers.onClick(e.buttons, e.x, e.y);
-                }
-            }
-            if(typeof handlers.onMouseMove === "function") {
-                ref.onmousemove = e => {
-                    e.preventDefault();
-                    handlers.onMouseMove(e.buttons, e.x, e.y);
-                }
-            }
+            //NOTE  Presumably this gc's itself on @ref:@canvas.canvas destruction, but I haven't tested it
+            Agency.EventObservable.SubjectFactory(ref, [
+                "click",
+                "contextmenu",
+                "mousedown",
+                "mouseup",
+                "mousemove",
+            ], {
+                insertRef: true,
+                middleware: {
+                    contextmenu: e => e.preventDefault(),
+                },
+            });
 
             // Overwrite the reference to attach canvas to React
             canvas.canvas = ref;
