@@ -127,6 +127,30 @@ export async function init(game) {
                 renderEntity.restore();
             }
         }
+        
+
+        renderEntity.save();
+            const path = game.world.PLAYER_PATH;
+            // console.log(path.length)
+
+            for(let [ tx, ty ] of path) {
+                renderEntity.prop({ fillStyle: `rgba(0, 0, 0, 0.35)` }).tRect(
+                    tx,
+                    ty,
+                    1,
+                    1,
+                    { isFilled: true },
+                );
+            }
+            
+            renderEntity.prop({ fillStyle: `rgba(255, 0, 0, 0.35)` }).tRect(
+                16,
+                3,
+                1,
+                1,
+                { isFilled: true },
+            );
+        renderEntity.restore();
     }
 
     return renderEntity;

@@ -10,6 +10,7 @@ import componentPosition from "./data/entity/components/position";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
+import findPath from "./util/AStar";
 
 export class World extends Beacon {
     constructor(width, height) {
@@ -61,6 +62,49 @@ export class World extends Beacon {
         
         delete this.__nodes.__cache[ entity.__id ];
     }
+
+    
+    adjacent(x, y, addDiagonals = false) {
+        let dirs = [
+            [ 0, -1 ],
+            [ 1, 0 ],
+            [ 0, 1 ],
+            [ -1, 0 ],
+        ];
+
+        if(addDiagonals) {
+            dirs = [
+                ...dirs,
+
+                [ 1, -1 ],
+                [ 1, 1 ],
+                [ -1, 1 ],
+                [ -1, -1 ],
+            ]
+        }
+
+        const neighs = [];
+        for(let [ dx, dy ] of dirs) {
+            if((x + dx >= 0) && (x + dx < this.width) && (y + dy >= 0) && (y + dy < this.height)) {
+                neighs.push([
+                    x + dx,
+                    y + dy,
+                ]);
+            }
+        }
+
+        return neighs;
+    }
+
+    cost(x, y) {
+        const entity = this.terrain[ `${ x }.${ y }`];
+
+        if(entity) {
+            return entity.terrain.cost;
+        }
+
+        return false;
+    }
 }
 
 export function CreateRandom(width, height, enemyCount = 5) {
@@ -69,7 +113,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
             world.terrain.create([
-                [ componentTerrain, Math.random() <= 0.75 ? DictTerrain.GRASS : DictTerrain.WATER ],
+                [ componentTerrain, Math.random() >= 0.25 ? DictTerrain.GRASS : DictTerrain.WATER ],
                 [ componentPosition, { x, y, facing: 0 } ],
                 [ componentTurn, { timeoutStart: 0 } ],
             ], `${ x }.${ y }`);
@@ -80,7 +124,17 @@ export function CreateRandom(width, height, enemyCount = 5) {
     world.entities.create([
         [ componentPosition, { x: 4, y: 7 } ],
         [ componentHealth, { current: 10, max: 10 } ],
-        [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499) } ],
+        [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
+            const path = findPath(world, [
+                entity.position.x,
+                entity.position.y,
+            ], [
+                16,
+                3,
+            ]);
+
+            world.PLAYER_PATH = path;
+        } } ],
     ], "player");
 
     world.entities.createMany(enemyCount, [

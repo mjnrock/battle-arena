@@ -33,6 +33,40 @@ export default class Game extends Agency.Beacon {
 
             game.world = World.CreateRandom(20, 20, 10);
 
+            // const frontier = [];
+            // frontier.push([ [ 1, 1 ], 0 ]);
+            // frontier.push([ [ 2, 1 ], 1 ]);
+            // frontier.push([ [ 3, 1 ], 1 ]);
+            // frontier.push([ [ 4, 1 ], 4 ]);
+            // frontier.push([ [ 5, 1 ], 3 ]);
+            // frontier.push([ [ 6, 1 ], 2 ]);
+            // frontier.push([ [ 7, 1 ], 6 ]);
+            // frontier.push([ [ 8, 1 ], 8 ]);
+            // frontier.push([ [ 9, 1 ], 1 ]);
+            // frontier.push([ [ 10, 1 ], 3 ]);
+            // frontier.push([ [ 11, 1 ], 10 ]);
+            // frontier.push([ [ 12, 1 ], 11 ]);
+            // frontier.push([ [ 13, 1 ], 2 ]);
+            // frontier.sort(([ ,a ], [ ,b ]) => b - a);
+
+            // let frontier = [];
+            // frontier.push(0);
+            // frontier.push(1);
+            // frontier.push(1);
+            // frontier.push(4);
+            // frontier.push(3);
+            // frontier.push(2);
+            // frontier.push(6);
+            // frontier.push(8);
+            // frontier.push(1);
+            // frontier.push(3);
+            // frontier.push(10);
+            // frontier.push(11);
+            // frontier.push(2);
+            // frontier.sort((a, b) => b - a);
+
+            // console.log(frontier)
+
             // STUB  Async testing
             setTimeout(() => {
                 // const player = game.world.entities.player;
