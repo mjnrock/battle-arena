@@ -131,8 +131,8 @@ export async function init(game) {
 
         renderEntity.save();
             const player = game.world.entities.player;
-            const path = player.action.path || [];
-            const [ x, y ] = player.action.destination || [];
+            const path = player.movement.path || [];
+            const [ x, y ] = player.movement.destination || [];
 
             for(let [ tx, ty ] of path) {
                 renderEntity.prop({ fillStyle: `rgba(0, 0, 0, 0.35)` }).tRect(

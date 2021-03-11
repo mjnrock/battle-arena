@@ -103,8 +103,8 @@ export default class Game extends Agency.Beacon {
                         console.info(pos.txi, pos.tyi, JSON.stringify([ ...game.world.node(pos.txi, pos.tyi) ].map(e => e.toData())));
 
                         const player = game.world.entities.player;
-                        player.action.destination = [ pos.txi, pos.tyi ];
-                        player.action.path = findPath(game.world, [ player.position.x, player.position.y ], player.action.destination);
+                        player.movement.destination = [ pos.txi, pos.tyi ];
+                        player.movement.path = findPath(game.world, [ player.position.x, player.position.y ], player.movement.destination);
                     }
                 });
             }, 500);

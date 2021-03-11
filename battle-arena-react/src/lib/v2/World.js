@@ -9,7 +9,7 @@ import NodeManager from "./manager/NodeManager";
 import componentPosition from "./data/entity/components/position";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
-import componentAction from "./data/entity/components/action";
+import componentAction from "./data/entity/components/movement";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import findPath from "./util/AStar";
 
@@ -127,8 +127,8 @@ export function CreateRandom(width, height, enemyCount = 5) {
         [ componentHealth, { current: 10, max: 10 } ],
         [ componentAction, {} ],
         [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-            if(entity.action.path.length) {
-                const [ x, y ] = entity.action.path.shift();
+            if(entity.movement.path.length) {
+                const [ x, y ] = entity.movement.path.shift();
                 const { x: ox, y: oy } = entity.position;
 
                 entity.position.x = x;
@@ -148,7 +148,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
                     }
                 } 
     
-                world.PLAYER_PATH = entity.action.path;
+                world.PLAYER_PATH = entity.movement.path;
             }
         } } ],
     ], "player");

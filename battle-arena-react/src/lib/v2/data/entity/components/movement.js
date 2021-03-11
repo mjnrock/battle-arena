@@ -1,5 +1,5 @@
 //! Component Schemas should always be functions
-const _name = "action";
+const _name = "movement";
 
 export const schema = {
     [ _name ]: ({ destination = [], path = [] } = {}) => ({
