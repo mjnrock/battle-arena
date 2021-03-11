@@ -7,6 +7,8 @@ export function TerrainLookup(type) {
             return "void";
         case DictTerrain.GRASS.type:
             return "grass";
+        case DictTerrain.DIRT.type:
+            return "dirt";
         case DictTerrain.WATER.type:
             return "water";
         default:
@@ -17,22 +19,27 @@ export function TerrainLookup(type) {
 export const DictTerrain = {
     VOID: {
         type: 0,
-        cost: 0,
+        cost: Infinity,
     },
     GRASS: {
         type: 1,
         cost: 1,
     },
-    WATER: {
+    DIRT: {
         type: 2,
+        cost: 1,
+    },
+    WATER: {
+        type: 3,
         cost: 4,
     },
 };
 
 export const schema = {
-    [ _name ]: ({ type, cost } = {}) => ({
+    [ _name ]: ({ type, cost, state = 0 } = {}) => ({
         type,
         cost,
+        state,
     }),
 };
 

@@ -135,7 +135,7 @@ export async function init(game) {
             const [ x, y ] = player.movement.destination || [];
 
             for(let [ tx, ty ] of path) {
-                renderEntity.prop({ fillStyle: `rgba(0, 0, 0, 0.35)` }).tRect(
+                renderEntity.prop({ fillStyle: `rgba(0, 0, 0, 0.1)` }).tRect(
                     tx,
                     ty,
                     1,
@@ -145,7 +145,7 @@ export async function init(game) {
             }
             
             if(!(player.position.x === x && player.position.y === y)) {
-                renderEntity.prop({ fillStyle: `rgba(255, 0, 0, 0.35)` }).tRect(
+                renderEntity.prop({ fillStyle: `rgba(255, 0, 0, 0.2)` }).tRect(
                     x,
                     y,
                     1,

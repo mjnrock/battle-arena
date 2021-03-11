@@ -11,13 +11,16 @@ export const EnumEntity = {
 export const EnumTerrain = {
     VOID: "void",
     GRASS: "grass",
+    DIRT: "dirt",
     WATER: "water",
     
     FIRE: "fire",
 };
 
 export const EnumState = {
-    IDLE: 0,
+    NORMAL: 0,
+    EDGE_LONG: 1,
+    EDGE_SHORT: 2,
 };
 
 export const EnumFacing = {

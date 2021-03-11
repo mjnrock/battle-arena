@@ -106,6 +106,10 @@ export class World extends Beacon {
 
         return false;
     }
+
+    getTerrain(x, y) {
+        return this.terrain[ `${ x }.${ y }`];
+    }
 }
 
 export function CreateRandom(width, height, enemyCount = 5) {
@@ -114,7 +118,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
             world.terrain.create([
-                [ componentTerrain, Math.random() >= 0.25 ? DictTerrain.GRASS : DictTerrain.WATER ],
+                [ componentTerrain, Math.random() >= 0.25 ? DictTerrain.GRASS : DictTerrain.DIRT ],
                 [ componentPosition, { x, y, facing: 0 } ],
                 [ componentTurn, { timeoutStart: 0 } ],
             ], `${ x }.${ y }`);
