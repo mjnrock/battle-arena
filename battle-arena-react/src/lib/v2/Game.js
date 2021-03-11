@@ -6,10 +6,12 @@ import Agency from "@lespantsfancy/agency";
     import worldEntityLayer from "./data/render/world-entity-layer";
     import worldTerrainLayer from "./data/render/world-terrain-layer";
     import RenderManager from "./manager/RenderManager";
+import findPath from "./util/AStar";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
-    constructor({ fps = 24, GCD = 1500 } = {}) {
+    // constructor({ fps = 24, GCD = 120 } = {}) {
+    constructor({ fps = 24, GCD = 450 } = {}) {
         super(false);
         
         this.loop = Agency.Pulse.SubjectFactory(fps, { autostart: false });
@@ -99,6 +101,10 @@ export default class Game extends Agency.Beacon {
                         pos.tyi = Math.floor(pos.ty);
 
                         console.info(pos.txi, pos.tyi, JSON.stringify([ ...game.world.node(pos.txi, pos.tyi) ].map(e => e.toData())));
+
+                        const player = game.world.entities.player;
+                        player.action.destination = [ pos.txi, pos.tyi ];
+                        player.action.path = findPath(game.world, [ player.position.x, player.position.y ], player.action.destination);
                     }
                 });
             }, 500);

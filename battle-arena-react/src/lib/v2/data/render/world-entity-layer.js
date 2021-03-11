@@ -130,8 +130,9 @@ export async function init(game) {
         
 
         renderEntity.save();
-            const path = game.world.PLAYER_PATH;
-            // console.log(path.length)
+            const player = game.world.entities.player;
+            const path = player.action.path || [];
+            const [ x, y ] = player.action.destination || [];
 
             for(let [ tx, ty ] of path) {
                 renderEntity.prop({ fillStyle: `rgba(0, 0, 0, 0.35)` }).tRect(
@@ -143,13 +144,15 @@ export async function init(game) {
                 );
             }
             
-            renderEntity.prop({ fillStyle: `rgba(255, 0, 0, 0.35)` }).tRect(
-                16,
-                3,
-                1,
-                1,
-                { isFilled: true },
-            );
+            if(!(player.position.x === x && player.position.y === y)) {
+                renderEntity.prop({ fillStyle: `rgba(255, 0, 0, 0.35)` }).tRect(
+                    x,
+                    y,
+                    1,
+                    1,
+                    { isFilled: true },
+                );
+            }
         renderEntity.restore();
     }
 

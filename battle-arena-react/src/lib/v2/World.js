@@ -9,6 +9,7 @@ import NodeManager from "./manager/NodeManager";
 import componentPosition from "./data/entity/components/position";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
+import componentAction from "./data/entity/components/action";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import findPath from "./util/AStar";
 
@@ -124,16 +125,31 @@ export function CreateRandom(width, height, enemyCount = 5) {
     world.entities.create([
         [ componentPosition, { x: 4, y: 7 } ],
         [ componentHealth, { current: 10, max: 10 } ],
+        [ componentAction, {} ],
         [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-            const path = findPath(world, [
-                entity.position.x,
-                entity.position.y,
-            ], [
-                16,
-                3,
-            ]);
+            if(entity.action.path.length) {
+                const [ x, y ] = entity.action.path.shift();
+                const { x: ox, y: oy } = entity.position;
 
-            world.PLAYER_PATH = path;
+                entity.position.x = x;
+                entity.position.y = y;
+
+                if(x !== ox) {
+                    if(x > ox) {
+                        entity.position.facing = 90;
+                    } else if(x < ox) {
+                        entity.position.facing = 270;
+                    }
+                } else if(y !== oy) {
+                    if(y > oy) {
+                        entity.position.facing = 180;
+                    } else if(y < oy) {
+                        entity.position.facing = 0;
+                    }
+                } 
+    
+                world.PLAYER_PATH = entity.action.path;
+            }
         } } ],
     ], "player");
 
