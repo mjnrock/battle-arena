@@ -3,6 +3,7 @@ import Agency from "@lespantsfancy/agency";
 export const EnumEntity = {
     SQUIRREL: "squirrel",
     BUNNY: "bunny",
+    BEAR: "bear",
 
     GHOST_SQUIRREL: "ghost-squirrel",
     GHOST_BUNNY: "ghost-bunny",

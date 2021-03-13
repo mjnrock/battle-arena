@@ -9,6 +9,7 @@ export async function load(game, renderGroup) {
     let files = [
         `squirrel`,
         `bunny`,
+        `bear`,
         // `fire`,
         // `ghost-squirrel`,
         // `ghost-bunny`,
@@ -16,22 +17,41 @@ export async function load(game, renderGroup) {
 
     let promises = [];
     for(let file of files) {
-        promises.push(
-            Agency.Util.Base64.FileDecode(`./assets/images/${ file }.png`)
-                .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
-                .then(tessellation => {
-                    for(let i = 0; i <= 270; i += 90) {
-                        tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
-                        renderGroup.imageRegistry.set(
-                            tessellation.toSprite({ purgePattern: true }),
-                            file,
-                            0,
-                            i,
-                        );
-                    }
-                })
-                .catch(e => console.error(`[Tessellation Failed]:  Ensure "${ file }" is present in the WorldEntityLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
-        );
+        if(file === "bear") {
+            promises.push(
+                Agency.Util.Base64.FileDecode(`./assets/images/${ file }.png`)
+                    .then(canvas => ToCanvasMap(96, 96, canvas, { asTessellation: true }))
+                    .then(tessellation => {
+                        for(let i = 0; i <= 270; i += 90) {
+                            tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
+                            renderGroup.imageRegistry.set(
+                                tessellation.toSprite({ purgePattern: true }),
+                                file,
+                                0,
+                                i,
+                            );
+                        }
+                    })
+                    .catch(e => console.error(`[Tessellation Failed]:  Ensure "${ file }" is present in the WorldEntityLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
+            );
+        } else {
+            promises.push(
+                Agency.Util.Base64.FileDecode(`./assets/images/${ file }.png`)
+                    .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
+                    .then(tessellation => {
+                        for(let i = 0; i <= 270; i += 90) {
+                            tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
+                            renderGroup.imageRegistry.set(
+                                tessellation.toSprite({ purgePattern: true }),
+                                file,
+                                0,
+                                i,
+                            );
+                        }
+                    })
+                    .catch(e => console.error(`[Tessellation Failed]:  Ensure "${ file }" is present in the WorldEntityLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
+            );
+        }
     }
     
     return await Promise.all(promises);
@@ -43,7 +63,7 @@ export async function init(game) {
         EntityImageRegistryTemplate,
         {
             lookupFns: [
-                ({ entity }) => entity === game.world.entities.player ? "squirrel" : "bunny",
+                ({ entity }) => entity === game.world.entities.player ? "bear" : "bunny",
                 ({ entity }) => 0,
                 ({ entity }) => Math.floor(entity.position.facing / 90) * 90,
             ]
@@ -64,16 +84,18 @@ export async function init(game) {
             const sprite = renderEntity.sprite({ entity: ent });
 
             if(sprite) {
+                const image = sprite.get(elapsed);
+
                 renderEntity.image(
-                    sprite.get(elapsed),
+                    image,
                     0,
                     0,
-                    renderEntity.tw,
-                    renderEntity.th,
+                    image.width,
+                    image.height,
                     ent.position.x * renderEntity.tw,
                     ent.position.y * renderEntity.th,
-                    renderEntity.tw,
-                    renderEntity.th,
+                    image.width,
+                    image.height,
                 );
                 
                 //? Draw Pie Timer
@@ -85,16 +107,16 @@ export async function init(game) {
                 }
                 renderEntity.save();
                     renderEntity.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
-                        ent.position.x * renderEntity.tw + renderEntity.tw / 2,
-                        ent.position.y * renderEntity.th - renderEntity.tw / 2,
+                        ent.position.x * renderEntity.tw + image.width / 2,
+                        ent.position.y * renderEntity.th - renderEntity.th / 2,
                         8,
                         { isFilled: true },
                     );
                 renderEntity.restore();
                 renderEntity.save();
                     renderEntity.prop({ fillStyle: color, strokeStyle: `rgba(0, 0, 0, 0.35)` }).pie(
-                        ent.position.x * renderEntity.tw + renderEntity.tw / 2,
-                        ent.position.y * renderEntity.th - renderEntity.tw / 2,
+                        ent.position.x * renderEntity.tw + image.width / 2,
+                        ent.position.y * renderEntity.th - renderEntity.th / 2,
                         7,
                         0,
                         prog * Math.PI * 2,
@@ -113,14 +135,14 @@ export async function init(game) {
                     renderEntity.prop({ fillStyle: `rgba(0, 0, 0, 0.35)`, strokeStyle: `rgba(0, 0, 0, 0.35)` }).rect(
                         ent.position.x * renderEntity.tw,
                         ent.position.y * renderEntity.th - renderEntity.th / 4 + 2,
-                        renderEntity.tw,
+                        image.width,
                         5,
                         { isFilled: true },
                     );
                     renderEntity.prop({ fillStyle: hp }).rect(
                         ent.position.x * renderEntity.tw + 1,
                         ent.position.y * renderEntity.th - renderEntity.th / 4 + 2 + 1,
-                        ent.health.value.rate * (renderEntity.tw - 2),
+                        ent.health.value.rate * (image.width - 2),
                         3,
                         { isFilled: true },
                     );
