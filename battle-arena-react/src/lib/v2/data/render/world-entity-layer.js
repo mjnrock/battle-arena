@@ -63,7 +63,7 @@ export async function init(game) {
         EntityImageRegistryTemplate,
         {
             lookupFns: [
-                ({ entity }) => entity === game.world.entities.player ? "bear" : "bunny",
+                ({ entity }) => entity === game.world.entities.player ? "bunny" : "squirrel",
                 ({ entity }) => 0,
                 ({ entity }) => Math.floor(entity.position.facing / 90) * 90,
             ]
