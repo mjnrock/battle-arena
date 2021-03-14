@@ -25,7 +25,7 @@ export async function load(game, renderGroup) {
                     .then(tessellation => {
                         for(let i = 0; i <= 270; i += 90) {
                             if(i === 90) {
-                                tessellation.relative(1).add(`0.${ i / 90 }`, 1).row().add(`0.3`, 1);
+                                tessellation.relative(4).add(`0.${ i / 90 }`, 2).add(`0.3`, 2).row().add(`0.2`, 4);
                             } else {
                                 tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
                             }

@@ -11,7 +11,7 @@ import findPath from "./util/AStar";
 
 export default class Game extends Agency.Beacon {
     // constructor({ fps = 24, GCD = 120 } = {}) {
-    constructor({ fps = 24, GCD = 750 } = {}) {
+    constructor({ fps = 24, GCD = 2000 } = {}) {
         super(false);
         
         this.loop = Agency.Pulse.SubjectFactory(fps, { autostart: false });
@@ -33,7 +33,7 @@ export default class Game extends Agency.Beacon {
         if(!Game.Instance) {
             const game = new Game();
 
-            game.world = World.CreateRandom(20, 20, 7);
+            game.world = World.CreateRandom(20, 20, 1);
 
             // STUB  Async testing
             setTimeout(() => {
