@@ -1,3 +1,5 @@
+import Canvas from "./Canvas";
+
 export class Sprite {
     constructor(score, { width = 0, height = 0 } = {}) {
         this.score = [];
@@ -34,16 +36,51 @@ export class Sprite {
 
         let time = 0;
         for(let i = 0; i < this.score.length; i++) {
-            const [ dur, [ x, y ], [ w, h ] ] = this.score[ i ];
+            const [ dur, [ x, y ], [ w, h ], hash ] = this.score[ i ];
 
             if(elapsed <= time + dur) {
-                return [ this.canvas, x, y, w, h ];
+                return [ hash, [ this.canvas, x, y, w, h ] ];
             }
 
             time += dur;
         }
 
         return [];
+    }
+    /**
+     * Same as .get(elapsed), but paints to a passed @canvas at [ @px, @py ]
+     */
+    paint(elapsed, canvas, px, py, { ctxType = "2d" } = {}) {        
+        const [ hash, [ image, x, y, width, height ] ] = this.get(elapsed);
+
+        if(canvas instanceof Canvas) {
+            canvas.image(
+                image,
+                x,
+                y,
+                width,
+                height,
+                px,
+                py,
+                width,
+                height,
+            );
+        } else {
+            const ctx = canvas.getContext(ctxType);
+            ctx.drawImage(
+                image,
+                x,
+                y,
+                width,
+                height,
+                px,
+                py,
+                width,
+                height,
+            );
+        }
+
+        return { x, y, width, height, hash };
     }
 }
 

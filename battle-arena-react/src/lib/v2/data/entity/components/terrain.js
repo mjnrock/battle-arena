@@ -196,7 +196,7 @@ export const DictTerrain = {
     },
     WATER: {
         type: 3,
-        cost: 4,
+        cost: 5,
     },
 };
 

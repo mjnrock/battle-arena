@@ -107,19 +107,7 @@ export async function init(game) {
             const sprite = renderTerrain.sprite({ entity: terrain });
 
             if (sprite) {
-                const [ image, x, y, width, height ] = sprite.get(elapsed);
-
-                renderTerrain.image(
-                    image,
-                    x,
-                    y,
-                    width,
-                    height,
-                    terrain.position.x * renderTerrain.tw,
-                    terrain.position.y * renderTerrain.th,
-                    width,
-                    height,
-                );
+                sprite.paint(elapsed, renderTerrain, terrain.position.x * renderTerrain.tw, terrain.position.y * renderTerrain.th);                
 
                 //TODO  Bake the terrain on World load and rebake tiles/neighbors if something changes in game (e.g. player plows the land)
                 // if (terrain.terrain.type === DictTerrain.DIRT.type) {

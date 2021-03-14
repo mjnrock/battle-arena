@@ -91,19 +91,7 @@ export async function init(game) {
             const sprite = renderEntity.sprite({ entity: ent });
 
             if(sprite) {
-                const [ image, x, y, width, height ] = sprite.get(elapsed);
-
-                renderEntity.image(
-                    image,
-                    x,
-                    y,
-                    width,
-                    height,
-                    ent.position.x * renderEntity.tw,
-                    ent.position.y * renderEntity.th,
-                    width,
-                    height,
-                );
+                const { width: frameWidth } = sprite.paint(elapsed, renderEntity, ent.position.x * renderEntity.tw, ent.position.y * renderEntity.th);
                 
                 //? Draw Pie Timer
                 let color = `rgba(95, 160, 80, 0.75)`;
@@ -114,7 +102,7 @@ export async function init(game) {
                 }
                 renderEntity.save();
                     renderEntity.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
-                        ent.position.x * renderEntity.tw + image.width / 2,
+                        ent.position.x * renderEntity.tw + frameWidth / 2,
                         ent.position.y * renderEntity.th - renderEntity.th / 2,
                         8,
                         { isFilled: true },
@@ -122,7 +110,7 @@ export async function init(game) {
                 renderEntity.restore();
                 renderEntity.save();
                     renderEntity.prop({ fillStyle: color, strokeStyle: `rgba(0, 0, 0, 0.35)` }).pie(
-                        ent.position.x * renderEntity.tw + image.width / 2,
+                        ent.position.x * renderEntity.tw + frameWidth / 2,
                         ent.position.y * renderEntity.th - renderEntity.th / 2,
                         7,
                         0,
@@ -142,14 +130,14 @@ export async function init(game) {
                     renderEntity.prop({ fillStyle: `rgba(0, 0, 0, 0.35)`, strokeStyle: `rgba(0, 0, 0, 0.35)` }).rect(
                         ent.position.x * renderEntity.tw,
                         ent.position.y * renderEntity.th - renderEntity.th / 4 + 2,
-                        image.width,
+                        frameWidth,
                         5,
                         { isFilled: true },
                     );
                     renderEntity.prop({ fillStyle: hp }).rect(
                         ent.position.x * renderEntity.tw + 1,
                         ent.position.y * renderEntity.th - renderEntity.th / 4 + 2 + 1,
-                        ent.health.value.rate * (image.width - 2),
+                        ent.health.value.rate * (frameWidth - 2),
                         3,
                         { isFilled: true },
                     );
