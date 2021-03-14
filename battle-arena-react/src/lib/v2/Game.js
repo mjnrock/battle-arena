@@ -33,7 +33,7 @@ export default class Game extends Agency.Beacon {
         if(!Game.Instance) {
             const game = new Game();
 
-            game.world = World.CreateRandom(20, 20, 1);
+            game.world = World.CreateRandom(20, 20, 7);
 
             // STUB  Async testing
             setTimeout(() => {

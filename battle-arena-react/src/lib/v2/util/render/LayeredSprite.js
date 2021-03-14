@@ -76,11 +76,9 @@ export class LayeredSprite extends Sprite {
         elapsed = elapsed % this.duration;  // Loop pattern
 
         let results = [];
-loop1:
         for(let i = 0; i < this.score.length; i++) {
             const score = this.score[ i ];
             let time = 0;
-loop2:
             for(let j = 0; j < score.length; j++) {
                 const [ dur, [ x, y ], [ w, h ], hash ] = score[ j ];
     
@@ -89,7 +87,7 @@ loop2:
                 if(elapsed <= time) {
                     results.push([ hash, [ this.canvas, x, y, w, h ] ]);
                     
-                    break loop2;
+                    break;
                 }
             }
         }

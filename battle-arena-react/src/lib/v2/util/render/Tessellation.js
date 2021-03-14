@@ -56,6 +56,11 @@ export class Tessellation {
 
         return this;
     }
+    remove(index) {
+        delete this.current[ index ];
+
+        return this;
+    }
 
     row() {
         ++this.info.index;
@@ -67,6 +72,15 @@ export class Tessellation {
     useRow(i = 0) {
         if(i < this.info.data.length) {
             this.info.index = Math.max(0, +i);
+        }
+
+        return this;
+    }
+    removeRow(index) {
+        delete this.info.data[ index ];
+
+        if(this.info.index === index) {
+            this.info.index = 0;
         }
 
         return this;
