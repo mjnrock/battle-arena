@@ -14,13 +14,7 @@ export class Tessellation {
     }
 
     get current() {
-        let arr = this.info.data[ this.info.index ];
-
-        if(!Array.isArray(arr)) {
-            this.info.data[ this.info.index ] = [];
-        }
-
-        return arr;
+        return this.info.data[ this.info.index ];
     }
 
     reset() {
@@ -65,11 +59,14 @@ export class Tessellation {
     row() {
         ++this.info.index;
 
+        this.info.data[ this.info.index ] = [];
+
         return this;
-    }
-    
-    setIndex(i = 0) {
-        this.info.index = Math.max(0, +i);
+    }    
+    useRow(i = 0) {
+        if(i < this.info.data.length) {
+            this.info.index = Math.max(0, +i);
+        }
 
         return this;
     }
@@ -102,27 +99,36 @@ export class Tessellation {
     }
 
     toSprite({ purgePattern = false } = {}) {
-        let width = 0,
-            height = 0;
-
         const obj = this.score(true);
-        //TODO  obj.pattern[ 0 ] should be converted to iterate over ALL rows
-        const score = obj.pattern[ 0 ].map(([ key, duration ]) => {
-            const frame = obj.source[ key ];
+        const sprites = [];
+        for(let row of obj.pattern) {
+            let width = 0,
+                height = 0;
 
-            width += frame.width;
-            height = Math.max(height, frame.height);
+            sprites.push(new Sprite(
+                    row.map(([ key, duration ]) => {
+                        const frame = obj.source[ key ];
             
-            const base64 = frame.toDataURL("image/png", 1.0);
-
-            return [ frame, duration, key, crypto.createHash("md5").update(base64).digest("hex") ];
-        });
+                        width += frame.width;
+                        height = Math.max(height, frame.height);
+                        
+                        const base64 = frame.toDataURL("image/png", 1.0);
+            
+                        return [ frame, duration, key, crypto.createHash("md5").update(base64).digest("hex") ];
+                    }),
+                    {
+                        width,
+                        height,
+                    },
+                )
+            );
+        }
         
         if(purgePattern) {
             this.reset();
         }
 
-        return new Sprite(score, { width, height });
+        return sprites;
     }
 }
 

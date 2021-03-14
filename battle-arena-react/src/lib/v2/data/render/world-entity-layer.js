@@ -48,13 +48,6 @@ export async function load(game, renderGroup) {
                                 i,
                             );
                         }
-
-                        if(file === "squirrel") {
-                            console.log(
-                                renderGroup.imageRegistry.get(file, 0, 0),
-                                renderGroup.imageRegistry.get(file, 0, 0).canvas.toDataURL(),
-                            )
-                        }
                     })
                     .catch(e => console.error(`[Tessellation Failed]:  Ensure "${ file }" is present in the WorldEntityLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
             );
@@ -88,10 +81,15 @@ export async function init(game) {
 
         for(let ent of renderEntity.entities) {
             const prog = ((Date.now() - ent.turn.timeoutStart) % game.config.GCD) / game.config.GCD;      // % game.config.GCD hides information and should only be used for testing
-            const sprite = renderEntity.sprite({ entity: ent });
+            const sprites = renderEntity.sprite({ entity: ent });
 
-            if(sprite) {
-                const { width: frameWidth } = sprite.paint(elapsed, renderEntity, ent.position.x * renderEntity.tw, ent.position.y * renderEntity.th);
+            if (Array.isArray(sprites)) {
+                let frameWidth = 0;
+                for(let sprite of sprites) {
+                    const { width: rowWidth } = sprite.paint(elapsed, renderEntity, ent.position.x * renderEntity.tw, ent.position.y * renderEntity.th);  
+
+                    frameWidth = Math.max(frameWidth, rowWidth);
+                }
                 
                 //? Draw Pie Timer
                 let color = `rgba(95, 160, 80, 0.75)`;
