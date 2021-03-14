@@ -48,6 +48,13 @@ export async function load(game, renderGroup) {
                                 i,
                             );
                         }
+
+                        if(file === "squirrel") {
+                            console.log(
+                                renderGroup.imageRegistry.get(file, 0, 0),
+                                renderGroup.imageRegistry.get(file, 0, 0).canvas.toDataURL(),
+                            )
+                        }
                     })
                     .catch(e => console.error(`[Tessellation Failed]:  Ensure "${ file }" is present in the WorldEntityLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
             );
@@ -84,18 +91,18 @@ export async function init(game) {
             const sprite = renderEntity.sprite({ entity: ent });
 
             if(sprite) {
-                const image = sprite.get(elapsed);
+                const [ image, x, y, width, height ] = sprite.get(elapsed);
 
                 renderEntity.image(
                     image,
-                    0,
-                    0,
-                    image.width,
-                    image.height,
+                    x,
+                    y,
+                    width,
+                    height,
                     ent.position.x * renderEntity.tw,
                     ent.position.y * renderEntity.th,
-                    image.width,
-                    image.height,
+                    width,
+                    height,
                 );
                 
                 //? Draw Pie Timer

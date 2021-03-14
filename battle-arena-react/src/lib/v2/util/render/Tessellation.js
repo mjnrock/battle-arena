@@ -1,4 +1,6 @@
-import { Sprite } from "./Sprite";
+import crypto from "crypto";
+
+import Sprite from "./Sprite";
 
 export class Tessellation {
     constructor(canvasMap = {}) {
@@ -77,13 +79,26 @@ export class Tessellation {
     }
 
     toSprite({ purgePattern = false } = {}) {
-        const score = this.score(false).map(([ key, duration ]) => [ this.source[ key ], duration, key ]);
+        let width = 0,
+            height = 0;
+
+        const obj = this.score(true);
+        const score = obj.pattern.map(([ key, duration ]) => {
+            const frame = obj.source[ key ];
+
+            width += frame.width;
+            height = Math.max(height, frame.height);
+            
+            const base64 = frame.toDataURL("image/png", 1.0);
+
+            return [ frame, duration, key, crypto.createHash("md5").update(base64).digest("hex") ];
+        });
         
         if(purgePattern) {
             this.reset();
         }
 
-        return new Sprite(score);
+        return new Sprite(score, { width, height });
     }
 }
 

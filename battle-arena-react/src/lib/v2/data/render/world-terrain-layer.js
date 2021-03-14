@@ -53,6 +53,13 @@ export async function load(game, renderGroup) {
                             0,
                             0,
                         );
+
+                        if(file === "water") {
+                            console.log(
+                                renderGroup.imageRegistry.get(file, 0, 0),
+                                renderGroup.imageRegistry.get(file, 0, 0).canvas.toDataURL(),
+                            )
+                        }
                     }
                 })
                 .catch(e => console.error(`[Tessellation Failed]:  Ensure "${file}" is present in the WorldTerrainLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
@@ -100,18 +107,18 @@ export async function init(game) {
             const sprite = renderTerrain.sprite({ entity: terrain });
 
             if (sprite) {
-                const image = sprite.get(elapsed);
+                const [ image, x, y, width, height ] = sprite.get(elapsed);
 
                 renderTerrain.image(
                     image,
-                    0,
-                    0,
-                    renderTerrain.tw,
-                    renderTerrain.th,
+                    x,
+                    y,
+                    width,
+                    height,
                     terrain.position.x * renderTerrain.tw,
                     terrain.position.y * renderTerrain.th,
-                    renderTerrain.tw,
-                    renderTerrain.th,
+                    width,
+                    height,
                 );
 
                 //TODO  Bake the terrain on World load and rebake tiles/neighbors if something changes in game (e.g. player plows the land)
