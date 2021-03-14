@@ -3,6 +3,7 @@ import Agency from "@lespantsfancy/agency";
 import RenderGroup from "./../../util/render/RenderGroup";
 import { EntityTemplate as EntityImageRegistryTemplate } from "../../util/render/ImageRegistry";
 import { ToCanvasMap } from "../image/tessellator/grid";
+import { LayeredSprite } from "../../util/render/LayeredSprite";
 
 export async function load(game, renderGroup) {
     //NOTE  If you want to add more files, they MUST have a corresponding "1st dimension" key in renderGroup (cf. ImageRegistry.EntityTemplate)
@@ -23,7 +24,11 @@ export async function load(game, renderGroup) {
                     .then(canvas => ToCanvasMap(96, 96, canvas, { asTessellation: true }))
                     .then(tessellation => {
                         for(let i = 0; i <= 270; i += 90) {
-                            tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
+                            if(i === 90) {
+                                tessellation.relative(1).add(`0.${ i / 90 }`, 1).row().add(`0.3`, 1);
+                            } else {
+                                tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
+                            }
                             renderGroup.imageRegistry.set(
                                 tessellation.toSprite({ purgePattern: true }),
                                 file,
@@ -31,6 +36,11 @@ export async function load(game, renderGroup) {
                                 i,
                             );
                         }
+
+                        // console.log(
+                        //     renderGroup.imageRegistry.get(file, 0, 0).canvas.toDataURL(),
+                        //     renderGroup.imageRegistry.get(file, 0, 90).canvas.toDataURL(),
+                        // )
                     })
                     .catch(e => console.error(`[Tessellation Failed]:  Ensure "${ file }" is present in the WorldEntityLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
             );
@@ -63,7 +73,7 @@ export async function init(game) {
         EntityImageRegistryTemplate,
         {
             lookupFns: [
-                ({ entity }) => entity === game.world.entities.player ? "bunny" : "squirrel",
+                ({ entity }) => entity === game.world.entities.player ? "bunny" : "bear",
                 ({ entity }) => 0,
                 ({ entity }) => Math.floor(entity.position.facing / 90) * 90,
             ]
@@ -81,15 +91,10 @@ export async function init(game) {
 
         for(let ent of renderEntity.entities) {
             const prog = ((Date.now() - ent.turn.timeoutStart) % game.config.GCD) / game.config.GCD;      // % game.config.GCD hides information and should only be used for testing
-            const sprites = renderEntity.sprite({ entity: ent });
+            const sprite = renderEntity.sprite({ entity: ent });
 
-            if (Array.isArray(sprites)) {
-                let frameWidth = 0;
-                for(let sprite of sprites) {
-                    const { width: rowWidth } = sprite.paint(elapsed, renderEntity, ent.position.x * renderEntity.tw, ent.position.y * renderEntity.th);  
-
-                    frameWidth = Math.max(frameWidth, rowWidth);
-                }
+            if (sprite) {
+                const { width: frameWidth } = sprite.paint(elapsed, renderEntity, ent.position.x * renderEntity.tw, ent.position.y * renderEntity.th);
                 
                 //? Draw Pie Timer
                 let color = `rgba(95, 160, 80, 0.75)`;

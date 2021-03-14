@@ -97,12 +97,10 @@ export async function init(game) {
         }
 
         for (let terrain of renderTerrain.entities) {
-            const sprites = renderTerrain.sprite({ entity: terrain });
+            const sprite = renderTerrain.sprite({ entity: terrain });
 
-            if (Array.isArray(sprites)) {
-                for(let sprite of sprites) {
-                    sprite.paint(elapsed, renderTerrain, terrain.position.x * renderTerrain.tw, terrain.position.y * renderTerrain.th);  
-                }
+            if (sprite) {
+                sprite.paint(elapsed, renderTerrain, terrain.position.x * renderTerrain.tw, terrain.position.y * renderTerrain.th);
             }
         }
     }

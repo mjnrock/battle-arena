@@ -1,10 +1,14 @@
 import Canvas from "./Canvas";
 
 export class Sprite {
-    constructor(score, { width = 0, height = 0 } = {}) {
+    constructor(score, { width = 0, height = 0, duration, __inherit = false }) {        
+        if(__inherit) {
+            return this;
+        }
+
         this.score = [];
 
-        this.canvas = document.createElement("canvas");        
+        this.canvas = document.createElement("canvas");
         this.canvas.width = width;
         this.canvas.height = height;
 
@@ -18,7 +22,12 @@ export class Sprite {
         this.__duration = this.score.reduce((a, [ dur ]) => {
             return a + dur;
         }, 0);
+        
         this.__indexes = Object.fromEntries(score.map(([ ,,,hash ], i) => [ hash, i ]));
+    }
+
+    get ctx() {
+        return this.canvas.getContext("2d");
     }
 
     get duration() {

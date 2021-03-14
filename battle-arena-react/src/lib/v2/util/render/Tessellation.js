@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { LayeredSprite } from "./LayeredSprite";
 
 import Sprite from "./Sprite";
 
@@ -72,26 +73,44 @@ export class Tessellation {
     }
 
     score(includeSource = false) {
-        let pattern = [];
+        let pattern = [],
+            duration = [];
+
         if(this.mode === "absolute") {
+            let rdur = 0;
             for(let row of this.info.data) {
                 pattern.push(row.map(([ key, duration, repeat ]) => {
-                    return [ key, duration * repeat ];
+                    let ms = duration * repeat;
+
+                    rdur += ms;
+
+                    return [ key, ms ];
                 }));
             }
+
+            duration.push(rdur);
         } else if(this.mode === "relative") {
             const bps = this.info.bps;
+            let rdur = 0;
+            
             for(let row of this.info.data) {
                 pattern.push(row.map(([ key, duration, repeat ]) => {
-                    return [ key, duration / bps * 1000 * repeat ];
+                    let ms = duration / bps * 1000 * repeat;
+
+                    rdur += ms;
+
+                    return [ key, ms ];
                 }));
             }
+
+            duration.push(rdur);
         }
 
         if(includeSource) {
             return {
                 source: this.source,
                 pattern,
+                duration,
             };
         }
 
@@ -101,7 +120,9 @@ export class Tessellation {
     toSprite({ purgePattern = false } = {}) {
         const obj = this.score(true);
         const sprites = [];
-        for(let row of obj.pattern) {
+        for(let i = 0; i < obj.pattern.length; i++) {
+            const row = obj.pattern[ i ];
+            
             let width = 0,
                 height = 0;
 
@@ -114,7 +135,7 @@ export class Tessellation {
                         
                         const base64 = frame.toDataURL("image/png", 1.0);
             
-                        return [ frame, duration, key, crypto.createHash("md5").update(base64).digest("hex") ];
+                        return [ frame, duration, crypto.createHash("md5").update(base64).digest("hex") ];
                     }),
                     {
                         width,
@@ -128,7 +149,11 @@ export class Tessellation {
             this.reset();
         }
 
-        return sprites;
+        if(sprites.length > 1) {
+            return new LayeredSprite(sprites);
+        }
+
+        return sprites[ 0 ];
     }
 }
 
