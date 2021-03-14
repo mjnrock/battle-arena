@@ -7,11 +7,27 @@ export class Tessellation {
         this.source = canvasMap;
 
         this.mode = "absolute";
-        this.data = [];
+        this.info = {
+            index: 0,
+            data: [[]],
+        };
+    }
+
+    get current() {
+        let arr = this.info.data[ this.info.index ];
+
+        if(!Array.isArray(arr)) {
+            this.info.data[ this.info.index ] = [];
+        }
+
+        return arr;
     }
 
     reset() {
-        this.data = [];
+        this.info = {
+            index: 0,
+            data: [[]],
+        };
 
         return this;
     }
@@ -30,22 +46,14 @@ export class Tessellation {
 
     bps(bps) {
         if(this.mode === "relative") {  // Skip function if not in "relative" mode
-            if(!this.data.length) {     // No data presently entered, add
-                this.data.push(bps);
-            } else {
-                if(Array.isArray(this.data[ 0 ])) {     // No BPS in the first slot, add
-                    this.data.unshift(bps);
-                } else {        // BPS present in the first slot, overwrite
-                    this.data[ 0 ] = bps;
-                }
-            }
+            this.info.bps = bps;
         }
 
         return this;
     }
 
     add(key, duration, repeat = 1) {
-        this.data.push([
+        this.current.push([
             key,
             duration,
             repeat,
@@ -54,18 +62,33 @@ export class Tessellation {
         return this;
     }
 
+    row() {
+        ++this.info.index;
+
+        return this;
+    }
+    
+    setIndex(i = 0) {
+        this.info.index = Math.max(0, +i);
+
+        return this;
+    }
+
     score(includeSource = false) {
-        let pattern;
+        let pattern = [];
         if(this.mode === "absolute") {
-            pattern = [ ...this.data ].map(([ key, duration, repeat ]) => {
-                return [ key, duration * repeat ];
-            });
+            for(let row of this.info.data) {
+                pattern.push(row.map(([ key, duration, repeat ]) => {
+                    return [ key, duration * repeat ];
+                }));
+            }
         } else if(this.mode === "relative") {
-            const bps = this.data[ 0 ];
-            
-            pattern = [ ...this.data ].slice(1).map(([ key, duration, repeat ]) => {
-                return [ key, duration / bps * 1000 * repeat ];
-            });
+            const bps = this.info.bps;
+            for(let row of this.info.data) {
+                pattern.push(row.map(([ key, duration, repeat ]) => {
+                    return [ key, duration / bps * 1000 * repeat ];
+                }));
+            }
         }
 
         if(includeSource) {
@@ -83,7 +106,8 @@ export class Tessellation {
             height = 0;
 
         const obj = this.score(true);
-        const score = obj.pattern.map(([ key, duration ]) => {
+        //TODO  obj.pattern[ 0 ] should be converted to iterate over ALL rows
+        const score = obj.pattern[ 0 ].map(([ key, duration ]) => {
             const frame = obj.source[ key ];
 
             width += frame.width;
