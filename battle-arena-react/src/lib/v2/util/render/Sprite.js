@@ -36,13 +36,14 @@ export class Sprite {
     get ctx() {
         return this.canvas.getContext("2d");
     }
-
     get hash() {
         return this.__hash;
     }
-
     get duration() {
         return this.__duration;
+    }
+    get size() {
+        return [ this.canvas.width, this.canvas.height ];
     }
     
     find(hash) {

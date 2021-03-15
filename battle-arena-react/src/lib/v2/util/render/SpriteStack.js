@@ -69,4 +69,29 @@ export class SpriteStack {
     }
 }
 
+export function Flatten(spriteStack, { canvas, ctxType = "2d" } = {}) {
+    if(!(canvas instanceof HTMLCanvasElement)) {
+        canvas = document.createElement("canvas");
+    }
+
+    let width = 0,
+        height = 0;
+    for(let sprite of spriteStack) {
+        const [ w, h ] = sprite.size;
+
+        width = Math.max(width, w);
+        height = Math.max(height, h);
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext(ctxType);
+    for(let sprite of spriteStack) {
+        ctx.drawImage(sprite.canvas, 0, 0);
+    }
+
+    return canvas;
+}
+
 export default SpriteStack;

@@ -10,11 +10,8 @@ export class LayeredSprite extends Sprite {
         this.canvas = document.createElement("canvas");
         this.__indexes = {};
         
-        const ctx = this.canvas.getContext("2d");
         let width = 0,
-            height = 0,
-            fns = [];
-            
+            height = 0;            
         for(let i = 0; i < scores.length; i++) {
             const score = scores[ i ];
             let rwidth = 0,
