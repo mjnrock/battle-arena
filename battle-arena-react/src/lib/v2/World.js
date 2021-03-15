@@ -117,7 +117,25 @@ export function CalculateEdgeMasks(world) {
         for(let y = 0; y < world.height; y++) {
             const terrain = world.getTerrain(x, y);
 
-            
+            if(terrain.terrain.type === DictTerrain.DIRT.type) {
+                let neighbors = dirs.map(([ dx, dy, theta ]) => {
+                    let neigh = game.world.terrain[ `${ terrain.position.x + dx }.${ terrain.position.y + dy }` ];
+
+                    if(neigh && neigh.terrain.type === DictTerrain.GRASS.type) {
+                        if(theta === 0) {
+                            return [ !(dx === 0 || dy === 0), image => [ 0, 0, 1, 0 ] ];
+                        } else if(theta === 90) {
+                            return [ !(dx === 0 || dy === 0), image => [ image.width, 0, 1, Math.PI / 2 ] ];
+                        } else if(theta === 180) {
+                            return [ !(dx === 0 || dy === 0), image => [ image.width, image.height, 1, Math.PI ] ];
+                        } else if(theta === 270) {
+                            return [ !(dx === 0 || dy === 0), image => [  0, image.height, 1, -Math.PI / 2 ] ];
+                        }
+                    }
+
+                    return false;
+                }).filter(n => n !== false);
+            }
         }
     }
 }
