@@ -2,13 +2,15 @@ import Agency from "@lespantsfancy/agency";
 
 //STUB START "Imports" for stub below
     import World from "./World";
-
-    import initImageRepository from "./data/render/repository";
-    import initWorldEntityLayer from "./data/render/world-entity-layer";
-    import initWorldTerrainLayer from "./data/render/world-terrain-layer";
-    import worldRenderLayers from "./data/render/entity";
+    import RenderLayer from "./util/render/RenderLayer";
     import RenderManager from "./manager/RenderManager";
     import findPath from "./util/AStar";
+
+    import initImageRepository from "./data/render/repository";
+    import { loadEntity, loadTerrain } from "./data/render/entity";
+
+    import createWorldEntityLayer from "./data/render/world-entity-layer";
+    import createWorldTerrainLayer from "./data/render/world-terrain-layer";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
@@ -33,7 +35,8 @@ export default class Game extends Agency.Beacon {
     // Access Singleton pattern via Game.$
     static get $() {
         if(!Game.Instance) {
-            const game = new Game();
+            Game.Instance = new Game();
+            const game = Game.Instance;
 
             game.world = World.CreateRandom(20, 20, 1);
 
@@ -81,16 +84,17 @@ export default class Game extends Agency.Beacon {
             // for(let entity of game.world.entities.values) {
             //     console.log(entity.health.value.rate);
             // }
-            
+
 
             //? Bootstrap the rendering
             game.render = new RenderManager(640, 640, { repository: initImageRepository() });
             (async () => {
-                await worldRenderLayers.loadEntity(game);
-                await worldRenderLayers.loadTerrain(game);
+                //  Load Images
+                await game.render.loadImages(game, loadEntity);
+                await game.render.loadImages(game, loadTerrain);
 
-                initWorldTerrainLayer(game).then(group => game.render.addGroup(group));
-                initWorldEntityLayer(game).then(group => game.render.addGroup(group));
+                game.render.addRenderLayer(game.world.terrain, { painter: createWorldTerrainLayer });
+                game.render.addRenderLayer(game.world.entities, { painter: createWorldEntityLayer });
     
                 game.render.eraseFirst();
                 game.render.onDraw = (dt, elapsed) => {

@@ -327,15 +327,16 @@ export default class Canvas {
 
         return this;
     }
-    draw(elapsed) {
-        if(this._config.isAnimating === true) {
-            if(this._config.clearBeforeDraw === true) {
-                this.clear();
-            }
     
-            this.onDraw(elapsed - this.__lastDraw, elapsed, this.ctx, this.canvas, this);
-            this.__lastDraw = elapsed;
+    draw(elapsed) {
+        if(this._config.clearBeforeDraw === true) {
+            this.clear();
+        }
+
+        this.onDraw(elapsed - this.__lastDraw, elapsed, this.ctx, this.canvas, this);
+        this.__lastDraw = elapsed;
             
+        if(this._config.isAnimating === true) {
             requestAnimationFrame(this.draw.bind(this));
         }
 

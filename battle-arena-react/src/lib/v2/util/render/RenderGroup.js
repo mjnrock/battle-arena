@@ -1,31 +1,9 @@
-import EntityManager from "./../../manager/EntityManager";
-import RenderLayer from "./RenderLayer";
-import TileCanvas from "./TileCanvas";
+import LayeredCanvas from "./LayeredCanvas";
 
-export class RenderGroup extends TileCanvas {
-    constructor(entities = [], { tw = 32, th = 32 } = {}) {
-        super(tw, th);
-
-        if(entities instanceof EntityManager) {
-            this.entityMgr = entities;
-        } else {
-            this.entityMgr = new EntityManager(entities);
-        }
-
-        this.layers = [];
-
-        this.start();
+export class RenderGroup extends LayeredCanvas {
+    constructor({ tw = 32, th = 32 } = {}) {
+        super({ tw, th });
     }
-
-    addLayer() {
-        this.layers.push(new RenderLayer(this.entityMgr));
-    }
-
-    get entities() {
-        return this.entityMgr.values;
-    }
-
-    //TODO  Image filter/manipulation methods
 }
 
 export default RenderGroup;
