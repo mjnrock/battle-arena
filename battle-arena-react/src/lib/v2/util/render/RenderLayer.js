@@ -1,11 +1,12 @@
-import TileCanvas from "./TileCanvas";
+import EntityManager from "./../../manager/EntityManager";
 
-export class RenderLayer extends TileCanvas {
-    constructor(group, { tw = 1, th = 1 } = {}) {
-        super(tw, th);
-
-        this._group = group;
-        this.registry = {};
+export class RenderLayer {
+    constructor(entities = []) {
+        if(entities instanceof EntityManager) {
+            this.entityMgr = entities;
+        } else {
+            this.entityMgr = new EntityManager(entities);
+        }
     }
 }
 

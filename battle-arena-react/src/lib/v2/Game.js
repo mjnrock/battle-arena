@@ -4,8 +4,9 @@ import Agency from "@lespantsfancy/agency";
     import World from "./World";
 
     import initImageRepository from "./data/render/repository";
-    import worldEntityLayer from "./data/render/world-entity-layer";
-    import worldTerrainLayer from "./data/render/world-terrain-layer";
+    import initWorldEntityLayer from "./data/render/world-entity-layer";
+    import initWorldTerrainLayer from "./data/render/world-terrain-layer";
+    import worldRenderLayers from "./data/render/entity";
     import RenderManager from "./manager/RenderManager";
     import findPath from "./util/AStar";
 //STUB END "Imports"
@@ -80,16 +81,23 @@ export default class Game extends Agency.Beacon {
             // for(let entity of game.world.entities.values) {
             //     console.log(entity.health.value.rate);
             // }
+            
 
             //? Bootstrap the rendering
             game.render = new RenderManager(640, 640, { repository: initImageRepository() });
-            worldTerrainLayer.init(game).then(group => game.render.addGroup(group));
-            worldEntityLayer.init(game).then(group => game.render.addGroup(group));
+            (async () => {
+                await worldRenderLayers.loadEntity(game);
+                await worldRenderLayers.loadTerrain(game);
 
-            game.render.eraseFirst();
-            game.render.onDraw = (dt, elapsed) => {
-                game.render.drawLayers();
-            };
+                initWorldTerrainLayer(game).then(group => game.render.addGroup(group));
+                initWorldEntityLayer(game).then(group => game.render.addGroup(group));
+    
+                game.render.eraseFirst();
+                game.render.onDraw = (dt, elapsed) => {
+                    game.render.drawLayers();
+                };
+            })()
+
 
             //? Perform an action whenever able
             game.on("next", (type, { dt, now }) => {

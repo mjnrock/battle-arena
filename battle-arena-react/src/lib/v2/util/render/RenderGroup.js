@@ -1,4 +1,5 @@
 import EntityManager from "./../../manager/EntityManager";
+import RenderLayer from "./RenderLayer";
 import TileCanvas from "./TileCanvas";
 
 export class RenderGroup extends TileCanvas {
@@ -6,16 +7,22 @@ export class RenderGroup extends TileCanvas {
         super(tw, th);
 
         if(entities instanceof EntityManager) {
-            this.entityManager = entities;
+            this.entityMgr = entities;
         } else {
-            this.entityManager = new EntityManager(entities);
+            this.entityMgr = new EntityManager(entities);
         }
+
+        this.layers = [];
 
         this.start();
     }
 
+    addLayer() {
+        this.layers.push(new RenderLayer(this.entityMgr));
+    }
+
     get entities() {
-        return this.entityManager.values;
+        return this.entityMgr.values;
     }
 
     //TODO  Image filter/manipulation methods

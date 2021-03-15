@@ -1,72 +1,8 @@
-import Agency from "@lespantsfancy/agency";
-
 import RenderGroup from "./../../util/render/RenderGroup";
-import { EntityTemplate as EntityImageRegistryTemplate } from "../../util/render/ImageRegistry";
-import { ToCanvasMap } from "../image/tessellator/grid";
 import SpriteStack from "../../util/render/SpriteStack";
-import Sprite from "../../util/render/Sprite";
-
-export async function load(game) {
-    //NOTE  If you want to add more files, they MUST have a corresponding "1st dimension" key in renderGroup (cf. ImageRegistry.EntityTemplate)
-    let files = [
-        `squirrel`,
-        `bunny`,
-        `bear`,
-        // `fire`,
-        // `ghost-squirrel`,
-        // `ghost-bunny`,
-    ];
-
-    let promises = [];
-    for(let file of files) {
-        if(file === "bear") {
-            promises.push(
-                Agency.Util.Base64.FileDecode(`./assets/images/${ file }.png`)
-                    .then(canvas => ToCanvasMap(96, 96, canvas, { asTessellation: true }))
-                    .then(tessellation => {
-                        for(let i = 0; i <= 270; i += 90) {
-                            if(i === 90) {
-                                tessellation.relative(4).add(`0.2`, 4).row().add(`0.${ i / 90 }`, 2).add(`0.3`, 2);
-                            } else {
-                                tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
-                            }
-                            game.render.repository.get("entity").set(
-                                tessellation.toSprite({ purgePattern: true }),
-                                file,
-                                0,
-                                i,
-                            );
-                        }
-                    })
-                    .catch(e => { console.error(e); console.warn(`Ensure that "${ file }" is present in the <ImageRegistry>`); })
-            );
-        } else {
-            promises.push(
-                Agency.Util.Base64.FileDecode(`./assets/images/${ file }.png`)
-                    .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
-                    .then(tessellation => {
-                        for(let i = 0; i <= 270; i += 90) {
-                            tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
-                            game.render.repository.get("entity").set(
-                                tessellation.toSprite({ purgePattern: true }),
-                                file,
-                                0,
-                                i,
-                            );
-                        }
-                    })
-                    .catch(e => { console.error(e); console.warn(`Ensure that "${ file }" is present in the <ImageRegistry>`); })
-            );
-        }
-    }
-    
-    return await Promise.all(promises);
-}
 
 export async function init(game) {
     const renderEntity = new RenderGroup(game.world.entities);
-
-    await load(game);
 
     renderEntity.eraseFirst();
     renderEntity.onDraw = (dt, elapsed) => {
@@ -167,7 +103,4 @@ export async function init(game) {
     return renderEntity;
 }
 
-export default {
-    load,
-    init,
-};
+export default init;
