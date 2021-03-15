@@ -3,10 +3,11 @@ import Agency from "@lespantsfancy/agency";
 //STUB START "Imports" for stub below
     import World from "./World";
 
+    import initImageRepository from "./data/render/repository";
     import worldEntityLayer from "./data/render/world-entity-layer";
     import worldTerrainLayer from "./data/render/world-terrain-layer";
     import RenderManager from "./manager/RenderManager";
-import findPath from "./util/AStar";
+    import findPath from "./util/AStar";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
@@ -81,7 +82,7 @@ export default class Game extends Agency.Beacon {
             // }
 
             //? Bootstrap the rendering
-            game.render = new RenderManager(640, 640);
+            game.render = new RenderManager(640, 640, { repository: initImageRepository() });
             worldTerrainLayer.init(game).then(group => game.render.addGroup(group));
             worldEntityLayer.init(game).then(group => game.render.addGroup(group));
 
