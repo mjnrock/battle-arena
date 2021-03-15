@@ -1,17 +1,15 @@
 import LayeredCanvas from "./../util/render/LayeredCanvas";
 
 import ImageRegistry from "../util/render/ImageRegistry";
-import RenderLayer from "../util/render/RenderLayer";
-import EntityManager from "./EntityManager";
 
 export class RenderManager extends LayeredCanvas {
-    constructor(width, height, { renderLayer = [], repository } = {}) {
+    constructor(width, height, { groups = [], repository } = {}) {
         super({ width, height });
 
         this.repository = repository;
 
-        for(let layer of renderLayer) {
-            this.addRenderLayer(layer);
+        for(let group of groups) {
+            this.addGroup(group);
         }
     }
 
@@ -19,12 +17,10 @@ export class RenderManager extends LayeredCanvas {
         return await fn.call(this, game, ...args);
     }
 
-    addRenderLayer(layer) {
-        if(layer instanceof RenderLayer) {
-            this.addLayer(layer);
-        } else if(layer instanceof EntityManager) {
-            this.addLayer(new RenderLayer(...arguments));
-        }
+    addGroup(group) {
+        this.addLayer(group);
+
+        return this;
     }
 
     sprite(root, ...coords) {

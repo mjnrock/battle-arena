@@ -19,6 +19,7 @@ export class RenderLayer extends TileCanvas {
         this.__cache = new Map();
         this.__game = game;
 
+        //STUB
         this._config.clearBeforeDraw = false;
         // this.draw(0);
         this.start();

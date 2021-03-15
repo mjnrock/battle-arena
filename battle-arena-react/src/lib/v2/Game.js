@@ -9,8 +9,9 @@ import Agency from "@lespantsfancy/agency";
     import initImageRepository from "./data/render/repository";
     import { loadEntity, loadTerrain } from "./data/render/entity";
 
-    import createWorldEntityLayer from "./data/render/world-entity-layer";
-    import createWorldTerrainLayer from "./data/render/world-terrain-layer";
+    import { drawLayer as createEntityLayer, comparator as entityLayerComparator } from "./data/render/world-entity-layer";
+    import { drawLayer as createTerrainLayer, comparator as terrainLayerComparator } from "./data/render/world-terrain-layer";
+import RenderGroup from "./util/render/RenderGroup";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
@@ -38,7 +39,7 @@ export default class Game extends Agency.Beacon {
             Game.Instance = new Game();
             const game = Game.Instance;
 
-            game.world = World.CreateRandom(20, 20, 1);
+            game.world = World.CreateRandom(20, 20, 10);
 
             // STUB  Async testing
             setTimeout(() => {
@@ -93,8 +94,8 @@ export default class Game extends Agency.Beacon {
                 await game.render.loadImages(game, loadEntity);
                 await game.render.loadImages(game, loadTerrain);
 
-                game.render.addRenderLayer(game.world.terrain, { painter: createWorldTerrainLayer });
-                game.render.addRenderLayer(game.world.entities, { painter: createWorldEntityLayer });
+                game.render.addLayer(new RenderLayer(game.world.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator }));
+                game.render.addLayer(new RenderLayer(game.world.entities, { painter: createEntityLayer, comparator: entityLayerComparator }));
     
                 game.render.eraseFirst();
                 game.render.onDraw = (dt, elapsed) => {
