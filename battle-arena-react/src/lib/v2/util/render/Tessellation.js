@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { LayeredSprite } from "./LayeredSprite";
 
 import Sprite from "./Sprite";
+import SpriteStack from "./SpriteStack";
 
 export class Tessellation {
     constructor(canvasMap = {}) {
@@ -164,7 +165,8 @@ export class Tessellation {
         }
 
         if(sprites.length > 1) {
-            return new LayeredSprite(sprites);
+            // return new LayeredSprite(sprites);
+            return new SpriteStack(sprites);
         }
 
         return sprites[ 0 ];

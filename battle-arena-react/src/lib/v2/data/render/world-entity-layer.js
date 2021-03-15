@@ -25,7 +25,7 @@ export async function load(game, renderGroup) {
                     .then(tessellation => {
                         for(let i = 0; i <= 270; i += 90) {
                             if(i === 90) {
-                                tessellation.relative(4).add(`0.${ i / 90 }`, 2).add(`0.3`, 2).row().add(`0.2`, 4);
+                                tessellation.relative(4).add(`0.2`, 4).row().add(`0.${ i / 90 }`, 2).add(`0.3`, 2);
                             } else {
                                 tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
                             }
@@ -36,11 +36,6 @@ export async function load(game, renderGroup) {
                                 i,
                             );
                         }
-
-                        // console.log(
-                        //     renderGroup.imageRegistry.get(file, 0, 0).canvas.toDataURL(),
-                        //     renderGroup.imageRegistry.get(file, 0, 90).canvas.toDataURL(),
-                        // )
                     })
                     .catch(e => console.error(`[Tessellation Failed]:  Ensure "${ file }" is present in the WorldEntityLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
             );

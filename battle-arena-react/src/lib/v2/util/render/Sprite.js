@@ -1,7 +1,12 @@
+import { v4 as uuidv4 } from "uuid";
+import crypto from "crypto";
+
 import Canvas from "./Canvas";
 
 export class Sprite {
-    constructor(score, { width = 0, height = 0, duration, __inherit = false }) {        
+    constructor(score, { width = 0, height = 0, __inherit = false }) {
+        this.__id = uuidv4();
+
         if(__inherit) {
             return this;
         }
@@ -24,10 +29,16 @@ export class Sprite {
         }, 0);
         
         this.__indexes = Object.fromEntries(score.map(([ ,,,hash ], i) => [ hash, i ]));
+
+        this.__hash = Sprite.Hash(this.canvas, { algorithm: "md5" });
     }
 
     get ctx() {
         return this.canvas.getContext("2d");
+    }
+
+    get hash() {
+        return this.__hash;
     }
 
     get duration() {
@@ -91,6 +102,23 @@ export class Sprite {
 
         return { x, y, width, height, hash };
     }
-}
+};
+
+export function Hash(canvas, { algorithm = "md5" } = {}) {
+    if(canvas instanceof HTMLCanvasElement) {
+        const base64 = canvas.toDataURL("image/png", 1.0);
+        
+        return crypto.createHash(algorithm).update(base64).digest("hex");
+    }
+
+    return false;
+};
+
+export function Generate(score, opts = {}) {
+    return new Sprite(score, opts);
+};
+
+Sprite.Hash = Hash;
+Sprite.Generate = Generate;
 
 export default Sprite;
