@@ -60,12 +60,20 @@ export class SpriteStack {
         return results;
     }
     paint(elapsed, canvas, px, py, opts = {}) {
-        const results = [];
+        const obj = {
+            data: [],   // This will contain the <Sprite>.paint return data, in order
+            width: 0,   // This will become the MAX <Sprite>.canvas.width
+            height: 0,  // This will become the MAX <Sprite>.canvas.height
+        };
+
         for(let sprite of this.sprites) {
-            results.push(sprite.paint(elapsed, canvas, px, py, opts));
+            const res = sprite.paint(elapsed, canvas, px, py, opts);
+            obj.data.push(res);
+            obj.width = Math.max(res.width, obj.width);
+            obj.height = Math.max(res.height, obj.height);
         }
 
-        return results;
+        return obj;
     }
 }
 

@@ -3,6 +3,8 @@ import Agency from "@lespantsfancy/agency";
 import RenderGroup from "./../../util/render/RenderGroup";
 import { EntityTemplate as EntityImageRegistryTemplate } from "../../util/render/ImageRegistry";
 import { ToCanvasMap } from "../image/tessellator/grid";
+import SpriteStack from "../../util/render/SpriteStack";
+import Sprite from "../../util/render/Sprite";
 
 export async function load(game, renderGroup) {
     //NOTE  If you want to add more files, they MUST have a corresponding "1st dimension" key in renderGroup (cf. ImageRegistry.EntityTemplate)
@@ -36,7 +38,7 @@ export async function load(game, renderGroup) {
                             );
                         }
                     })
-                    .catch(e => { console.error(e); console.iwarnnfo(`Ensure that "${ file }" is present in the <ImageRegistry>`); })
+                    .catch(e => { console.error(e); console.warn(`Ensure that "${ file }" is present in the <ImageRegistry>`); })
             );
         } else {
             promises.push(
