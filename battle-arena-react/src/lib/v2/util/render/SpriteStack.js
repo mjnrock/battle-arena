@@ -14,7 +14,7 @@ export class SpriteStack {
     __calcDuration() {
         this.__duration = this.sprites.reduce((a, sprite) => {
             return Math.max(a, sprite.duration);
-        });
+        }, 0);
 
         return this;
     }
@@ -34,7 +34,9 @@ export class SpriteStack {
                 this.sprites = this.sprites.filter(sprite => sprite !== entry);
             } else if(validate(entry)) {
                 this.sprites = this.sprites.filter(sprite => sprite.__id !== entry);
-            }
+            } else if(typeof entry === "function") {
+                this.sprites = this.sprites.filter(sprite => entry(sprite) !== false);
+            } 
         }
 
         this.__calcDuration();
@@ -52,30 +54,43 @@ export class SpriteStack {
     }
 
     get(elapsed) {
-        const results = [];
-        for(let sprite of this.sprites) {
-            results.push(sprite.get(elapsed));
-        }
-
-        return results;
+        return SpriteStack.Get(this.sprites, elapsed);
     }
     paint(elapsed, canvas, px, py, opts = {}) {
-        const obj = {
-            data: [],   // This will contain the <Sprite>.paint return data, in order
-            width: 0,   // This will become the MAX <Sprite>.canvas.width
-            height: 0,  // This will become the MAX <Sprite>.canvas.height
-        };
-
-        for(let sprite of this.sprites) {
-            const res = sprite.paint(elapsed, canvas, px, py, opts);
-            obj.data.push(res);
-            obj.width = Math.max(res.width, obj.width);
-            obj.height = Math.max(res.height, obj.height);
-        }
-
-        return obj;
+        return SpriteStack.Paint(this.sprites, elapsed, canvas, px, py, opts);
     }
 }
+
+//? Extracted core methods to allow for dynamic <Sprite> manipulation, if needed
+export function Duration(sprites) {
+    return sprites.reduce((a, sprite) => {
+        return Math.max(a, sprite.duration);
+    }, 0);
+};
+export function Get(sprites, elapsed) {
+    const results = [];
+    for(let sprite of sprites) {
+        results.push(sprite.get(elapsed));
+    }
+
+    return results;
+};
+export function Paint(sprites, elapsed, canvas, px, py, opts = {}) {
+    const obj = {
+        data: [],   // This will contain the <Sprite>.paint return data, in order
+        width: 0,   // This will become the MAX <Sprite>.canvas.width
+        height: 0,  // This will become the MAX <Sprite>.canvas.height
+    };
+
+    for(let sprite of sprites) {
+        const res = sprite.paint(elapsed, canvas, px, py, opts);            
+        obj.data.push(res);
+        obj.width = Math.max(res.width, obj.width);
+        obj.height = Math.max(res.height, obj.height);
+    }
+
+    return obj;
+};
 
 export function Flatten(spriteStack, { canvas, ctxType = "2d" } = {}) {
     if(!(canvas instanceof HTMLCanvasElement)) {
@@ -101,6 +116,10 @@ export function Flatten(spriteStack, { canvas, ctxType = "2d" } = {}) {
 
     return canvas;
 };
+
+SpriteStack.Duration = Duration;
+SpriteStack.Get = Get;
+SpriteStack.Paint = Paint;
 
 SpriteStack.Flatten = Flatten;
 

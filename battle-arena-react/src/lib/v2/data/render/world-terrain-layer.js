@@ -25,7 +25,7 @@ export async function load(game, renderGroup) {
 
                         tessellation.relative(1);
                         tessellation.add(`0.0`, 1);    // The @key pulls that <Canvas> from the canvas map    
-                        renderGroup.imageRegistry.set(
+                        game.render.repository.get("terrain").set(
                             tessellation.toSprite({ purgePattern: true }),
                             t2,
                             1,
@@ -34,7 +34,7 @@ export async function load(game, renderGroup) {
 
                         tessellation.relative(1);
                         tessellation.add(`0.1`, 1);    // The @key pulls that <Canvas> from the canvas map    
-                        renderGroup.imageRegistry.set(
+                        game.render.repository.get("terrain").set(
                             tessellation.toSprite({ purgePattern: true }),
                             t2,
                             2,
@@ -47,7 +47,7 @@ export async function load(game, renderGroup) {
                             tessellation.add(`${i / meta.tw}.0`, 1);    // The @key pulls that <Canvas> from the canvas map
                         }
 
-                        renderGroup.imageRegistry.set(
+                        game.render.repository.get("terrain").set(
                             tessellation.toSprite({ purgePattern: true }),
                             file,
                             0,
@@ -63,31 +63,21 @@ export async function load(game, renderGroup) {
 }
 
 export async function init(game) {
-    const renderTerrain = new RenderGroup(
-        game.world.terrain,
-        TerrainImageRegistryTemplate,
-        {
-            lookupFns: [
-                ({ entity }) => TerrainLookup(entity.terrain.type),
-                ({ entity }) => 0,
-                ({ entity }) => Math.floor(entity.position.facing / 90) * 90,
-            ]
-        }
-    );
+    const renderTerrain = new RenderGroup(game.world.terrain);
 
-    await load(game, renderTerrain);
+    await load(game);
 
-    const dirs = [
-        [ 0, -1, 0 ],
-        [ 1, 0, 90 ],
-        [ 0, 1, 180 ],
-        [ -1, 0, 270 ],
+    // const dirs = [
+    //     [ 0, -1, 0 ],
+    //     [ 1, 0, 90 ],
+    //     [ 0, 1, 180 ],
+    //     [ -1, 0, 270 ],
 
-        [ -1, -1, 0 ],
-        [ 1, -1, 90 ],
-        [ 1, 1, 180 ],
-        [ -1, 1, 270 ],
-    ];
+    //     [ -1, -1, 0 ],
+    //     [ 1, -1, 90 ],
+    //     [ 1, 1, 180 ],
+    //     [ -1, 1, 270 ],
+    // ];
 
     renderTerrain.eraseFirst();
     renderTerrain.onDraw = (dt, elapsed) => {
@@ -97,7 +87,7 @@ export async function init(game) {
         }
 
         for (let terrain of renderTerrain.entities) {
-            const sprite = renderTerrain.sprite({ entity: terrain });
+            const sprite = game.render.sprite("terrain", { entity: terrain });
 
             if (sprite) {
                 sprite.paint(elapsed, renderTerrain, terrain.position.x * renderTerrain.tw, terrain.position.y * renderTerrain.th);

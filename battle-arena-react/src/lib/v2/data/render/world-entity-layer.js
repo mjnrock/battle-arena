@@ -6,7 +6,7 @@ import { ToCanvasMap } from "../image/tessellator/grid";
 import SpriteStack from "../../util/render/SpriteStack";
 import Sprite from "../../util/render/Sprite";
 
-export async function load(game, renderGroup) {
+export async function load(game) {
     //NOTE  If you want to add more files, they MUST have a corresponding "1st dimension" key in renderGroup (cf. ImageRegistry.EntityTemplate)
     let files = [
         `squirrel`,
@@ -30,7 +30,7 @@ export async function load(game, renderGroup) {
                             } else {
                                 tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
                             }
-                            renderGroup.imageRegistry.set(
+                            game.render.repository.get("entity").set(
                                 tessellation.toSprite({ purgePattern: true }),
                                 file,
                                 0,
@@ -47,7 +47,7 @@ export async function load(game, renderGroup) {
                     .then(tessellation => {
                         for(let i = 0; i <= 270; i += 90) {
                             tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
-                            renderGroup.imageRegistry.set(
+                            game.render.repository.get("entity").set(
                                 tessellation.toSprite({ purgePattern: true }),
                                 file,
                                 0,
@@ -64,19 +64,9 @@ export async function load(game, renderGroup) {
 }
 
 export async function init(game) {
-    const renderEntity = new RenderGroup(
-        game.world.entities,
-        EntityImageRegistryTemplate,
-        {
-            lookupFns: [
-                ({ entity }) => entity === game.world.entities.player ? "bunny" : "bear",
-                ({ entity }) => 0,
-                ({ entity }) => Math.floor(entity.position.facing / 90) * 90,
-            ]
-        }
-    );
+    const renderEntity = new RenderGroup(game.world.entities);
 
-    await load(game, renderEntity);
+    await load(game);
 
     renderEntity.eraseFirst();
     renderEntity.onDraw = (dt, elapsed) => {
@@ -89,7 +79,7 @@ export async function init(game) {
             const prog = ((Date.now() - ent.turn.timeoutStart) % game.config.GCD) / game.config.GCD;      // % game.config.GCD hides information and should only be used for testing
             
             //STUB  Dynamically add <Sprite(s)> // const sprite = new SpriteStack([ renderEntity.sprite({ entity: ent }), renderEntity.sprite({ entity: game.world.entities[ `player` ] }) ]);
-            const sprite = new SpriteStack([ renderEntity.sprite({ entity: ent }) ]);
+            const sprite = new SpriteStack([ game.render.sprite("entity", { entity: ent }) ]);
 
             if (sprite) {
                 const { width: frameWidth } = sprite.paint(elapsed, renderEntity, ent.position.x * renderEntity.tw, ent.position.y * renderEntity.th);
