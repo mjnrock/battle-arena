@@ -92,6 +92,8 @@ export function Flatten(spriteStack, { canvas, ctxType = "2d" } = {}) {
     }
 
     return canvas;
-}
+};
+
+SpriteStack.Flatten = Flatten;
 
 export default SpriteStack;

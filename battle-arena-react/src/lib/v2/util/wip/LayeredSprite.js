@@ -1,6 +1,6 @@
-import Sprite from "./Sprite";
+import Sprite from "../render/Sprite";
 
-import Canvas from "./Canvas";
+import Canvas from "../render/Canvas";
 
 export class LayeredSprite extends Sprite {
     constructor(scores, opts) {

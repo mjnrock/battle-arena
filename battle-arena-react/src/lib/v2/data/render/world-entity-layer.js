@@ -3,7 +3,6 @@ import Agency from "@lespantsfancy/agency";
 import RenderGroup from "./../../util/render/RenderGroup";
 import { EntityTemplate as EntityImageRegistryTemplate } from "../../util/render/ImageRegistry";
 import { ToCanvasMap } from "../image/tessellator/grid";
-import { LayeredSprite } from "../../util/render/LayeredSprite";
 
 export async function load(game, renderGroup) {
     //NOTE  If you want to add more files, they MUST have a corresponding "1st dimension" key in renderGroup (cf. ImageRegistry.EntityTemplate)

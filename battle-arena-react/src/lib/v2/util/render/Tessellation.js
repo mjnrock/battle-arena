@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import { LayeredSprite } from "./LayeredSprite";
 
 import Sprite from "./Sprite";
 import SpriteStack from "./SpriteStack";

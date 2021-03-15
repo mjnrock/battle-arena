@@ -4,7 +4,7 @@ import RenderGroup from "../../util/render/RenderGroup";
 import { TerrainTemplate as TerrainImageRegistryTemplate } from "../../util/render/ImageRegistry";
 import { ToCanvasMap } from "../image/tessellator/grid";
 
-import { DictTerrain, TerrainLookup } from "./../entity/components/terrain";
+import { TerrainLookup } from "./../entity/components/terrain";
 
 export async function load(game, renderGroup) {
     let files = [
