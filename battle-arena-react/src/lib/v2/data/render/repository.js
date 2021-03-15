@@ -23,7 +23,16 @@ export const repository = (root) => new Agency.Util.CrossMap([
             case "terrain":
                 return new ImageRegistry(TerrainTemplate, {
                     lookupFns: [
-                        ({ entity }) => TerrainLookup(entity.terrain.type),
+                        // ({ entity }) => TerrainLookup(entity.terrain.type),
+                        ({ entity }) => {
+                            if(entity.terrain.edges === 0) {
+                                return TerrainLookup(entity.terrain.type);
+                            } else {
+                                return "water";
+                            }
+
+                            return entity.terrain.edges === 0 ? TerrainLookup(entity.terrain.type) : "water";
+                        },
                         ({ entity }) => 0,
                         ({ entity }) => Math.floor(entity.position.facing / 90) * 90,
                     ]

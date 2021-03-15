@@ -10,7 +10,7 @@ import componentPosition from "./data/entity/components/position";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
 import componentAction from "./data/entity/components/movement";
-import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
+import componentTerrain, { DictTerrain, EnumEdgeMask } from "./data/entity/components/terrain";
 import findPath from "./util/AStar";
 
 export class World extends Beacon {
@@ -113,28 +113,30 @@ export class World extends Beacon {
 }
 
 export function CalculateEdgeMasks(world) {
+    const dirs = [
+        [ 0, -1, EnumEdgeMask.NORTH ],
+        [ 1, 0, EnumEdgeMask.EAST ],
+        [ 0, 1, EnumEdgeMask.SOUTH ],
+        [ -1, 0, EnumEdgeMask.WEST ],
+
+        [ -1, -1, EnumEdgeMask.NORTHWEST ],
+        [ 1, -1, EnumEdgeMask.NORTHEAST ],
+        [ 1, 1, EnumEdgeMask.SOUTHEAST ],
+        [ -1, 1, EnumEdgeMask.SOUTHWEST ],
+    ];
+
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
             const terrain = world.getTerrain(x, y);
 
             if(terrain.terrain.type === DictTerrain.DIRT.type) {
-                let neighbors = dirs.map(([ dx, dy, theta ]) => {
-                    let neigh = game.world.terrain[ `${ terrain.position.x + dx }.${ terrain.position.y + dy }` ];
+                dirs.forEach(([ dx, dy, mask ]) => {
+                    let neigh = world.terrain[ `${ terrain.position.x + dx }.${ terrain.position.y + dy }` ];
 
                     if(neigh && neigh.terrain.type === DictTerrain.GRASS.type) {
-                        if(theta === 0) {
-                            return [ !(dx === 0 || dy === 0), image => [ 0, 0, 1, 0 ] ];
-                        } else if(theta === 90) {
-                            return [ !(dx === 0 || dy === 0), image => [ image.width, 0, 1, Math.PI / 2 ] ];
-                        } else if(theta === 180) {
-                            return [ !(dx === 0 || dy === 0), image => [ image.width, image.height, 1, Math.PI ] ];
-                        } else if(theta === 270) {
-                            return [ !(dx === 0 || dy === 0), image => [  0, image.height, 1, -Math.PI / 2 ] ];
-                        }
+                        terrain.terrain.edges = Agency.Util.Bitwise.add(terrain.terrain.edges, mask);
                     }
-
-                    return false;
-                }).filter(n => n !== false);
+                });
             }
         }
     }
@@ -146,14 +148,14 @@ export function CreateRandom(width, height, enemyCount = 5) {
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
             world.terrain.create([
-                [ componentTerrain, x === 0 && y === 0 ? DictTerrain.WATER : DictTerrain.GRASS ],
-                // [ componentTerrain, Math.random() >= 0.25 ? DictTerrain.GRASS : DictTerrain.WATER ],
+                [ componentTerrain, Math.random() >= 0.85 ? DictTerrain.GRASS : DictTerrain.DIRT ],
                 [ componentPosition, { x, y, facing: 0 } ],
                 [ componentTurn, { timeoutStart: 0 } ],
             ], `${ x }.${ y }`);
         }
     }
-    // console.log(world.terrain[ "3.4" ]);
+    
+    World.CalculateEdgeMasks(world);
 
     world.entities.create([
         [ componentPosition, { x: 4, y: 7 } ],
@@ -195,6 +197,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
     return world;
 }
 
+World.CalculateEdgeMasks = CalculateEdgeMasks;
 World.CreateRandom = CreateRandom;
 
 export default World;

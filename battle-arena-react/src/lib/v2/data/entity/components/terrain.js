@@ -201,10 +201,11 @@ export const DictTerrain = {
 };
 
 export const schema = {
-    [ _name ]: ({ type, cost, state = 0 } = {}) => ({
+    [ _name ]: ({ type, cost, edges = 0, meta = 0 } = {}) => ({
         type,
         cost,
-        state,
+        edges,
+        meta,
     }),
 };
 
