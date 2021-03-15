@@ -15,8 +15,8 @@ import RenderGroup from "./util/render/RenderGroup";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
-    // constructor({ fps = 24, GCD = 120 } = {}) {
-    constructor({ fps = 24, GCD = 2000 } = {}) {
+    constructor({ fps = 24, GCD = 500 } = {}) {
+    // constructor({ fps = 24, GCD = 2000 } = {}) {
         super(false);
         
         this.loop = Agency.Pulse.SubjectFactory(fps, { autostart: false });

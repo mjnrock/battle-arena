@@ -2,6 +2,7 @@ export default class Canvas {
     constructor({ canvas, width = 300, height = 150, props = {} } = {}) {
         this._config = {
             isAnimating: false,
+            isPaused: false,
             clearBeforeDraw: true,
             normalization: {
                 arc: -Math.PI / 4,
@@ -329,12 +330,14 @@ export default class Canvas {
     }
     
     draw(elapsed) {
-        if(this._config.clearBeforeDraw === true) {
-            this.clear();
-        }
+        if(!this._config.isPaused) {
+            if(this._config.clearBeforeDraw === true) {
+                this.clear();
+            }
 
-        this.onDraw(elapsed - this.__lastDraw, elapsed, this.ctx, this.canvas, this);
-        this.__lastDraw = elapsed;
+            this.onDraw(elapsed - this.__lastDraw, elapsed, this.ctx, this.canvas, this);
+            this.__lastDraw = elapsed;
+        }
             
         if(this._config.isAnimating === true) {
             requestAnimationFrame(this.draw.bind(this));
@@ -359,6 +362,16 @@ export default class Canvas {
         this._config.isAnimating = true;
 
         requestAnimationFrame(this.draw.bind(this));
+
+        return this;
+    }
+    pause() {
+        this._config.isPaused = true;
+
+        return this;
+    }
+    play() {
+        this._config.isPaused = false;
 
         return this;
     }
