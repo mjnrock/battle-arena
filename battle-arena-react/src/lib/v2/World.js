@@ -112,6 +112,16 @@ export class World extends Beacon {
     }
 }
 
+export function CalculateEdgeMasks(world) {
+    for(let x = 0; x < world.width; x++) {
+        for(let y = 0; y < world.height; y++) {
+            const terrain = world.getTerrain(x, y);
+
+            
+        }
+    }
+}
+
 export function CreateRandom(width, height, enemyCount = 5) {
     const world = new World(width, height);
 
