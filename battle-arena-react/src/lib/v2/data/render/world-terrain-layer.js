@@ -55,7 +55,7 @@ export async function load(game, renderGroup) {
                         );
                     }
                 })
-                .catch(e => console.error(`[Tessellation Failed]:  Ensure "${file}" is present in the WorldTerrainLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
+                .catch(e => { console.error(e); console.warn(`Ensure that "${ file }" is present in the <ImageRegistry>`); })
         );
     }
 

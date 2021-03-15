@@ -37,7 +37,7 @@ export async function load(game, renderGroup) {
                             );
                         }
                     })
-                    .catch(e => console.error(`[Tessellation Failed]:  Ensure "${ file }" is present in the WorldEntityLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
+                    .catch(e => { console.error(e); console.iwarnnfo(`Ensure that "${ file }" is present in the <ImageRegistry>`); })
             );
         } else {
             promises.push(
@@ -54,7 +54,7 @@ export async function load(game, renderGroup) {
                             );
                         }
                     })
-                    .catch(e => console.error(`[Tessellation Failed]:  Ensure "${ file }" is present in the WorldEntityLayer <ImageRegistry> dimensional key range.  No <Sprite> was added to the registry.`))
+                    .catch(e => { console.error(e); console.warn(`Ensure that "${ file }" is present in the <ImageRegistry>`); })
             );
         }
     }
