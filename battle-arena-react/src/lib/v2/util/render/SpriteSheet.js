@@ -5,40 +5,48 @@ import Sprite from "./Sprite";
 import Frame from "./Frame";
 
 export class SpriteSheet {
-    constructor(sprites = {}) {
+    constructor(entries = {}) {
         this.__id = uuidv4();
 
-        this.sprites = sprites;
+        this.entries = entries;
     }
 
     get default() {
-        return this.sprites[ 0 ];
+        return this.entries[ 0 ];
     }
 
-    set(key, sprite) {
-        this.sprites[ key ] = sprite;
+    set(key, entry) {
+        this.entries[ key ] = entry;
 
         if(!this.default) {
-            this.sprites[ 0 ] = sprite;
+            this.entries[ 0 ] = entry;
         }
 
         return this;
     }
 
     get(elapsed, key) {
-        const sprite = this.sprites[ key ] || this.default;
+        const entry = this.entries[ key ] || this.default;
 
-        if(sprite) {
-            return sprite.get(elapsed);
+        if(entry) {
+            if(Array.isArray(elapsed)) {
+                return entry.get(...elapsed);    // <Frame|FrameStack>
+            }
+
+            return entry.get(elapsed);    // <Sprite|SpriteStack>
         }
 
         return [];
     }
     paint(key, elapsed, canvas, px, py, opts = {}) {
-        const sprite = this.sprites[ key ] || this.default;
+        const entry = this.entries[ key ] || this.default;
 
-        if(sprite) {
-            return sprite.paint(elapsed, canvas, px, py, opts);
+        if(entry) {
+            if(Array.isArray(elapsed)) {
+                return entry.paint(...elapsed, canvas, px, py, opts);    // <Frame|FrameStack>
+            }
+
+            return entry.paint(elapsed, canvas, px, py, opts);    // <Sprite|SpriteStack>
         }
 
         return {};
@@ -55,8 +63,8 @@ export function Hash(canvas, { algorithm = "md5" } = {}) {
     return false;
 };
 
-export function Generate(sprites = {}) {
-    return new SpriteSheet(sprites);
+export function Generate(entries = {}) {
+    return new SpriteSheet(entries);
 };
 
 SpriteSheet.Hash = Hash;
