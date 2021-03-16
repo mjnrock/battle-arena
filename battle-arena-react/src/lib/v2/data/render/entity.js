@@ -38,7 +38,11 @@ export async function loadEntity(game) {
                     .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
                     .then(tessellation => {
                         for(let i = 0; i <= 270; i += 90) {
-                            tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
+                            if(file === "bunny") {
+                                tessellation.absolute(24).add(`0.${ i / 90 }`, 250).add(`1.${ i / 90 }`, 250);
+                            } else {
+                                tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
+                            }
                             
                             game.render.repository.get("entity").get(file, 0, i).set(0, tessellation.toSprite({ purgePattern: true }));
                         }
