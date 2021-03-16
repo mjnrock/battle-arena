@@ -138,6 +138,7 @@ export default class Game extends Agency.Beacon {
                                 }
                             }
 
+                            this.ctx.strokeStyle = `rgba(210, 210, 210, 0.25)`;
                             this.prop({ lineWidth: 5 }).tRect(
                                 mouse.tx,
                                 mouse.ty,
