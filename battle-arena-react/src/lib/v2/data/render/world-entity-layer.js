@@ -26,7 +26,7 @@ export async function drawLayer(dt, elapsed, entity) {
         
         spriteSheet.paint(0, elapsed, this.canvas, entity.position.x * this.tw, entity.position.y * this.th);
 
-        if(this.game.SHOW_UI) {
+        if(this.game.config.SHOW_UI) {
             let frameWidth = this.tw;
             
             // //? Draw Pie Timer

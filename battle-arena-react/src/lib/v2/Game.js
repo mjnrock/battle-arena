@@ -23,6 +23,7 @@ export default class Game extends Agency.Beacon {
 
         this.config = {
             GCD,
+            SHOW_UI: true,
         };
 
         // Create Singleton pattern
@@ -78,16 +79,16 @@ export default class Game extends Agency.Beacon {
                         player.movement.destination = [ pos.txi, pos.tyi ];
                         player.movement.path = findPath(game.world, [ player.position.x, player.position.y ], player.movement.destination);
                     } else if(type === "mousemove") {
-                        game.MOUSE_POSITION = [ pos.txi, pos.tyi ];
+                        game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];
                     }
                 });
 
-                // game.SHOW_UI = true;
+                // game.config.SHOW_UI = true;
                 window.onkeypress = e => {
                     e.preventDefault();
 
                     if(e.key === "v") {
-                        game.SHOW_UI = !game.SHOW_UI;
+                        game.config.SHOW_UI = !game.config.SHOW_UI;
                     }
                 }
             }, 500);
@@ -115,11 +116,11 @@ export default class Game extends Agency.Beacon {
                 };
             
                 game.render.getLayer(2).addHook(function(dt, elapsed) {
-                    if(game.SHOW_UI) {
+                    if(game.config.SHOW_UI) {
                         this.save();
                             let mouse = {
-                                tx: ((this.game.MOUSE_POSITION || [])[ 0 ] || 0),
-                                ty: ((this.game.MOUSE_POSITION || [])[ 1 ] || 0),
+                                tx: ((this.game.config.MOUSE_POSITION || [])[ 0 ] || 0),
+                                ty: ((this.game.config.MOUSE_POSITION || [])[ 1 ] || 0),
                             };
                             mouse.x = mouse.tx * this.tw;
                             mouse.y = mouse.ty * this.th;
@@ -164,7 +165,7 @@ export default class Game extends Agency.Beacon {
                     }
                 });
                 game.render.getLayer(2).addHook(function(dt, elapsed) {
-                    if(game.SHOW_UI) {
+                    if(game.config.SHOW_UI) {
                         this.save();
                         const player = game.world.entities.player;
                         const path = player.movement.path || [];
