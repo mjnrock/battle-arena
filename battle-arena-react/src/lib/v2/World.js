@@ -6,6 +6,7 @@ import { hasPosition as hasComponentPosition } from "./data/entity/components/po
 import Beacon from "./util/Beacon";
 import NodeManager from "./manager/NodeManager";
 
+import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
 import componentPosition from "./data/entity/components/position";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
@@ -129,6 +130,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
     CalculateEdgeMasks(world);
 
     world.entities.create([
+        [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
         [ componentPosition, { x: 4, y: 7 } ],
         [ componentHealth, { current: 10, max: 10 } ],
         [ componentAction, {} ],
@@ -160,6 +162,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
     ], "player");
 
     world.entities.createMany(enemyCount, [
+        [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
         [ componentPosition, { x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
         [ componentTurn, { timeoutStart: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
