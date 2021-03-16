@@ -54,8 +54,8 @@ export function Hash(canvas, { algorithm = "md5" } = {}) {
     return false;
 };
 
-export function Generate(score, opts = {}) {
-    return new Sprite(score, opts);
+export function Generate(sprites = {}) {
+    return new SpriteSheet(sprites);
 };
 
 SpriteSheet.Hash = Hash;

@@ -10,7 +10,8 @@ import componentPosition from "./data/entity/components/position";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
 import componentAction from "./data/entity/components/movement";
-import componentTerrain, { DictTerrain, EnumEdgeMask } from "./data/entity/components/terrain";
+import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
+import { CalculateEdgeMasks } from "./data/render/edges";
 import findPath from "./util/AStar";
 
 export class World extends Beacon {
@@ -112,36 +113,6 @@ export class World extends Beacon {
     }
 }
 
-export function CalculateEdgeMasks(world) {
-    const dirs = [
-        [ 0, -1, EnumEdgeMask.NORTH ],
-        [ 1, 0, EnumEdgeMask.EAST ],
-        [ 0, 1, EnumEdgeMask.SOUTH ],
-        [ -1, 0, EnumEdgeMask.WEST ],
-
-        [ -1, -1, EnumEdgeMask.NORTHWEST ],
-        [ 1, -1, EnumEdgeMask.NORTHEAST ],
-        [ 1, 1, EnumEdgeMask.SOUTHEAST ],
-        [ -1, 1, EnumEdgeMask.SOUTHWEST ],
-    ];
-
-    for(let x = 0; x < world.width; x++) {
-        for(let y = 0; y < world.height; y++) {
-            const terrain = world.getTerrain(x, y);
-
-            if(terrain.terrain.type === DictTerrain.DIRT.type) {
-                dirs.forEach(([ dx, dy, mask ]) => {
-                    let neigh = world.terrain[ `${ terrain.position.x + dx }.${ terrain.position.y + dy }` ];
-
-                    if(neigh && neigh.terrain.type === DictTerrain.GRASS.type) {
-                        terrain.terrain.edges = Agency.Util.Bitwise.add(terrain.terrain.edges, mask);
-                    }
-                });
-            }
-        }
-    }
-}
-
 export function CreateRandom(width, height, enemyCount = 5) {
     const world = new World(width, height);
 
@@ -155,7 +126,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
         }
     }
     
-    World.CalculateEdgeMasks(world);
+    CalculateEdgeMasks(world);
 
     world.entities.create([
         [ componentPosition, { x: 4, y: 7 } ],

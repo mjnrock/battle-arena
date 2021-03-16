@@ -15,6 +15,7 @@ export const EnumTerrain = {
     DIRT: "dirt",
     WATER: "water",
     
+    EDGE: "edge",
     FIRE: "fire",
 };
 
