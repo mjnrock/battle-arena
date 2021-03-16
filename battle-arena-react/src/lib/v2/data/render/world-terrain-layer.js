@@ -1,9 +1,7 @@
-import Agency from "@lespantsfancy/agency";
 import { DictTerrain } from "../entity/components/terrain";
 
 export function comparator(data = {}, oldData = {}) {
     return data.hash !== oldData.hash;
-    // return !(data.x === oldData.x && data.y === oldData.y);
 }
 
 export async function drawLayer(dt, elapsed, terrain) {            
