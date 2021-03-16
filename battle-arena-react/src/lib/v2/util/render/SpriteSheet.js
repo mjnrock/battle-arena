@@ -5,6 +5,14 @@ import Sprite from "./Sprite";
 import Frame from "./Frame";
 
 export class SpriteSheet {
+    /**
+     * <SpriteSheet> is meant to be an entity-specific repository
+     *      for any still frame or animation necessary for that
+     *      entity.  As the entry list is a POJO, any key is acceptable;
+     *      however, the [ 0 ] key is interpreted as the "default", for the
+     *      common case of a <SpriteSheet> wrapping a single <Frame(X)|Sprite(X)>.
+     * @param {Frame|FrameStack|Sprite|SpriteStack} entries
+     */
     constructor(entries = {}) {
         this.__id = uuidv4();
 
