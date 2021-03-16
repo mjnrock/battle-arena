@@ -2,6 +2,14 @@ import Agency from "@lespantsfancy/agency";
 
 import { DictTerrain } from "./../entity/components/terrain";
 
+//TODO  This entire edge situation is pretty iffy; basics work but still need a lot of improvement and reconsideration.
+//? Removing "corners" and making edges blend decently can relieve some basic headache and simplify greatly out of the gate
+/**
+ * ! The "Connectivity" paradigm is for INNER "path tile(s)" only, but the rest of the setup doesn't not adhere to this fact
+ * Also ALL map edges get an edge
+ * This also only works on DIRT with GRASS adjacency
+ */
+
 export const EnumEdgeMask = {
     NORTH: 1 << 0,
     EAST: 1 << 1,
@@ -23,146 +31,147 @@ export const EnumConnectivityMask = {
 };
 
 //? The key is meant to be used in an *equality* comparison
-export const ConnectivityEdgeMap = new Map();
-//  None (e.g. a singularly-isolated *dirt* tile completely surrounded by *grass*--i.e. edges in all directions)
-ConnectivityEdgeMap.set(0, Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.NORTH,
-    EnumEdgeMask.EAST,
-    EnumEdgeMask.SOUTH,
-    EnumEdgeMask.WEST,
-    EnumEdgeMask.NORTHEAST,
-    EnumEdgeMask.NORTHWEST,
-    EnumEdgeMask.SOUTHEAST,
-    EnumEdgeMask.SOUTHWEST,
-));
+export const ConnectivityEdgeMap = new Map([
+    //  None (e.g. a singularly-isolated *dirt* tile completely surrounded by *grass*--i.e. edges in all directions)
+    [ 0, Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.NORTH,
+        EnumEdgeMask.EAST,
+        EnumEdgeMask.SOUTH,
+        EnumEdgeMask.WEST,
+        EnumEdgeMask.NORTHEAST,
+        EnumEdgeMask.NORTHWEST,
+        EnumEdgeMask.SOUTHEAST,
+        EnumEdgeMask.SOUTHWEST,
+    ) ],
 
-//  All (e.g. a *dirt* tile completely surrounded by *dirt*--i.e. no edges)
-ConnectivityEdgeMap.set(Agency.Util.Bitwise.add(0,
-    EnumConnectivityMask.UP,
-    EnumConnectivityMask.RIGHT,
-    EnumConnectivityMask.DOWN,
-    EnumConnectivityMask.LEFT,
-), 0);
+    //  All (e.g. a *dirt* tile completely surrounded by *dirt*--i.e. no edges)
+    [ Agency.Util.Bitwise.add(0,
+        EnumConnectivityMask.UP,
+        EnumConnectivityMask.RIGHT,
+        EnumConnectivityMask.DOWN,
+        EnumConnectivityMask.LEFT,
+    ), 0 ],
 
-// Single Connection
-ConnectivityEdgeMap.set(EnumConnectivityMask.UP , Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.WEST,
-    EnumEdgeMask.SOUTH,
-    EnumEdgeMask.EAST,
-    EnumEdgeMask.SOUTHWEST,
-    EnumEdgeMask.SOUTHEAST,
-));
-ConnectivityEdgeMap.set(EnumConnectivityMask.RIGHT , Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.NORTH,
-    EnumEdgeMask.WEST,
-    EnumEdgeMask.SOUTH,
-    EnumEdgeMask.NORTHWEST,
-    EnumEdgeMask.SOUTHWEST,
-));
-ConnectivityEdgeMap.set(EnumConnectivityMask.DOWN , Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.WEST,
-    EnumEdgeMask.NORTH,
-    EnumEdgeMask.EAST,
-    EnumEdgeMask.NORTHWEST,
-    EnumEdgeMask.NORTHEAST,
-));
-ConnectivityEdgeMap.set(EnumConnectivityMask.LEFT , Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.NORTH,
-    EnumEdgeMask.EAST,
-    EnumEdgeMask.SOUTH,
-    EnumEdgeMask.NORTHEAST,
-    EnumEdgeMask.SOUTHEAST,
-));
-    
-// Two Connections
-ConnectivityEdgeMap.set(Agency.Util.Bitwise.add(0,
-    EnumConnectivityMask.UP,
-    EnumConnectivityMask.RIGHT,
-), Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.WEST,
-    EnumEdgeMask.SOUTH,
-    EnumEdgeMask.SOUTHWEST,
-    EnumEdgeMask.NORTHEAST,
-));
-ConnectivityEdgeMap.set(Agency.Util.Bitwise.add(0,
-    EnumConnectivityMask.RIGHT,
-    EnumConnectivityMask.DOWN,
-), Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.NORTH,
-    EnumEdgeMask.WEST,
-    EnumEdgeMask.NORTHWEST,
-    EnumEdgeMask.SOUTHEAST,
-));
-ConnectivityEdgeMap.set(Agency.Util.Bitwise.add(0,
-    EnumConnectivityMask.LEFT,
-    EnumConnectivityMask.DOWN,
-), Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.NORTH,
-    EnumEdgeMask.EAST,
-    EnumEdgeMask.NORTHEAST,
-    EnumEdgeMask.SOUTHWEST,
-));
-ConnectivityEdgeMap.set(Agency.Util.Bitwise.add(0,
-    EnumConnectivityMask.UP,
-    EnumConnectivityMask.LEFT,
-), Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.EAST,
-    EnumEdgeMask.SOUTH,
-    EnumEdgeMask.SOUTHEAST,
-    EnumEdgeMask.NORTHWEST,
-));
-ConnectivityEdgeMap.set(Agency.Util.Bitwise.add(0,
-    EnumConnectivityMask.LEFT,
-    EnumConnectivityMask.RIGHT,
-), Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.NORTH,
-    EnumEdgeMask.SOUTH,
-));
-ConnectivityEdgeMap.set(Agency.Util.Bitwise.add(0,
-    EnumConnectivityMask.UP,
-    EnumConnectivityMask.DOWN,
-), Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.EAST,
-    EnumEdgeMask.WEST,
-));
-    
-//  Three Connections
-ConnectivityEdgeMap.set(Agency.Util.Bitwise.add(0,
-    EnumConnectivityMask.UP,
-    EnumConnectivityMask.RIGHT,
-    EnumConnectivityMask.DOWN,
-), Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.WEST,
-    EnumEdgeMask.NORTHEAST,
-    EnumEdgeMask.SOUTHEAST,
-));
-ConnectivityEdgeMap.set(Agency.Util.Bitwise.add(0,
-    EnumConnectivityMask.RIGHT,
-    EnumConnectivityMask.DOWN,
-    EnumConnectivityMask.LEFT,
-), Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.NORTH,
-    EnumEdgeMask.SOUTHEAST,
-    EnumEdgeMask.SOUTHWEST,
-));
-ConnectivityEdgeMap.set(Agency.Util.Bitwise.add(0,
-    EnumConnectivityMask.DOWN,
-    EnumConnectivityMask.LEFT,
-    EnumConnectivityMask.UP,
-), Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.EAST,
-    EnumEdgeMask.SOUTHWEST,
-    EnumEdgeMask.NORTHWEST,
-));
-ConnectivityEdgeMap.set(Agency.Util.Bitwise.add(0,
-    EnumConnectivityMask.LEFT,
-    EnumConnectivityMask.UP,
-    EnumConnectivityMask.RIGHT,
-), Agency.Util.Bitwise.add(0,
-    EnumEdgeMask.SOUTH,
-    EnumEdgeMask.NORTHWEST,
-    EnumEdgeMask.NORTHEAST,
-));
+    // Single Connection
+    [ EnumConnectivityMask.UP , Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.WEST,
+        EnumEdgeMask.SOUTH,
+        EnumEdgeMask.EAST,
+        EnumEdgeMask.SOUTHWEST,
+        EnumEdgeMask.SOUTHEAST,
+    ) ],
+    [ EnumConnectivityMask.RIGHT , Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.NORTH,
+        EnumEdgeMask.WEST,
+        EnumEdgeMask.SOUTH,
+        EnumEdgeMask.NORTHWEST,
+        EnumEdgeMask.SOUTHWEST,
+    ) ],
+    [ EnumConnectivityMask.DOWN , Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.WEST,
+        EnumEdgeMask.NORTH,
+        EnumEdgeMask.EAST,
+        EnumEdgeMask.NORTHWEST,
+        EnumEdgeMask.NORTHEAST,
+    ) ],
+    [ EnumConnectivityMask.LEFT , Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.NORTH,
+        EnumEdgeMask.EAST,
+        EnumEdgeMask.SOUTH,
+        EnumEdgeMask.NORTHEAST,
+        EnumEdgeMask.SOUTHEAST,
+    ) ],
+        
+    // Two Connections
+    [ Agency.Util.Bitwise.add(0,
+        EnumConnectivityMask.UP,
+        EnumConnectivityMask.RIGHT,
+    ), Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.WEST,
+        EnumEdgeMask.SOUTH,
+        EnumEdgeMask.SOUTHWEST,
+        EnumEdgeMask.NORTHEAST,
+    ) ],
+    [ Agency.Util.Bitwise.add(0,
+        EnumConnectivityMask.RIGHT,
+        EnumConnectivityMask.DOWN,
+    ), Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.NORTH,
+        EnumEdgeMask.WEST,
+        EnumEdgeMask.NORTHWEST,
+        EnumEdgeMask.SOUTHEAST,
+    ) ],
+    [ Agency.Util.Bitwise.add(0,
+        EnumConnectivityMask.LEFT,
+        EnumConnectivityMask.DOWN,
+    ), Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.NORTH,
+        EnumEdgeMask.EAST,
+        EnumEdgeMask.NORTHEAST,
+        EnumEdgeMask.SOUTHWEST,
+    ) ],
+    [ Agency.Util.Bitwise.add(0,
+        EnumConnectivityMask.UP,
+        EnumConnectivityMask.LEFT,
+    ), Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.EAST,
+        EnumEdgeMask.SOUTH,
+        EnumEdgeMask.SOUTHEAST,
+        EnumEdgeMask.NORTHWEST,
+    ) ],
+    [ Agency.Util.Bitwise.add(0,
+        EnumConnectivityMask.LEFT,
+        EnumConnectivityMask.RIGHT,
+    ), Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.NORTH,
+        EnumEdgeMask.SOUTH,
+    ) ],
+    [ Agency.Util.Bitwise.add(0,
+        EnumConnectivityMask.UP,
+        EnumConnectivityMask.DOWN,
+    ), Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.EAST,
+        EnumEdgeMask.WEST,
+    ) ],
+        
+    //  Three Connections
+    [ Agency.Util.Bitwise.add(0,
+        EnumConnectivityMask.UP,
+        EnumConnectivityMask.RIGHT,
+        EnumConnectivityMask.DOWN,
+    ), Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.WEST,
+        EnumEdgeMask.NORTHEAST,
+        EnumEdgeMask.SOUTHEAST,
+    ) ],
+    [ Agency.Util.Bitwise.add(0,
+        EnumConnectivityMask.RIGHT,
+        EnumConnectivityMask.DOWN,
+        EnumConnectivityMask.LEFT,
+    ), Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.NORTH,
+        EnumEdgeMask.SOUTHEAST,
+        EnumEdgeMask.SOUTHWEST,
+    ) ],
+    [ Agency.Util.Bitwise.add(0,
+        EnumConnectivityMask.DOWN,
+        EnumConnectivityMask.LEFT,
+        EnumConnectivityMask.UP,
+    ), Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.EAST,
+        EnumEdgeMask.SOUTHWEST,
+        EnumEdgeMask.NORTHWEST,
+    ) ],
+    [ Agency.Util.Bitwise.add(0,
+        EnumConnectivityMask.LEFT,
+        EnumConnectivityMask.UP,
+        EnumConnectivityMask.RIGHT,
+    ), Agency.Util.Bitwise.add(0,
+        EnumEdgeMask.SOUTH,
+        EnumEdgeMask.NORTHWEST,
+        EnumEdgeMask.NORTHEAST,
+    ) ],
+]);
 
 
 
@@ -210,20 +219,20 @@ export function createEdgeMap(edgeCanvas) {
             drawImage(ctx, map.get("edge"), 0, map.get("edge").height, 1, -Math.PI / 2);
         }
 
-        if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.NORTHWEST)) {
-            drawImage(ctx, map.get("corner"), 0, 0, 1, 0);
-        }
-        if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.NORTHEAST)) {
-            drawImage(ctx, map.get("corner"), map.get("corner").width, 0, 1, Math.PI / 2);
-        }
-        if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.SOUTHEAST)) {
-            drawImage(ctx, map.get("corner"), map.get("corner").width, map.get("corner").height, 1, Math.PI);
-        }
-        if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.SOUTHWEST)) {
-            drawImage(ctx, map.get("corner"), 0, map.get("corner").height, 1, -Math.PI / 2);
-        }
+        // if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.NORTHWEST)) {
+        //     drawImage(ctx, map.get("corner"), 0, 0, 1, 0);
+        // }
+        // if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.NORTHEAST)) {
+        //     drawImage(ctx, map.get("corner"), map.get("corner").width, 0, 1, Math.PI / 2);
+        // }
+        // if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.SOUTHEAST)) {
+        //     drawImage(ctx, map.get("corner"), map.get("corner").width, map.get("corner").height, 1, Math.PI);
+        // }
+        // if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.SOUTHWEST)) {
+        //     drawImage(ctx, map.get("corner"), 0, map.get("corner").height, 1, -Math.PI / 2);
+        // }
 
-        map.set(edgeMask, canvas);
+        map.set(connMask, canvas);
     }
     
     return map;
@@ -231,15 +240,15 @@ export function createEdgeMap(edgeCanvas) {
 
 export function CalculateEdgeMasks(world) {
     const dirs = [
-        [ 0, -1, EnumEdgeMask.NORTH ],
-        [ 1, 0, EnumEdgeMask.EAST ],
-        [ 0, 1, EnumEdgeMask.SOUTH ],
-        [ -1, 0, EnumEdgeMask.WEST ],
+        [ 0, -1, EnumConnectivityMask.UP ],
+        [ 1, 0, EnumConnectivityMask.RIGHT ],
+        [ 0, 1, EnumConnectivityMask.DOWN ],
+        [ -1, 0, EnumConnectivityMask.LEFT ],
 
-        [ -1, -1, EnumEdgeMask.NORTHWEST ],
-        [ 1, -1, EnumEdgeMask.NORTHEAST ],
-        [ 1, 1, EnumEdgeMask.SOUTHEAST ],
-        [ -1, 1, EnumEdgeMask.SOUTHWEST ],
+        // [ -1, -1, EnumEdgeMask.NORTHWEST ],
+        // [ 1, -1, EnumEdgeMask.NORTHEAST ],
+        // [ 1, 1, EnumEdgeMask.SOUTHEAST ],
+        // [ -1, 1, EnumEdgeMask.SOUTHWEST ],
     ];
 
     for(let x = 0; x < world.width; x++) {
@@ -250,7 +259,7 @@ export function CalculateEdgeMasks(world) {
                 dirs.forEach(([ dx, dy, mask ]) => {
                     let neigh = world.terrain[ `${ terrain.position.x + dx }.${ terrain.position.y + dy }` ];
 
-                    if(neigh && neigh.terrain.type === DictTerrain.GRASS.type) {
+                    if(neigh && neigh.terrain.type === DictTerrain.DIRT.type) {
                         terrain.terrain.edges = Agency.Util.Bitwise.add(terrain.terrain.edges, mask);
                     }
                 });

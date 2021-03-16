@@ -1,4 +1,5 @@
 import Agency from "@lespantsfancy/agency";
+import { DictTerrain } from "../entity/components/terrain";
 
 export function comparator(data = {}, oldData = {}) {
     return data.hash !== oldData.hash;
@@ -20,10 +21,9 @@ export async function drawLayer(dt, elapsed, terrain) {
 
             sprite.paint(0, elapsed, this.canvas, terrain.position.x * this.tw, terrain.position.y * this.th);
 
-
-            if(terrain.terrain.type === 2) {
-                console.log(sprite.sprites[ 1 ], [ terrain.terrain.edges ], terrain.position.x * this.tw, terrain.position.y * this.th)
-                // this.image(sprite.sprites[ 1 ][ terrain.terrain.edges ], terrain.position.x * this.tw, terrain.position.y * this.th);
+            //STUB  Edge system has to be overhauled, but this is the general application principle
+            if(terrain.terrain.type === DictTerrain.DIRT.type) {
+                this.image(sprite.sprites[ 1 ].get(terrain.terrain.edges), terrain.position.x * this.tw, terrain.position.y * this.th);
             }
         }
     }

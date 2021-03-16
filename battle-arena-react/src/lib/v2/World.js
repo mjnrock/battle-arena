@@ -119,7 +119,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
             world.terrain.create([
-                [ componentTerrain, Math.random() >= 0.85 ? DictTerrain.GRASS : DictTerrain.DIRT ],
+                [ componentTerrain, Math.random() >= 0.50 ? DictTerrain.GRASS : DictTerrain.DIRT ],
                 [ componentPosition, { x, y, facing: 0 } ],
                 [ componentTurn, { timeoutStart: 0 } ],
             ], `${ x }.${ y }`);
