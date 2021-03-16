@@ -4,7 +4,7 @@ import TileCanvas from "./TileCanvas";
 import Game from "./../../Game";
 
 export class RenderLayer extends TileCanvas {
-    constructor(entities = [], { game, painter, comparator, tw = 32, th = 32 } = {}) {
+    constructor(entities = [], { game, painter, comparator, tw = 32, th = 32, config = {} } = {}) {
         super(tw, th);
 
         if(entities instanceof EntityManager) {
@@ -18,9 +18,14 @@ export class RenderLayer extends TileCanvas {
 
         this.__cache = new Map();
         this.__game = game;
+        this.__hooks = [];
 
+        this._config = {
+            ...this.config,
+            ...config,
+        };
+        
         //STUB
-        this._config.clearBeforeDraw = false;
         // this.draw(0);
         this.start();
     }
@@ -30,6 +35,9 @@ export class RenderLayer extends TileCanvas {
     }
     get cache() {
         return this.__cache;
+    }
+    get hooks() {
+        return this.__hooks;
     }
 
     get(key) {
@@ -58,6 +66,12 @@ export class RenderLayer extends TileCanvas {
         return result;
     }
 
+    addHook(...fns) {
+        this.__hooks.push(...fns);
+
+        return this;
+    }
+
     onDraw(dt, elapsed) {
         if(this.canvas.width !== this.game.render.width || this.canvas.height !== this.game.render.height) {
             this.canvas.width = this.game.render.width;
@@ -67,6 +81,8 @@ export class RenderLayer extends TileCanvas {
         for(let entity of this.entityMgr.values) {
             this.painter.call(this, dt, elapsed, entity);
         }
+
+        this.__hooks.forEach(fn => fn.call(this, dt, elapsed));
     }
 }
 
