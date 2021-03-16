@@ -11,6 +11,7 @@ import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
 import componentAction from "./data/entity/components/movement";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
+import { CalculateEdgeMasks } from "./data/render/edges";
 import findPath from "./util/AStar";
 
 export class World extends Beacon {
@@ -118,13 +119,14 @@ export function CreateRandom(width, height, enemyCount = 5) {
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
             world.terrain.create([
-                [ componentTerrain, Math.random() >= 0.25 ? DictTerrain.GRASS : DictTerrain.DIRT ],
+                [ componentTerrain, Math.random() >= 0.50 ? DictTerrain.GRASS : DictTerrain.DIRT ],
                 [ componentPosition, { x, y, facing: 0 } ],
                 [ componentTurn, { timeoutStart: 0 } ],
             ], `${ x }.${ y }`);
         }
     }
-    // console.log(world.terrain[ "3.4" ]);
+    
+    CalculateEdgeMasks(world);
 
     world.entities.create([
         [ componentPosition, { x: 4, y: 7 } ],
@@ -166,6 +168,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
     return world;
 }
 
+World.CalculateEdgeMasks = CalculateEdgeMasks;
 World.CreateRandom = CreateRandom;
 
 export default World;

@@ -1,34 +1,18 @@
-import EntityManager from "./../../manager/EntityManager";
-import TileCanvas from "./TileCanvas";
-import ImageRegistry from "./ImageRegistry";
+import LayeredCanvas from "./LayeredCanvas";
+import RenderLayer from "./RenderLayer";
 
-export class RenderGroup extends TileCanvas {
-    constructor(entities = [], dimensions, { tw = 32, th = 32, spriteCoords = [], lookupFns = [] } = {}) {
-        super(tw, th);
+export class RenderGroup extends LayeredCanvas {
+    constructor(width, height, layers = [], { tw = 32, th = 32 } = {}) {
+        super({ width, height, tw, th });
 
-        if(entities instanceof EntityManager) {
-            this.entityManager = entities;
-        } else {
-            this.entityManager = new EntityManager(entities);
+        for(let layer of layers) {
+            if(layer instanceof RenderLayer) {
+                this.addLayer(layer);
+            }
         }
 
-        if(dimensions instanceof ImageRegistry) {
-            this.imageRegistry = dimensions;
-        } else {
-            this.imageRegistry = new ImageRegistry(dimensions, { spriteCoords, lookupFns });
-        }
-
-        this.start();
+        this.drawLayers();
     }
-
-    get entities() {
-        return this.entityManager.values;
-    }
-    sprite(...coords) {
-        return this.imageRegistry.get(...coords);
-    }
-
-    //TODO  Image filter/manipulation methods
 }
 
 export default RenderGroup;

@@ -1,3 +1,5 @@
+import Agency from "@lespantsfancy/agency";
+
 //! Component Schemas should always be functions
 const _name = "terrain";
 
@@ -31,15 +33,16 @@ export const DictTerrain = {
     },
     WATER: {
         type: 3,
-        cost: 4,
+        cost: 5,
     },
 };
 
 export const schema = {
-    [ _name ]: ({ type, cost, state = 0 } = {}) => ({
+    [ _name ]: ({ type, cost, edges = 0, meta = 0 } = {}) => ({
         type,
         cost,
-        state,
+        edges,
+        meta,
     }),
 };
 

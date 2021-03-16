@@ -3,6 +3,7 @@ import Agency from "@lespantsfancy/agency";
 export const EnumEntity = {
     SQUIRREL: "squirrel",
     BUNNY: "bunny",
+    BEAR: "bear",
 
     GHOST_SQUIRREL: "ghost-squirrel",
     GHOST_BUNNY: "ghost-bunny",
@@ -14,6 +15,7 @@ export const EnumTerrain = {
     DIRT: "dirt",
     WATER: "water",
     
+    EDGE: "edge",
     FIRE: "fire",
 };
 
@@ -43,8 +45,8 @@ export const TerrainTemplate = [
 ];
 
 export class ImageRegistry extends Agency.Util.CrossMap {
-    constructor(dimensions, { spriteCoords = [], lookupFns = [] } = {}) {
-        super(dimensions);
+    constructor(dimensions, { spriteCoords = [], lookupFns = [], seedFn, saveFnInstead } = {}) {
+        super(dimensions, { seedFn, saveFnInstead });
 
         for(let [ sprite, ...coords ] of spriteCoords) {
             this.set(sprite, ...coords);
