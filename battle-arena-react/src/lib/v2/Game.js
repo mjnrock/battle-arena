@@ -124,7 +124,7 @@ export default class Game extends Agency.Beacon {
                             mouse.x = mouse.tx * this.tw;
                             mouse.y = mouse.ty * this.th;
 
-                            this.ctx.strokeStyle = `rgba(0, 0, 0, 1.0)`;
+                            this.ctx.strokeStyle = `rgba(180, 180, 180, 0.25)`;
                             let r = 5;
                             for(let dx = -r; dx <= r; dx++) {
                                 for(let dy = -r; dy <= r; dy++) {
@@ -138,17 +138,7 @@ export default class Game extends Agency.Beacon {
                                 }
                             }
 
-                            this.ctx.fillStyle = `rgba(0, 0, 255, 1)`;
-                            this.ctx.strokeStyle = `rgba(0, 0, 255, 1)`;
-                            this.ctx.lineWidth = 3;
-                            this.tRect(
-                                mouse.tx,
-                                mouse.ty,
-                                1,
-                                1,
-                                { isFilled: true },
-                            );
-                            this.tRect(
+                            this.prop({ lineWidth: 5 }).tRect(
                                 mouse.tx,
                                 mouse.ty,
                                 1,
@@ -156,22 +146,14 @@ export default class Game extends Agency.Beacon {
                                 { isFilled: false },
                             );
 
-                            this.ctx.fillStyle = `rgba(255, 255, 255, 0.15)`;
-                            // this.ctx.fillStyle = `rgba(0, 0, 0, 0.25)`;
-                            this.ctx.fillRect(0, 0, this.width, this.height);
-
-                            let feather = 20,
-                                radius = 96;
+                            let feather = 32,
+                                radius = 128;
 
                             this.ctx.globalCompositeOperation = "destination-in";
                             this.ctx.filter = `blur(${ feather }px)`;  // "feather"
-                            
-                            if(Math.random() > 0.99) {
-                                console.log(mouse)
-                            }
 
                             this.ctx.beginPath();
-                            this.ctx.arc(mouse.x, mouse.y, radius, 0, 2 * Math.PI);
+                            this.ctx.arc(mouse.x + this.tw / 2, mouse.y + this.th / 2, radius, 0, 2 * Math.PI);
                             this.ctx.fill();
 
                             this.ctx.globalCompositeOperation = "destination-out";
@@ -182,7 +164,6 @@ export default class Game extends Agency.Beacon {
                 });
                 game.render.getLayer(2).addHook(function(dt, elapsed) {
                     if(game.SHOW_UI) {
-                        console.log(111)
                         this.save();
                         const player = game.world.entities.player;
                         const path = player.movement.path || [];
