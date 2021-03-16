@@ -1,4 +1,5 @@
 import Agency from "@lespantsfancy/agency";
+import Frame from "../../util/render/Frame";
 
 import { DictTerrain } from "./../entity/components/terrain";
 
@@ -175,16 +176,6 @@ export const ConnectivityEdgeMap = new Map([
 
 
 
-
-
-function drawImage(ctx, image, x, y, scale, rotation){
-    ctx.save();
-    ctx.setTransform(scale, 0, 0, scale, x, y);
-    ctx.rotate(rotation);
-    ctx.drawImage(image, 0, 0);
-    ctx.restore();
-} 
-
 export function createEdgeMap(edgeCanvas) {
     const map = new Map();
     map.set("edge", document.createElement("canvas"));
@@ -207,29 +198,29 @@ export function createEdgeMap(edgeCanvas) {
         canvas.height = edgeCanvas.width;   // sic
         
         if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.NORTH)) {
-            drawImage(ctx, map.get("edge"), 0, 0, 1, 0);
+            Frame.DrawRotate0(ctx, map.get("edge"));
         }
         if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.EAST)) {
-            drawImage(ctx, map.get("edge"), map.get("edge").width, 0, 1, Math.PI / 2);
+            Frame.DrawRotate90(ctx, map.get("edge"));
         }
         if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.SOUTH)) {
-            drawImage(ctx, map.get("edge"),  map.get("edge").width, map.get("edge").height, 1, Math.PI);
+            Frame.DrawRotate180(ctx, map.get("edge"));
         }
         if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.WEST)) {
-            drawImage(ctx, map.get("edge"), 0, map.get("edge").height, 1, -Math.PI / 2);
+            Frame.DrawRotate270(ctx, map.get("edge"));
         }
 
         // if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.NORTHWEST)) {
-        //     drawImage(ctx, map.get("corner"), 0, 0, 1, 0);
+        //     Frame.DrawRotate0(ctx, map.get("corner"));
         // }
         // if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.NORTHEAST)) {
-        //     drawImage(ctx, map.get("corner"), map.get("corner").width, 0, 1, Math.PI / 2);
+        //     Frame.DrawRotate90(ctx, map.get("corner"));
         // }
         // if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.SOUTHEAST)) {
-        //     drawImage(ctx, map.get("corner"), map.get("corner").width, map.get("corner").height, 1, Math.PI);
+        //     Frame.DrawRotate180(ctx, map.get("corner"));
         // }
         // if(Agency.Util.Bitwise.has(edgeMask, EnumEdgeMask.SOUTHWEST)) {
-        //     drawImage(ctx, map.get("corner"), 0, map.get("corner").height, 1, -Math.PI / 2);
+        //     Frame.DrawRotate270(ctx, map.get("corner"));
         // }
 
         map.set(connMask, canvas);

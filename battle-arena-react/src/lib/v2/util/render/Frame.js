@@ -66,6 +66,32 @@ export class Frame extends TileCanvas {
     }
 };
 
+export function DrawTransform(ctx, image, x, y, scale, rotation){
+    ctx.save();
+    ctx.setTransform(scale, 0, 0, scale, x, y);
+    ctx.rotate(rotation);
+    ctx.drawImage(image, 0, 0);
+    ctx.restore();
+};
+export function DrawRotate0(ctx, image) {
+    DrawTransform(ctx, image, 0, 0, 1, 0);
+};
+export function DrawRotate90(ctx, image) {
+    DrawTransform(ctx, image, image.width, 0, 1, Math.PI / 2);
+};
+export function DrawRotate180(ctx, image) {
+    DrawTransform(ctx, image, image.width, image.height, 1, Math.PI);
+};
+export function DrawRotate270(ctx, image) {
+    DrawTransform(ctx, image, 0, image.height, 1, -Math.PI / 2);
+};
+
+Frame.DrawTransform = DrawTransform;
+Frame.DrawRotate0 = DrawRotate0;
+Frame.DrawRotate90 = DrawRotate90;
+Frame.DrawRotate180 = DrawRotate180;
+Frame.DrawRotate270 = DrawRotate270;
+
 export function Hash(canvas, { algorithm = "md5" } = {}) {
     if(canvas instanceof HTMLCanvasElement) {
         const base64 = canvas.toDataURL("image/png", 1.0);
