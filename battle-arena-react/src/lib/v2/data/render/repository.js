@@ -1,4 +1,5 @@
 import Agency from "@lespantsfancy/agency";
+import SpriteSheet from "../../util/render/SpriteSheet";
 
 import ImageRegistry, { EntityTemplate, TerrainTemplate } from "./../../util/render/ImageRegistry";
 
@@ -14,6 +15,7 @@ export const repository = (root) => new Agency.Util.CrossMap([
         switch(chain) {
             case "entity":
                 return new ImageRegistry(EntityTemplate, {
+                    seedFn: () => new SpriteSheet(),
                     lookupFns: [
                         ({ entity }) => "bunny",
                         ({ entity }) => 0,
@@ -22,6 +24,7 @@ export const repository = (root) => new Agency.Util.CrossMap([
                 });
             case "terrain":
                 return new ImageRegistry(TerrainTemplate, {
+                    seedFn: () => new SpriteSheet(),
                     lookupFns: [
                         // ({ entity }) => TerrainLookup(entity.terrain.type),
                         ({ entity }) => {

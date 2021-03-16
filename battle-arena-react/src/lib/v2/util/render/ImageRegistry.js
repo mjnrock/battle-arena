@@ -44,8 +44,8 @@ export const TerrainTemplate = [
 ];
 
 export class ImageRegistry extends Agency.Util.CrossMap {
-    constructor(dimensions, { spriteCoords = [], lookupFns = [] } = {}) {
-        super(dimensions);
+    constructor(dimensions, { spriteCoords = [], lookupFns = [], seedFn, saveFnInstead } = {}) {
+        super(dimensions, { seedFn, saveFnInstead });
 
         for(let [ sprite, ...coords ] of spriteCoords) {
             this.set(sprite, ...coords);

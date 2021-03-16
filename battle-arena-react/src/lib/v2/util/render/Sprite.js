@@ -2,9 +2,11 @@ import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
 import Canvas from "./Canvas";
+import TileCanvas from "./TileCanvas";
 
-export class Sprite {
-    constructor(score, { width = 0, height = 0, __inherit = false }) {
+export class Sprite extends TileCanvas {
+    constructor(score, { width = 0, height = 0, tw = 1, th = 1, __inherit = false }) {
+        super(tw, th, { width, height });
         this.__id = uuidv4();
 
         if(__inherit) {
@@ -12,14 +14,8 @@ export class Sprite {
         }
 
         this.score = [];
-
-        this.canvas = document.createElement("canvas");
-        this.canvas.width = width;
-        this.canvas.height = height;
-
-        const ctx = this.canvas.getContext("2d");
         score.forEach(([ frame, duration, hash ], i) => {
-            ctx.drawImage(frame, frame.width * i, 0);
+            this.ctx.drawImage(frame, frame.width * i, 0);
             
             this.score.push([ duration, [ frame.width * i, 0 ], [ frame.width, frame.height ], hash ]);
         });
@@ -33,9 +29,6 @@ export class Sprite {
         this.__hash = Sprite.Hash(this.canvas, { algorithm: "md5" });
     }
 
-    get ctx() {
-        return this.canvas.getContext("2d");
-    }
     get hash() {
         return this.__hash;
     }
@@ -72,6 +65,37 @@ export class Sprite {
      * Same as .get(elapsed), but paints to a passed @canvas at [ @px, @py ]
      */
     paint(elapsed, canvas, px, py, { ctxType = "2d" } = {}) {        
+        if(Array.isArray(elapsed)) {
+            const [ x, y, width, height ] = elapsed;
+
+            if(canvas instanceof Canvas) {
+                canvas.image(
+                    this.canvas,
+                    x,
+                    y,
+                    width,
+                    height,
+                    px,
+                    py,
+                    width,
+                    height,
+                );
+            } else {
+                const ctx = canvas.getContext(ctxType);
+                ctx.drawImage(
+                    this.canvas,
+                    x,
+                    y,
+                    width,
+                    height,
+                    px,
+                    py,
+                    width,
+                    height,
+                );
+            }
+        }
+
         const [ hash, [ image, x, y, width, height ] ] = this.get(elapsed);
 
         if(canvas instanceof Canvas) {

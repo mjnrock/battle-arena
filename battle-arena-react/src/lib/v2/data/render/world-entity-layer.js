@@ -9,10 +9,10 @@ export async function drawLayer(dt, elapsed, entity) {
     const prog = ((Date.now() - entity.turn.timeoutStart) % this.game.config.GCD) / this.game.config.GCD;      // % this.game.config.GCD hides information and should only be used for testing
             
     //STUB  Dynamically add <Sprite(s)> // const sprite = new SpriteStack([ this.sprite({ entity: entity }), this.sprite({ entity: this.game.world.entities[ `player` ] }) ]);
-    const sprite = new SpriteStack([ this.game.render.sprite("entity", { entity: entity }) ]);
+    const sprite = this.game.render.sprite("entity", { entity: entity });
 
     if (sprite) {
-        const [[ hash, [ canvas, x, y, w, h ]]] = sprite.get(elapsed);
+        const [ hash, [ canvas, x, y, w, h ]] = sprite.get(elapsed);
         const newData = { hash, x: entity.position.x, y: entity.position.y }
 
         if(this.check(entity, newData)) {
@@ -21,7 +21,7 @@ export async function drawLayer(dt, elapsed, entity) {
             this.erase(oldData.x * this.tw, oldData.y * this.th, w, h);
             this.set(entity, newData);
 
-            sprite.paint(elapsed, this.canvas, entity.position.x * this.tw, entity.position.y * this.th);
+            sprite.paint(0, elapsed, this.canvas, entity.position.x * this.tw, entity.position.y * this.th);
         }
 
         // let frameWidth = canvas.width;

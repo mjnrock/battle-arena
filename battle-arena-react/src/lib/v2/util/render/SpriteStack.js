@@ -111,7 +111,7 @@ export function Flatten(spriteStack, { canvas, ctxType = "2d" } = {}) {
 
     const ctx = canvas.getContext(ctxType);
     for(let sprite of spriteStack) {
-        ctx.drawImage(sprite.canvas, 0, 0);
+        ctx.drawImage(sprite, 0, 0);
     }
 
     return canvas;

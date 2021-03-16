@@ -25,12 +25,13 @@ export async function loadEntity(game) {
                             } else {
                                 tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
                             }
-                            game.render.repository.get("entity").set(
-                                tessellation.toSprite({ purgePattern: true }),
-                                file,
-                                0,
-                                i,
-                            );
+                            // game.render.repository.get("entity").set(
+                            //     tessellation.toSprite({ purgePattern: true }),
+                            //     file,
+                            //     0,
+                            //     i,
+                            // );
+                            game.render.repository.get("entity").get(file, 0, i).set(0, tessellation.toSprite({ purgePattern: true }));
                         }
                     })
                     .catch(e => { console.error(e); console.warn(`Ensure that "${ file }" is present in the <ImageRegistry>`); })
@@ -42,12 +43,13 @@ export async function loadEntity(game) {
                     .then(tessellation => {
                         for(let i = 0; i <= 270; i += 90) {
                             tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
-                            game.render.repository.get("entity").set(
-                                tessellation.toSprite({ purgePattern: true }),
-                                file,
-                                0,
-                                i,
-                            );
+                            // game.render.repository.get("entity").set(
+                            //     tessellation.toSprite({ purgePattern: true }),
+                            //     file,
+                            //     0,
+                            //     i,
+                            // );
+                            game.render.repository.get("entity").get(file, 0, i).set(0, tessellation.toSprite({ purgePattern: true }));
                         }
                     })
                     .catch(e => { console.error(e); console.warn(`Ensure that "${ file }" is present in the <ImageRegistry>`); })
@@ -77,21 +79,11 @@ export async function loadTerrain(game) {
 
                         tessellation.relative(1);
                         tessellation.add(`0.0`, 1);    // The @key pulls that <Canvas> from the canvas map    
-                        game.render.repository.get("terrain").set(
-                            tessellation.toSprite({ purgePattern: true }),
-                            t2,
-                            1,
-                            0,
-                        );
+                        game.render.repository.get("terrain").get(t2, 0, 0).set(1, tessellation.toSprite({ purgePattern: true }));
 
                         tessellation.relative(1);
-                        tessellation.add(`0.1`, 1);    // The @key pulls that <Canvas> from the canvas map    
-                        game.render.repository.get("terrain").set(
-                            tessellation.toSprite({ purgePattern: true }),
-                            t2,
-                            2,
-                            0,
-                        );
+                        tessellation.add(`0.1`, 1);    // The @key pulls that <Canvas> from the canvas map
+                        game.render.repository.get("terrain").get(t2, 0, 0).set(2, tessellation.toSprite({ purgePattern: true }));
                     } else {
                         tessellation.relative(~~(meta.width / meta.tw));
 
@@ -99,12 +91,7 @@ export async function loadTerrain(game) {
                             tessellation.add(`${i / meta.tw}.0`, 1);    // The @key pulls that <Canvas> from the canvas map
                         }
 
-                        game.render.repository.get("terrain").set(
-                            tessellation.toSprite({ purgePattern: true }),
-                            file,
-                            0,
-                            0,
-                        );
+                        game.render.repository.get("terrain").get(file, 0, 0).set(0, tessellation.toSprite({ purgePattern: true }));
                     }
                 })
                 .catch(e => { console.error(e); console.warn(`Ensure that "${ file }" is present in the <ImageRegistry>`); })

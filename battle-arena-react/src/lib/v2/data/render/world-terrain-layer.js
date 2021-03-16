@@ -16,7 +16,7 @@ export async function drawLayer(dt, elapsed, terrain) {
             this.erase(oldData.x * this.tw, oldData.y * this.th, w, h);
             this.set(terrain, newData);
 
-            sprite.paint(elapsed, this.canvas, terrain.position.x * this.tw, terrain.position.y * this.th);
+            sprite.paint(0, elapsed, this.canvas, terrain.position.x * this.tw, terrain.position.y * this.th);
         }
     }
 };
