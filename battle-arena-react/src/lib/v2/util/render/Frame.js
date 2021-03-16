@@ -5,7 +5,7 @@ import Canvas from "./Canvas";
 import TileCanvas from "./TileCanvas";
 
 export class Frame extends TileCanvas {
-    constructor(score, { width = 0, height = 0, tw = 1, th = 1, __inherit = false }) {
+    constructor(canvas, { width = 0, height = 0, tw = 1, th = 1, __inherit = false }) {
         super(tw, th, { width, height });
         this.__id = uuidv4();
 
@@ -13,7 +13,9 @@ export class Frame extends TileCanvas {
             return this;
         }
 
-        this.__hash = Sprite.Hash(this.canvas, { algorithm: "md5" });
+        this.canvas = canvas;
+
+        this.__hash = Frame.Hash(this.canvas, { algorithm: "md5" });
     }
 
     get hash() {
@@ -22,16 +24,20 @@ export class Frame extends TileCanvas {
     get size() {
         return [ this.canvas.width, this.canvas.height ];
     }
+
+    get(tx, ty) {
+        return [ tx * this.tw, ty * this.th, this.tw, this.th ];
+    }
     
     /**
      * Same as .get(elapsed), but paints to a passed @canvas at [ @px, @py ]
      */
     paint(tx, ty, canvas, px, py, { ctxType = "2d" } = {}) {
-        const [ hash, [ image, x, y, width, height ] ] = this.get(elapsed);
+        const [ x, y, width, height ] = this.get(tx, ty);
 
         if(canvas instanceof Canvas) {
             canvas.image(
-                image,
+                this.canvas,
                 x,
                 y,
                 width,
@@ -44,7 +50,7 @@ export class Frame extends TileCanvas {
         } else {
             const ctx = canvas.getContext(ctxType);
             ctx.drawImage(
-                image,
+                this.canvas,
                 x,
                 y,
                 width,
@@ -56,7 +62,7 @@ export class Frame extends TileCanvas {
             );
         }
 
-        return { x, y, width, height, hash };
+        return { tx, ty, x, y, width, height };
     }
 };
 

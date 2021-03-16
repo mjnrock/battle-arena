@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
 import Sprite from "./Sprite";
+import Frame from "./Frame";
 
 export class SpriteSheet {
     constructor(sprites = {}) {
