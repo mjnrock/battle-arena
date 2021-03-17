@@ -16,7 +16,7 @@ import RenderGroup from "./util/render/RenderGroup";
 
 export default class Game extends Agency.Beacon {
     // constructor({ fps = 24, GCD = 500 } = {}) {
-    constructor({ fps = 24, GCD = 2000 } = {}) {
+    constructor({ fps = 24, GCD = 1500 } = {}) {
         super(false);
         
         this.loop = Agency.Pulse.SubjectFactory(fps, { autostart: false });
@@ -24,6 +24,7 @@ export default class Game extends Agency.Beacon {
         this.config = {
             GCD,
             SHOW_UI: true,
+            MOUSE_POSITION: [ 10, 10 ],
         };
 
         // Create Singleton pattern

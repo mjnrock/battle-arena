@@ -12,8 +12,8 @@ export default function MetaView() {
     }
 
     return (
-        <Segment textAlign="center">
-            <Header style={{ fontFamily: "monospace" }} as="h3" textAlign="center">Meta Data</Header>
+        <Segment textAlign="center" inverted basic>
+            {/* <Header style={{ fontFamily: "monospace" }} as="h3" textAlign="center">Meta Data</Header> */}
 
             {/* <Beacon
                 beacon={ game }

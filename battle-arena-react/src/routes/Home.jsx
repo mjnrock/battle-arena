@@ -7,7 +7,7 @@ import MetaView from "../components/v2/MetaView";
 
 export default function Home() {
     return (
-        <Segment textAlign="center">
+        <Segment textAlign="center" inverted basic>
             <GameView />
             <MetaView />
         </Segment>
