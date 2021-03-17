@@ -14,7 +14,6 @@ import componentAction from "./data/entity/components/movement";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
 import findPath from "./util/AStar";
-import Arena from "./Arena";
 
 export class World extends Beacon {
     constructor(width, height) {
@@ -117,30 +116,6 @@ export class World extends Beacon {
     }
 };
 
-export function CreateArena(overworld, width, height, { schemaArray = [], enemyCount, entities = [] } = {}) {
-    const arena = new Arena(width, height, { overworld });
-
-    for(let x = 0; x < arena.width; x++) {
-        for(let y = 0; y < arena.height; y++) {
-            arena.terrain.create([
-                [ componentTerrain, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT ],
-                [ componentPosition, { x, y, facing: 0 } ],
-                [ componentTurn, { timeout: 0 } ],
-            ], `${ x }.${ y }`);
-        }
-    }
-    
-    CalculateEdgeMasks(arena);
-
-    for(let entity of entities) {
-        arena.join(entity);
-    }
-
-    arena.entities.createMany(enemyCount, schemaArray, (i) => `enemy-${ i }`);
-
-    return arena;
-};
-
 export function CreateRandom(width, height, enemyCount = 5) {
     const world = new World(width, height);
 
@@ -200,6 +175,5 @@ export function CreateRandom(width, height, enemyCount = 5) {
 
 World.CalculateEdgeMasks = CalculateEdgeMasks;
 World.CreateRandom = CreateRandom;
-World.CreateArena = CreateArena;
 
 export default World;

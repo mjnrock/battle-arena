@@ -61,7 +61,7 @@ export default class Game extends Agency.Beacon {
                 //TODO  Move this somewhere more appropriate--currently requires async to compensate for mount times
                 Agency.EventObservable.GetRef(game.render.canvas).on("next", (type, { data }) => {
                     const [ e ] = data;
-                    const { target: canvas, buttons, clientX: x, clientY: y } = e;
+                    const { target: canvas, button, clientX: x, clientY: y } = e;
 
                     const { left, top } = canvas.getBoundingClientRect();
                     const pos = {
@@ -73,13 +73,15 @@ export default class Game extends Agency.Beacon {
                     pos.txi = Math.floor(pos.tx);
                     pos.tyi = Math.floor(pos.ty);
 
-                    if(type === "click") {
-                        // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.getTerrain(pos.txi, pos.tyi).terrain.toData()));
-                        console.info(pos.txi, pos.tyi, game.world.node(pos.txi, pos.tyi));
-
-                        const player = game.world.entities.player;
-                        player.movement.destination = [ pos.txi, pos.tyi ];
-                        player.movement.path = findPath(game.world, [ player.position.x, player.position.y ], player.movement.destination);
+                    if(type === "mouseup") {
+                        if(button === 0) {
+                            // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.getTerrain(pos.txi, pos.tyi).terrain.toData()));
+                            console.info(pos.txi, pos.tyi, game.world.node(pos.txi, pos.tyi));
+                        } else if(button === 2) {
+                            const player = game.world.entities.player;
+                            player.movement.destination = [ pos.txi, pos.tyi ];
+                            player.movement.path = findPath(game.world, [ player.position.x, player.position.y ], player.movement.destination);
+                        }
                     } else if(type === "mousemove") {
                         game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];
                     }
