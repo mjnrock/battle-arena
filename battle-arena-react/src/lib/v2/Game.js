@@ -41,7 +41,7 @@ export default class Game extends Agency.Beacon {
             Game.Instance = new Game();
             const game = Game.Instance;
 
-            game.world = World.CreateRandom(20, 20, 25);
+            game.world = World.CreateRandom(35, 35, 25);
 
             // STUB  Async testing
             setTimeout(() => {
@@ -74,7 +74,8 @@ export default class Game extends Agency.Beacon {
                     pos.tyi = Math.floor(pos.ty);
 
                     if(type === "click") {
-                        console.info(pos.txi, pos.tyi, JSON.stringify(game.world.getTerrain(pos.txi, pos.tyi).terrain.toData()));
+                        // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.getTerrain(pos.txi, pos.tyi).terrain.toData()));
+                        console.info(pos.txi, pos.tyi, game.world.node(pos.txi, pos.tyi));
 
                         const player = game.world.entities.player;
                         player.movement.destination = [ pos.txi, pos.tyi ];
@@ -101,7 +102,7 @@ export default class Game extends Agency.Beacon {
 
 
             //? Bootstrap the rendering
-            game.render = new RenderManager(640, 640, { repository: initImageRepository() });
+            game.render = new RenderManager(game.world.width * 32, game.world.height * 32, { repository: initImageRepository() });
             (async () => {
                 //  Load Images
                 await game.render.loadImages(game, loadEntity);
@@ -201,9 +202,9 @@ export default class Game extends Agency.Beacon {
                 if(type === "tick") {
                     const now = Date.now();
                     for(let entity of game.world.entities.values) {
-                        if(now - entity.turn.timeoutStart >= game.config.GCD) {
+                        if(now - entity.turn.timeout >= game.config.GCD) {
                             entity.turn.current(entity);
-                            entity.turn.timeoutStart = now;
+                            entity.turn.timeout = now;
                         }
                     }
                 }

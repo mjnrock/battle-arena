@@ -16,7 +16,7 @@ import { CalculateEdgeMasks } from "./data/render/edges";
 import findPath from "./util/AStar";
 
 export class World extends Beacon {
-    constructor(width, height) {
+    constructor(width, height, { overworld } = {}) {
         super();
 
         this.width = width;
@@ -28,6 +28,14 @@ export class World extends Beacon {
         //TODO Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
         this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
         // this.__nodes = new NodeManager([ width, height ], this.__entities, this.__terrain);
+
+        if(overworld instanceof World) {
+            this.__overworld = overworld;
+        }
+    }
+
+    get overworld() {
+        return this.__overworld;
     }
 
     get entities() {
@@ -53,6 +61,8 @@ export class World extends Beacon {
         }
 
         this.entities.register(entity, ...synonyms);
+
+        this.__nodes.__joinNode(entity);
 
         return true;
     }
@@ -112,7 +122,31 @@ export class World extends Beacon {
     getTerrain(x, y) {
         return this.terrain[ `${ x }.${ y }`];
     }
-}
+};
+
+export function CreateArena(overworld, width, height, { schemaArray = [], enemyCount, entities = [] } = {}) {
+    const arena = new World(width, height, { overworld });
+
+    for(let x = 0; x < arena.width; x++) {
+        for(let y = 0; y < arena.height; y++) {
+            arena.terrain.create([
+                [ componentTerrain, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT ],
+                [ componentPosition, { x, y, facing: 0 } ],
+                [ componentTurn, { timeout: 0 } ],
+            ], `${ x }.${ y }`);
+        }
+    }
+    
+    CalculateEdgeMasks(arena);
+
+    for(let entity of entities) {
+        arena.join(entity);
+    }
+
+    arena.entities.createMany(enemyCount, schemaArray, (i) => `enemy-${ i }`);
+
+    return arena;
+};
 
 export function CreateRandom(width, height, enemyCount = 5) {
     const world = new World(width, height);
@@ -120,9 +154,9 @@ export function CreateRandom(width, height, enemyCount = 5) {
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
             world.terrain.create([
-                [ componentTerrain, Math.random() >= 0.50 ? DictTerrain.GRASS : DictTerrain.DIRT ],
+                [ componentTerrain, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT ],
                 [ componentPosition, { x, y, facing: 0 } ],
-                [ componentTurn, { timeoutStart: 0 } ],
+                [ componentTurn, { timeout: 0 } ],
             ], `${ x }.${ y }`);
         }
     }
@@ -134,7 +168,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
         [ componentPosition, { x: 4, y: 7 } ],
         [ componentHealth, { current: 10, max: 10 } ],
         [ componentAction, {} ],
-        [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
+        [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
             if(entity.movement.path.length) {
                 const [ x, y ] = entity.movement.path.shift();
                 const { x: ox, y: oy } = entity.position;
@@ -165,7 +199,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
         [ componentPosition, { x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
-        [ componentTurn, { timeoutStart: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
+        [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
     ], (i) => `enemy-${ i }`);
 
     return world;
@@ -173,5 +207,6 @@ export function CreateRandom(width, height, enemyCount = 5) {
 
 World.CalculateEdgeMasks = CalculateEdgeMasks;
 World.CreateRandom = CreateRandom;
+World.CreateArena = CreateArena;
 
 export default World;
