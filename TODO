@@ -1,0 +1,26 @@
+World:
+    Overworld:
+    [] Create <WorldManager::Agency..Registry>
+        [] Inject into <Game> .world variable
+        [] .current should return w/e <World> the Player is in
+        Render:
+            [] Attach rendering view to .current
+            [] Force redraw on any world transition
+            [] Force redraw on any window resize/fullscreen
+    Arena:
+    [] Create <Arena::World>
+        [] Create invocation process for <Arena>
+            [] Create manual activation process
+                [] button press: (from overworld) --> teleport to newly spawned <Arena>, (from arena) --> teleport back to overworld
+                [] Transition to sense-based aggression radius
+        [] Transition process to .leave/.join entities into/out of <Arena>
+            [] OnVictory => Teleport back to Overworld at previous location
+            [] OnDefeat => Teleport back to Overworld at nearest revive location
+    [] Create a turn cycle for entities in an <Arena>
+
+Render:
+    [] Smoothly transition movement from one tile to the next
+        [] (OPTIONAL) Interpolate movement graphically, instead, at 1/2 step in current tile, 1/2 in next
+        [] Utilize <Component.Movement> to determine next move
+            [] Assign .facing based on progression direction
+        [] Progress toward next [ x, y ] at .range/GCD speed

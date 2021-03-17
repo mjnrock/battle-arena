@@ -14,9 +14,10 @@ import componentAction from "./data/entity/components/movement";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
 import findPath from "./util/AStar";
+import Arena from "./Arena";
 
 export class World extends Beacon {
-    constructor(width, height, { overworld } = {}) {
+    constructor(width, height) {
         super();
 
         this.width = width;
@@ -28,14 +29,6 @@ export class World extends Beacon {
         //TODO Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
         this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
         // this.__nodes = new NodeManager([ width, height ], this.__entities, this.__terrain);
-
-        if(overworld instanceof World) {
-            this.__overworld = overworld;
-        }
-    }
-
-    get overworld() {
-        return this.__overworld;
     }
 
     get entities() {
@@ -125,7 +118,7 @@ export class World extends Beacon {
 };
 
 export function CreateArena(overworld, width, height, { schemaArray = [], enemyCount, entities = [] } = {}) {
-    const arena = new World(width, height, { overworld });
+    const arena = new Arena(width, height, { overworld });
 
     for(let x = 0; x < arena.width; x++) {
         for(let y = 0; y < arena.height; y++) {
