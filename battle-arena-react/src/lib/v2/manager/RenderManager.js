@@ -18,9 +18,9 @@ export class RenderManager extends LayeredCanvas {
 
         for(let group of groups) {
             if(Array.isArray(group)) {
-                this.makeActive(...group);
+                this.useGroup(...group);
             } else {
-                this.makeActive(group);
+                this.useGroup(group);
             }
         }
     }
@@ -40,20 +40,21 @@ export class RenderManager extends LayeredCanvas {
         return await fn.call(this, this.game, ...args);
     }
 
-    makeActive(group, ...synonyms) {
+    useGroup(group, ...synonyms) {
         this.groups.register(group, ...synonyms);
 
         if(!this.__current) {
             this.__current = group;
         }
 
-        this.width = group.width;
-        this.height = group.height;
-
         this.stopAll();
         this.removeAllLayers();
 
+        this.width = group.width;
+        this.height = group.height;
+
         this.addLayer(group);
+
 
         return this;
     }

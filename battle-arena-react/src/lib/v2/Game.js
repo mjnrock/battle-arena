@@ -25,6 +25,14 @@ export default class Game extends Agency.Beacon {
 
         this.config = {
             GCD,
+            render: {
+                tile: {
+                    width: 32,
+                    height: 32,
+                    get size() { return [ this.config.render.tile.width, this.config.render.tile.height ] },
+                    calc: (tx, ty) => [ this.config.render.tile.width * tx, this.config.render.tile.height * ty ],
+                },
+            },
             SHOW_UI: true,
             MOUSE_POSITION: [ 10, 10 ],
         };
@@ -60,18 +68,30 @@ export default class Game extends Agency.Beacon {
             // STUB  Async testing
             setTimeout(() => {
                 //NOTE  Change the World at interval
-                // let bool = true;
-                // setInterval(() => {
-                //     if(bool) {
-                //         game.world.current.leave(game.world.overworld.entities.player);
-                //         game.world.arena.join(game.world.overworld.entities.player);
-                //     } else {
-                //         game.world.arena.leave(game.world.overworld.entities.player);
-                //         game.world.current.join(game.world.overworld.entities.player);
-                //     }
+                let bool = true;
+                setInterval(() => {
+                    if(bool) {
+                        game.world.overworld.leave(game.players.get(0));
+                        game.world.arena.join(game.players.get(0));
 
-                //     bool = !bool;
-                // }, 2500);
+                        game.render.current.getLayer(0).entityManager = game.world.arena.terrain;
+                        game.render.current.getLayer(1).entityManager = game.world.arena.entities;
+
+                        game.render.width = game.world.arena.width * 32;
+                        game.render.height = game.world.arena.height * 32;
+                    } else {
+                        game.world.arena.leave(game.players.get(0));
+                        game.world.overworld.join(game.players.get(0));
+
+                        game.render.current.getLayer(0).entityManager = game.world.overworld.terrain;
+                        game.render.current.getLayer(1).entityManager = game.world.overworld.entities;
+
+                        game.render.width = game.world.overworld.width * 32;
+                        game.render.height = game.world.overworld.height * 32;
+                    }
+
+                    bool = !bool;
+                }, 2500);
 
                 //TODO  Move this somewhere more appropriate--currently requires async to compensate for mount times
                 Agency.EventObservable.GetRef(game.render.canvas).on("next", (type, { data }) => {
@@ -83,8 +103,8 @@ export default class Game extends Agency.Beacon {
                         px: x - left,
                         py: y - top,
                     };
-                    pos.tx = pos.px / 32;
-                    pos.ty = pos.py / 32;
+                    pos.tx = pos.px / game.config.render.tile.width;
+                    pos.ty = pos.py / game.config.render.tile.height;
                     pos.txi = Math.floor(pos.tx);
                     pos.tyi = Math.floor(pos.ty);
 
@@ -126,10 +146,9 @@ export default class Game extends Agency.Beacon {
                 await game.render.loadImages(loadEntity);
                 await game.render.loadImages(loadTerrain);
 
-                game.render.makeActive(new RenderGroup(
+                game.render.useGroup(new RenderGroup(
                     game,
-                    game.world.overworld.width * 32,
-                    game.world.overworld.height * 32,
+                    ...game.config.render.tile.calc(game.world.overworld.width, game.world.overworld.height),
                     [
                         new RenderLayer(game.world.overworld.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
                         new RenderLayer(game.world.overworld.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
@@ -141,10 +160,9 @@ export default class Game extends Agency.Beacon {
                     },
                 ), "overworld");
 
-                // game.render.makeActive(new RenderGroup(
+                // game.render.useGroup(new RenderGroup(
                 //     game,
-                //     game.world.arena.width * 32,
-                //     game.world.arena.height * 32,
+                    // ...game.config.render.tile.calc(game.world.arena.width, game.world.arena.height),
                 //     [
                 //         new RenderLayer(game.world.arena.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
                 //         new RenderLayer(game.world.arena.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),

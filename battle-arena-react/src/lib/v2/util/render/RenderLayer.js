@@ -12,9 +12,9 @@ export class RenderLayer extends TileCanvas {
         this.__id = uuidv4();
 
         if(entities instanceof EntityManager) {
-            this.entityMgr = entities;
+            this.entityManager = entities;
         } else {
-            this.entityMgr = new EntityManager(entities);
+            this.entityManager = new EntityManager(entities);
         }
 
         this.painter = painter;
@@ -85,7 +85,7 @@ export class RenderLayer extends TileCanvas {
             this.canvas.height = this.game.render.height;
         }
 
-        for(let entity of this.entityMgr.values) {
+        for(let entity of this.entityManager.values) {
             this.painter.call(this, dt, elapsed, entity);
         }
 
