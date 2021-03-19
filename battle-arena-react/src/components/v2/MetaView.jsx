@@ -19,10 +19,10 @@ export default function MetaView() {
                 beacon={ game }
             /> */}
             {/* <Observable
-                observable={ game.world.entities }
+                observable={ game.world.current.entities }
             /> */}
             {/* <Observer
-                observer={ game.worldObserver }
+                observer={ game.world.currentObserver }
             /> */}
         </Segment>
     )

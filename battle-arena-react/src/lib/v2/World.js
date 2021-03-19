@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import Agency from "@lespantsfancy/agency";
 
 import EntityManager from "./manager/EntityManager";
@@ -13,11 +14,12 @@ import componentHealth from "./data/entity/components/health";
 import componentAction from "./data/entity/components/movement";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
-import findPath from "./util/AStar";
 
 export class World extends Beacon {
     constructor(width, height) {
         super();
+
+        this.__id = uuidv4();
 
         this.width = width;
         this.height = height;
@@ -28,6 +30,10 @@ export class World extends Beacon {
         //TODO Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
         this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
         // this.__nodes = new NodeManager([ width, height ], this.__entities, this.__terrain);
+    }
+
+    get id() {
+        return this.__id;
     }
 
     get entities() {
@@ -133,7 +139,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
 
     world.entities.create([
         [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
-        [ componentPosition, { x: 4, y: 7 } ],
+        [ componentPosition, { world, x: 4, y: 7 } ],
         [ componentHealth, { current: 10, max: 10 } ],
         [ componentAction, {} ],
         [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
@@ -165,7 +171,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
 
     world.entities.createMany(enemyCount, [
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
-        [ componentPosition, { x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
+        [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
         [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
     ], (i) => `enemy-${ i }`);
@@ -173,7 +179,6 @@ export function CreateRandom(width, height, enemyCount = 5) {
     return world;
 }
 
-World.CalculateEdgeMasks = CalculateEdgeMasks;
 World.CreateRandom = CreateRandom;
 
 export default World;

@@ -12,6 +12,8 @@ import Agency from "@lespantsfancy/agency";
     import { drawLayer as createEntityLayer, comparator as entityLayerComparator } from "./data/render/world-entity-layer";
     import { drawLayer as createTerrainLayer, comparator as terrainLayerComparator } from "./data/render/world-terrain-layer";
 import RenderGroup from "./util/render/RenderGroup";
+import WorldManager from "./manager/WorldManager";
+import Arena from "./Arena";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
@@ -41,12 +43,27 @@ export default class Game extends Agency.Beacon {
             Game.Instance = new Game();
             const game = Game.Instance;
 
-            game.world = World.CreateRandom(35, 35, 25);
+            game.world = new WorldManager(game);
+            game.world.register(World.CreateRandom(35, 35, 25), "overworld");
+            game.world.register(
+                Arena.CreateArena(game.world.overworld, 10, 10, {
+                    entities: [
+                        game.world.overworld.entities.player,
+                    ],
+                }),
+                "arena",
+            );
+
+            game.players = new Set();
+            game.players.add(game.world.overworld.entities.player);
+
+            // game.world.current.leave(game.world.overworld.entities.player);
+            // game.world.arena.join(game.world.overworld.entities.player);
 
             // STUB  Async testing
             setTimeout(() => {
-                // const player = game.world.entities.player;
-                // const nodes = game.world.range(
+                // const player = game.world.current.entities.player;
+                // const nodes = game.world.current.range(
                 //     player.position.x,
                 //     player.position.y,
                 //     2,
@@ -75,12 +92,12 @@ export default class Game extends Agency.Beacon {
 
                     if(type === "mouseup") {
                         if(button === 0) {
-                            // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.getTerrain(pos.txi, pos.tyi).terrain.toData()));
-                            console.info(pos.txi, pos.tyi, game.world.node(pos.txi, pos.tyi));
+                            // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
+                            console.info(pos.txi, pos.tyi, game.world.current.node(pos.txi, pos.tyi));
                         } else if(button === 2) {
-                            const player = game.world.entities.player;
+                            const player = game.world.current.entities.player;
                             player.movement.destination = [ pos.txi, pos.tyi ];
-                            player.movement.path = findPath(game.world, [ player.position.x, player.position.y ], player.movement.destination);
+                            player.movement.path = findPath(game.world.current, [ player.position.x, player.position.y ], player.movement.destination);
                         }
                     } else if(type === "mousemove") {
                         game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];
@@ -98,21 +115,21 @@ export default class Game extends Agency.Beacon {
             }, 500);
 
             //STUB  Testing cases for entities
-            // for(let entity of game.world.entities.values) {
+            // for(let entity of game.world.current.entities.values) {
             //     console.log(entity.health.value.rate);
             // }
 
 
             //? Bootstrap the rendering
-            game.render = new RenderManager(game.world.width * 32, game.world.height * 32, { repository: initImageRepository() });
+            game.render = new RenderManager(game, game.world.current.width * 32, game.world.current.height * 32, { repository: initImageRepository() });
             (async () => {
                 //  Load Images
-                await game.render.loadImages(game, loadEntity);
-                await game.render.loadImages(game, loadTerrain);
+                await game.render.loadImages(loadEntity);
+                await game.render.loadImages(loadTerrain);
 
-                game.render.addLayer(new RenderLayer(game.world.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }));
-                game.render.addLayer(new RenderLayer(game.world.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }));
-                game.render.addLayer(new RenderLayer([], { config: { clearBeforeDraw: true } }));
+                game.render.addGroup(new RenderLayer(game.world.current.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }));
+                game.render.addGroup(new RenderLayer(game.world.current.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }));
+                game.render.addGroup(new RenderLayer([], { config: { clearBeforeDraw: true } }));
     
                 game.render.eraseFirst();
                 game.render.onDraw = (dt, elapsed) => {
@@ -171,7 +188,7 @@ export default class Game extends Agency.Beacon {
                 game.render.getLayer(2).addHook(function(dt, elapsed) {
                     if(game.config.SHOW_UI) {
                         this.save();
-                        const player = game.world.entities.player;
+                        const player = game.world.current.entities.player;
                         const path = player.movement.path || [];
                         const [ x, y ] = player.movement.destination || [];
 
@@ -203,7 +220,7 @@ export default class Game extends Agency.Beacon {
             game.on("next", (type, { dt, now }) => {
                 if(type === "tick") {
                     const now = Date.now();
-                    for(let entity of game.world.entities.values) {
+                    for(let entity of game.world.current.entities.values) {
                         if(now - entity.turn.timeout >= game.config.GCD) {
                             entity.turn.current(entity);
                             entity.turn.timeout = now;

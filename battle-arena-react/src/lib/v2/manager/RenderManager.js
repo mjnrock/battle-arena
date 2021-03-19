@@ -3,8 +3,10 @@ import LayeredCanvas from "./../util/render/LayeredCanvas";
 import ImageRegistry from "../util/render/ImageRegistry";
 
 export class RenderManager extends LayeredCanvas {
-    constructor(width, height, { groups = [], repository } = {}) {
+    constructor(game, width, height, { groups = [], repository } = {}) {
         super({ width, height });
+
+        this.__game = game;
 
         this.repository = repository;
 
@@ -13,8 +15,12 @@ export class RenderManager extends LayeredCanvas {
         }
     }
 
-    async loadImages(game, fn, ...args) {
-        return await fn.call(this, game, ...args);
+    get game() {
+        return this.__game;
+    }
+
+    async loadImages(fn, ...args) {
+        return await fn.call(this, this.game, ...args);
     }
 
     addGroup(group) {

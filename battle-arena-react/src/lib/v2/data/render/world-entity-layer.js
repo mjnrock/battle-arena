@@ -8,7 +8,7 @@ export function comparator(data = {}, oldData = {}) {
 export async function drawLayer(dt, elapsed, entity) {
     const prog = ((Date.now() - entity.turn.timeout) % this.game.config.GCD) / this.game.config.GCD;      // % this.game.config.GCD hides information and should only be used for testing
             
-    //STUB  Dynamically add <Sprite(s)> // const sprite = new SpriteStack([ this.sprite({ entity: entity }), this.sprite({ entity: this.game.world.entities[ `player` ] }) ]);
+    //STUB  Dynamically add <Sprite(s)> // const sprite = new SpriteStack([ this.sprite({ entity: entity }), this.sprite({ entity: this.game.world.current.entities[ `player` ] }) ]);
     const spriteSheet = this.game.render.sprite("entity", { entity: entity });
 
     if (spriteSheet) {

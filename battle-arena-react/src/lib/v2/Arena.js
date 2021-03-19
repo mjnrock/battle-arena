@@ -1,4 +1,9 @@
-import World, { CalculateEdgeMasks } from "./World";
+import World from "./World";
+
+import componentPosition from "./data/entity/components/position";
+import componentTurn from "./data/entity/components/turn";
+import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
+import { CalculateEdgeMasks } from "./data/render/edges";
 
 export class Arena extends World {
     constructor(overworld, width, height) {
