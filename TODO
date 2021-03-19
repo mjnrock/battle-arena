@@ -5,14 +5,14 @@ World:
     Render:
         [] Attach rendering view to .current
             RenderManager:
-                [] Use <RenderGroup> to hold all <World> layers
+                ✔ Use <RenderGroup> to hold all <World> layers @done(21-03-19 10:18)
                 [] Create a registry between a <RenderGroup> and a <World>
                     [] Consider <Arena> to be a separate <World>
                 [] Listen to <WorldManager> to determine which <World> should be rendered
             RenderGroup:
                 [] Make this the "root" for a given world
                 [] .start/.stop whenever a <RenderGroup> is swapped
-                [] Attach <Game> to the <RenderGroup>
+                ✔ Attach <Game> to the <RenderGroup> @done(21-03-19 10:18)
             RenderLayer:
                 [] Come up with a better paradigm for hook management
         [] Smoothly transition movement from one tile to the next

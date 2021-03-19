@@ -54,26 +54,24 @@ export default class Game extends Agency.Beacon {
                 "arena",
             );
 
-            game.players = new Set();
-            game.players.add(game.world.overworld.entities.player);
-
-            // game.world.current.leave(game.world.overworld.entities.player);
-            // game.world.arena.join(game.world.overworld.entities.player);
+            game.players = new Map();
+            game.players.set(0, game.world.overworld.entities.player);
 
             // STUB  Async testing
             setTimeout(() => {
-                // const player = game.world.current.entities.player;
-                // const nodes = game.world.current.range(
-                //     player.position.x,
-                //     player.position.y,
-                //     2,
-                //     2,
-                //     { asGrid: true, centered: true }
-                // );
+                //NOTE  Change the World at interval
+                // let bool = true;
+                // setInterval(() => {
+                //     if(bool) {
+                //         game.world.current.leave(game.world.overworld.entities.player);
+                //         game.world.arena.join(game.world.overworld.entities.player);
+                //     } else {
+                //         game.world.arena.leave(game.world.overworld.entities.player);
+                //         game.world.current.join(game.world.overworld.entities.player);
+                //     }
 
-                // game.loop.subject.stop()
-
-                // console.log(nodes);
+                //     bool = !bool;
+                // }, 2500);
 
                 //TODO  Move this somewhere more appropriate--currently requires async to compensate for mount times
                 Agency.EventObservable.GetRef(game.render.canvas).on("next", (type, { data }) => {
@@ -95,7 +93,8 @@ export default class Game extends Agency.Beacon {
                             // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
                             console.info(pos.txi, pos.tyi, game.world.current.node(pos.txi, pos.tyi));
                         } else if(button === 2) {
-                            const player = game.world.current.entities.player;
+                            const player = game.players.get(0);
+                            // const player = game.world.current.entities.player;
                             player.movement.destination = [ pos.txi, pos.tyi ];
                             player.movement.path = findPath(game.world.current, [ player.position.x, player.position.y ], player.movement.destination);
                         }
@@ -121,22 +120,48 @@ export default class Game extends Agency.Beacon {
 
 
             //? Bootstrap the rendering
-            game.render = new RenderManager(game, game.world.current.width * 32, game.world.current.height * 32, { repository: initImageRepository() });
+            game.render = new RenderManager(game, { repository: initImageRepository() });
             (async () => {
                 //  Load Images
                 await game.render.loadImages(loadEntity);
                 await game.render.loadImages(loadTerrain);
 
-                game.render.addGroup(new RenderLayer(game.world.current.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }));
-                game.render.addGroup(new RenderLayer(game.world.current.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }));
-                game.render.addGroup(new RenderLayer([], { config: { clearBeforeDraw: true } }));
+                game.render.makeActive(new RenderGroup(
+                    game,
+                    game.world.overworld.width * 32,
+                    game.world.overworld.height * 32,
+                    [
+                        new RenderLayer(game.world.overworld.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
+                        new RenderLayer(game.world.overworld.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
+                        new RenderLayer([], { config: { clearBeforeDraw: true } }),
+                    ],
+                    {
+                        tw: 32,
+                        th: 32,
+                    },
+                ), "overworld");
+
+                // game.render.makeActive(new RenderGroup(
+                //     game,
+                //     game.world.arena.width * 32,
+                //     game.world.arena.height * 32,
+                //     [
+                //         new RenderLayer(game.world.arena.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
+                //         new RenderLayer(game.world.arena.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
+                //         new RenderLayer([], { config: { clearBeforeDraw: true } }),
+                //     ],
+                //     {
+                //         tw: 32,
+                //         th: 32,
+                //     },
+                // ));
     
                 game.render.eraseFirst();
                 game.render.onDraw = (dt, elapsed) => {
                     game.render.drawLayers();
                 };
             
-                game.render.getLayer(2).addHook(function(dt, elapsed) {
+                game.render.groups.overworld.getLayer(2).addHook(function(dt, elapsed) {
                     if(game.config.SHOW_UI) {
                         this.save();
                             let mouse = {
@@ -185,10 +210,11 @@ export default class Game extends Agency.Beacon {
                         this.restore();
                     }
                 });
-                game.render.getLayer(2).addHook(function(dt, elapsed) {
+                game.render.groups.overworld.getLayer(2).addHook(function(dt, elapsed) {
                     if(game.config.SHOW_UI) {
                         this.save();
-                        const player = game.world.current.entities.player;
+                        const player = game.players.get(0);
+                        // const player = game.world.current.entities.player;
                         const path = player.movement.path || [];
                         const [ x, y ] = player.movement.destination || [];
 

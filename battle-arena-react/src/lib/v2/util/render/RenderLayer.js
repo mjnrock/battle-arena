@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from "uuid";
+
 import EntityManager from "./../../manager/EntityManager";
 import TileCanvas from "./TileCanvas";
 
@@ -6,6 +8,8 @@ import Game from "./../../Game";
 export class RenderLayer extends TileCanvas {
     constructor(entities = [], { game, painter, comparator, tw = 32, th = 32, config = {} } = {}) {
         super(tw, th);
+
+        this.__id = uuidv4();
 
         if(entities instanceof EntityManager) {
             this.entityMgr = entities;
@@ -30,6 +34,9 @@ export class RenderLayer extends TileCanvas {
         this.start();
     }
 
+    get id() {
+        return this.__id;
+    }
     get game() {
         return this.__game || Game.$;
     }
