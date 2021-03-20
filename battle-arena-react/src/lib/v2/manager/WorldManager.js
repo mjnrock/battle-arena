@@ -36,7 +36,7 @@ export class WorldManager {
 
     get current() {
         if(this.game) {
-            const player = this.game.players.subject.player;
+            const player = this.game.players.player;
             
             if(player) {
                 return this.worlds[ player.position.world ];

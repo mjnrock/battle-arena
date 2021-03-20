@@ -20,8 +20,8 @@ import Agency from "@lespantsfancy/agency";
 import RenderGroup from "./util/render/RenderGroup";
 import WorldManager from "./manager/WorldManager";
 import Arena from "./Arena";
-import EntityManager from "./manager/EntityManager";
-import Observer from "./util/Observer";
+import PlayerManager from "./manager/PlayerManager";
+import Entity from "./Entity";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
@@ -30,7 +30,7 @@ export default class Game extends Agency.Beacon {
         super(false);
         
         this.loop = Agency.Pulse.SubjectFactory(fps, { autostart: false });
-        this.players = new Observer(new EntityManager());
+        this.players = new PlayerManager();
 
         this.config = {
             GCD,
@@ -71,7 +71,7 @@ export default class Game extends Agency.Beacon {
                 "arena",
             );
 
-            game.players.subject.create([
+            const player = Entity.FromSchema([
                 [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
                 [ componentPosition, { x: 4, y: 7 } ],
                 [ componentHealth, { current: 10, max: 10 } ],
@@ -101,24 +101,24 @@ export default class Game extends Agency.Beacon {
                         // game.world.get("overworld").PLAYER_PATH = entity.movement.path;
                     }
                 } } ],
-            ], "player");
-            game.world.get("overworld").join(game.players.subject.player);
+            ]);
+            game.world.get("overworld").join(player);
 
-            game.players.on("next", (...args) => console.log(...args))
+            game.players.add(player);
+            game.players.on("position.x", (...args) => console.log(...args))
 
             // STUB  Async testing
             setTimeout(() => {
-
                 //STUB  Change the World at interval
                 let bool = true;
                 setInterval(() => {
                     if(bool) {
-                        game.world.migrate(game.players.subject.player, "arena");
+                        game.world.migrate(game.players.player, "arena");
 
                         game.render.width = game.world.get("arena").width * 32;
                         game.render.height = game.world.get("arena").height * 32;
                     } else {
-                        game.world.migrate(game.players.subject.player, "overworld");
+                        game.world.migrate(game.players.player, "overworld");
 
                         game.render.width = game.world.get("overworld").width * 32;
                         game.render.height = game.world.get("overworld").height * 32;
@@ -158,7 +158,7 @@ export default class Game extends Agency.Beacon {
                             // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
                             console.info(pos.txi, pos.tyi, game.world.current.node(pos.txi, pos.tyi));
                         } else if(button === 2) {
-                            const player = game.players.subject.player;
+                            const player = game.players.player;
                             // const player = game.world.current.entities.player;
                             player.movement.destination = [ pos.txi, pos.tyi ];
                             player.movement.path = findPath(game.world.current, [ player.position.x, player.position.y ], player.movement.destination);
@@ -276,7 +276,7 @@ export default class Game extends Agency.Beacon {
                 game.render.groups.overworld.getLayer(2).addHook(function(dt, elapsed) {
                     if(game.config.SHOW_UI) {
                         this.save();
-                        const player = game.players.subject.player;
+                        const player = game.players.player;
                         // const player = game.world.current.entities.player;
                         const path = player.movement.path || [];
                         const [ x, y ] = player.movement.destination || [];
