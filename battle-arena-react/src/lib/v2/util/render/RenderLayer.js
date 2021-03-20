@@ -11,11 +11,7 @@ export class RenderLayer extends TileCanvas {
 
         this.__id = uuidv4();
 
-        if(entities instanceof EntityManager) {
-            this.entityManager = entities;
-        } else {
-            this.entityManager = new EntityManager(entities);
-        }
+        this.entityManager = entities;  // trapped
 
         this.painter = painter;
         this.comparator = comparator;
@@ -45,6 +41,20 @@ export class RenderLayer extends TileCanvas {
     }
     get hooks() {
         return this.__hooks;
+    }
+
+    get entityManager() {
+        return this.__entityManager;
+    }
+    set entityManager(value) {
+        if(value instanceof EntityManager) {
+            this.__entityManager = value;
+        } else if(Array.isArray(value)) {
+            this.__entityManager = new EntityManager(value);
+        }
+
+        this.__cache = new Map();
+        this.clear();
     }
 
     get(key) {

@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import EntityManager from "../../manager/EntityManager";
 
 import LayeredCanvas from "./LayeredCanvas";
 import RenderLayer from "./RenderLayer";
@@ -17,6 +18,27 @@ export class RenderGroup extends LayeredCanvas {
         }
 
         this.drawLayers();
+    }
+
+    setEntityManager(layerKey, entityMgr) {
+        const layer = this.stack.get(layerKey);
+
+        if(layer instanceof RenderLayer && (entityMgr instanceof EntityManager || Array.isArray(entityMgr))) {
+            layer.entityManager = entityMgr;
+        }
+
+        return this;
+    }
+    setEntityManagers(layerKeys = [], entityMgrs = []) {
+        if(layerKeys.length !== entityMgrs.length) {
+            return false;
+        }
+
+        for(let i = 0; i < layerKeys.length; i++) {
+            this.setEntityManager(layerKeys[ i ], entityMgrs[ i ]);
+        }
+
+        return this;
     }
 
     get id() {

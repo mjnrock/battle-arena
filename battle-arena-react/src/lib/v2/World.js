@@ -58,6 +58,8 @@ export class World extends Beacon {
             return false;
         }
 
+        entity.position.world = this.id;
+
         this.entities.register(entity, ...synonyms);
 
         this.__nodes.__joinNode(entity);
@@ -66,6 +68,8 @@ export class World extends Beacon {
     }
     leave(entity) {
         this.entities.unregister(entity);
+
+        entity.position.world = null;
 
         if(!this.__nodes.__leaveNode(entity)) {
             this.__nodes.__clearFromNodes(entity);
@@ -136,38 +140,6 @@ export function CreateRandom(width, height, enemyCount = 5) {
     }
     
     CalculateEdgeMasks(world);
-
-    world.entities.create([
-        [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
-        [ componentPosition, { world, x: 4, y: 7 } ],
-        [ componentHealth, { current: 10, max: 10 } ],
-        [ componentAction, {} ],
-        [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-            if(entity.movement.path.length) {
-                const [ x, y ] = entity.movement.path.shift();
-                const { x: ox, y: oy } = entity.position;
-
-                entity.position.x = x;
-                entity.position.y = y;
-
-                if(x !== ox) {
-                    if(x > ox) {
-                        entity.position.facing = 90;
-                    } else if(x < ox) {
-                        entity.position.facing = 270;
-                    }
-                } else if(y !== oy) {
-                    if(y > oy) {
-                        entity.position.facing = 180;
-                    } else if(y < oy) {
-                        entity.position.facing = 0;
-                    }
-                } 
-    
-                world.PLAYER_PATH = entity.movement.path;
-            }
-        } } ],
-    ], "player");
 
     world.entities.createMany(enemyCount, [
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],

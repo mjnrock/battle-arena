@@ -23,7 +23,8 @@ export function CreateArena(overworld, width, height, { schemaArray = [], enemyC
     for(let x = 0; x < arena.width; x++) {
         for(let y = 0; y < arena.height; y++) {
             arena.terrain.create([
-                [ componentTerrain, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT ],
+                // [ componentTerrain, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT ],
+                [ componentTerrain, DictTerrain.DIRT ],
                 [ componentPosition, { x, y, facing: 0 } ],
                 [ componentTurn, { timeout: 0 } ],
             ], `${ x }.${ y }`);

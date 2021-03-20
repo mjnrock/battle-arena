@@ -3,6 +3,7 @@ import LayeredCanvas from "./../util/render/LayeredCanvas";
 
 import ImageRegistry from "../util/render/ImageRegistry";
 import Registry from "../util/Registry";
+import Observer from "../util/Observer";
 
 export class RenderManager extends LayeredCanvas {
     constructor(game, { groups = [], repository } = {}) {
@@ -55,10 +56,9 @@ export class RenderManager extends LayeredCanvas {
 
         this.addLayer(group);
 
-
         return this;
     }
-
+    
     sprite(root, ...coords) {
         const repo = this.repository.get(root);
 

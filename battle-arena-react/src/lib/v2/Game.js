@@ -11,9 +11,17 @@ import Agency from "@lespantsfancy/agency";
 
     import { drawLayer as createEntityLayer, comparator as entityLayerComparator } from "./data/render/world-entity-layer";
     import { drawLayer as createTerrainLayer, comparator as terrainLayerComparator } from "./data/render/world-terrain-layer";
+    
+    import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
+    import componentPosition from "./data/entity/components/position";
+    import componentTurn from "./data/entity/components/turn";
+    import componentHealth from "./data/entity/components/health";
+    import componentAction from "./data/entity/components/movement";
 import RenderGroup from "./util/render/RenderGroup";
 import WorldManager from "./manager/WorldManager";
 import Arena from "./Arena";
+import EntityManager from "./manager/EntityManager";
+import Observer from "./util/Observer";
 //STUB END "Imports"
 
 export default class Game extends Agency.Beacon {
@@ -22,6 +30,7 @@ export default class Game extends Agency.Beacon {
         super(false);
         
         this.loop = Agency.Pulse.SubjectFactory(fps, { autostart: false });
+        this.players = new Observer(new EntityManager());
 
         this.config = {
             GCD,
@@ -52,46 +61,82 @@ export default class Game extends Agency.Beacon {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.register(World.CreateRandom(35, 35, 25), "overworld");
-            game.world.register(
-                Arena.CreateArena(game.world.overworld, 10, 10, {
+            game.world.add(World.CreateRandom(35, 35, 25), "overworld");
+            game.world.add(
+                Arena.CreateArena(game.world.get("overworld"), 10, 10, {
                     entities: [
-                        game.world.overworld.entities.player,
+                        game.world.get("overworld").entities.player,
                     ],
                 }),
                 "arena",
             );
 
-            game.players = new Map();
-            game.players.set(0, game.world.overworld.entities.player);
+            game.players.subject.create([
+                [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
+                [ componentPosition, { x: 4, y: 7 } ],
+                [ componentHealth, { current: 10, max: 10 } ],
+                [ componentAction, {} ],
+                [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
+                    if(entity.movement.path.length) {
+                        const [ x, y ] = entity.movement.path.shift();
+                        const { x: ox, y: oy } = entity.position;
+        
+                        entity.position.x = x;
+                        entity.position.y = y;
+        
+                        if(x !== ox) {
+                            if(x > ox) {
+                                entity.position.facing = 90;
+                            } else if(x < ox) {
+                                entity.position.facing = 270;
+                            }
+                        } else if(y !== oy) {
+                            if(y > oy) {
+                                entity.position.facing = 180;
+                            } else if(y < oy) {
+                                entity.position.facing = 0;
+                            }
+                        } 
+            
+                        // game.world.get("overworld").PLAYER_PATH = entity.movement.path;
+                    }
+                } } ],
+            ], "player");
+            game.world.get("overworld").join(game.players.subject.player);
+
+            game.players.on("next", (...args) => console.log(...args))
 
             // STUB  Async testing
             setTimeout(() => {
-                //NOTE  Change the World at interval
+
+                //STUB  Change the World at interval
                 let bool = true;
                 setInterval(() => {
                     if(bool) {
-                        game.world.overworld.leave(game.players.get(0));
-                        game.world.arena.join(game.players.get(0));
+                        game.world.migrate(game.players.subject.player, "arena");
 
-                        game.render.current.getLayer(0).entityManager = game.world.arena.terrain;
-                        game.render.current.getLayer(1).entityManager = game.world.arena.entities;
-
-                        game.render.width = game.world.arena.width * 32;
-                        game.render.height = game.world.arena.height * 32;
+                        game.render.width = game.world.get("arena").width * 32;
+                        game.render.height = game.world.get("arena").height * 32;
                     } else {
-                        game.world.arena.leave(game.players.get(0));
-                        game.world.overworld.join(game.players.get(0));
+                        game.world.migrate(game.players.subject.player, "overworld");
 
-                        game.render.current.getLayer(0).entityManager = game.world.overworld.terrain;
-                        game.render.current.getLayer(1).entityManager = game.world.overworld.entities;
-
-                        game.render.width = game.world.overworld.width * 32;
-                        game.render.height = game.world.overworld.height * 32;
+                        game.render.width = game.world.get("overworld").width * 32;
+                        game.render.height = game.world.get("overworld").height * 32;
                     }
+
+                    game.render.current.setEntityManagers([
+                        0,
+                        1,
+                    ], [
+                        game.world.current.terrain,
+                        game.world.current.entities,
+                    ]).clear().drawLayers();
 
                     bool = !bool;
                 }, 2500);
+
+
+
 
                 //TODO  Move this somewhere more appropriate--currently requires async to compensate for mount times
                 Agency.EventObservable.GetRef(game.render.canvas).on("next", (type, { data }) => {
@@ -113,7 +158,7 @@ export default class Game extends Agency.Beacon {
                             // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
                             console.info(pos.txi, pos.tyi, game.world.current.node(pos.txi, pos.tyi));
                         } else if(button === 2) {
-                            const player = game.players.get(0);
+                            const player = game.players.subject.player;
                             // const player = game.world.current.entities.player;
                             player.movement.destination = [ pos.txi, pos.tyi ];
                             player.movement.path = findPath(game.world.current, [ player.position.x, player.position.y ], player.movement.destination);
@@ -148,10 +193,10 @@ export default class Game extends Agency.Beacon {
 
                 game.render.useGroup(new RenderGroup(
                     game,
-                    ...game.config.render.tile.calc(game.world.overworld.width, game.world.overworld.height),
+                    ...game.config.render.tile.calc(game.world.get("overworld").width, game.world.get("overworld").height),
                     [
-                        new RenderLayer(game.world.overworld.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
-                        new RenderLayer(game.world.overworld.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
+                        new RenderLayer(game.world.get("overworld").terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
+                        new RenderLayer(game.world.get("overworld").entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
                         new RenderLayer([], { config: { clearBeforeDraw: true } }),
                     ],
                     {
@@ -162,10 +207,10 @@ export default class Game extends Agency.Beacon {
 
                 // game.render.useGroup(new RenderGroup(
                 //     game,
-                    // ...game.config.render.tile.calc(game.world.arena.width, game.world.arena.height),
+                    // ...game.config.render.tile.calc(game.world.get("arena").width, game.world.get("arena").height),
                 //     [
-                //         new RenderLayer(game.world.arena.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
-                //         new RenderLayer(game.world.arena.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
+                //         new RenderLayer(game.world.get("arena").terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
+                //         new RenderLayer(game.world.get("arena").entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
                 //         new RenderLayer([], { config: { clearBeforeDraw: true } }),
                 //     ],
                 //     {
@@ -231,7 +276,7 @@ export default class Game extends Agency.Beacon {
                 game.render.groups.overworld.getLayer(2).addHook(function(dt, elapsed) {
                     if(game.config.SHOW_UI) {
                         this.save();
-                        const player = game.players.get(0);
+                        const player = game.players.subject.player;
                         // const player = game.world.current.entities.player;
                         const path = player.movement.path || [];
                         const [ x, y ] = player.movement.destination || [];
