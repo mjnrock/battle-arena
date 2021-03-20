@@ -17,7 +17,7 @@ export const repository = (root) => new Agency.Util.CrossMap([
                 return new ImageRegistry(EntityTemplate, {
                     seedFn: () => new SpriteSheet(),
                     lookupFns: [
-                        ({ entity }) => "bunny",
+                        ({ entity }) => entity.meta.type,
                         ({ entity }) => 0,
                         ({ entity }) => Math.floor(entity.position.facing / 90) * 90,
                     ]

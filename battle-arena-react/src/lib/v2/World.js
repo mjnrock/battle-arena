@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import Agency from "@lespantsfancy/agency";
 
 import EntityManager from "./manager/EntityManager";
@@ -6,17 +7,19 @@ import { hasPosition as hasComponentPosition } from "./data/entity/components/po
 import Beacon from "./util/Beacon";
 import NodeManager from "./manager/NodeManager";
 
+import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
 import componentPosition from "./data/entity/components/position";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
 import componentAction from "./data/entity/components/movement";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
-import findPath from "./util/AStar";
 
 export class World extends Beacon {
     constructor(width, height) {
         super();
+
+        this.__id = uuidv4();
 
         this.width = width;
         this.height = height;
@@ -27,6 +30,10 @@ export class World extends Beacon {
         //TODO Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
         this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
         // this.__nodes = new NodeManager([ width, height ], this.__entities, this.__terrain);
+    }
+
+    get id() {
+        return this.__id;
     }
 
     get entities() {
@@ -51,12 +58,18 @@ export class World extends Beacon {
             return false;
         }
 
+        entity.position.world = this.id;
+
         this.entities.register(entity, ...synonyms);
+
+        this.__nodes.__joinNode(entity);
 
         return true;
     }
     leave(entity) {
         this.entities.unregister(entity);
+
+        entity.position.world = null;
 
         if(!this.__nodes.__leaveNode(entity)) {
             this.__nodes.__clearFromNodes(entity);
@@ -111,7 +124,7 @@ export class World extends Beacon {
     getTerrain(x, y) {
         return this.terrain[ `${ x }.${ y }`];
     }
-}
+};
 
 export function CreateRandom(width, height, enemyCount = 5) {
     const world = new World(width, height);
@@ -119,56 +132,25 @@ export function CreateRandom(width, height, enemyCount = 5) {
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
             world.terrain.create([
-                [ componentTerrain, Math.random() >= 0.50 ? DictTerrain.GRASS : DictTerrain.DIRT ],
+                [ componentTerrain, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT ],
                 [ componentPosition, { x, y, facing: 0 } ],
-                [ componentTurn, { timeoutStart: 0 } ],
+                [ componentTurn, { timeout: 0 } ],
             ], `${ x }.${ y }`);
         }
     }
     
     CalculateEdgeMasks(world);
 
-    world.entities.create([
-        [ componentPosition, { x: 4, y: 7 } ],
-        [ componentHealth, { current: 10, max: 10 } ],
-        [ componentAction, {} ],
-        [ componentTurn, { timeoutStart: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-            if(entity.movement.path.length) {
-                const [ x, y ] = entity.movement.path.shift();
-                const { x: ox, y: oy } = entity.position;
-
-                entity.position.x = x;
-                entity.position.y = y;
-
-                if(x !== ox) {
-                    if(x > ox) {
-                        entity.position.facing = 90;
-                    } else if(x < ox) {
-                        entity.position.facing = 270;
-                    }
-                } else if(y !== oy) {
-                    if(y > oy) {
-                        entity.position.facing = 180;
-                    } else if(y < oy) {
-                        entity.position.facing = 0;
-                    }
-                } 
-    
-                world.PLAYER_PATH = entity.movement.path;
-            }
-        } } ],
-    ], "player");
-
     world.entities.createMany(enemyCount, [
-        [ componentPosition, { x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
+        [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
+        [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
-        [ componentTurn, { timeoutStart: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
+        [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
     ], (i) => `enemy-${ i }`);
 
     return world;
 }
 
-World.CalculateEdgeMasks = CalculateEdgeMasks;
 World.CreateRandom = CreateRandom;
 
 export default World;

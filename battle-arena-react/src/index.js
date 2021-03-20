@@ -4,6 +4,7 @@ import App from "./App";
 
 import "./css/tachyons.min.css";
 import "semantic-ui-css/semantic.min.css";
+import "./css/main.css";
 // import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(

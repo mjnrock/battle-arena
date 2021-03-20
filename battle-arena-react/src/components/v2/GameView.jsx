@@ -14,10 +14,8 @@ export default function GameView() {
     }
 
     return (
-        <Segment textAlign="center">
-            <Canvas
-                canvas={ game.render }
-            />
+        <Segment textAlign="center" inverted basic>
+            <Canvas canvas={ game.render } />
         </Segment>
     )
 }

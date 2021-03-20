@@ -2,13 +2,14 @@
 const _name = "movement";
 
 export const schema = {
-    [ _name ]: ({ destination = [], path = [] } = {}) => ({
+    [ _name ]: ({ destination = [], path = [], range = 1 } = {}) => ({
         destination,
         path,
+        range,
     }),
 };
 
-export function hasAction(entity = {}) {
+export function hasMovement(entity = {}) {
     return _name in entity;
 }
 

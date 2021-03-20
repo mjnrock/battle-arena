@@ -24,7 +24,7 @@
                 //         ctx.drawImage(image, 0, 0);
                         
                 //         let neighbors = dirs.map(([ dx, dy, theta ]) => {
-                //             let neigh = game.world.terrain[ `${ terrain.position.x + dx }.${ terrain.position.y + dy }` ];
+                //             let neigh = game.world.current.terrain[ `${ terrain.position.x + dx }.${ terrain.position.y + dy }` ];
     
                 //             if(neigh && neigh.terrain.type === DictTerrain.GRASS.type) {
                 //                 if(theta === 0) {

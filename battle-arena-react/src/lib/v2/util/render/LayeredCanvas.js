@@ -27,6 +27,21 @@ export default class LayeredCanvas extends TileCanvas {
         return this;
     }
 
+    startAll() {
+        this.stack.forEach(ccanvas => ccanvas.start());
+
+        return this;
+    }
+    stopAll() {
+        this.stack.forEach(ccanvas => ccanvas.stop());
+
+        return this;
+    }
+
+    removeAllLayers() {
+        this.stack = new Map();
+    }
+
     swapLayers(key1, key2) {
         const temp = this.stack.get(key1);
 
@@ -54,7 +69,13 @@ export default class LayeredCanvas extends TileCanvas {
             drawImageArgs = [ 0, 0 ];
         }
         
-        this.stack.forEach(ccanvas => this.ctx.drawImage(ccanvas.canvas, ...drawImageArgs));
+        this.stack.forEach(ccanvas => {
+            if(ccanvas instanceof LayeredCanvas) {
+                ccanvas.drawLayers(...drawImageArgs);
+            }
+
+            this.ctx.drawImage(ccanvas.canvas, ...drawImageArgs);
+        });
 
         return this;
     }

@@ -12,17 +12,17 @@ export default function MetaView() {
     }
 
     return (
-        <Segment textAlign="center">
-            <Header style={{ fontFamily: "monospace" }} as="h3" textAlign="center">Meta Data</Header>
+        <Segment textAlign="center" inverted basic>
+            {/* <Header style={{ fontFamily: "monospace" }} as="h3" textAlign="center">Meta Data</Header> */}
 
             {/* <Beacon
                 beacon={ game }
             /> */}
             {/* <Observable
-                observable={ game.world.entities }
+                observable={ game.world.current.entities }
             /> */}
             {/* <Observer
-                observer={ game.worldObserver }
+                observer={ game.world.currentObserver }
             /> */}
         </Segment>
     )
