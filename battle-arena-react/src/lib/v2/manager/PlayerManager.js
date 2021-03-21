@@ -1,19 +1,42 @@
 import Agency from "@lespantsfancy/agency";
 
-export class PlayerManager extends Agency.Beacon {
+import Registry from "./../util/Registry";
+import Watcher from "./../util/Watcher";
+
+// export class PlayerManager extends Watcher {
+//     constructor(players = []) {
+//         super([], {}, { deep: false });
+
+//         this.players = new Registry();
+
+//         this.add(...players);
+//     }
+
+//     add(...players) {
+//         for(let i = 0; i < players.length; i++) {
+//             const player = players[ i ];
+            
+//             if(!this.players.size && i === 0) {
+//                 this.players.register(player, "player");
+//             } else {
+//                 this.players.register(player);
+//             }
+
+//             player.$.subscribe(this);
+//         }
+//     }
+// }
+export class PlayerManager extends Registry {
     constructor(players = []) {
-        super();
+        super({}, { deep: true });
 
-        this.__players = [];
-    }
+        for(let i = 0; i < players.length; i++) {
+            const player = players[ i ];
+            
+            this.register(player);
 
-    add(player) {
-        this.attach(player);
-        this.__players.push(player);
-    }
-
-    get player() {
-        return this.__players[ 0 ];
+            // player.$.subscribe(this);
+        }
     }
 }
 

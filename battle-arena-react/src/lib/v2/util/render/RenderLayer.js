@@ -34,7 +34,7 @@ export class RenderLayer extends TileCanvas {
         return this.__id;
     }
     get game() {
-        return this.__game || Game.$;
+        return this.__game || Game._;
     }
     get cache() {
         return this.__cache;

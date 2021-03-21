@@ -1,16 +1,15 @@
-import { v4 as uuidv4, validate } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import Agency from "@lespantsfancy/agency";
 
-import Registry from "./../util/Registry";
-import { hasPosition } from "../data/entity/components/position";
 import World from "../World";
+import { hasPosition } from "../data/entity/components/position";
 
 export class WorldManager {
     constructor(game) {
         this.__id = uuidv4();
         this.__game = game;
 
-        this.worlds = new Registry();
+        this.worlds = new Agency.Registry();
     }
 
     add(world, ...synonyms) {

@@ -1,19 +1,21 @@
 import Agency from "@lespantsfancy/agency";
 
-import Beacon from "./../util/Beacon";
-
-export class NodeManager extends Beacon {
-    constructor(size = [ 1, 1 ], ...observers) {
+export class NodeManager extends Agency.Watcher {
+    constructor(size = [ 1, 1 ], ...watchables) {
         super();
         
         this.__cache = {};
         this.nodes = Agency.Util.CrossMap.CreateGrid([ ...size ], { seedFn: () => new Set() });
 
-        this.on("position.x", (value, entity) => this.__moveToNode(entity));
-        this.on("position.y", (value, entity) => this.__moveToNode(entity));
+        this.$.subscribe(function(prop, value) {
+            console.log(this);
+            // if([ "position.x", "position.y" ].includes(prop)) {
+            //     (value, entity) => this.__moveToNode(entity);
+            // }
+        })
 
-        for(let observer of observers) {
-            this.attach(observer);
+        for(let watchable of watchables) {
+            watchable.$.subscribe(this);
         }
     }
 

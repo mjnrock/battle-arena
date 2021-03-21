@@ -1,10 +1,8 @@
-// import Observable from "./Observable";
-// export class Entity extends Observable {
-
 import Agency from "@lespantsfancy/agency";
+import Watchable from "./util/Watchable";
 
 import Component from "./Component";
-export class Entity extends Agency.Observable {
+export class Entity extends Watchable {
     constructor() {
         super();
     }

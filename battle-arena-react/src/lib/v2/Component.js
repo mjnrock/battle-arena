@@ -1,22 +1,14 @@
 import Agency from "@lespantsfancy/agency";
+import Watchable from "./util/Watchable";
 
-export class Component extends Agency.Context {
-    constructor(opts = {}) {
-        super({
-            deep: false,
-            ...opts,
-        });
+export class Component extends Watchable {
+    constructor(state = {}, opts = {}) {
+        super(state, { deep: false, ...opts });
     }
 }
 
 export function Factory(state = {}, opts) {
-    const comp = new Component(opts);
-
-    for(let [ key, value ] of Object.entries(state)) {
-        comp[ key ] = value;
-    }
-
-    return comp;
+    return new Component(state, opts);
 }
 
 export function FromSchema(schema, argObj = {}) {

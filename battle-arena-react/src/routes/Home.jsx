@@ -3,13 +3,13 @@ import React from "react";
 import { Segment } from "semantic-ui-react";
 
 import GameView from "../components/v2/GameView";
-import MetaView from "../components/v2/MetaView";
+// import MetaView from "../components/v2/MetaView";
 
 export default function Home() {
     return (
         <Segment textAlign="center" inverted basic>
             <GameView />
-            <MetaView />
+            {/* <MetaView /> */}
         </Segment>
     )
 }

@@ -1,9 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
-import LayeredCanvas from "./../util/render/LayeredCanvas";
+import Agency from "@lespantsfancy/agency";
 
+import LayeredCanvas from "./../util/render/LayeredCanvas";
 import ImageRegistry from "../util/render/ImageRegistry";
-import Registry from "../util/Registry";
-import Observer from "../util/Observer";
 
 export class RenderManager extends LayeredCanvas {
     constructor(game, { groups = [], repository } = {}) {
@@ -14,7 +13,7 @@ export class RenderManager extends LayeredCanvas {
 
         this.repository = repository;
 
-        this.groups = new Registry();
+        this.groups = new Agency.Registry();
         this.__current = null;
 
         for(let group of groups) {
