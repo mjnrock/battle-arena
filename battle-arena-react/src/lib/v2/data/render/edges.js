@@ -248,7 +248,7 @@ export function CalculateEdgeMasks(world) {
 
             if(terrain.terrain.type === DictTerrain.DIRT.type) {
                 dirs.forEach(([ dx, dy, mask ]) => {
-                    let neigh = world.terrain[ `${ terrain.position.x + dx }.${ terrain.position.y + dy }` ];
+                    let neigh = world.terrain[ `${ terrain.position.x + dx },${ terrain.position.y + dy }` ];
 
                     if(neigh && neigh.terrain.type === DictTerrain.DIRT.type) {
                         terrain.terrain.edges = Agency.Util.Bitwise.add(terrain.terrain.edges, mask);

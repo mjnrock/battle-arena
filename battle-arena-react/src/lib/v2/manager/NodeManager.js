@@ -7,13 +7,6 @@ export class NodeManager extends Agency.Watcher {
         this.__cache = {};
         this.nodes = Agency.Util.CrossMap.CreateGrid([ ...size ], { seedFn: () => new Set() });
 
-        this.$.subscribe(function(prop, value) {
-            console.log(this);
-            // if([ "position.x", "position.y" ].includes(prop)) {
-            //     (value, entity) => this.__moveToNode(entity);
-            // }
-        })
-
         for(let watchable of watchables) {
             watchable.$.subscribe(this);
         }
