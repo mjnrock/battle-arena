@@ -34,8 +34,6 @@ export class PlayerManager extends Registry {
             const player = players[ i ];
             
             this.register(player);
-
-            // player.$.subscribe(this);
         }
     }
 }

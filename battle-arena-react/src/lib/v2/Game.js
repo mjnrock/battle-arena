@@ -117,8 +117,9 @@ export default class Game extends Watcher {
             game.world.get("overworld").join(player);
 
             game.players.register(player, "player");
+            // player.$.subscribe(function(prop, value) {
             game.players.$.subscribe(function(prop, value) {
-                console.log(this, prop, value);
+                console.log(prop, value);
                 // if(prop.includes("position.x")) {
                 //     console.log(prop, value);
                 // }
