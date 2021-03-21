@@ -5,11 +5,7 @@ import Registry from "./../util/Registry";
 
 export class EntityManager extends Registry {
     constructor(entities = []) {
-        super();
-
-        for(let entity of entities) {
-            this.register(entity);
-        }
+        super(entities);
     }    
     
     create(comps = [], ...synonyms) {

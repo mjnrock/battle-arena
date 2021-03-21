@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
 
-export const ProxyPrototype = class {};
+export const WrapperPrototype = class {};
 
 export const wrapNested = (root, prop, input) => {
-    if(input instanceof ProxyPrototype) {
+    if(input instanceof WrapperPrototype) {
         return input;
     } else if(input instanceof Watchable) {
         input.$.subscribe((p, v) => root.$.emit(`${ prop }.${ p }`, v));
@@ -13,7 +13,7 @@ export const wrapNested = (root, prop, input) => {
 
     const proxy = new Proxy(input, {
         getPrototypeOf(t) {
-            return ProxyPrototype.prototype;
+            return WrapperPrototype.prototype;
         },
         get(t, p) {
             return t[ p ];

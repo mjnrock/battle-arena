@@ -8,6 +8,8 @@ import { Context } from "./../../App";
 
 export default function GameView() {
     const { data, subject: game } = useWatchable(Context, "game");
+
+    console.log(data)
     
     if(Object.keys(data).length === 0) {
         return null;

@@ -2,6 +2,8 @@
 import Agency from "@lespantsfancy/agency";
 import React,{ useEffect } from "react";
 
+import EventWatchable from "./../../lib/v2/util/EventWatchable";
+
 /**
  * Props
  * @canvas <Canvas>
@@ -28,7 +30,7 @@ function Canvas(props) {
             }
 
             //NOTE  Presumably this gc's itself on @ref:@canvas.canvas destruction, but I haven't tested it
-            Agency.EventObservable.SubjectFactory(ref, [
+            canvas.__handler = new EventWatchable(ref, [
                 "click",
                 "contextmenu",
                 "mousedown",

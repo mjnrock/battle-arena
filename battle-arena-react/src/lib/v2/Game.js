@@ -28,7 +28,7 @@ import Entity from "./Entity";
 //STUB END "Imports"
 
 export default class Game extends Watcher {
-    constructor({ fps = 1, GCD = 500 } = {}) {
+    constructor({ fps = 2, GCD = 500 } = {}) {
     // constructor({ fps = 24, GCD = 1500 } = {}) {
         super([], {}, { deep: false });
 
@@ -56,7 +56,6 @@ export default class Game extends Watcher {
     }
 
     onTick({ dt, now } = {}) {
-        // console.log(this.world.current.entities.values)
         for(let entity of this.world.current.entities.values) {
             if(now - entity.turn.timeout >= this.config.GCD) {
                 entity.turn.current(entity);
@@ -72,7 +71,7 @@ export default class Game extends Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.add(World.CreateRandom(5, 5, 1), "overworld");
+            game.world.add(World.CreateRandom(25, 25, 1), "overworld");
             game.world.add(
                 Arena.CreateArena(game.world.get("overworld"), 10, 10, {
                     entities: [
@@ -87,44 +86,44 @@ export default class Game extends Watcher {
                 [ componentPosition, { x: 4, y: 7 } ],
                 [ componentHealth, { current: 10, max: 10 } ],
                 [ componentAction, {} ],
-                [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499) } ],
-                // [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-                //     if(entity.movement.path.length) {
-                //         const [ x, y ] = entity.movement.path.shift();
-                //         const { x: ox, y: oy } = entity.position;
+                [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
+                    if(entity.movement.path.length) {
+                        const [ x, y ] = entity.movement.path.shift();
+                        const { x: ox, y: oy } = entity.position;
         
-                //         entity.position.x = x;
-                //         entity.position.y = y;
+                        entity.position.x = x;
+                        entity.position.y = y;
         
-                //         if(x !== ox) {
-                //             if(x > ox) {
-                //                 entity.position.facing = 90;
-                //             } else if(x < ox) {
-                //                 entity.position.facing = 270;
-                //             }
-                //         } else if(y !== oy) {
-                //             if(y > oy) {
-                //                 entity.position.facing = 180;
-                //             } else if(y < oy) {
-                //                 entity.position.facing = 0;
-                //             }
-                //         } 
-            
-                //         // game.world.get("overworld").PLAYER_PATH = entity.movement.path;
-                //     }
-                // } } ],
+                        if(x !== ox) {
+                            if(x > ox) {
+                                entity.position.facing = 90;
+                            } else if(x < ox) {
+                                entity.position.facing = 270;
+                            }
+                        } else if(y !== oy) {
+                            if(y > oy) {
+                                entity.position.facing = 180;
+                            } else if(y < oy) {
+                                entity.position.facing = 0;
+                            }
+                        }
+                    }
+                } } ],
             ]);
             game.world.get("overworld").join(player);
 
             game.players.register(player, "player");
-            // player.$.subscribe(function(prop, value) {
-            game.players.$.subscribe(function(prop, value) {
-                console.log(prop, value);
-                // if(prop.includes("position.x")) {
-                //     console.log(prop, value);
-                // }
-            })
-            // game.players.on("position.x", (...args) => console.log(...args))
+
+            //#region STUB
+            // game.players.$.subscribe(function(prop, value) {
+            //     if([ "position.x", "position.y" ].includes(prop)) {
+            //         console.log(prop, value);
+            //     }
+            // });
+            
+            // game.world.current.entities.$.subscribe(function(prop, value) {
+            //     console.log(prop, value);
+            // });
 
             // // STUB  Async testing
             // setTimeout(() => {
@@ -154,191 +153,163 @@ export default class Game extends Watcher {
             //         bool = !bool;
             //     }, 2500);
 
-
-
-
-            //#region WIP
-            //     //TODO  Move this somewhere more appropriate--currently requires async to compensate for mount times
-            //     Agency.EventWatchable.GetRef(game.render.canvas).on("next", (type, { data }) => {
-            //         const [ e ] = data;
-            //         const { target: canvas, button, clientX: x, clientY: y } = e;
-
-            //         const { left, top } = canvas.getBoundingClientRect();
-            //         const pos = {
-            //             px: x - left,
-            //             py: y - top,
-            //         };
-            //         pos.tx = pos.px / game.config.render.tile.width;
-            //         pos.ty = pos.py / game.config.render.tile.height;
-            //         pos.txi = Math.floor(pos.tx);
-            //         pos.tyi = Math.floor(pos.ty);
-
-            //         if(type === "mouseup") {
-            //             if(button === 0) {
-            //                 // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
-            //                 console.info(pos.txi, pos.tyi, game.world.current.node(pos.txi, pos.tyi));
-            //             } else if(button === 2) {
-            //                 const player = game.players.player;
-            //                 // const player = game.world.current.entities.player;
-            //                 player.movement.destination = [ pos.txi, pos.tyi ];
-            //                 player.movement.path = findPath(game.world.current, [ player.position.x, player.position.y ], player.movement.destination);
-            //             }
-            //         } else if(type === "mousemove") {
-            //             game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];
-            //         }
-            //     });
-
-            //     // game.config.SHOW_UI = true;
-            //     window.onkeypress = e => {
-            //         e.preventDefault();
-
-            //         if(e.key === "v") {
-            //             game.config.SHOW_UI = !game.config.SHOW_UI;
-            //         }
-            //     }
-            // }, 500);
-
-            // //STUB  Testing cases for entities
-            // // for(let entity of game.world.current.entities.values) {
-            // //     console.log(entity.health.value.rate);
-            // // }
-
+            //STUB  Testing cases for entities
+            // for(let entity of game.world.current.entities.values) {
+            //     console.log(entity.health.value.rate);
+            // }
+            //#endregion
 
             // //? Bootstrap the rendering
-            // game.render = new RenderManager(game, { repository: initImageRepository() });
-            // (async () => {
-            //     //  Load Images
-            //     await game.render.loadImages(loadEntity);
-            //     await game.render.loadImages(loadTerrain);
+            game.render = new RenderManager(game, { repository: initImageRepository() });
+            (async () => {
+                //  Load Images
+                await game.render.loadImages(loadEntity);
+                await game.render.loadImages(loadTerrain);
 
-            //     game.render.useGroup(new RenderGroup(
-            //         game,
-            //         game.world.get("overworld").width * game.config.render.tile.width,
-            //         game.world.get("overworld").height * game.config.render.tile.height,
-            //         [
-            //             new RenderLayer(game.world.get("overworld").terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
-            //             new RenderLayer(game.world.get("overworld").entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
-            //             new RenderLayer([], { config: { clearBeforeDraw: true } }),
-            //         ],
-            //         {
-            //             tw: 32,
-            //             th: 32,
-            //         },
-            //     ), "overworld");
-
-            //     // game.render.useGroup(new RenderGroup(
-            //     //     game,
-            //         // game.world.get("overworld").width * game.config.render.tile.width,
-            //         // game.world.get("overworld").height * game.config.render.tile.height,
-            //     //     [
-            //     //         new RenderLayer(game.world.get("arena").terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
-            //     //         new RenderLayer(game.world.get("arena").entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
-            //     //         new RenderLayer([], { config: { clearBeforeDraw: true } }),
-            //     //     ],
-            //     //     {
-            //     //         tw: 32,
-            //     //         th: 32,
-            //     //     },
-            //     // ));
+                game.render.useGroup(new RenderGroup(
+                    game,
+                    game.world.get("overworld").width * game.config.render.tile.width,
+                    game.world.get("overworld").height * game.config.render.tile.height,
+                    [
+                        new RenderLayer(game.world.get("overworld").terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
+                        new RenderLayer(game.world.get("overworld").entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
+                        new RenderLayer([], { config: { clearBeforeDraw: true } }),
+                    ],
+                    {
+                        tw: 32,
+                        th: 32,
+                    },
+                ), "overworld");
     
-            //     game.render.eraseFirst();
-            //     game.render.onDraw = (dt, elapsed) => {
-            //         game.render.drawLayers();
-            //     };
+                game.render.eraseFirst();
+                game.render.onDraw = (dt, elapsed) => {
+                    if(Math.random() > 0.99) {
+                        // console.log(game.render.canvas.toDataURL())
+                    }
+
+                    game.render.drawLayers();
+                };
             
-            //     game.render.groups.overworld.getLayer(2).addHook(function(dt, elapsed) {
-            //         if(game.config.SHOW_UI) {
-            //             this.save();
-            //                 let mouse = {
-            //                     tx: ((this.game.config.MOUSE_POSITION || [])[ 0 ] || 0),
-            //                     ty: ((this.game.config.MOUSE_POSITION || [])[ 1 ] || 0),
-            //                 };
-            //                 mouse.x = mouse.tx * this.tw;
-            //                 mouse.y = mouse.ty * this.th;
+                game.render.current.getLayer(2).addHook(function(dt, elapsed) {
+                    if(game.config.SHOW_UI) {
+                        this.save();
+                            let mouse = {
+                                tx: ((this.game.config.MOUSE_POSITION || [])[ 0 ] || 0),
+                                ty: ((this.game.config.MOUSE_POSITION || [])[ 1 ] || 0),
+                            };
+                            mouse.x = mouse.tx * this.tw;
+                            mouse.y = mouse.ty * this.th;
 
-            //                 this.ctx.strokeStyle = `rgba(180, 180, 180, 0.25)`;
-            //                 let r = 5;
-            //                 for(let dx = -r; dx <= r; dx++) {
-            //                     for(let dy = -r; dy <= r; dy++) {
-            //                         this.tRect(
-            //                             mouse.tx + dx,
-            //                             mouse.ty + dy,
-            //                             1,
-            //                             1,
-            //                             { isFilled: false },
-            //                         );
-            //                     }
-            //                 }
+                            this.ctx.strokeStyle = `rgba(180, 180, 180, 0.25)`;
+                            let r = 5;
+                            for(let dx = -r; dx <= r; dx++) {
+                                for(let dy = -r; dy <= r; dy++) {
+                                    this.tRect(
+                                        mouse.tx + dx,
+                                        mouse.ty + dy,
+                                        1,
+                                        1,
+                                        { isFilled: false },
+                                    );
+                                }
+                            }
 
-            //                 this.ctx.strokeStyle = `rgba(210, 210, 210, 0.25)`;
-            //                 this.prop({ lineWidth: 5 }).tRect(
-            //                     mouse.tx,
-            //                     mouse.ty,
-            //                     1,
-            //                     1,
-            //                     { isFilled: false },
-            //                 );
+                            this.ctx.strokeStyle = `rgba(210, 210, 210, 0.25)`;
+                            this.prop({ lineWidth: 5 }).tRect(
+                                mouse.tx,
+                                mouse.ty,
+                                1,
+                                1,
+                                { isFilled: false },
+                            );
 
-            //                 let feather = 32,
-            //                     radius = 128;
+                            let feather = 32,
+                                radius = 128;
 
-            //                 this.ctx.globalCompositeOperation = "destination-in";
-            //                 this.ctx.filter = `blur(${ feather }px)`;  // "feather"
+                            this.ctx.globalCompositeOperation = "destination-in";
+                            this.ctx.filter = `blur(${ feather }px)`;  // "feather"
 
-            //                 this.ctx.beginPath();
-            //                 this.ctx.arc(mouse.x + this.tw / 2, mouse.y + this.th / 2, radius, 0, 2 * Math.PI);
-            //                 this.ctx.fill();
+                            this.ctx.beginPath();
+                            this.ctx.arc(mouse.x + this.tw / 2, mouse.y + this.th / 2, radius, 0, 2 * Math.PI);
+                            this.ctx.fill();
 
-            //                 this.ctx.globalCompositeOperation = "destination-out";
-            //                 this.ctx.filter = "none";
+                            this.ctx.globalCompositeOperation = "destination-out";
+                            this.ctx.filter = "none";
 
-            //             this.restore();
-            //         }
-            //     });
-            //     game.render.groups.overworld.getLayer(2).addHook(function(dt, elapsed) {
-            //         if(game.config.SHOW_UI) {
-            //             this.save();
-            //             const player = game.players.player;
-            //             // const player = game.world.current.entities.player;
-            //             const path = player.movement.path || [];
-            //             const [ x, y ] = player.movement.destination || [];
+                        this.restore();
+                    }
+                });
+                game.render.current.getLayer(2).addHook(function(dt, elapsed) {
+                    if(game.config.SHOW_UI) {
+                        this.save();
+                        const player = game.players.player;
+                        // const player = game.world.current.entities.player;
+                        const path = player.movement.path || [];
+                        const [ x, y ] = player.movement.destination || [];
 
-            //             for(let [ tx, ty ] of path) {
-            //                 this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
-            //                     tx,
-            //                     ty,
-            //                     1,
-            //                     1,
-            //                     { isFilled: true },
-            //                 );
-            //             }
+                        for(let [ tx, ty ] of path) {
+                            this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
+                                tx,
+                                ty,
+                                1,
+                                1,
+                                { isFilled: true },
+                            );
+                        }
                         
-            //             if(!(player.position.x === x && player.position.y === y)) {
-            //                 this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
-            //                     x,
-            //                     y,
-            //                     1,
-            //                     1,
-            //                     { isFilled: true },
-            //                 );
-            //             }
-            //             this.restore();
-            //         }
-            //     });
-            // })();
-            //#endregion REGION
+                        if(!(player.position.x === x && player.position.y === y)) {
+                            this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
+                                x,
+                                y,
+                                1,
+                                1,
+                                { isFilled: true },
+                            );
+                        }
+                        this.restore();
+                    }
+                });
 
-            // //? Perform an action whenever able
-            // game.on("loop.tick", (...args) => {
-            //     const now = Date.now();
-            //     console.log(...args)
-            //     // for(let entity of game.world.current.entities.values) {
-            //     //     if(now - entity.turn.timeout >= game.config.GCD) {
-            //     //         entity.turn.current(entity);
-            //     //         entity.turn.timeout = now;
-            //     //     }
-            //     // }
-            // });
+                game.render.start();
+
+
+
+                window.onkeypress = e => {
+                    e.preventDefault();
+
+                    if(e.key === "v") {
+                        game.config.SHOW_UI = !game.config.SHOW_UI;
+                    }
+                };
+                game.render.__handler.$.subscribe((type, entry) => {
+                    const [ e ] = entry.data;
+                    const { target: canvas, button, clientX: x, clientY: y } = e;
+
+                    const { left, top } = canvas.getBoundingClientRect();
+                    const pos = {
+                        px: x - left,
+                        py: y - top,
+                    };
+                    pos.tx = pos.px / game.config.render.tile.width;
+                    pos.ty = pos.py / game.config.render.tile.height;
+                    pos.txi = Math.floor(pos.tx);
+                    pos.tyi = Math.floor(pos.ty);
+
+                    if(type === "mouseup") {
+                        if(button === 0) {
+                            // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
+                            console.info(pos.txi, pos.tyi, game.world.current.node(pos.txi, pos.tyi));
+                        } else if(button === 2) {
+                            const player = game.players.player;
+                            // const player = game.world.current.entities.player;
+                            player.movement.destination = [ pos.txi, pos.tyi ];
+                            player.movement.path = findPath(game.world.current, [ player.position.x, player.position.y ], player.movement.destination);
+                        }
+                    } else if(type === "mousemove") {
+                        game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];
+                    }
+                });
+            })();
 
             game.loop.start();
 

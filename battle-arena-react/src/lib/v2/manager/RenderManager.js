@@ -1,11 +1,13 @@
 import { v4 as uuidv4 } from "uuid";
 import Agency from "@lespantsfancy/agency";
 
+import Registry from "./../util/Registry";
+
 import LayeredCanvas from "./../util/render/LayeredCanvas";
 import ImageRegistry from "../util/render/ImageRegistry";
 
 export class RenderManager extends LayeredCanvas {
-    constructor(game, { groups = [], repository } = {}) {
+    constructor(game, { repository } = {}) {
         super();
 
         this.__id = uuidv4();
@@ -13,16 +15,7 @@ export class RenderManager extends LayeredCanvas {
 
         this.repository = repository;
 
-        this.groups = new Agency.Registry();
         this.__current = null;
-
-        for(let group of groups) {
-            if(Array.isArray(group)) {
-                this.useGroup(...group);
-            } else {
-                this.useGroup(group);
-            }
-        }
     }
 
     get id() {
@@ -41,8 +34,6 @@ export class RenderManager extends LayeredCanvas {
     }
 
     useGroup(group, ...synonyms) {
-        this.groups.register(group, ...synonyms);
-
         if(!this.__current) {
             this.__current = group;
         }

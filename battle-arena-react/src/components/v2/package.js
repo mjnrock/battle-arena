@@ -1,9 +1,11 @@
 import { useState, useEffect, useContext } from "react";
 
+import Watcher from "./../../lib/v2/util/Watcher";
+import Watchable from "./../../lib/v2/util/Watchable";
 // import Watcher from "./../Watcher";
 // import Watchable from "./../Watchable";
-import Watcher from "@lespantsfancy/agency/lib/Watcher";
-import Watchable from "@lespantsfancy/agency/lib/Watchable";
+// import Watcher from "@lespantsfancy/agency/lib/Watcher";
+// import Watchable from "@lespantsfancy/agency/lib/Watchable";
 
 export function useWatchable(context, prop) {
     const ctx = useContext(context);
