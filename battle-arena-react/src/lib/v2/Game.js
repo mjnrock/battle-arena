@@ -159,7 +159,7 @@ export default class Game extends Watcher {
             // }
             //#endregion
 
-            // //? Bootstrap the rendering
+            //? Bootstrap the rendering
             game.render = new RenderManager(game, { repository: initImageRepository() });
             (async () => {
                 //  Load Images
@@ -270,10 +270,8 @@ export default class Game extends Watcher {
                     }
                 });
 
-                game.render.start();
 
-
-
+                //? Key and Mouse Bindings
                 window.onkeypress = e => {
                     e.preventDefault();
 
