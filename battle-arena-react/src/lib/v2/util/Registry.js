@@ -1,10 +1,11 @@
 import { v4 as uuidv4, validate } from "uuid";
 
 import Watchable from "./Watchable";
+import Watcher from "./Watcher";
 
-export class Registry extends Watchable {
+export class Registry extends Watcher {
     constructor(entries = [], state = {}, { deep = true } = {}) {
-        super(state, { deep });
+        super([], state, { deep });
 
         for(let entry of entries) {
             if(Array.isArray(entry)) {
@@ -42,6 +43,7 @@ export class Registry extends Watchable {
 
     get $() {
         const _this = this;
+        const _emit = super.$.emit;
 
         return {
             ...super.$,
@@ -51,21 +53,7 @@ export class Registry extends Watchable {
                     prop = prop.slice(37);
                 }
 
-                for(let subscriber of _this.__subscribers.values()) {
-                    const payload = {
-                        prop,
-                        value,
-                        subject: _this,
-                        emitter: _this,
-                        subscriber,
-                    };
-        
-                    if(typeof subscriber === "function") {
-                        subscriber.call(payload, prop, value);
-                    } else if(subscriber instanceof Watchable) {
-                        subscriber.$.emit.call(payload, prop, value);
-                    }
-                }
+                _emit.call("emitter" in this ? this : _this, prop, value);
         
                 return _this;
             },

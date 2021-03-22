@@ -71,7 +71,7 @@ export default class Game extends Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.add(World.CreateRandom(25, 25, 20), "overworld");
+            game.world.add(World.CreateRandom(25, 25, 1), "overworld");
             game.world.add(
                 Arena.CreateArena(game.world.get("overworld"), 10, 10, {
                     entities: [

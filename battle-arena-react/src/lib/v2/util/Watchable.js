@@ -6,7 +6,9 @@ export const wrapNested = (root, prop, input) => {
     if(input instanceof WrapperPrototype) {
         return input;
     } else if(input instanceof Watchable) {
-        input.$.subscribe((p, v) => root.$.emit(`${ prop }.${ p }`, v));
+        input.$.subscribe(function(p, v) {
+            root.$.emit.call(this, `${ prop }.${ p }`, v);
+        });
 
         return input;
     }
@@ -126,18 +128,27 @@ export class Watchable {
 
             async emit(prop, value) {
                 for(let subscriber of _this.__subscribers.values()) {
-                    const payload = {
+                    /**
+                     * @prop | The chain-prop from the original emission
+                     * @value | The chain-prop's value from the original emission
+                     * @subject | The original .emit <Watchable>
+                     * @observer | The original subscriber (fn|Watcher) -- The original <Watcher> in a chain emission
+                     * @emitter | The emitting <Watchable> -- The final <Watcher> in a chain emission
+                     * @subscriber | The subscription fn|Watcher receiving the invocation
+                     */
+                    const payload = "emitter" in this ? this : {
                         prop,
                         value,
-                        subject: _this,
-                        emitter: _this,
+                        subject: this.subject || _this,
+                        observer: this.observer || this.subscriber || subscriber,
+                        emitter: this.emitter || _this,
                         subscriber,
                     };
         
                     if(typeof subscriber === "function") {
-                        subscriber.call(payload, prop, value);
+                        subscriber.call(payload, prop, value, payload.subject.$.id);
                     } else if(subscriber instanceof Watchable) {
-                        subscriber.$.emit.call(payload, prop, value);
+                        subscriber.$.emit.call(payload, prop, value, payload.subject.$.id);
                     }
                 }
         

@@ -8,15 +8,20 @@ export class NodeManager extends Watcher {
         
         this.__cache = {};
         this.nodes = Agency.Util.CrossMap.CreateGrid([ ...size ], { seedFn: () => new Set() });
-        console.log(this.nodes)
+
+        // this.on("position.x", (value, entity) => this.__moveToNode(entity));
+        // this.on("position.y", (value, entity) => this.__moveToNode(entity));
 
         for(let watchable of watchables) {
-            watchable.$.subscribe(this);
+            // watchable.$.subscribe(this);
+            watchable.$.subscribe(function(prop, value) { console.log(this, prop, value) });
         }
+
+        // this.$.subscribe((...args) => console.log(...args));
+        // this.$.subscribe(function(prop, value) { console.log(this, prop, value) });
     }
 
     node(x, y) {
-        console.log(this.nodes, this.nodes.get(0, 0))
         return this.nodes.get(x, y);
     }
     /**

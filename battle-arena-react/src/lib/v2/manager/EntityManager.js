@@ -6,7 +6,7 @@ import Registry from "./../util/Registry";
 export class EntityManager extends Registry {
     constructor(entities = []) {
         super(entities);
-    }    
+    }
     
     create(comps = [], ...synonyms) {
         const entity = Entity.FromSchema(comps);
