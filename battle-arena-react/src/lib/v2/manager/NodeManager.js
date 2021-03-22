@@ -9,6 +9,8 @@ export class NodeManager extends Watcher {
         super([], {}, { deep: true });
         
         this.__cache = {};
+        this.__watchables = watchables;
+
         this.nodes = Agency.Util.CrossMap.CreateGrid([ ...size ], { seedFn: () => new Set() });
 
         const _this = this;
