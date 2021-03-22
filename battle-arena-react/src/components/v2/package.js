@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useEffect, useContext } from "react";
 
 import Watcher from "./../../lib/v2/util/Watcher";

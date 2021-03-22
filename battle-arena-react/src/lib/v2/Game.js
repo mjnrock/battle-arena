@@ -112,39 +112,6 @@ export default class Game extends Watcher {
             ]);
             game.world.get("overworld").join(player);
 
-            setTimeout(() => {                
-                const test = Entity.FromSchema([
-                    [ componentMeta, { type: EnumEntityType.BUNNY } ],
-                    [ componentPosition, { x: 3, y: 6 } ],
-                    [ componentHealth, { current: 10, max: 10 } ],
-                    [ componentAction, {} ],
-                    [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-                        if(entity.movement.path.length) {
-                            const [ x, y ] = entity.movement.path.shift();
-                            const { x: ox, y: oy } = entity.position;
-            
-                            entity.position.x = x;
-                            entity.position.y = y;
-            
-                            if(x !== ox) {
-                                if(x > ox) {
-                                    entity.position.facing = 90;
-                                } else if(x < ox) {
-                                    entity.position.facing = 270;
-                                }
-                            } else if(y !== oy) {
-                                if(y > oy) {
-                                    entity.position.facing = 180;
-                                } else if(y < oy) {
-                                    entity.position.facing = 0;
-                                }
-                            }
-                        }
-                    } } ],
-                ]);
-                game.world.get("overworld").join(test);
-            }, 2000)
-
             game.players.register(player, "player");
 
             //#region STUB

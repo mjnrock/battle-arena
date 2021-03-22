@@ -1,6 +1,5 @@
 import { v4 as uuidv4, validate } from "uuid";
 
-import Watchable from "./Watchable";
 import Watcher from "./Watcher";
 
 export class Registry extends Watcher {
