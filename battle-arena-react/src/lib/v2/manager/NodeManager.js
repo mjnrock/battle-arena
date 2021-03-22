@@ -8,8 +8,8 @@ export class NodeManager extends Watcher {
     constructor(size = [ 1, 1 ], ...watchables) {
         super([], {}, { deep: true });
         
-        this.__cache = {};
-        this.__watchables = watchables;
+        this._cache = {};
+        this._watchables = watchables;
 
         this.nodes = Agency.Util.CrossMap.CreateGrid([ ...size ], { seedFn: () => new Set() });
 
@@ -20,7 +20,7 @@ export class NodeManager extends Watcher {
                     const entity = this.subject;
     
                     if(entity instanceof Entity) {
-                        _this.__moveToNode(entity);
+                        _this.moveToNode(entity.$.proxy);
                     }
                 }
             });
@@ -65,12 +65,12 @@ export class NodeManager extends Watcher {
         return nodes;
     }
 
-    __joinNode(entity) {
+    joinNode(entity) {
         const node = this.nodes.get(entity.position.x, entity.position.y);
 
         if(node instanceof Set) {
-            node.add(entity.__id);
-            this.__cache[ entity.__id ] = {
+            node.add(entity);
+            this._cache[ entity.__id ] = {
                 x: entity.position.x,
                 y: entity.position.y,
             };
@@ -80,13 +80,13 @@ export class NodeManager extends Watcher {
 
         return false;
     }
-    __leaveNode(entity) {
-        const { x, y } = this.__cache[ entity.__id ] || {};
+    leaveNode(entity) {
+        const { x, y } = this._cache[ entity.__id ] || {};
         if(x !== void 0 && y !== void 0) {
             const node = this.nodes.get(x, y);
     
             if(node instanceof Set) {
-                node.delete(entity.__id);
+                node.delete(entity);
     
                 return true;
             }
@@ -96,17 +96,17 @@ export class NodeManager extends Watcher {
 
         return false;
     }
-    __moveToNode(entity) {
-        this.__leaveNode(entity);
-        this.__joinNode(entity);
+    moveToNode(entity) {
+        this.leaveNode(entity);
+        this.joinNode(entity);
 
         return this;
     }
-    __clearFromNodes(entity) {
+    clearFromNodes(entity) {
         for(let row of this.nodes.toLeaf()) {
             for(let cell of row) {
                 if(cell instanceof Set) {
-                    if(cell.delete(entity.__id)) {
+                    if(cell.delete(entity)) {
                         return true;
                     }
                 }

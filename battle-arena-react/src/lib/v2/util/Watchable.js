@@ -118,6 +118,9 @@ export class Watchable {
             }
         }
 
+        //NOTE  Allow @target to regain its <Proxy>, such as in a .emit(...) --> { subject: @target } situation
+        this.__ = { proxy: _this, target: this };  // Store a proxy and target accessor so that either can access each other
+
         return _this;
     }
 
@@ -128,6 +131,12 @@ export class Watchable {
         return {
             get id() {
                 return _this.__id;
+            },
+            get proxy() {
+                return _this.__.proxy;
+            },
+            get target() {
+                return _this.__.target;
             },
 
             async emit(prop, value) {

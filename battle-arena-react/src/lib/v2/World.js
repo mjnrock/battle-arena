@@ -23,33 +23,23 @@ export class World {
         this.width = width;
         this.height = height;
 
-        this.__entities = new EntityManager();
-        this.__terrain = new EntityManager();
+        this.entities = new EntityManager();
+        this.terrain = new EntityManager();
 
-        //TODO Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
-        this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
-        // this.__nodes = new NodeManager([ width, height ], this.__entities, this.__terrain);
+        //TODO  Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
+        this.nodes = new NodeManager([ width, height ], this.entities);  // Entities only
+        // this.nodes = new NodeManager([ width, height ], this.entities, this.terrain);
     }
 
     get id() {
         return this.__id;
     }
 
-    get entities() {
-        return this.__entities;
-    }
-    get terrain() {
-        return this.__terrain;
-    }
-
-    get nodes() {
-        return this.__nodes.nodes;  // Agency..CrossMap
-    }
     get node() {
-        return this.__nodes.node;   // fn
+        return this.nodes.node;   // fn
     }
     get range() {
-        return this.__nodes.range;  // fn
+        return this.nodes.range;  // fn
     }
 
     join(entity, ...synonyms) {
@@ -61,7 +51,7 @@ export class World {
 
         this.entities.register(entity, ...synonyms);
 
-        this.__nodes.__joinNode(entity);
+        this.nodes.joinNode(entity);
 
         return true;
     }
@@ -70,11 +60,11 @@ export class World {
 
         entity.position.world = null;
 
-        if(!this.__nodes.__leaveNode(entity)) {
-            this.__nodes.__clearFromNodes(entity);
+        if(!this.nodes.leaveNode(entity)) {
+            this.nodes.clearFromNodes(entity);
         }
         
-        delete this.__nodes.__cache[ entity.__id ];
+        delete this.nodes._cache[ entity.__id ];
     }
 
     
