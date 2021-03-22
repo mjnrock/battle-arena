@@ -1,11 +1,14 @@
 import Agency from "@lespantsfancy/agency";
 
-export class NodeManager extends Agency.Watcher {
+import Watcher from "./../util/Watcher";
+
+export class NodeManager extends Watcher {
     constructor(size = [ 1, 1 ], ...watchables) {
-        super();
+        super([], {}, { deep: false });
         
         this.__cache = {};
         this.nodes = Agency.Util.CrossMap.CreateGrid([ ...size ], { seedFn: () => new Set() });
+        console.log(this.nodes)
 
         for(let watchable of watchables) {
             watchable.$.subscribe(this);
@@ -13,6 +16,7 @@ export class NodeManager extends Agency.Watcher {
     }
 
     node(x, y) {
+        console.log(this.nodes, this.nodes.get(0, 0))
         return this.nodes.get(x, y);
     }
     /**
