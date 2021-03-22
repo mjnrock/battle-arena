@@ -28,8 +28,8 @@ import Entity from "./Entity";
 //STUB END "Imports"
 
 export default class Game extends Watcher {
-    constructor({ fps = 2, GCD = 1000 } = {}) {
-    // constructor({ fps = 24, GCD = 1500 } = {}) {
+    // constructor({ fps = 2, GCD = 1000 } = {}) {
+    constructor({ fps = 24, GCD = 1000 } = {}) {
         super([], {}, { deep: false });
 
         this.loop = new Pulse(fps, { autostart: false });
@@ -71,7 +71,7 @@ export default class Game extends Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.add(World.CreateRandom(25, 25, 1), "overworld");
+            game.world.add(World.CreateRandom(25, 25, 2), "overworld");
             game.world.add(
                 Arena.CreateArena(game.world.get("overworld"), 10, 10, {
                     entities: [
@@ -111,6 +111,39 @@ export default class Game extends Watcher {
                 } } ],
             ]);
             game.world.get("overworld").join(player);
+
+            setTimeout(() => {                
+                const test = Entity.FromSchema([
+                    [ componentMeta, { type: EnumEntityType.BUNNY } ],
+                    [ componentPosition, { x: 3, y: 6 } ],
+                    [ componentHealth, { current: 10, max: 10 } ],
+                    [ componentAction, {} ],
+                    [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
+                        if(entity.movement.path.length) {
+                            const [ x, y ] = entity.movement.path.shift();
+                            const { x: ox, y: oy } = entity.position;
+            
+                            entity.position.x = x;
+                            entity.position.y = y;
+            
+                            if(x !== ox) {
+                                if(x > ox) {
+                                    entity.position.facing = 90;
+                                } else if(x < ox) {
+                                    entity.position.facing = 270;
+                                }
+                            } else if(y !== oy) {
+                                if(y > oy) {
+                                    entity.position.facing = 180;
+                                } else if(y < oy) {
+                                    entity.position.facing = 0;
+                                }
+                            }
+                        }
+                    } } ],
+                ]);
+                game.world.get("overworld").join(test);
+            }, 2000)
 
             game.players.register(player, "player");
 

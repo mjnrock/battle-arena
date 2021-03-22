@@ -1,9 +1,13 @@
 import { v4 as uuidv4 } from "uuid";
 
-export const WrapperPrototype = class {};
+export const WatchableArchetype = class {};
 
 export const wrapNested = (root, prop, input) => {
-    if(input instanceof WrapperPrototype) {
+    if(prop.includes("__")) {
+        return input;
+    }
+
+    if(input instanceof WatchableArchetype) {
         return input;
     } else if(input instanceof Watchable) {
         input.$.subscribe(function(p, v) {
@@ -15,7 +19,7 @@ export const wrapNested = (root, prop, input) => {
 
     const proxy = new Proxy(input, {
         getPrototypeOf(t) {
-            return WrapperPrototype.prototype;
+            return WatchableArchetype.prototype;
         },
         get(t, p) {
             return t[ p ];
@@ -136,12 +140,11 @@ export class Watchable {
                      * @emitter | The emitting <Watchable> -- The final <Watcher> in a chain emission
                      * @subscriber | The subscription fn|Watcher receiving the invocation
                      */
-                    const payload = "emitter" in this ? this : {
+                    const payload = {
                         prop,
                         value,
                         subject: this.subject || _this,
-                        observer: this.observer || this.subscriber || subscriber,
-                        emitter: this.emitter || _this,
+                        emitter: _this,
                         subscriber,
                     };
         

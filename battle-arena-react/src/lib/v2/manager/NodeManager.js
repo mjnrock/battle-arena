@@ -2,23 +2,27 @@ import Agency from "@lespantsfancy/agency";
 
 import Watcher from "./../util/Watcher";
 
+import Entity from "../Entity";
+
 export class NodeManager extends Watcher {
     constructor(size = [ 1, 1 ], ...watchables) {
-        super([], {}, { deep: false });
+        super([], {}, { deep: true });
         
         this.__cache = {};
         this.nodes = Agency.Util.CrossMap.CreateGrid([ ...size ], { seedFn: () => new Set() });
 
-        // this.on("position.x", (value, entity) => this.__moveToNode(entity));
-        // this.on("position.y", (value, entity) => this.__moveToNode(entity));
-
+        const _this = this;
         for(let watchable of watchables) {
-            // watchable.$.subscribe(this);
-            watchable.$.subscribe(function(prop, value) { console.log(this, prop, value) });
+            watchable.$.subscribe(function(prop, value) {
+                if(prop.startsWith("position")) {
+                    const entity = this.subject;
+    
+                    if(entity instanceof Entity) {
+                        _this.__moveToNode(entity);
+                    }
+                }
+            });
         }
-
-        // this.$.subscribe((...args) => console.log(...args));
-        // this.$.subscribe(function(prop, value) { console.log(this, prop, value) });
     }
 
     node(x, y) {
@@ -63,7 +67,7 @@ export class NodeManager extends Watcher {
         const node = this.nodes.get(entity.position.x, entity.position.y);
 
         if(node instanceof Set) {
-            node.add(entity);
+            node.add(entity.__id);
             this.__cache[ entity.__id ] = {
                 x: entity.position.x,
                 y: entity.position.y,
@@ -80,7 +84,7 @@ export class NodeManager extends Watcher {
             const node = this.nodes.get(x, y);
     
             if(node instanceof Set) {
-                node.delete(entity);
+                node.delete(entity.__id);
     
                 return true;
             }
@@ -100,7 +104,7 @@ export class NodeManager extends Watcher {
         for(let row of this.nodes.toLeaf()) {
             for(let cell of row) {
                 if(cell instanceof Set) {
-                    if(cell.delete(entity)) {
+                    if(cell.delete(entity.__id)) {
                         return true;
                     }
                 }

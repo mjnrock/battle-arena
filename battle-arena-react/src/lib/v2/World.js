@@ -14,6 +14,8 @@ import componentAction from "./data/entity/components/movement";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
 
+import Entity from "./Entity";
+
 export class World {
     constructor(width, height) {
         this.__id = uuidv4();
