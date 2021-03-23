@@ -143,7 +143,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
         [ componentPosition, { world, x: () => Agency.Util.Dice.random(4, 6), y: () => Agency.Util.Dice.random(7, 9), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         // [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
-        [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 1499), current: () => () => false } ],
+        [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 999), current: () => () => false } ],
     ], (i) => `enemy-${ i }`);
 
     entities.forEach(entity => world.join(entity));
