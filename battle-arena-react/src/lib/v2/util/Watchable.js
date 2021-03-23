@@ -17,7 +17,6 @@ export const wrapNested = (root, prop, input) => {
         return input;
     }
 
-    console.log(input)
     const proxy = new Proxy(input, {
         getPrototypeOf(t) {
             return WatchableArchetype.prototype;
