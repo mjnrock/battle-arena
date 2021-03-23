@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 export const WatchableArchetype = class {};
 
 export const wrapNested = (root, prop, input) => {
-    if(prop.includes("__")) {
+    if(input === null || prop.includes("__")) {
         return input;
     }
 
@@ -17,6 +17,7 @@ export const wrapNested = (root, prop, input) => {
         return input;
     }
 
+    console.log(input)
     const proxy = new Proxy(input, {
         getPrototypeOf(t) {
             return WatchableArchetype.prototype;
@@ -25,7 +26,7 @@ export const wrapNested = (root, prop, input) => {
             return t[ p ];
         },
         set(t, p, v) {
-            if(p.startsWith("_")) {      // Don't emit any _Private/__Internal variables
+            if(v === null || p.startsWith("_") || (Object.getOwnPropertyDescriptor(t, p) || {}).set) {      // Don't emit any _Private/__Internal variables
                 t[ p ] = v;
 
                 return t;
@@ -92,7 +93,7 @@ export class Watchable {
                     return target;
                 }
                 
-                if(prop.startsWith("_") || (Object.getOwnPropertyDescriptor(target, prop) || {}).set) {      // Don't emit any _Private/__Internal variables
+                if(value === null || prop.startsWith("_") || (Object.getOwnPropertyDescriptor(target, prop) || {}).set) {      // Don't emit any _Private/__Internal variables
                     target[ prop ] = value;
 
                     return target;

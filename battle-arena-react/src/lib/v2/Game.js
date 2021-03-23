@@ -141,24 +141,9 @@ export default class Game extends Watcher {
                 [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
                     if(entity.movement.path.length) {
                         const [ x, y ] = entity.movement.path.shift();
-                        // const { x: ox, y: oy } = entity.position;
-        
+
                         entity.position.x = x;
                         entity.position.y = y;
-        
-                        // if(x !== ox) {
-                        //     if(x > ox) {
-                        //         entity.position.facing = 90;
-                        //     } else if(x < ox) {
-                        //         entity.position.facing = 270;
-                        //     }
-                        // } else if(y !== oy) {
-                        //     if(y > oy) {
-                        //         entity.position.facing = 180;
-                        //     } else if(y < oy) {
-                        //         entity.position.facing = 0;
-                        //     }
-                        // }
                     }
                 } } ],
             ]);
