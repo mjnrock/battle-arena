@@ -9,6 +9,8 @@ export const schema = {
         facing,
         x: x,
         y: y,
+        vx: 0,
+        vy: 0,
     }),
 };
 

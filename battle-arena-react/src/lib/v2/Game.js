@@ -20,7 +20,7 @@ import Pulse from "./util/Pulse";
     import componentPosition from "./data/entity/components/position";
     import componentTurn from "./data/entity/components/turn";
     import componentHealth from "./data/entity/components/health";
-    import componentAction from "./data/entity/components/movement";
+    import componentAction, { hasMovement } from "./data/entity/components/movement";
 import RenderGroup from "./util/render/RenderGroup";
 import WorldManager from "./manager/WorldManager";
 import Arena from "./Arena";
@@ -31,7 +31,7 @@ import Animator from "./util/render/Animator";
 
 export default class Game extends Watcher {
     // constructor({ fps = 2, GCD = 1000 } = {}) {
-    constructor({ fps = 24, GCD = 1000 } = {}) {
+    constructor({ fps = 20, GCD = 1000 } = {}) {
         super([], {}, { deep: false });
 
         this.loop = new Pulse(fps, { autostart: false });
@@ -63,6 +63,56 @@ export default class Game extends Watcher {
                 entity.turn.current(entity);
                 entity.turn.timeout = now;
             }
+
+            /** NOTE:    Jittery Movement
+             * The semi-jittery movement is a result of the ratio between @GCD:1000,
+             * as the @dt = step_dt / 1000, as well as the progress in @entity.turn.timeout
+             * as it approaches the next turn.  For example, if the pie is in the red,
+             * then the path will be changed in ~200ms--instead of a normal "full" timeout
+             * change equal to the @GCD--followed by a full timeout of @GCDms before the next
+             * path change.
+             */
+            if(hasMovement(entity)) {
+                if(entity.movement.path.length) {
+                    let [ nx, ny ] = entity.movement.path[ 0 ] || [ entity.position.x, entity.position.y ];
+    
+                    entity.position.vx = -(entity.position.x - nx);
+                    entity.position.vy = -(entity.position.y - ny);
+
+                    //TODO  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
+                    if(entity.position.vx < 0) {
+                        entity.position.vx = -1;
+                    } else if(entity.position.vx > 0) {
+                        entity.position.vx = 1;
+                    } else if(entity.position.vy < 0) {
+                        entity.position.vy = -1;
+                    } else if(entity.position.vy > 0) {
+                        entity.position.vy = 1;
+                    }
+
+                    const { x: ox, y: oy } = entity.position;
+    
+                    if(nx !== ox) {
+                        if(nx > ox) {
+                            entity.position.facing = 90;
+                        } else if(nx < ox) {
+                            entity.position.facing = 270;
+                        }
+                    } else if(ny !== oy) {
+                        if(ny > oy) {
+                            entity.position.facing = 180;
+                        } else if(ny < oy) {
+                            entity.position.facing = 0;
+                        }
+                    }
+                } else {    
+                    entity.position.vx = 0;
+                    entity.position.vy = 0;
+                }
+            }
+
+            entity.position.x += entity.position.vx * dt;
+            entity.position.y += entity.position.vy * dt;
         }
     }
 
@@ -91,24 +141,24 @@ export default class Game extends Watcher {
                 [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
                     if(entity.movement.path.length) {
                         const [ x, y ] = entity.movement.path.shift();
-                        const { x: ox, y: oy } = entity.position;
+                        // const { x: ox, y: oy } = entity.position;
         
                         entity.position.x = x;
                         entity.position.y = y;
         
-                        if(x !== ox) {
-                            if(x > ox) {
-                                entity.position.facing = 90;
-                            } else if(x < ox) {
-                                entity.position.facing = 270;
-                            }
-                        } else if(y !== oy) {
-                            if(y > oy) {
-                                entity.position.facing = 180;
-                            } else if(y < oy) {
-                                entity.position.facing = 0;
-                            }
-                        }
+                        // if(x !== ox) {
+                        //     if(x > ox) {
+                        //         entity.position.facing = 90;
+                        //     } else if(x < ox) {
+                        //         entity.position.facing = 270;
+                        //     }
+                        // } else if(y !== oy) {
+                        //     if(y > oy) {
+                        //         entity.position.facing = 180;
+                        //     } else if(y < oy) {
+                        //         entity.position.facing = 0;
+                        //     }
+                        // }
                     }
                 } } ],
             ]);
@@ -145,6 +195,36 @@ export default class Game extends Watcher {
                         game.config.SHOW_UI = !game.config.SHOW_UI;
                     }
                 };
+                window.onkeydown = e => {
+                    let [ dx, dy ] = [ 0, 0 ];
+                    if(e.key === "w")  {
+                        dy = -1;
+                    } else if(e.key === "a")  {
+                        dx = -1;
+                    } else if(e.key === "s")  {
+                        dy = 1;
+                    } else if(e.key === "d")  {
+                        dx = 1;
+                    }
+
+                    game.players.player.position.vx = dx;
+                    game.players.player.position.vy = dy;
+                };
+                window.onkeyup = e => {
+                    let [ dx, dy ] = [ game.players.player.position.vx, game.players.player.position.vy ];
+                    if(e.key === "w")  {
+                        dy = 0;
+                    } else if(e.key === "a")  {
+                        dx = 0;
+                    } else if(e.key === "s")  {
+                        dy = 0;
+                    } else if(e.key === "d")  {
+                        dx = 0;
+                    }
+
+                    game.players.player.position.vx = dx;
+                    game.players.player.position.vy = dy;
+                };
                 game.render.__handler.$.subscribe((type, entry) => {
                     const [ e ] = entry.data;
                     const { target: canvas, button, clientX: x, clientY: y } = e;
@@ -167,7 +247,7 @@ export default class Game extends Watcher {
                             const player = game.players.player;
                             // const player = game.world.current.entities.player;
                             player.movement.destination = [ pos.txi, pos.tyi ];
-                            player.movement.path = findPath(game.world.current, [ player.position.x, player.position.y ], player.movement.destination);
+                            player.movement.path = findPath(game.world.current, [ Math.round(player.position.x), Math.round(player.position.y) ], player.movement.destination);
                         }
                     } else if(type === "mousemove") {
                         game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];
@@ -175,22 +255,22 @@ export default class Game extends Watcher {
                 });
                 
                 //STUB  Change the World at interval
-                let bool = true;
-                setInterval(() => {
-                    if(bool) {
-                        game.world.migrate(game.players.player, "arena");
+                // let bool = true;
+                // setInterval(() => {
+                //     if(bool) {
+                //         game.world.migrate(game.players.player, "arena");
 
-                        game.render.width = game.world.get("arena").width * 32;
-                        game.render.height = game.world.get("arena").height * 32;
-                    } else {
-                        game.world.migrate(game.players.player, "overworld");
+                //         game.render.width = game.world.get("arena").width * 32;
+                //         game.render.height = game.world.get("arena").height * 32;
+                //     } else {
+                //         game.world.migrate(game.players.player, "overworld");
 
-                        game.render.width = game.world.get("overworld").width * 32;
-                        game.render.height = game.world.get("overworld").height * 32;
-                    }
+                //         game.render.width = game.world.get("overworld").width * 32;
+                //         game.render.height = game.world.get("overworld").height * 32;
+                //     }
 
-                    bool = !bool;
-                }, 2500);
+                //     bool = !bool;
+                // }, 2500);
             })();
 
             game.loop.start();
