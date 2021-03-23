@@ -20,7 +20,7 @@ export class NodeManager extends Watcher {
                     const entity = this.subject;
     
                     if(entity instanceof Entity) {
-                        _this.moveToNode(entity.$.proxy);
+                        _this.moveToNode(entity);
                     }
                 }
             });

@@ -52,7 +52,7 @@ export class Registry extends Watcher {
                     prop = prop.slice(37);
                 }
 
-                _emit.call("emitter" in this ? this : _this, prop, value);
+                _emit.call("emitter" in this ? this : _this.$.proxy, prop, value);
         
                 return _this;
             },
@@ -111,6 +111,11 @@ export class Registry extends Watcher {
     }
 
     register(entry, ...synonyms) {
+        //  Prevent anything with an establish "id" from registering multiple times, as it's already an Object and addressed
+        if(this[ (entry || {}).__id ] !== void 0) {
+            return false;
+        }
+
         let uuid = (entry || {}).__id || uuidv4();
         
         this[ uuid ] = entry;

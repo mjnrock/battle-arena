@@ -152,9 +152,9 @@ export class Watchable {
                     const payload = {
                         prop,
                         value,
-                        subject: this.subject || _this,
-                        emitter: _this,
-                        subscriber,
+                        subject: "subject" in this ? this.subject.$.proxy : _this.$.proxy,
+                        emitter: _this.$.proxy,
+                        subscriber: subscriber instanceof Watchable ? subscriber.$.proxy : subscriber,
                     };
         
                     if(typeof subscriber === "function") {

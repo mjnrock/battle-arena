@@ -26,9 +26,7 @@ export class World {
         this.__entities = new EntityManager();
         this.__terrain = new EntityManager();
 
-        //TODO Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
-        this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
-        // this.__nodes = new NodeManager([ width, height ], this.__entities, this.__terrain);
+        this.__nodes = new NodeManager([ width, height ], this.__entities);
     }
 
     get id() {
@@ -62,17 +60,6 @@ export class World {
         this.entities.register(entity, ...synonyms);
 
         this.__nodes.joinNode(entity);
-
-        const _this = this.__nodes;
-        this.entities.$.subscribe(function(prop, value) {
-            if(prop.startsWith("position")) {
-                const entity = this.subject;
-
-                if(entity instanceof Entity) {
-                    _this.moveToNode(entity);
-                }
-            }
-        });
 
         return true;
     }
@@ -151,13 +138,15 @@ export function CreateRandom(width, height, enemyCount = 5) {
 
     CalculateEdgeMasks(world);
 
-    world.entities.createMany(enemyCount, [
+    const entities = world.entities.createMany(enemyCount, [
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
         [ componentPosition, { world, x: () => Agency.Util.Dice.random(4, 6), y: () => Agency.Util.Dice.random(7, 9), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         // [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
         [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 1499), current: () => () => false } ],
     ], (i) => `enemy-${ i }`);
+
+    entities.forEach(entity => world.join(entity));
 
     return world;
 }

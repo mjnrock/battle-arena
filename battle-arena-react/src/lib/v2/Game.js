@@ -175,22 +175,22 @@ export default class Game extends Watcher {
                 });
                 
                 //STUB  Change the World at interval
-                let bool = true;
-                setInterval(() => {
-                    if(bool) {
-                        game.world.migrate(game.players.player, "arena");
+                // let bool = true;
+                // setInterval(() => {
+                //     if(bool) {
+                //         game.world.migrate(game.players.player, "arena");
 
-                        game.render.width = game.world.get("arena").width * 32;
-                        game.render.height = game.world.get("arena").height * 32;
-                    } else {
-                        game.world.migrate(game.players.player, "overworld");
+                //         game.render.width = game.world.get("arena").width * 32;
+                //         game.render.height = game.world.get("arena").height * 32;
+                //     } else {
+                //         game.world.migrate(game.players.player, "overworld");
 
-                        game.render.width = game.world.get("overworld").width * 32;
-                        game.render.height = game.world.get("overworld").height * 32;
-                    }
+                //         game.render.width = game.world.get("overworld").width * 32;
+                //         game.render.height = game.world.get("overworld").height * 32;
+                //     }
 
-                    bool = !bool;
-                }, 2500);
+                //     bool = !bool;
+                // }, 2500);
             })();
 
             game.loop.start();
