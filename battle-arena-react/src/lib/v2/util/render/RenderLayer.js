@@ -5,7 +5,7 @@ import TileCanvas from "./TileCanvas";
 import Game from "./../../Game";
 
 export class RenderLayer extends TileCanvas {
-    constructor(game, { drawFrame, tw = 32, th = 32, config = {} } = {}) {
+    constructor(game, { drawAnimationFrame, tw = 32, th = 32, config = {} } = {}) {
         super(tw, th);
 
         this.__id = uuidv4();
@@ -13,8 +13,8 @@ export class RenderLayer extends TileCanvas {
         this.__game = game;
         this.__hooks = [];
 
-        if(typeof drawFrame === "function") {
-            this.drawFrame = drawFrame.bind(this);
+        if(typeof drawAnimationFrame === "function") {
+            this.drawAnimationFrame = drawAnimationFrame.bind(this);
         }
 
         this.config = {

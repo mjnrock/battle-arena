@@ -27,17 +27,19 @@ export function comparator(data = {}, oldData = {}) {
 //     }
 // };
 
-export async function drawFrame(dt, elapsed) {
-    // console.log(dt, elapsed)
+export async function drawAnimationFrame(dt, elapsed) {
+    //STUB  This should be performed at the <RenderManager> response to a <World> swap
+    [ this.width, this.height ] = [ this.game.render.width, this.game.render.height ];
+
     for(let entity of this.game.world.current.terrain.values) {
-        drawLayer.call(this, dt, elapsed, entity);
+        drawAnimationFrameEntity.call(this, dt, elapsed, entity);
     }
 
     this.__hooks.forEach(fn => fn.call(this, dt, elapsed));
 
     return this;
 };
-export async function drawLayer(dt, elapsed, terrain) {            
+export async function drawAnimationFrameEntity(dt, elapsed, terrain) {            
     const spriteSheet = this.game.render.sprite("terrain", { entity: terrain });
 
     if(spriteSheet) {
@@ -45,4 +47,4 @@ export async function drawLayer(dt, elapsed, terrain) {
     }
 };
 
-export default drawLayer;
+export default drawAnimationFrameEntity;

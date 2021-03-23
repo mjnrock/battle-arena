@@ -12,8 +12,8 @@ import Pulse from "./util/Pulse";
     import initImageRepository from "./data/render/repository";
     import { loadEntity, loadTerrain } from "./data/render/entity";
 
-    import { drawLayer as createEntityLayer, comparator as entityLayerComparator } from "./data/render/world-entity-layer";
-    import { drawFrame as drawTerrainLayer, drawLayer as createTerrainLayer, comparator as terrainLayerComparator } from "./data/render/world-terrain-layer";
+    import { drawAnimationFrame as drawEntityLayer, drawAnimationFrameEntity as createEntityLayer, comparator as entityLayerComparator } from "./data/render/world-entity-layer";
+    import { drawAnimationFrame as drawTerrainLayer, drawAnimationFrameEntity as createTerrainLayer, comparator as terrainLayerComparator } from "./data/render/world-terrain-layer";
     
     import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
     import componentPosition from "./data/entity/components/position";
@@ -148,14 +148,19 @@ export default class Game extends Watcher {
             }, 1500);
 
             //? Bootstrap the rendering
-            game.render = new RenderManager(game, { repository: initImageRepository() });
+            game.render = new RenderManager(game, {
+                width: game.world.current.width * game.config.render.tile.width,
+                height: game.world.current.height * game.config.render.tile.height,
+                repository: initImageRepository()
+            });
             (async () => {
                 //  Load Images
                 await game.render.loadImages(loadEntity);
                 await game.render.loadImages(loadTerrain);
 
                 game.render.addLayer(
-                    new RenderLayer(game, { drawFrame: drawTerrainLayer })
+                    new RenderLayer(game, { drawAnimationFrame: drawTerrainLayer }),
+                    new RenderLayer(game, { drawAnimationFrame: drawEntityLayer }),
                 );
                 game.render.animator.start();
 

@@ -7,8 +7,8 @@ import LayeredCanvas from "./../util/render/LayeredCanvas";
 import ImageRegistry from "../util/render/ImageRegistry";
 
 export class RenderManager extends LayeredCanvas {
-    constructor(game, { repository } = {}) {
-        super();
+    constructor(game, { tw, th, width, height, repository } = {}) {
+        super({ tw, th, width, height });
 
         this.__id = uuidv4();
         this.__game = game;
@@ -17,7 +17,7 @@ export class RenderManager extends LayeredCanvas {
 
         this.__current = null;
 
-        this.drawFrame = this.drawAnimationLayers;
+        this.drawAnimationFrame = this.drawAnimationLayers;
     }
 
     get id() {
