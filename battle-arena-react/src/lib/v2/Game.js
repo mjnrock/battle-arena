@@ -159,10 +159,10 @@ export default class Game extends Watcher {
                 await game.render.loadImages(loadEntity);
                 await game.render.loadImages(loadTerrain);
 
-                game.render.addLayer(
-                    new RenderLayer(game, { drawAnimationFrame: drawTerrainLayer }),
-                    new RenderLayer(game, { drawAnimationFrame: drawEntityLayer }),
-                    new RenderLayer(game, { drawAnimationFrame: drawUILayer }),
+                game.render.addAnimationLayers(
+                    drawTerrainLayer,
+                    drawEntityLayer,
+                    drawUILayer,
                 );
                 game.render.animator.start();
 
