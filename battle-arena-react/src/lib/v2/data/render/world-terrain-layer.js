@@ -27,7 +27,7 @@ export function comparator(data = {}, oldData = {}) {
 //     }
 // };
 
-export async function onDraw(dt, elapsed) {
+export async function drawFrame(dt, elapsed) {
     // console.log(dt, elapsed)
     for(let entity of this.game.world.current.terrain.values) {
         drawLayer.call(this, dt, elapsed, entity);

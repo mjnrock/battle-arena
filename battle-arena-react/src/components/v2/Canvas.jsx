@@ -7,7 +7,7 @@ import EventWatchable from "./../../lib/v2/util/EventWatchable";
 /**
  * Props
  * @canvas <Canvas>
- * @onDraw fn | Will be given @canvas as its scope
+ * @drawFrame fn | Will be given @canvas as its scope
  */
 function Canvas(props) {
     const { canvas, mouseHandler, ...rest } = props;

@@ -14,7 +14,7 @@ export default class Animator {
     onAnimationFrame(elapsed) {
         if(this.isAnimating) {
             if(!this.isPaused) {
-                this.canvas.onDraw(elapsed - (this.stats.lastDraw || 0), elapsed);
+                this.canvas.drawFrame(elapsed - (this.stats.lastDraw || 0), elapsed);
             }
             this.stats.lastDraw = elapsed;
 

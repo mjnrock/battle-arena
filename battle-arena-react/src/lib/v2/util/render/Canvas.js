@@ -1,7 +1,7 @@
 import Animator from "./Animator";
 
 export default class Canvas {
-    constructor({ canvas, width = 300, height = 150, onDraw, props = {} } = {}) {
+    constructor({ canvas, width = 300, height = 150, drawFrame, props = {} } = {}) {
         this.config = {
             normalization: {
                 arc: -Math.PI / 4,
@@ -20,7 +20,7 @@ export default class Canvas {
         this.prop(props);
 
         this.animator = new Animator(this);
-        this.onDraw = typeof onDraw === "function" ? onDraw : () => {};
+        this.drawFrame = typeof drawFrame === "function" ? drawFrame : () => {};
     }
 
     get ctx() {

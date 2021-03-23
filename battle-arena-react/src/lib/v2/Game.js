@@ -13,7 +13,7 @@ import Pulse from "./util/Pulse";
     import { loadEntity, loadTerrain } from "./data/render/entity";
 
     import { drawLayer as createEntityLayer, comparator as entityLayerComparator } from "./data/render/world-entity-layer";
-    import { onDraw as drawTerrainLayer, drawLayer as createTerrainLayer, comparator as terrainLayerComparator } from "./data/render/world-terrain-layer";
+    import { drawFrame as drawTerrainLayer, drawLayer as createTerrainLayer, comparator as terrainLayerComparator } from "./data/render/world-terrain-layer";
     
     import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
     import componentPosition from "./data/entity/components/position";
@@ -155,8 +155,10 @@ export default class Game extends Watcher {
                 await game.render.loadImages(loadTerrain);
 
                 game.render.addLayer(
-                    new RenderLayer(game, { onDraw: drawTerrainLayer })
+                    new RenderLayer(game, { drawFrame: drawTerrainLayer })
                 );
+                game.render.animator.start();
+
                 // game.render.useGroup(new RenderGroup(
                 //     game,
                 //     game.world.current.width * game.config.render.tile.width,
@@ -171,8 +173,6 @@ export default class Game extends Watcher {
                 //         th: 32,
                 //     },
                 // ), "overworld");
-    
-                game.render.animator.start();
 
                 // game.render.start();
             

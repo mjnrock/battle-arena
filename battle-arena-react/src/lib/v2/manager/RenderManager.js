@@ -17,7 +17,7 @@ export class RenderManager extends LayeredCanvas {
 
         this.__current = null;
 
-        this.onDraw = this.drawAnimationLayers;
+        this.drawFrame = this.drawAnimationLayers;
     }
 
     get id() {

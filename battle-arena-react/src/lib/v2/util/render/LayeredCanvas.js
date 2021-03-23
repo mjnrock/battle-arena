@@ -2,8 +2,8 @@ import Canvas from "./Canvas";
 import TileCanvas from "./TileCanvas";
 
 export default class LayeredCanvas extends TileCanvas {
-    constructor({ canvas, tw = 1, th = 1, width, height, props, onDraw } = {}) {
-        super(tw, th, { canvas, width, height, props, onDraw });
+    constructor({ canvas, tw = 1, th = 1, width, height, props, drawFrame } = {}) {
+        super(tw, th, { canvas, width, height, props, drawFrame });
 
         this.stack = new Map();
     }
@@ -54,6 +54,8 @@ export default class LayeredCanvas extends TileCanvas {
 
     removeAllLayers() {
         this.stack = new Map();
+
+        return this;
     }
 
     swapLayers(key1, key2) {
@@ -102,8 +104,8 @@ export default class LayeredCanvas extends TileCanvas {
         this.stack.forEach(ccanvas => {
             if(ccanvas instanceof LayeredCanvas) {
                 ccanvas.drawAnimationLayers(dt, elapsed, ...drawImageArgs);
-            } else if("onDraw" in ccanvas) {
-                ccanvas.onDraw(dt, elapsed);
+            } else if("drawFrame" in ccanvas) {
+                ccanvas.drawFrame(dt, elapsed);
             }
 
             this.ctx.drawImage(ccanvas.canvas, ...drawImageArgs);
