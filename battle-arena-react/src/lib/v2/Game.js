@@ -133,19 +133,10 @@ export default class Game extends Watcher {
                         game.render.height = game.world.get("overworld").height * 32;
                     }
 
-                    //FIXME This is what actually ensures the renderer gets the correct <EntityManager> -- the swapped worlds don't render correctly without this reassignment
-                    // game.render.current.setEntityManagers([
-                    //     0,
-                    //     1,
-                    // ], [
-                    //     game.world.current.terrain,
-                    //     game.world.current.entities,
-                    // ]).clear().drawLayers();
-
                     bool = !bool;
                 }, 2500);
 
-                console.log(game.render.getLayer(0).canvas.toDataURL());
+                // console.log(game.render.getLayer(0).canvas.toDataURL());
             }, 1500);
 
             //? Bootstrap the rendering
