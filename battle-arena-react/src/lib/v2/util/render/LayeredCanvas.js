@@ -2,8 +2,8 @@ import Canvas from "./Canvas";
 import TileCanvas from "./TileCanvas";
 
 export default class LayeredCanvas extends TileCanvas {
-    constructor({ canvas, tw = 1, th = 1, width, height, props } = {}) {
-        super(tw, th, { canvas, width, height, props });
+    constructor({ canvas, tw = 1, th = 1, width, height, props, onDraw } = {}) {
+        super(tw, th, { canvas, width, height, props, onDraw });
 
         this.stack = new Map();
     }
@@ -28,6 +28,7 @@ export default class LayeredCanvas extends TileCanvas {
     }
 
     startAll() {
+        this.start();
         this.stack.forEach(ccanvas => {
             if(ccanvas instanceof LayeredCanvas) {
                 ccanvas.startAll();
@@ -39,6 +40,7 @@ export default class LayeredCanvas extends TileCanvas {
         return this;
     }
     stopAll() {
+        this.stop();
         this.stack.forEach(ccanvas => {
             if(ccanvas instanceof LayeredCanvas) {
                 ccanvas.stopAll();
@@ -84,6 +86,24 @@ export default class LayeredCanvas extends TileCanvas {
         this.stack.forEach(ccanvas => {
             if(ccanvas instanceof LayeredCanvas) {
                 ccanvas.drawLayers(...drawImageArgs);
+            }
+
+            this.ctx.drawImage(ccanvas.canvas, ...drawImageArgs);
+        });
+
+        return this;
+    }
+
+    drawAnimationLayers(dt, elapsed, ...drawImageArgs) {
+        if(!drawImageArgs.length) {
+            drawImageArgs = [ 0, 0 ];
+        }
+        
+        this.stack.forEach(ccanvas => {
+            if(ccanvas instanceof LayeredCanvas) {
+                ccanvas.drawAnimationLayers(dt, elapsed, ...drawImageArgs);
+            } else if("onDraw" in ccanvas) {
+                ccanvas.onDraw(dt, elapsed);
             }
 
             this.ctx.drawImage(ccanvas.canvas, ...drawImageArgs);

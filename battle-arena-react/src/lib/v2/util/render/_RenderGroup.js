@@ -17,7 +17,7 @@ export class RenderGroup extends LayeredCanvas {
             }
         }
 
-        this.onDraw = () => this.drawLayers();
+        this.drawLayers();
     }
 
     setEntityManager(layerKey, entityMgr) {

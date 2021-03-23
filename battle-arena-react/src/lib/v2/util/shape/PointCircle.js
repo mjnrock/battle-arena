@@ -73,7 +73,7 @@ export default PointCircle;
 //     }
 
 //     points.forEach(([ x, y ]) => {
-//         game.canvas.prop({ fillStyle: "rgba(255, 255, 0, 0.25)" }).tPoint(x, y);
+//         game.render.prop({ fillStyle: "rgba(255, 255, 0, 0.25)" }).tPoint(x, y);
 //     })
 // }
 // getAllCirclePoints(5, 5, 5);

@@ -45,11 +45,6 @@ function Canvas(props) {
 
             // Overwrite the reference to attach canvas to React
             canvas.canvas = ref;
-            canvas.start();
-        }
-
-        return () => {
-            canvas.stop();
         }
     }, []);
 

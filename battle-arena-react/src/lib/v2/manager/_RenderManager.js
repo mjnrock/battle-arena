@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
 import Agency from "@lespantsfancy/agency";
 
-import Registry from "./../util/Registry";
+import Registry from "../util/Registry";
 
-import LayeredCanvas from "./../util/render/LayeredCanvas";
+import LayeredCanvas from "../util/render/LayeredCanvas";
 import ImageRegistry from "../util/render/ImageRegistry";
 
 export class RenderManager extends LayeredCanvas {
@@ -16,8 +16,6 @@ export class RenderManager extends LayeredCanvas {
         this.repository = repository;
 
         this.__current = null;
-
-        this.onDraw = this.drawAnimationLayers;
     }
 
     get id() {

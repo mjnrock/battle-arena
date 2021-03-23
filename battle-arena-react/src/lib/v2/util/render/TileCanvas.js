@@ -1,8 +1,8 @@
 import Canvas from "./Canvas";
 
 export default class TileCanvas extends Canvas {
-    constructor(tw, th, { canvas, width, height, props } = {}) {
-        super({ canvas, width, height, props });
+    constructor(tw, th, { canvas, width, height, props, onDraw } = {}) {
+        super({ canvas, width, height, props, onDraw });
 
         this.tile = {
             width: tw,

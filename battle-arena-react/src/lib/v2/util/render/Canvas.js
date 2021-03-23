@@ -1,9 +1,8 @@
+import Animator from "./Animator";
+
 export default class Canvas {
-    constructor({ canvas, width = 300, height = 150, props = {} } = {}) {
-        this._config = {
-            isAnimating: false,
-            isPaused: false,
-            clearBeforeDraw: true,
+    constructor({ canvas, width = 300, height = 150, onDraw, props = {} } = {}) {
+        this.config = {
             normalization: {
                 arc: -Math.PI / 4,
             }
@@ -19,6 +18,9 @@ export default class Canvas {
         }
 
         this.prop(props);
+
+        this.animator = new Animator(this);
+        this.onDraw = typeof onDraw === "function" ? onDraw : () => {};
     }
 
     get ctx() {
@@ -93,39 +95,39 @@ export default class Canvas {
             const arr = [];
 
             for(let deg of degrees) {
-                arr.push((deg * Math.PI / 180) + this._config.normalization.arc);
+                arr.push((deg * Math.PI / 180) + this.config.normalization.arc);
             }
 
             return arr;
         }
 
-        return (degrees[ 0 ] * Math.PI / 180) + this._config.normalization.arc;
+        return (degrees[ 0 ] * Math.PI / 180) + this.config.normalization.arc;
     }
     radToDeg(...radians) {
         if(radians.length > 1) {
             const arr = [];
 
             for(let rad of radians) {
-                arr.push((rad + this._config.normalization.arc) * 180 / Math.PI);
+                arr.push((rad + this.config.normalization.arc) * 180 / Math.PI);
             }
 
             return arr;
         }
 
-        return (radians[ 0 ] + this._config.normalization.arc) * 180 / Math.PI;
+        return (radians[ 0 ] + this.config.normalization.arc) * 180 / Math.PI;
     }
 
     //* Shape methods
     arc(x, y, radius, startAngle = 0, endAngle = Math.PI * 2, { isFilled = false } = {}) {
         if(isFilled) {
             this.ctx.beginPath();
-            this.ctx.arc(x, y, radius, startAngle + this._config.normalization.arc, endAngle + this._config.normalization.arc);
+            this.ctx.arc(x, y, radius, startAngle + this.config.normalization.arc, endAngle + this.config.normalization.arc);
             this.ctx.closePath();
             this.ctx.fill();
             this.ctx.stroke();
         } else {
             this.ctx.beginPath();
-            this.ctx.arc(x, y, radius, startAngle + this._config.normalization.arc, endAngle + this._config.normalization.arc);
+            this.ctx.arc(x, y, radius, startAngle + this.config.normalization.arc, endAngle + this.config.normalization.arc);
             this.ctx.closePath();
             this.ctx.stroke();
         }
@@ -318,35 +320,6 @@ export default class Canvas {
         return this;
     }
 
-    eraseFirst() {
-        this._config.clearBeforeDraw = true;
-
-        return this;
-    }
-    dontEraseFirst() {        
-        this._config.clearBeforeDraw = false;
-
-        return this;
-    }
-    
-    draw(elapsed) {
-        if(!this._config.isPaused) {
-            if(this._config.clearBeforeDraw === true) {
-                this.clear();
-            }
-
-            this.onDraw(elapsed - this.__lastDraw, elapsed, this.ctx, this.canvas, this);
-            this.__lastDraw = elapsed;
-        }
-            
-        if(this._config.isAnimating === true) {
-            requestAnimationFrame(this.draw.bind(this));
-        }
-
-        return this;
-    }
-    onDraw() {}
-
     save() {
         this.ctx.save();
 
@@ -354,31 +327,6 @@ export default class Canvas {
     }
     restore() {
         this.ctx.restore();
-
-        return this;
-    }
-
-    start() {
-        this._config.isAnimating = true;
-
-        requestAnimationFrame(this.draw.bind(this));
-
-        return this;
-    }
-    pause() {
-        this._config.isPaused = true;
-
-        return this;
-    }
-    play() {
-        this._config.isPaused = false;
-
-        return this;
-    }
-    stop() {
-        this._config.isAnimating = false;
-        
-        delete this.__lastDraw;
 
         return this;
     }

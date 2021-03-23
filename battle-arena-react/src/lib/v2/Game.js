@@ -13,7 +13,7 @@ import Pulse from "./util/Pulse";
     import { loadEntity, loadTerrain } from "./data/render/entity";
 
     import { drawLayer as createEntityLayer, comparator as entityLayerComparator } from "./data/render/world-entity-layer";
-    import { drawLayer as createTerrainLayer, comparator as terrainLayerComparator } from "./data/render/world-terrain-layer";
+    import { onDraw as drawTerrainLayer, drawLayer as createTerrainLayer, comparator as terrainLayerComparator } from "./data/render/world-terrain-layer";
     
     import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
     import componentPosition from "./data/entity/components/position";
@@ -25,6 +25,7 @@ import WorldManager from "./manager/WorldManager";
 import Arena from "./Arena";
 import PlayerManager from "./manager/PlayerManager";
 import Entity from "./Entity";
+import Animator from "./util/render/Animator";
 //STUB END "Imports"
 
 export default class Game extends Watcher {
@@ -132,16 +133,18 @@ export default class Game extends Watcher {
                     }
 
                     //FIXME This is what actually ensures the renderer gets the correct <EntityManager> -- the swapped worlds don't render correctly without this reassignment
-                    game.render.current.setEntityManagers([
-                        0,
-                        1,
-                    ], [
-                        game.world.current.terrain,
-                        game.world.current.entities,
-                    ]).clear().drawLayers();
+                    // game.render.current.setEntityManagers([
+                    //     0,
+                    //     1,
+                    // ], [
+                    //     game.world.current.terrain,
+                    //     game.world.current.entities,
+                    // ]).clear().drawLayers();
 
                     bool = !bool;
                 }, 2500);
+
+                console.log(game.render.getLayer(0).canvas.toDataURL());
             }, 1500);
 
             //? Bootstrap the rendering
@@ -151,105 +154,107 @@ export default class Game extends Watcher {
                 await game.render.loadImages(loadEntity);
                 await game.render.loadImages(loadTerrain);
 
-                game.render.useGroup(new RenderGroup(
-                    game,
-                    game.world.current.width * game.config.render.tile.width,
-                    game.world.current.height * game.config.render.tile.height,
-                    [
-                        new RenderLayer(game.world.current.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
-                        new RenderLayer(game.world.current.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
-                        new RenderLayer([], { config: { clearBeforeDraw: true } }),
-                    ],
-                    {
-                        tw: 32,
-                        th: 32,
-                    },
-                ), "overworld");
+                game.render.addLayer(
+                    new RenderLayer(game, { onDraw: drawTerrainLayer })
+                );
+                // game.render.useGroup(new RenderGroup(
+                //     game,
+                //     game.world.current.width * game.config.render.tile.width,
+                //     game.world.current.height * game.config.render.tile.height,
+                //     [
+                //         new RenderLayer(game.world.current.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
+                //         new RenderLayer(game.world.current.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
+                //         new RenderLayer([], { config: { clearBeforeDraw: true } }),
+                //     ],
+                //     {
+                //         tw: 32,
+                //         th: 32,
+                //     },
+                // ), "overworld");
     
-                game.render.eraseFirst();
-                game.render.onDraw = (dt, elapsed) => {
-                    game.render.drawLayers();
-                };
+                game.render.animator.start();
+
+                // game.render.start();
             
-                game.render.current.getLayer(2).addHook(function(dt, elapsed) {
-                    if(game.config.SHOW_UI) {
-                        this.save();
-                            let mouse = {
-                                tx: ((this.game.config.MOUSE_POSITION || [])[ 0 ] || 0),
-                                ty: ((this.game.config.MOUSE_POSITION || [])[ 1 ] || 0),
-                            };
-                            mouse.x = mouse.tx * this.tw;
-                            mouse.y = mouse.ty * this.th;
+                // game.render.current.getLayer(2).addHook(function(dt, elapsed) {
+                //     if(game.config.SHOW_UI) {
+                //         this.save();
+                //             let mouse = {
+                //                 tx: ((this.game.config.MOUSE_POSITION || [])[ 0 ] || 0),
+                //                 ty: ((this.game.config.MOUSE_POSITION || [])[ 1 ] || 0),
+                //             };
+                //             mouse.x = mouse.tx * this.tw;
+                //             mouse.y = mouse.ty * this.th;
 
-                            this.ctx.strokeStyle = `rgba(180, 180, 180, 0.25)`;
-                            let r = 5;
-                            for(let dx = -r; dx <= r; dx++) {
-                                for(let dy = -r; dy <= r; dy++) {
-                                    this.tRect(
-                                        mouse.tx + dx,
-                                        mouse.ty + dy,
-                                        1,
-                                        1,
-                                        { isFilled: false },
-                                    );
-                                }
-                            }
+                //             this.ctx.strokeStyle = `rgba(180, 180, 180, 0.25)`;
+                //             let r = 5;
+                //             for(let dx = -r; dx <= r; dx++) {
+                //                 for(let dy = -r; dy <= r; dy++) {
+                //                     this.tRect(
+                //                         mouse.tx + dx,
+                //                         mouse.ty + dy,
+                //                         1,
+                //                         1,
+                //                         { isFilled: false },
+                //                     );
+                //                 }
+                //             }
 
-                            this.ctx.strokeStyle = `rgba(210, 210, 210, 0.25)`;
-                            this.prop({ lineWidth: 5 }).tRect(
-                                mouse.tx,
-                                mouse.ty,
-                                1,
-                                1,
-                                { isFilled: false },
-                            );
+                //             this.ctx.strokeStyle = `rgba(210, 210, 210, 0.25)`;
+                //             this.prop({ lineWidth: 5 }).tRect(
+                //                 mouse.tx,
+                //                 mouse.ty,
+                //                 1,
+                //                 1,
+                //                 { isFilled: false },
+                //             );
 
-                            let feather = 32,
-                                radius = 128;
+                //             let feather = 32,
+                //                 radius = 128;
 
-                            this.ctx.globalCompositeOperation = "destination-in";
-                            this.ctx.filter = `blur(${ feather }px)`;  // "feather"
+                //             this.ctx.globalCompositeOperation = "destination-in";
+                //             this.ctx.filter = `blur(${ feather }px)`;  // "feather"
 
-                            this.ctx.beginPath();
-                            this.ctx.arc(mouse.x + this.tw / 2, mouse.y + this.th / 2, radius, 0, 2 * Math.PI);
-                            this.ctx.fill();
+                //             this.ctx.beginPath();
+                //             this.ctx.arc(mouse.x + this.tw / 2, mouse.y + this.th / 2, radius, 0, 2 * Math.PI);
+                //             this.ctx.fill();
 
-                            this.ctx.globalCompositeOperation = "destination-out";
-                            this.ctx.filter = "none";
+                //             this.ctx.globalCompositeOperation = "destination-out";
+                //             this.ctx.filter = "none";
 
-                        this.restore();
-                    }
-                });
-                game.render.current.getLayer(2).addHook(function(dt, elapsed) {
-                    if(game.config.SHOW_UI) {
-                        this.save();
-                        const player = game.players.player;
-                        // const player = game.world.current.entities.player;
-                        const path = player.movement.path || [];
-                        const [ x, y ] = player.movement.destination || [];
+                //         this.restore();
+                //     }
+                // });
+                // game.render.current.getLayer(2).addHook(function(dt, elapsed) {
+                //     if(game.config.SHOW_UI) {
+                //         this.save();
+                //         const player = game.players.player;
+                //         // const player = game.world.current.entities.player;
+                //         const path = player.movement.path || [];
+                //         const [ x, y ] = player.movement.destination || [];
 
-                        for(let [ tx, ty ] of path) {
-                            this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
-                                tx,
-                                ty,
-                                1,
-                                1,
-                                { isFilled: true },
-                            );
-                        }
+                //         for(let [ tx, ty ] of path) {
+                //             this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
+                //                 tx,
+                //                 ty,
+                //                 1,
+                //                 1,
+                //                 { isFilled: true },
+                //             );
+                //         }
                         
-                        if(!(player.position.x === x && player.position.y === y)) {
-                            this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
-                                x,
-                                y,
-                                1,
-                                1,
-                                { isFilled: true },
-                            );
-                        }
-                        this.restore();
-                    }
-                });
+                //         if(!(player.position.x === x && player.position.y === y)) {
+                //             this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
+                //                 x,
+                //                 y,
+                //                 1,
+                //                 1,
+                //                 { isFilled: true },
+                //             );
+                //         }
+                //         this.restore();
+                //     }
+                // });
 
 
                 //? Key and Mouse Bindings
