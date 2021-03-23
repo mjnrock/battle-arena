@@ -44,7 +44,12 @@ export async function drawAnimationFrameEntity(dt, elapsed, terrain) {
 
     if(spriteSheet) {
         spriteSheet.paint(0, elapsed, this.canvas, terrain.position.x * this.tw, terrain.position.y * this.th);
+        
+        //STUB  Draw dirt edges
+        if(terrain.terrain.type === DictTerrain.DIRT.type) {
+            this.image(spriteSheet.entries[ 1 ].get(terrain.terrain.edges), terrain.position.x * this.tw, terrain.position.y * this.th);
+        }
     }
 };
 
-export default drawAnimationFrameEntity;
+export default drawAnimationFrame;

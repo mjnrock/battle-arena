@@ -12,8 +12,9 @@ import Pulse from "./util/Pulse";
     import initImageRepository from "./data/render/repository";
     import { loadEntity, loadTerrain } from "./data/render/entity";
 
-    import { drawAnimationFrame as drawEntityLayer, drawAnimationFrameEntity as createEntityLayer, comparator as entityLayerComparator } from "./data/render/world-entity-layer";
-    import { drawAnimationFrame as drawTerrainLayer, drawAnimationFrameEntity as createTerrainLayer, comparator as terrainLayerComparator } from "./data/render/world-terrain-layer";
+    import drawEntityLayer from "./data/render/world-entity-layer";
+    import drawTerrainLayer from "./data/render/world-terrain-layer";
+    import drawUILayer from "./data/render/world-ui-layer";
     
     import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
     import componentPosition from "./data/entity/components/position";
@@ -161,105 +162,9 @@ export default class Game extends Watcher {
                 game.render.addLayer(
                     new RenderLayer(game, { drawAnimationFrame: drawTerrainLayer }),
                     new RenderLayer(game, { drawAnimationFrame: drawEntityLayer }),
+                    new RenderLayer(game, { drawAnimationFrame: drawUILayer }),
                 );
                 game.render.animator.start();
-
-                // game.render.useGroup(new RenderGroup(
-                //     game,
-                //     game.world.current.width * game.config.render.tile.width,
-                //     game.world.current.height * game.config.render.tile.height,
-                //     [
-                //         new RenderLayer(game.world.current.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
-                //         new RenderLayer(game.world.current.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
-                //         new RenderLayer([], { config: { clearBeforeDraw: true } }),
-                //     ],
-                //     {
-                //         tw: 32,
-                //         th: 32,
-                //     },
-                // ), "overworld");
-
-                // game.render.start();
-            
-                // game.render.current.getLayer(2).addHook(function(dt, elapsed) {
-                //     if(game.config.SHOW_UI) {
-                //         this.save();
-                //             let mouse = {
-                //                 tx: ((this.game.config.MOUSE_POSITION || [])[ 0 ] || 0),
-                //                 ty: ((this.game.config.MOUSE_POSITION || [])[ 1 ] || 0),
-                //             };
-                //             mouse.x = mouse.tx * this.tw;
-                //             mouse.y = mouse.ty * this.th;
-
-                //             this.ctx.strokeStyle = `rgba(180, 180, 180, 0.25)`;
-                //             let r = 5;
-                //             for(let dx = -r; dx <= r; dx++) {
-                //                 for(let dy = -r; dy <= r; dy++) {
-                //                     this.tRect(
-                //                         mouse.tx + dx,
-                //                         mouse.ty + dy,
-                //                         1,
-                //                         1,
-                //                         { isFilled: false },
-                //                     );
-                //                 }
-                //             }
-
-                //             this.ctx.strokeStyle = `rgba(210, 210, 210, 0.25)`;
-                //             this.prop({ lineWidth: 5 }).tRect(
-                //                 mouse.tx,
-                //                 mouse.ty,
-                //                 1,
-                //                 1,
-                //                 { isFilled: false },
-                //             );
-
-                //             let feather = 32,
-                //                 radius = 128;
-
-                //             this.ctx.globalCompositeOperation = "destination-in";
-                //             this.ctx.filter = `blur(${ feather }px)`;  // "feather"
-
-                //             this.ctx.beginPath();
-                //             this.ctx.arc(mouse.x + this.tw / 2, mouse.y + this.th / 2, radius, 0, 2 * Math.PI);
-                //             this.ctx.fill();
-
-                //             this.ctx.globalCompositeOperation = "destination-out";
-                //             this.ctx.filter = "none";
-
-                //         this.restore();
-                //     }
-                // });
-                // game.render.current.getLayer(2).addHook(function(dt, elapsed) {
-                //     if(game.config.SHOW_UI) {
-                //         this.save();
-                //         const player = game.players.player;
-                //         // const player = game.world.current.entities.player;
-                //         const path = player.movement.path || [];
-                //         const [ x, y ] = player.movement.destination || [];
-
-                //         for(let [ tx, ty ] of path) {
-                //             this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
-                //                 tx,
-                //                 ty,
-                //                 1,
-                //                 1,
-                //                 { isFilled: true },
-                //             );
-                //         }
-                        
-                //         if(!(player.position.x === x && player.position.y === y)) {
-                //             this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
-                //                 x,
-                //                 y,
-                //                 1,
-                //                 1,
-                //                 { isFilled: true },
-                //             );
-                //         }
-                //         this.restore();
-                //     }
-                // });
 
 
                 //? Key and Mouse Bindings

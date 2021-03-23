@@ -159,4 +159,4 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
     }
 };
 
-export default drawAnimationFrameEntity;
+export default drawAnimationFrame;

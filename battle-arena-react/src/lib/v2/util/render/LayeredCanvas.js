@@ -11,12 +11,14 @@ export default class LayeredCanvas extends TileCanvas {
     getLayer(key = 0) {
         return this.stack.get(key);
     }
-    addLayer(value) {
-        const key = this.stack.size;
-        if(value instanceof Canvas) {
-            this.stack.set(key, value);
-        } else if(value instanceof HTMLCanvasElement) {
-            this.stack.set(key, new Canvas(value));
+    addLayer(...layers) {
+        for(let layer of layers) {
+            const key = this.stack.size;
+            if(layer instanceof Canvas) {
+                this.stack.set(key, layer);
+            } else if(layer instanceof HTMLCanvasElement) {
+                this.stack.set(key, new Canvas(layer));
+            }
         }
 
         return this;
@@ -104,7 +106,7 @@ export default class LayeredCanvas extends TileCanvas {
         this.stack.forEach(ccanvas => {
             if(ccanvas instanceof LayeredCanvas) {
                 ccanvas.drawAnimationLayers(dt, elapsed, ...drawImageArgs);
-            } else if("drawAnimationFrame" in ccanvas) {
+            } else {
                 ccanvas.drawAnimationFrame(dt, elapsed);
             }
 
