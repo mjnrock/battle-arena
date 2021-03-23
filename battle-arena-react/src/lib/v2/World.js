@@ -10,7 +10,6 @@ import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
 import componentPosition from "./data/entity/components/position";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
-import componentAction from "./data/entity/components/movement";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
 
@@ -21,21 +20,14 @@ export class World {
         this.width = width;
         this.height = height;
 
-        this.__entities = new EntityManager();
-        this.__terrain = new EntityManager();
+        this.entities = new EntityManager();
+        this.terrain = new EntityManager();
 
-        this.__nodes = new NodeManager([ width, height ], this.__entities);
+        this.__nodes = new NodeManager([ width, height ], this.entities);
     }
 
     get id() {
         return this.__id;
-    }
-
-    get entities() {
-        return this.__entities;
-    }
-    get terrain() {
-        return this.__terrain;
     }
 
     get nodes() {

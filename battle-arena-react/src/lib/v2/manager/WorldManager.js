@@ -17,8 +17,8 @@ export class WorldManager {
 
         return this;
     }
-    remove(world, ...synonyms) {
-        this.worlds.unregister(world, ...synonyms);
+    remove(world) {
+        this.worlds.unregister(world);
 
         return this;
     }
