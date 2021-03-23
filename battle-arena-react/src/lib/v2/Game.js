@@ -116,36 +116,15 @@ export default class Game extends Watcher {
 
             game.players.register(player, "player");
 
-            // STUB  Async testing
-            setTimeout(() => {
-                //STUB  Change the World at interval
-                let bool = true;
-                setInterval(() => {
-                    if(bool) {
-                        game.world.migrate(game.players.player, "arena");
-
-                        game.render.width = game.world.get("arena").width * 32;
-                        game.render.height = game.world.get("arena").height * 32;
-                    } else {
-                        game.world.migrate(game.players.player, "overworld");
-
-                        game.render.width = game.world.get("overworld").width * 32;
-                        game.render.height = game.world.get("overworld").height * 32;
-                    }
-
-                    bool = !bool;
-                }, 2500);
-
-                // console.log(game.render.getLayer(0).canvas.toDataURL());
-            }, 1500);
-
+            
             //? Bootstrap the rendering
-            game.render = new RenderManager(game, {
-                width: game.world.current.width * game.config.render.tile.width,
-                height: game.world.current.height * game.config.render.tile.height,
-                repository: initImageRepository()
-            });
             (async () => {
+                game.render = new RenderManager(game, {
+                    width: game.world.current.width * game.config.render.tile.width,
+                    height: game.world.current.height * game.config.render.tile.height,
+                    repository: initImageRepository()
+                });
+
                 //  Load Images
                 await game.render.loadImages(loadEntity);
                 await game.render.loadImages(loadTerrain);
@@ -194,6 +173,24 @@ export default class Game extends Watcher {
                         game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];
                     }
                 });
+                
+                //STUB  Change the World at interval
+                let bool = true;
+                setInterval(() => {
+                    if(bool) {
+                        game.world.migrate(game.players.player, "arena");
+
+                        game.render.width = game.world.get("arena").width * 32;
+                        game.render.height = game.world.get("arena").height * 32;
+                    } else {
+                        game.world.migrate(game.players.player, "overworld");
+
+                        game.render.width = game.world.get("overworld").width * 32;
+                        game.render.height = game.world.get("overworld").height * 32;
+                    }
+
+                    bool = !bool;
+                }, 2500);
             })();
 
             game.loop.start();
