@@ -5,11 +5,11 @@ import World from "../World";
 import { hasPosition } from "../data/entity/components/position";
 
 export class WorldManager {
-    constructor(game) {
+    constructor(game, { repository } = {}) {
         this.__id = uuidv4();
         this.__game = game;
 
-        this.repository = new Agency.Registry();
+        this.repository = repository || new Agency.Registry();
     }
 
     add(world, ...synonyms) {
