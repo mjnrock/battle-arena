@@ -69,7 +69,7 @@ export class NodeManager extends Watcher {
         const node = this.nodes.get(entity.position.x, entity.position.y);
 
         if(node instanceof Set) {
-            node.add(entity);
+            node.add(entity.$.proxy);
             this._cache[ entity.__id ] = {
                 x: entity.position.x,
                 y: entity.position.y,
@@ -86,7 +86,7 @@ export class NodeManager extends Watcher {
             const node = this.nodes.get(x, y);
     
             if(node instanceof Set) {
-                node.delete(entity);
+                node.delete(entity.$.proxy);
     
                 return true;
             }
@@ -106,7 +106,7 @@ export class NodeManager extends Watcher {
         for(let row of this.nodes.toLeaf()) {
             for(let cell of row) {
                 if(cell instanceof Set) {
-                    if(cell.delete(entity)) {
+                    if(cell.delete(entity.$.proxy)) {
                         return true;
                     }
                 }

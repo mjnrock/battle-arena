@@ -23,23 +23,33 @@ export class World {
         this.width = width;
         this.height = height;
 
-        this.entities = new EntityManager();
-        this.terrain = new EntityManager();
+        this.__entities = new EntityManager();
+        this.__terrain = new EntityManager();
 
-        //TODO  Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
-        this.nodes = new NodeManager([ width, height ], this.entities);  // Entities only
-        // this.nodes = new NodeManager([ width, height ], this.entities, this.terrain);
+        //TODO Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
+        this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
+        // this.__nodes = new NodeManager([ width, height ], this.__entities, this.__terrain);
     }
 
     get id() {
         return this.__id;
     }
 
+    get entities() {
+        return this.__entities;
+    }
+    get terrain() {
+        return this.__terrain;
+    }
+
+    get nodes() {
+        return this.__nodes.nodes;  // Agency..CrossMap
+    }
     get node() {
-        return this.nodes.node;   // fn
+        return this.__nodes.node;   // fn
     }
     get range() {
-        return this.nodes.range;  // fn
+        return this.__nodes.range;  // fn
     }
 
     join(entity, ...synonyms) {
@@ -51,7 +61,18 @@ export class World {
 
         this.entities.register(entity, ...synonyms);
 
-        this.nodes.joinNode(entity);
+        this.__nodes.joinNode(entity);
+
+        const _this = this.__nodes;
+        this.entities.$.subscribe(function(prop, value) {
+            if(prop.startsWith("position")) {
+                const entity = this.subject;
+
+                if(entity instanceof Entity) {
+                    _this.moveToNode(entity);
+                }
+            }
+        });
 
         return true;
     }
@@ -60,11 +81,11 @@ export class World {
 
         entity.position.world = null;
 
-        if(!this.nodes.leaveNode(entity)) {
-            this.nodes.clearFromNodes(entity);
+        if(!this.__nodes.leaveNode(entity)) {
+            this.__nodes.clearFromNodes(entity);
         }
         
-        delete this.nodes._cache[ entity.__id ];
+        delete this.__nodes._cache[ entity.__id ];
     }
 
     
@@ -132,9 +153,10 @@ export function CreateRandom(width, height, enemyCount = 5) {
 
     world.entities.createMany(enemyCount, [
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
-        [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
+        [ componentPosition, { world, x: () => Agency.Util.Dice.random(4, 6), y: () => Agency.Util.Dice.random(7, 9), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
+        // [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
-        [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
+        [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 1499), current: () => () => false } ],
     ], (i) => `enemy-${ i }`);
 
     return world;

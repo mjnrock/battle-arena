@@ -56,6 +56,28 @@ export class RenderLayer extends TileCanvas {
         this.__cache = new Map();
         this.clear();
     }
+    
+    // get entityManager() {
+    //     if(typeof this.__entityManager === "function") {
+    //         return this.__entityManager();
+    //     }
+
+    //     return this.__entityManager;
+    // }
+    // set entityManager(value) {
+    //     this.__cache = new Map();
+    //     this.clear();
+
+    //     if(typeof value === "function") {
+    //         this.__entityManager = value;
+    //     } else {
+    //         if(value instanceof EntityManager) {
+    //             this.__entityManager = value;
+    //         } else if(Array.isArray(value)) {
+    //             this.__entityManager = new EntityManager(value);
+    //         }
+    //     }
+    // }
 
     get(key) {
         return this.cache.get(key) || {};

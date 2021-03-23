@@ -114,50 +114,35 @@ export default class Game extends Watcher {
 
             game.players.register(player, "player");
 
-            //#region STUB
-            // game.players.$.subscribe(function(prop, value) {
-            //     if([ "position.x", "position.y" ].includes(prop)) {
-            //         console.log(prop, value);
-            //     }
-            // });
-            
-            // game.world.current.entities.$.subscribe(function(prop, value) {
-            //     console.log(prop, value);
-            // });
+            // STUB  Async testing
+            setTimeout(() => {
+                //STUB  Change the World at interval
+                let bool = true;
+                setInterval(() => {
+                    if(bool) {
+                        game.world.migrate(game.players.player, "arena");
 
-            // // STUB  Async testing
-            // setTimeout(() => {
-            //     //STUB  Change the World at interval
-            //     let bool = true;
-            //     setInterval(() => {
-            //         if(bool) {
-            //             game.world.migrate(game.players.player, "arena");
+                        game.render.width = game.world.get("arena").width * 32;
+                        game.render.height = game.world.get("arena").height * 32;
+                    } else {
+                        game.world.migrate(game.players.player, "overworld");
 
-            //             game.render.width = game.world.get("arena").width * 32;
-            //             game.render.height = game.world.get("arena").height * 32;
-            //         } else {
-            //             game.world.migrate(game.players.player, "overworld");
+                        game.render.width = game.world.get("overworld").width * 32;
+                        game.render.height = game.world.get("overworld").height * 32;
+                    }
 
-            //             game.render.width = game.world.get("overworld").width * 32;
-            //             game.render.height = game.world.get("overworld").height * 32;
-            //         }
+                    //FIXME This is what actually ensures the renderer gets the correct <EntityManager> -- the swapped worlds don't render correctly without this reassignment
+                    game.render.current.setEntityManagers([
+                        0,
+                        1,
+                    ], [
+                        game.world.current.terrain,
+                        game.world.current.entities,
+                    ]).clear().drawLayers();
 
-            //         game.render.current.setEntityManagers([
-            //             0,
-            //             1,
-            //         ], [
-            //             game.world.current.terrain,
-            //             game.world.current.entities,
-            //         ]).clear().drawLayers();
-
-            //         bool = !bool;
-            //     }, 2500);
-
-            //STUB  Testing cases for entities
-            // for(let entity of game.world.current.entities.values) {
-            //     console.log(entity.health.value.rate);
-            // }
-            //#endregion
+                    bool = !bool;
+                }, 2500);
+            }, 1500);
 
             //? Bootstrap the rendering
             game.render = new RenderManager(game, { repository: initImageRepository() });
@@ -168,11 +153,11 @@ export default class Game extends Watcher {
 
                 game.render.useGroup(new RenderGroup(
                     game,
-                    game.world.get("overworld").width * game.config.render.tile.width,
-                    game.world.get("overworld").height * game.config.render.tile.height,
+                    game.world.current.width * game.config.render.tile.width,
+                    game.world.current.height * game.config.render.tile.height,
                     [
-                        new RenderLayer(game.world.get("overworld").terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
-                        new RenderLayer(game.world.get("overworld").entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
+                        new RenderLayer(game.world.current.terrain, { painter: createTerrainLayer, comparator: terrainLayerComparator, config: { clearBeforeDraw: false } }),
+                        new RenderLayer(game.world.current.entities, { painter: createEntityLayer, comparator: entityLayerComparator, config: { clearBeforeDraw: true } }),
                         new RenderLayer([], { config: { clearBeforeDraw: true } }),
                     ],
                     {
@@ -183,10 +168,6 @@ export default class Game extends Watcher {
     
                 game.render.eraseFirst();
                 game.render.onDraw = (dt, elapsed) => {
-                    if(Math.random() > 0.99) {
-                        // console.log(game.render.canvas.toDataURL())
-                    }
-
                     game.render.drawLayers();
                 };
             

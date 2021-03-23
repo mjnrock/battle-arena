@@ -1,39 +1,45 @@
 World:
     WorldManager:
-        [] Swap the focus of the game loop on a <World> change
-            [] Ensure all entities and renderers are stopped/started
-    Render:
-        [] Attach rendering view to .current
-            RenderManager:
-                ✔ Use <RenderGroup> to hold all <World> layers @done(21-03-19 10:18)
-                [] Create a registry between a <RenderGroup> and a <World>
-                    [] Consider <Arena> to be a separate <World>
-                [] Listen to <WorldManager> to determine which <World> should be rendered
-            RenderGroup:
-                [] Make this the "root" for a given world
-                [] .start/.stop whenever a <RenderGroup> is swapped
-                ✔ Attach <Game> to the <RenderGroup> @done(21-03-19 10:18)
-            RenderLayer:
-                [] Come up with a better paradigm for hook management
-        [] Smoothly transition movement from one tile to the next
-            [] (OPTIONAL) Interpolate movement graphically, instead, at 1/2 step in current tile, 1/2 in next
-            [] Utilize <Component.Movement> to determine next move
-                [] Assign .facing based on progression direction
-            [] Progress toward next [ x, y ] at .range/GCD speed
-        [] Force redraw under certain circumstances:
-            [] World transition
-            [] Window resize/fullscreen
-    Overworld:
-    ✔ Create <WorldManager::Agency..Registry> @done(21-03-19 09:13)
-        ✔ Inject into <Game> .world variable @done(21-03-19 09:13)
-        ✔ .current should return w/e <World> the Player is in @done(21-03-19 09:24)
+        ☐ Ensure all entities and renderers are stopped/started
     Arena:
-    ✔ Create <Arena::World> @done(21-03-19 09:27)
-        [] Create invocation process for <Arena>
-            [] Create manual activation process
-                [] button press: (from overworld) --> teleport to newly spawned <Arena>, (from arena) --> teleport back to overworld
-                [] Transition to sense-based aggression radius
-        [] Transition process to .leave/.join entities into/out of <Arena>
-            [] OnVictory => Teleport back to Overworld at previous location
-            [] OnDefeat => Teleport back to Overworld at nearest revive location
-    [] Create a turn cycle for entities in an <Arena>
+        ☐ Create invocation process for <Arena>
+            ☐ @optional Create manual activation process
+                ☐ @optional button press: (from overworld) --> teleport to newly spawned <Arena>, (from arena) --> teleport back to overworld
+            ☐ Transition to sense-based aggression radius
+        ☐ Create a turn cycle for entities in an <Arena>
+        ☐ Transition process to .leave/.join entities into/out of <Arena>
+            ☐ OnVictory => Teleport back to Overworld at previous location
+            ☐ OnDefeat => Teleport back to Overworld at nearest revive location
+
+Render:
+    RenderLayer:
+        ☐ Come up with a better paradigm for hook management
+
+    Viewport:
+        ☐ Force redraw under certain circumstances:
+            ☐ World transition
+            ☐ Window resize/fullscreen
+
+    Movement:
+        ☐ Smoothly transition movement from one tile to the next
+            ☐ @optional Interpolate movement graphically, instead, at 1/2 step in current tile, 1/2 in next
+            ☐ Utilize <Component.Movement> to determine next move
+                ☐ Assign .facing based on progression direction
+            ☐ Progress toward next [ x, y ] at .range/GCD speed
+
+========================================================================================================================
+Archive:
+    ✘ Make this the "root" for a given world @cancelled(21-03-23 09:22) @project(World.Render.RenderGroup)
+    ✘ .start/.stop whenever a <RenderGroup> is swapped @cancelled(21-03-23 09:23) @project(World.Render.RenderGroup)
+    ✘ Consider <Arena> to be a separate <World> @cancelled(21-03-23 09:19) @project(World.Render.RenderManager)
+    ✘ Listen to <WorldManager> to determine which <World> should be rendered @cancelled(21-03-23 09:20) @project(World.Render.RenderManager)
+    ✔ Swap the focus of the game loop on a <World> change @done(21-03-22 20:16) @project(World.WorldManager)
+    ✔ Attach rendering view to .current @done(21-03-22 20:15) @project(World.Render)
+    ✔ Use <RenderGroup> to hold all <World> layers @done(21-03-19 10:18) @project(World.Render.RenderManager)
+    ✘ Create a registry between a <RenderGroup> and a <World> @cancelled(21-03-23 09:19) @project(World.Render.RenderManager)
+    ✔ Attach <Game> to the <RenderGroup> @done(21-03-19 10:18) @project(World.Render.RenderGroup)
+    ✔ Create <WorldManager::Agency..Registry> @done(21-03-19 09:13) @project(World)
+    ✔ Create <Arena::World> @done(21-03-19 09:27) @project(World)
+    ✔ Inject into <Game> .world variable @done(21-03-19 09:13) @project(World)
+    ✔ .current should return w/e <World> the Player is in @done(21-03-19 09:24) @project(World)
+========================================================================================================================

@@ -33,7 +33,7 @@ export class RenderManager extends LayeredCanvas {
         return await fn.call(this, this.game, ...args);
     }
 
-    useGroup(group, ...synonyms) {
+    useGroup(group) {
         if(!this.__current) {
             this.__current = group;
         }

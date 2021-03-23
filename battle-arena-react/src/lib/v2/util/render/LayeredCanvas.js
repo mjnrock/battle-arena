@@ -28,12 +28,24 @@ export default class LayeredCanvas extends TileCanvas {
     }
 
     startAll() {
-        this.stack.forEach(ccanvas => ccanvas.start());
+        this.stack.forEach(ccanvas => {
+            if(ccanvas instanceof LayeredCanvas) {
+                ccanvas.startAll();
+            } else {
+                ccanvas.start();
+            }
+        });
 
         return this;
     }
     stopAll() {
-        this.stack.forEach(ccanvas => ccanvas.stop());
+        this.stack.forEach(ccanvas => {
+            if(ccanvas instanceof LayeredCanvas) {
+                ccanvas.stopAll();
+            } else {
+                ccanvas.stop();
+            }
+        });
 
         return this;
     }
