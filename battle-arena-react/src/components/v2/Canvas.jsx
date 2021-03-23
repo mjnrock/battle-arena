@@ -2,10 +2,12 @@
 import Agency from "@lespantsfancy/agency";
 import React,{ useEffect } from "react";
 
+import EventWatchable from "./../../lib/v2/util/EventWatchable";
+
 /**
  * Props
  * @canvas <Canvas>
- * @onDraw fn | Will be given @canvas as its scope
+ * @drawAnimationFrame fn | Will be given @canvas as its scope
  */
 function Canvas(props) {
     const { canvas, mouseHandler, ...rest } = props;
@@ -28,7 +30,7 @@ function Canvas(props) {
             }
 
             //NOTE  Presumably this gc's itself on @ref:@canvas.canvas destruction, but I haven't tested it
-            Agency.EventObservable.SubjectFactory(ref, [
+            canvas.__handler = new EventWatchable(ref, [
                 "click",
                 "contextmenu",
                 "mousedown",
@@ -43,11 +45,6 @@ function Canvas(props) {
 
             // Overwrite the reference to attach canvas to React
             canvas.canvas = ref;
-            canvas.start();
-        }
-
-        return () => {
-            canvas.stop();
         }
     }, []);
 

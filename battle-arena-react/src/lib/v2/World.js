@@ -4,7 +4,6 @@ import Agency from "@lespantsfancy/agency";
 import EntityManager from "./manager/EntityManager";
 import { hasPosition as hasComponentPosition } from "./data/entity/components/position";
 
-import Beacon from "./util/Beacon";
 import NodeManager from "./manager/NodeManager";
 
 import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
@@ -15,17 +14,17 @@ import componentAction from "./data/entity/components/movement";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
 
-export class World extends Beacon {
-    constructor(width, height) {
-        super();
+import Entity from "./Entity";
 
+export class World {
+    constructor(width, height) {
         this.__id = uuidv4();
 
         this.width = width;
         this.height = height;
 
-        this.__entities = EntityManager.SubjectFactory(); // <Observer>-wrapped <Observable>
-        this.__terrain = EntityManager.SubjectFactory();  // <Observer>-wrapped <Observable>
+        this.__entities = new EntityManager();
+        this.__terrain = new EntityManager();
 
         //TODO Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
         this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
@@ -37,10 +36,10 @@ export class World extends Beacon {
     }
 
     get entities() {
-        return this.__entities.subject;
+        return this.__entities;
     }
     get terrain() {
-        return this.__terrain.subject;
+        return this.__terrain;
     }
 
     get nodes() {
@@ -62,7 +61,18 @@ export class World extends Beacon {
 
         this.entities.register(entity, ...synonyms);
 
-        this.__nodes.__joinNode(entity);
+        this.__nodes.joinNode(entity);
+
+        const _this = this.__nodes;
+        this.entities.$.subscribe(function(prop, value) {
+            if(prop.startsWith("position")) {
+                const entity = this.subject;
+
+                if(entity instanceof Entity) {
+                    _this.moveToNode(entity);
+                }
+            }
+        });
 
         return true;
     }
@@ -71,11 +81,11 @@ export class World extends Beacon {
 
         entity.position.world = null;
 
-        if(!this.__nodes.__leaveNode(entity)) {
-            this.__nodes.__clearFromNodes(entity);
+        if(!this.__nodes.leaveNode(entity)) {
+            this.__nodes.clearFromNodes(entity);
         }
         
-        delete this.__nodes.__cache[ entity.__id ];
+        delete this.__nodes._cache[ entity.__id ];
     }
 
     
@@ -122,7 +132,7 @@ export class World extends Beacon {
     }
 
     getTerrain(x, y) {
-        return this.terrain[ `${ x }.${ y }`];
+        return this.terrain[ `${ x },${ y }`];
     }
 };
 
@@ -135,17 +145,18 @@ export function CreateRandom(width, height, enemyCount = 5) {
                 [ componentTerrain, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT ],
                 [ componentPosition, { x, y, facing: 0 } ],
                 [ componentTurn, { timeout: 0 } ],
-            ], `${ x }.${ y }`);
+            ], `${ x },${ y }`);
         }
     }
-    
+
     CalculateEdgeMasks(world);
 
     world.entities.createMany(enemyCount, [
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
-        [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
+        [ componentPosition, { world, x: () => Agency.Util.Dice.random(4, 6), y: () => Agency.Util.Dice.random(7, 9), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
+        // [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
-        [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 1499) } ],
+        [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 1499), current: () => () => false } ],
     ], (i) => `enemy-${ i }`);
 
     return world;

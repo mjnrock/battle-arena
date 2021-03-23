@@ -27,7 +27,7 @@ export function CreateArena(overworld, width, height, { schemaArray = [], enemyC
                 [ componentTerrain, DictTerrain.DIRT ],
                 [ componentPosition, { x, y, facing: 0 } ],
                 [ componentTurn, { timeout: 0 } ],
-            ], `${ x }.${ y }`);
+            ], `${ x },${ y }`);
         }
     }
     

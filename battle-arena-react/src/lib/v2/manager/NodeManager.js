@@ -1,19 +1,29 @@
 import Agency from "@lespantsfancy/agency";
 
-import Beacon from "./../util/Beacon";
+import Watcher from "./../util/Watcher";
 
-export class NodeManager extends Beacon {
-    constructor(size = [ 1, 1 ], ...observers) {
-        super();
+import Entity from "../Entity";
+
+export class NodeManager extends Watcher {
+    constructor(size = [ 1, 1 ], ...watchables) {
+        super([], {}, { deep: true });
         
-        this.__cache = {};
+        this._cache = {};
+        this._watchables = watchables;
+
         this.nodes = Agency.Util.CrossMap.CreateGrid([ ...size ], { seedFn: () => new Set() });
 
-        this.on("position.x", (value, entity) => this.__moveToNode(entity));
-        this.on("position.y", (value, entity) => this.__moveToNode(entity));
-
-        for(let observer of observers) {
-            this.attach(observer);
+        const _this = this;
+        for(let watchable of watchables) {
+            watchable.$.subscribe(function(prop, value) {
+                if(prop.startsWith("position")) {
+                    const entity = this.subject;
+    
+                    if(entity instanceof Entity) {
+                        _this.moveToNode(entity.$.proxy);
+                    }
+                }
+            });
         }
     }
 
@@ -55,12 +65,12 @@ export class NodeManager extends Beacon {
         return nodes;
     }
 
-    __joinNode(entity) {
+    joinNode(entity) {
         const node = this.nodes.get(entity.position.x, entity.position.y);
 
         if(node instanceof Set) {
-            node.add(entity);
-            this.__cache[ entity.__id ] = {
+            node.add(entity.$.proxy);
+            this._cache[ entity.__id ] = {
                 x: entity.position.x,
                 y: entity.position.y,
             };
@@ -70,13 +80,13 @@ export class NodeManager extends Beacon {
 
         return false;
     }
-    __leaveNode(entity) {
-        const { x, y } = this.__cache[ entity.__id ] || {};
+    leaveNode(entity) {
+        const { x, y } = this._cache[ entity.__id ] || {};
         if(x !== void 0 && y !== void 0) {
             const node = this.nodes.get(x, y);
     
             if(node instanceof Set) {
-                node.delete(entity);
+                node.delete(entity.$.proxy);
     
                 return true;
             }
@@ -86,17 +96,17 @@ export class NodeManager extends Beacon {
 
         return false;
     }
-    __moveToNode(entity) {
-        this.__leaveNode(entity);
-        this.__joinNode(entity);
+    moveToNode(entity) {
+        this.leaveNode(entity);
+        this.joinNode(entity);
 
         return this;
     }
-    __clearFromNodes(entity) {
+    clearFromNodes(entity) {
         for(let row of this.nodes.toLeaf()) {
             for(let cell of row) {
                 if(cell instanceof Set) {
-                    if(cell.delete(entity)) {
+                    if(cell.delete(entity.$.proxy)) {
                         return true;
                     }
                 }

@@ -1,11 +1,11 @@
 import Agency from "@lespantsfancy/agency";
 
-export class Point extends Agency.Observable {
+export class Point extends Agency.Watchable {
     constructor(x, y) {
-        super(false);
-
-        this.x = x;
-        this.y = y;
+        super({
+            x,
+            y,
+        });
     }
 
     get origin() {

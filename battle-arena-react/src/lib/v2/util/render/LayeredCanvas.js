@@ -2,8 +2,8 @@ import Canvas from "./Canvas";
 import TileCanvas from "./TileCanvas";
 
 export default class LayeredCanvas extends TileCanvas {
-    constructor({ canvas, tw = 1, th = 1, width, height, props } = {}) {
-        super(tw, th, { canvas, width, height, props });
+    constructor({ canvas, tw = 1, th = 1, width, height, props, drawAnimationFrame } = {}) {
+        super(tw, th, { canvas, width, height, props, drawAnimationFrame });
 
         this.stack = new Map();
     }
@@ -11,12 +11,14 @@ export default class LayeredCanvas extends TileCanvas {
     getLayer(key = 0) {
         return this.stack.get(key);
     }
-    addLayer(value) {
-        const key = this.stack.size;
-        if(value instanceof Canvas) {
-            this.stack.set(key, value);
-        } else if(value instanceof HTMLCanvasElement) {
-            this.stack.set(key, new Canvas(value));
+    addLayer(...layers) {
+        for(let layer of layers) {
+            const key = this.stack.size;
+            if(layer instanceof Canvas) {
+                this.stack.set(key, layer);
+            } else if(layer instanceof HTMLCanvasElement) {
+                this.stack.set(key, new Canvas(layer));
+            }
         }
 
         return this;
@@ -28,18 +30,34 @@ export default class LayeredCanvas extends TileCanvas {
     }
 
     startAll() {
-        this.stack.forEach(ccanvas => ccanvas.start());
+        this.start();
+        this.stack.forEach(ccanvas => {
+            if(ccanvas instanceof LayeredCanvas) {
+                ccanvas.startAll();
+            } else {
+                ccanvas.start();
+            }
+        });
 
         return this;
     }
     stopAll() {
-        this.stack.forEach(ccanvas => ccanvas.stop());
+        this.stop();
+        this.stack.forEach(ccanvas => {
+            if(ccanvas instanceof LayeredCanvas) {
+                ccanvas.stopAll();
+            } else {
+                ccanvas.stop();
+            }
+        });
 
         return this;
     }
 
     removeAllLayers() {
         this.stack = new Map();
+
+        return this;
     }
 
     swapLayers(key1, key2) {
@@ -72,6 +90,24 @@ export default class LayeredCanvas extends TileCanvas {
         this.stack.forEach(ccanvas => {
             if(ccanvas instanceof LayeredCanvas) {
                 ccanvas.drawLayers(...drawImageArgs);
+            }
+
+            this.ctx.drawImage(ccanvas.canvas, ...drawImageArgs);
+        });
+
+        return this;
+    }
+
+    drawAnimationLayers(dt, elapsed, ...drawImageArgs) {
+        if(!drawImageArgs.length) {
+            drawImageArgs = [ 0, 0 ];
+        }
+        
+        this.stack.forEach(ccanvas => {
+            if(ccanvas instanceof LayeredCanvas) {
+                ccanvas.drawAnimationLayers(dt, elapsed, ...drawImageArgs);
+            } else {
+                ccanvas.drawAnimationFrame(dt, elapsed);
             }
 
             this.ctx.drawImage(ccanvas.canvas, ...drawImageArgs);

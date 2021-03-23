@@ -1,13 +1,13 @@
-/* eslint-disable */
 import React from "react";
 import { Segment } from "semantic-ui-react";
-import { useBeacon } from "@lespantsfancy/agency/lib/react/package";
+// import { useWatchable } from "@lespantsfancy/agency/lib/react/package";
+import { useWatchable } from "./package";
 
 import Canvas from "./Canvas";
 import { Context } from "./../../App";
 
 export default function GameView() {
-    const { data, beacon: game } = useBeacon(Context, "game");
+    const { data, subject: game } = useWatchable(Context, "game");
     
     if(Object.keys(data).length === 0) {
         return null;

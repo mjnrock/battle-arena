@@ -2,16 +2,11 @@ import Agency from "@lespantsfancy/agency";
 
 import Entity from "./../Entity";
 import Registry from "./../util/Registry";
-import Observer from "./../util/Observer";
 
 export class EntityManager extends Registry {
     constructor(entities = []) {
-        super();
-
-        for(let entity of entities) {
-            this.register(entity);
-        }
-    }    
+        super(entities);
+    }
     
     create(comps = [], ...synonyms) {
         const entity = Entity.FromSchema(comps);
@@ -50,11 +45,6 @@ export function Factory(entities = []) {
     return new EntityManager(entities);
 };
 
-export function SubjectFactory(entities = []) {
-    return new Observer(EntityManager.Factory(entities));
-};
-
 EntityManager.Factory = Factory;
-EntityManager.SubjectFactory = SubjectFactory;
 
 export default EntityManager;

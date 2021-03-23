@@ -1,16 +1,14 @@
 import { v4 as uuidv4 } from "uuid";
 import Agency from "@lespantsfancy/agency";
 
-import Registry from "./../util/Registry";
+import Registry from "../util/Registry";
 
-import LayeredCanvas from "./../util/render/LayeredCanvas";
+import LayeredCanvas from "../util/render/LayeredCanvas";
 import ImageRegistry from "../util/render/ImageRegistry";
 
-import RenderLayer from "./../util/render/RenderLayer";
-
 export class RenderManager extends LayeredCanvas {
-    constructor(game, { tw, th, width, height, repository } = {}) {
-        super({ tw, th, width, height });
+    constructor(game, { repository } = {}) {
+        super();
 
         this.__id = uuidv4();
         this.__game = game;
@@ -18,8 +16,6 @@ export class RenderManager extends LayeredCanvas {
         this.repository = repository;
 
         this.__current = null;
-
-        this.drawAnimationFrame = this.drawAnimationLayers;
     }
 
     get id() {
@@ -37,15 +33,18 @@ export class RenderManager extends LayeredCanvas {
         return await fn.call(this, this.game, ...args);
     }
 
-    /**
-     * A convenience method to auto-create a RenderLayer using only draw functions.
-     * @param  {...fn} layerDrawFns 
-     * @returns 
-     */
-    addAnimationLayers(...layerDrawFns) {
-        for(let fn of layerDrawFns) {
-            this.addLayer(new RenderLayer(this.game, { drawAnimationFrame: fn }))
+    useGroup(group) {
+        if(!this.__current) {
+            this.__current = group;
         }
+
+        this.stopAll();
+        this.removeAllLayers();
+
+        this.width = group.width;
+        this.height = group.height;
+
+        this.addLayer(group);
 
         return this;
     }

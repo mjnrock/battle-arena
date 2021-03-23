@@ -1,8 +1,9 @@
 import Agency from "@lespantsfancy/agency";
+import Watchable from "./Watchable";
 
-export default class Value extends Agency.Observable {
+export default class Value extends Watchable {
     constructor(current, { min, max, softMax = false, softMin = false } = {}) {
-        super(false);
+        super();
 
         this._current = current;
         this._min = min;

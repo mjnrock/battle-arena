@@ -1,10 +1,7 @@
-// import Observable from "./Observable";
-// export class Entity extends Observable {
-
 import Agency from "@lespantsfancy/agency";
+import Watchable from "./util/Watchable";
 
-import Component from "./Component";
-export class Entity extends Agency.Observable {
+export class Entity extends Watchable {
     constructor() {
         super();
     }
@@ -16,12 +13,30 @@ export function FromSchema(schemaWithArgs = []) {
 
     for(let [ comp, argObj ] of schemaWithArgs) {        
         const key = Object.keys(comp)[ 0 ];
-        entity[ key ] = Component.FromSchema(comp, argObj);
+        entity[ key ] = CreateComponent(comp, argObj);
     }
 
     return entity;
 }
 
+export function CreateComponent(schema, argObj = {}) {
+    const [ value ] = Object.values(schema);
+
+    if(typeof value === "function") {
+        const obj = { ...argObj };
+        for(let [ k, v ] of Object.entries(obj)) {
+            if(typeof v === "function") {
+                obj[ k ] = v();
+            }
+        }
+
+        return value(obj);
+    } else {
+        return value;
+    }
+}
+
 Entity.FromSchema = FromSchema;
+Entity.CreateComponent= CreateComponent;
 
 export default Entity;

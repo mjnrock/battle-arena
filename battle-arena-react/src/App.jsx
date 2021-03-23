@@ -11,14 +11,14 @@ import Routes from "./routes/package";
 
 import Game from "./lib/v2/Game";
 
-export const Context = React.createContext(Game.$);
+export const Context = React.createContext(Game._);
 
 function App() {
     return (
         <Router>
             <ScrollToTop>
                 <Context.Provider value={{
-                    game: Game.$,
+                    game: Game._,
                 }}>
                     <Switch>                            
                         <Route path="/">

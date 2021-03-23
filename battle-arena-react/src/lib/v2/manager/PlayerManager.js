@@ -1,19 +1,10 @@
 import Agency from "@lespantsfancy/agency";
 
-export class PlayerManager extends Agency.Beacon {
+import Registry from "./../util/Registry";
+
+export class PlayerManager extends Registry {
     constructor(players = []) {
-        super();
-
-        this.__players = [];
-    }
-
-    add(player) {
-        this.attach(player);
-        this.__players.push(player);
-    }
-
-    get player() {
-        return this.__players[ 0 ];
+        super(players);
     }
 }
 
