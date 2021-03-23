@@ -9,21 +9,21 @@ export class WorldManager {
         this.__id = uuidv4();
         this.__game = game;
 
-        this.worlds = new Agency.Registry();
+        this.repository = new Agency.Registry();
     }
 
     add(world, ...synonyms) {
-        this.worlds.register(world, ...synonyms);
+        this.repository.register(world, ...synonyms);
 
         return this;
     }
     remove(world) {
-        this.worlds.unregister(world);
+        this.repository.unregister(world);
 
         return this;
     }
     get(id) {
-        return this.worlds[ id ];
+        return this.repository[ id ];
     }
 
     get id() {
@@ -38,11 +38,11 @@ export class WorldManager {
             const player = this.game.players.player;
             
             if(player) {
-                return this.worlds[ player.position.world ];
+                return this.repository[ player.position.world ];
             }
         }
 
-        return this.worlds[ `overworld` ];
+        return this.repository[ `overworld` ];
     }
 
     migrate(entity, world, x, y) {
@@ -56,9 +56,9 @@ export class WorldManager {
         }        
         
         if(world instanceof World) {
-            this.worlds[ world.id ].join(entity);
+            this.repository[ world.id ].join(entity);
         } else {
-            this.worlds[ world ].join(entity);
+            this.repository[ world ].join(entity);
         }
 
         if(x !== void 0 && y !== void 0) {
