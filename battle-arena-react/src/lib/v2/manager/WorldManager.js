@@ -45,7 +45,7 @@ export class WorldManager {
         return this.worlds[ `overworld` ];
     }
 
-    migrate(entity, world) {
+    migrate(entity, world, x, y) {
         if(!hasPosition(entity)) {
             return false;
         }
@@ -59,6 +59,11 @@ export class WorldManager {
             this.worlds[ world.id ].join(entity);
         } else {
             this.worlds[ world ].join(entity);
+        }
+
+        if(x !== void 0 && y !== void 0) {
+            entity.position.x = x;
+            entity.position.y = y;
         }
 
         return this;
