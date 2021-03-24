@@ -1,3 +1,4 @@
+import Helper from "./helper";
 import AStar from "./AStar";
 
 export const EnumPathStatus = {
@@ -69,7 +70,7 @@ export class Path {
         if(this.status === EnumPathStatus.IN_PROGRESS) {
             const [ cx, cy ] = this.current;
     
-            if(~~x === cx && ~~y === cy) {
+            if(Helper.round(x, 10) === Helper.round(cx, 10) && Helper.round(y, 10) === Helper.round(cy, 10)) {
                 ++this.step;
     
                 if(this.step >= this.path.length) {

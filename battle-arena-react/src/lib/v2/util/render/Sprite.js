@@ -17,7 +17,8 @@ export class Sprite extends TileCanvas {
         score.forEach(([ frame, duration, hash ], i) => {
             this.ctx.drawImage(frame, frame.width * i, 0);
             
-            this.score.push([ duration, [ frame.width * i, 0 ], [ frame.width, frame.height ], hash ]);
+            const [ ax, ay ] = frame.__anchorPoint || [ 0, 0 ];
+            this.score.push([ duration, [ frame.width * i, 0, ax, ay ], [ frame.width, frame.height ], hash ]);
         });
 
         this.__duration = this.score.reduce((a, [ dur ]) => {
@@ -50,10 +51,10 @@ export class Sprite extends TileCanvas {
 
         let time = 0;
         for(let i = 0; i < this.score.length; i++) {
-            const [ dur, [ x, y ], [ w, h ], hash ] = this.score[ i ];
+            const [ dur, [ x, y, ax, ay ], [ w, h ], hash ] = this.score[ i ];
 
             if(elapsed <= time + dur) {
-                return [ hash, [ this.canvas, x, y, w, h ] ];
+                return [ hash, [ this.canvas, x, y, w, h, ax, ay ] ];
             }
 
             time += dur;
@@ -65,7 +66,7 @@ export class Sprite extends TileCanvas {
      * Same as .get(elapsed), but paints to a passed @canvas at [ @px, @py ]
      */
     paint(elapsed, canvas, px, py, { ctxType = "2d" } = {}) {
-        const [ hash, [ image, x, y, width, height ] ] = this.get(elapsed);
+        const [ hash, [ image, x, y, width, height, ax, ay ] ] = this.get(elapsed);
 
         if(canvas instanceof Canvas) {
             canvas.image(
@@ -74,8 +75,8 @@ export class Sprite extends TileCanvas {
                 y,
                 width,
                 height,
-                px,
-                py,
+                px - ax,
+                py - ay,
                 width,
                 height,
             );
@@ -87,8 +88,8 @@ export class Sprite extends TileCanvas {
                 y,
                 width,
                 height,
-                px,
-                py,
+                px - ax,
+                py - ay,
                 width,
                 height,
             );

@@ -20,6 +20,8 @@ export class RenderManager extends LayeredCanvas {
         this.__current = null;
 
         this.drawAnimationFrame = this.drawAnimationLayers;
+            
+        // this.ctx.translate(this.game.config.render.tile.width / 2, this.game.config.render.tile.height / 2);
     }
 
     get id() {
@@ -44,7 +46,9 @@ export class RenderManager extends LayeredCanvas {
      */
     addAnimationLayers(...layerDrawFns) {
         for(let fn of layerDrawFns) {
-            this.addLayer(new RenderLayer(this.game, { drawAnimationFrame: fn }))
+            const layer = new RenderLayer(this.game, { drawAnimationFrame: fn });
+
+            this.addLayer(layer);
         }
 
         return this;

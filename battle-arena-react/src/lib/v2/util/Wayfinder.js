@@ -55,14 +55,19 @@ export class Wayfinder {
         } else if(this.current.isActive) {
             const [ nx, ny ] = this.current.next;
 
+            // If entity gets more than 1 tile away from the next tile, empty
             if(this.entity.position.x < nx - 1 || this.entity.position.x > nx + 1 || this.entity.position.y < ny - 1 || this.entity.position.y > ny + 1) {
-                this.paths.forEach(p => p.status = EnumPathStatus.INTERRUPTED);
-
-                this.paths = [];
+                this.empty();
             }
         }
 
         return false;
+    }
+    empty() {
+        this.paths.forEach(p => p.status = EnumPathStatus.INTERRUPTED);
+        this.paths = [];
+
+        return this;
     }
 
     waypoint(world, x, y) {

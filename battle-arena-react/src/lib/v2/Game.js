@@ -28,6 +28,7 @@ import PlayerManager from "./manager/PlayerManager";
 import Entity from "./Entity";
 import Animator from "./util/render/Animator";
 import Path from "./util/Path";
+import Helper from "./util/helper";
 //STUB END "Imports"
 
 export default class Game extends Watcher {
@@ -87,11 +88,11 @@ export default class Game extends Watcher {
                     let [ nx, ny ] = entity.movement.wayfinder.current.current;
 
                     if(nx === void 0 || ny === void 0) {
-                        [ nx, ny ] = [ ~~entity.position.x, ~~entity.position.y ];
+                        [ nx, ny ] = [ entity.position.x, entity.position.y ];
                     }
 
-                    Vx = Math.round(-(~~entity.position.x - nx));
-                    Vy = Math.round(-(~~entity.position.y - ny));
+                    Vx = Helper.round(-(entity.position.x - nx), 10);
+                    Vy = Helper.round(-(entity.position.y - ny), 10);
 
                     //TODO  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
                     if(Vx < 0) {
@@ -278,6 +279,10 @@ export default class Game extends Watcher {
 
                 //     bool = !bool;
                 // }, 2500);
+
+                // setTimeout(() => {
+                //     game.render.ctx.translate(game.config.render.tile.width / 2, game.config.render.tile.height / 2);
+                // }, 1000);
             })();
 
             game.loop.start();
