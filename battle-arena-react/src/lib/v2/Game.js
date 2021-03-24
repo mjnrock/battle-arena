@@ -1,7 +1,5 @@
 import Agency from "@lespantsfancy/agency";
-
-import Watcher from "./util/Watcher";
-import Pulse from "./util/Pulse";
+import AgencyLocal from "./util/agency/package";
 
 //STUB START "Imports" for stub below
     import World from "./World";
@@ -31,12 +29,12 @@ import Path from "./util/Path";
 import Helper from "./util/helper";
 //STUB END "Imports"
 
-export default class Game extends Watcher {
+export default class Game extends AgencyLocal.Watcher {
     // constructor({ fps = 2, GCD = 1000 } = {}) {
     constructor({ fps = 20, GCD = 1000 } = {}) {
         super([], {}, { deep: false });
 
-        this.loop = new Pulse(fps, { autostart: false });
+        this.loop = new AgencyLocal.Pulse(fps, { autostart: false });
         this.players = new PlayerManager();
 
         this.config = {

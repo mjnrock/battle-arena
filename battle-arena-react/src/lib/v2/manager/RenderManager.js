@@ -1,8 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import Agency from "@lespantsfancy/agency";
 
-import Registry from "./../util/Registry";
-
 import LayeredCanvas from "./../util/render/LayeredCanvas";
 import ImageRegistry from "../util/render/ImageRegistry";
 

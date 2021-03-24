@@ -1,7 +1,7 @@
-import Agency from "@lespantsfancy/agency";
-import Watchable from "./util/Watchable";
+// import Agency from "@lespantsfancy/agency";
+import Agency from "./util/agency/package";
 
-export class Entity extends Watchable {
+export class Entity extends Agency.Watchable {
     constructor() {
         super();
     }

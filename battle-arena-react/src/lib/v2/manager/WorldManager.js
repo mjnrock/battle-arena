@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
-import Agency from "@lespantsfancy/agency";
-
-import Registry from "./../util/Registry";
+// import Agency from "@lespantsfancy/agency";
+import Agency from "./../util/agency/package";
 
 import World from "../World";
 import { hasPosition } from "../data/entity/components/position";
@@ -11,7 +10,7 @@ export class WorldManager {
         this.__id = uuidv4();
         this.__game = game;
 
-        this.repository = repository || new Registry();
+        this.repository = repository || new Agency.Registry();
     }
 
     add(world, ...synonyms) {

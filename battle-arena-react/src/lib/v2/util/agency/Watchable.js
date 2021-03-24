@@ -53,13 +53,16 @@ export const wrapNested = (root, prop, input) => {
 
             return t;
         },
-        deleteProperty(t, p) {
-            if(p in t) {
-                delete t[ p ];
+        // deleteProperty(t, p) {
+        //     if(p in t) {
+        //         delete t[ p ];
 
-                t.$.broadcast(p, void 0);
-            }
-        }
+
+        //         t.$.broadcast(p, void 0);
+        //     }
+
+        //     return t;
+        // }
     });
 
     for(let [ key, value ] of Object.entries(input)) {
@@ -132,13 +135,15 @@ export class Watchable {
 
                 return target;
             },
-            deleteProperty(target, prop) {
-                if(prop in target) {
-                    delete target[ prop ];
+            // deleteProperty(target, prop) {
+            //     if(prop in target) {
+            //         delete target[ prop ];
 
-                    target.$.broadcast(prop, void 0);
-                }
-            }
+            //         target.$.broadcast(prop, void 0);
+
+            //         return target;
+            //     }
+            // }
         });
 
         if(typeof state === "object") {
