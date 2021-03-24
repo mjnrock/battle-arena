@@ -18,7 +18,7 @@ import Pulse from "./util/Pulse";
     
     import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
     import componentPosition from "./data/entity/components/position";
-    import componentTurn from "./data/entity/components/turn";
+    import componentTurn, { hasTurn } from "./data/entity/components/turn";
     import componentHealth from "./data/entity/components/health";
     import componentMovement, { hasMovement } from "./data/entity/components/movement";
 import RenderGroup from "./util/render/RenderGroup";
@@ -61,9 +61,11 @@ export default class Game extends Watcher {
 
     onTick({ dt, now } = {}) {
         for(let entity of this.world.current.entities.values) {
-            if(now - entity.turn.timeout >= this.config.GCD) {
-                entity.turn.current(entity);
-                entity.turn.timeout = now;
+            if(hasTurn(entity)) {
+                if(now - entity.turn.timeout >= this.config.GCD) {
+                    entity.turn.current(entity);
+                    entity.turn.timeout = now;
+                }
             }
 
             /** NOTE:    Odd Path Following

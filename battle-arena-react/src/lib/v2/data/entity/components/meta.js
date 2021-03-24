@@ -5,6 +5,9 @@ export const EnumEntityType = {
     SQUIRREL: "squirrel",
     BUNNY: "bunny",
     BEAR: "bear",
+    
+    TREE: "tree",
+    STUMP: "stump",
 };
 
 //TODO  Probably move aggression to something more specific than "meta"

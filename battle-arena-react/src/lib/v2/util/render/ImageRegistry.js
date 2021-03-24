@@ -5,6 +5,9 @@ export const EnumEntity = {
     BUNNY: "bunny",
     BEAR: "bear",
 
+    TREE: "tree",
+    STUMP: "stump",
+
     GHOST_SQUIRREL: "ghost-squirrel",
     GHOST_BUNNY: "ghost-bunny",
 };
