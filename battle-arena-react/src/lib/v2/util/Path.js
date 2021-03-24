@@ -1,5 +1,4 @@
 import AStar from "./AStar";
-import Watchable from "./Watchable";
 
 export const EnumPathStatus = {
     NOT_STARTED: 0,
@@ -8,10 +7,8 @@ export const EnumPathStatus = {
     COMPLETED: 3,
 };
 
-export class Path extends Watchable {
+export class Path {
     constructor(origin, destination, path) {
-        super();
-
         this.origin = origin;
         this.destination = destination;
         this.path = path;

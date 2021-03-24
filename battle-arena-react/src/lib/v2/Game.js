@@ -77,6 +77,9 @@ export default class Game extends Watcher {
              * will prevent the progression of a <Path>, as it will miss the next
              * tile.
              */
+            let Vx = entity.position.vx,
+                Vy = entity.position.vy;
+                
             if(hasMovement(entity)) {
                 if(entity.movement.wayfinder.hasPath) {
                     entity.movement.wayfinder.current.test(entity.position.x, entity.position.y);
@@ -87,19 +90,19 @@ export default class Game extends Watcher {
                         [ nx, ny ] = [ ~~entity.position.x, ~~entity.position.y ];
                     }
 
-                    entity.position.vx = Math.round(-(~~entity.position.x - nx));
-                    entity.position.vy = Math.round(-(~~entity.position.y - ny));
+                    Vx = Math.round(-(~~entity.position.x - nx));
+                    Vy = Math.round(-(~~entity.position.y - ny));
 
                     //TODO  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
-                    if(entity.position.vx < 0) {
-                        entity.position.vx = -1 * entity.movement.speed;
-                    } else if(entity.position.vx > 0) {
-                        entity.position.vx = 1 * entity.movement.speed;
+                    if(Vx < 0) {
+                        Vx = -1 * entity.movement.speed;
+                    } else if(Vx > 0) {
+                        Vx = 1 * entity.movement.speed;
                     }
-                    if(entity.position.vy < 0) {
-                        entity.position.vy = -1 * entity.movement.speed;
-                    } else if(entity.position.vy > 0) {
-                        entity.position.vy = 1 * entity.movement.speed;
+                    if(Vy < 0) {
+                        Vy = -1 * entity.movement.speed;
+                    } else if(Vy > 0) {
+                        Vy = 1 * entity.movement.speed;
                     }
 
                     const { x: ox, y: oy } = entity.position;
@@ -122,8 +125,13 @@ export default class Game extends Watcher {
                 }
             }
 
-            entity.position.x += entity.position.vx * dt;
-            entity.position.y += entity.position.vy * dt;
+            if(Vx || Vy) {
+                entity.position.x += Vx * dt;
+                entity.position.y += Vy * dt;
+            }
+            
+            entity.position.vx = Vx;
+            entity.position.vy = Vy;
         }
     }
 
@@ -157,6 +165,10 @@ export default class Game extends Watcher {
 
             game.players.register(player, "player");
 
+            game.players.player.$.subscribe(function(prop, value) {
+                console.log(prop, value);
+            });
+
             
             //? Bootstrap the rendering
             (async () => {
@@ -186,36 +198,36 @@ export default class Game extends Watcher {
                         game.config.SHOW_UI = !game.config.SHOW_UI;
                     }
                 };
-                window.onkeydown = e => {
-                    let [ dx, dy ] = [ 0, 0 ];
-                    if(e.key === "w")  {
-                        dy = -1;
-                    } else if(e.key === "a")  {
-                        dx = -1;
-                    } else if(e.key === "s")  {
-                        dy = 1;
-                    } else if(e.key === "d")  {
-                        dx = 1;
-                    }
+                // window.onkeydown = e => {
+                //     let [ dx, dy ] = [ 0, 0 ];
+                //     if(e.key === "w")  {
+                //         dy = -1;
+                //     } else if(e.key === "a")  {
+                //         dx = -1;
+                //     } else if(e.key === "s")  {
+                //         dy = 1;
+                //     } else if(e.key === "d")  {
+                //         dx = 1;
+                //     }
 
-                    game.players.player.position.vx = dx;
-                    game.players.player.position.vy = dy;
-                };
-                window.onkeyup = e => {
-                    let [ dx, dy ] = [ game.players.player.position.vx, game.players.player.position.vy ];
-                    if(e.key === "w")  {
-                        dy = 0;
-                    } else if(e.key === "a")  {
-                        dx = 0;
-                    } else if(e.key === "s")  {
-                        dy = 0;
-                    } else if(e.key === "d")  {
-                        dx = 0;
-                    }
+                //     game.players.player.position.vx = dx;
+                //     game.players.player.position.vy = dy;
+                // };
+                // window.onkeyup = e => {
+                //     let [ dx, dy ] = [ game.players.player.position.vx, game.players.player.position.vy ];
+                //     if(e.key === "w")  {
+                //         dy = 0;
+                //     } else if(e.key === "a")  {
+                //         dx = 0;
+                //     } else if(e.key === "s")  {
+                //         dy = 0;
+                //     } else if(e.key === "d")  {
+                //         dx = 0;
+                //     }
 
-                    game.players.player.position.vx = dx;
-                    game.players.player.position.vy = dy;
-                };
+                //     game.players.player.position.vx = dx;
+                //     game.players.player.position.vy = dy;
+                // };
                 game.render.__handler.$.subscribe((type, entry) => {
                     const [ e ] = entry.data;
                     const { target: canvas, button, clientX: x, clientY: y } = e;

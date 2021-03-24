@@ -3,18 +3,20 @@ import { v4 as uuidv4 } from "uuid";
 export const WatchableArchetype = class {};
 
 export const wrapNested = (root, prop, input) => {
-    if(input === null || prop.includes("__") || input === root) {
+    if(input === null || prop.includes("__")) {
         return input;
     }
 
     if(input instanceof WatchableArchetype) {
         return input;
-    } else if(input instanceof Watchable) {
-        input.$.subscribe(function(p, v) {
-            if(this.subject !== input.$.proxy && this.subject !== input.$.target) {     // Don't emit if the input is also the subject (e.g. circular references)
+    } else if(root instanceof Watchable && input instanceof Watchable) {
+        if(root.$.proxy !== input.$.proxy) {    // Don't emit if the input is also the root (e.g. circular references)
+            input.$.subscribe(function(p, v) {
                 root.$.emit.call(this, `${ prop }.${ p }`, v);
-            }
-        });
+            });
+        }
+
+        //FIXME  Watchable{1}.Object.Watchable{2} --> w/ ref to Watchable{1} creates infinite loop (e.g. Entity.Movement.Wayfinder.entity = Entity)
 
         return input;
     }
@@ -27,13 +29,11 @@ export const wrapNested = (root, prop, input) => {
             return t[ p ];
         },
         set(t, p, v) {
-            if(v === null || p.startsWith("_") || (Object.getOwnPropertyDescriptor(t, p) || {}).set) {      // Don't emit any _Private/__Internal variables
-                t[ p ] = v;
-
+            if(t[ p ] === v) {  // Ignore if the old value === new value
                 return t;
             }
 
-            if(v === t || v === ((t || {}).$ || {}).proxy || v === ((t || {}).$ || {}).target) {
+            if(v === null || p.startsWith("_") || (Object.getOwnPropertyDescriptor(t, p) || {}).set) {      // Don't emit any _Private/__Internal variables
                 t[ p ] = v;
 
                 return t;
@@ -65,10 +65,14 @@ export const wrapNested = (root, prop, input) => {
 };
 
 export class Watchable {
-    constructor(state = {}, { deep = true } = {}) {
+    constructor(state = {}, { deep = true, only = [], ignore = [] } = {}) {
         this.__id = uuidv4();
 
         this.__subscribers = new Map();
+        this.__filter = {
+            type: only.length ? true : (ignore.length ? false : null),
+            props: only.length ? only : (ignore.length ? ignore : []),
+        };
         
         const _this = new Proxy(this, {
             get(target, prop) {
@@ -96,17 +100,11 @@ export class Watchable {
                 return target[ prop ];
             },
             set(target, prop, value) {
-                if(target[ prop ] === value || prop === "$") {
+                if(target[ prop ] === value || prop === "$") {  // Ignore if the old value === new value, or if accessing get $()
                     return target;
                 }
                 
                 if(value === null || prop.startsWith("_") || (Object.getOwnPropertyDescriptor(target, prop) || {}).set) {      // Don't emit any _Private/__Internal variables
-                    target[ prop ] = value;
-
-                    return target;
-                }
-
-                if(value === target || value === ((target || {}).$ || {}).proxy || value === ((target || {}).$ || {}).target) {
                     target[ prop ] = value;
 
                     return target;
@@ -154,6 +152,16 @@ export class Watchable {
             },
 
             async emit(prop, value) {
+                if(_this.__filter.type === true) {
+                    if(!_this.__filter.props.includes(prop)) {
+                        return _this;
+                    }
+                } else if(_this.__filter.type === false) {
+                    if(_this.__filter.props.includes(prop)) {
+                        return _this;
+                    }
+                }
+
                 for(let subscriber of _this.__subscribers.values()) {
                     /**
                      * @prop | The chain-prop from the original emission
