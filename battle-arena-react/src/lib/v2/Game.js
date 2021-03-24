@@ -65,13 +65,13 @@ export default class Game extends Watcher {
                 entity.turn.timeout = now;
             }
 
-            /** NOTE:    Jittery Movement
-             * The semi-jittery movement is a result of the ratio between @GCD:1000,
-             * as the @dt = step_dt / 1000, as well as the progress in @entity.turn.timeout
-             * as it approaches the next turn.  For example, if the pie is in the red,
-             * then the path will be changed within milliseconds--instead of a normal "full" timeout
-             * change equal to the @GCD--followed by a full timeout of @GCD (ms) before the next
-             * path change.
+            /** NOTE:    Odd Path Following
+             * The ~~ operator setup here causes only SOUTHEAST movements
+             * to appear correct, while all other directions suffer from
+             * "technically" being in the tile, thus the <Path> continues.
+             * 
+             * This should resolve itself after the transition to center of
+             * mass positions, instead of top-left of tile box.
              */
             if(hasMovement(entity)) {
                 if((entity.movement.path || {}).isActive) {
@@ -88,14 +88,14 @@ export default class Game extends Watcher {
 
                     //TODO  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
                     if(entity.position.vx < 0) {
-                        entity.position.vx = -1;
+                        entity.position.vx = -1 * entity.movement.speed;
                     } else if(entity.position.vx > 0) {
-                        entity.position.vx = 1;
+                        entity.position.vx = 1 * entity.movement.speed;
                     }
                     if(entity.position.vy < 0) {
-                        entity.position.vy = -1;
+                        entity.position.vy = -1 * entity.movement.speed;
                     } else if(entity.position.vy > 0) {
-                        entity.position.vy = 1;
+                        entity.position.vy = 1 * entity.movement.speed;
                     }
 
                     const { x: ox, y: oy } = entity.position;
