@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 export const WatchableArchetype = class {};
 
 export const wrapNested = (root, prop, input) => {
-    if(input === null || prop.includes("__")) {
+    if(input === null || prop.includes("__") || input === root) {
         return input;
     }
 
@@ -11,7 +11,9 @@ export const wrapNested = (root, prop, input) => {
         return input;
     } else if(input instanceof Watchable) {
         input.$.subscribe(function(p, v) {
-            root.$.emit.call(this, `${ prop }.${ p }`, v);
+            if(this.subject !== input.$.proxy && this.subject !== input.$.target) {     // Don't emit if the input is also the subject (e.g. circular references)
+                root.$.emit.call(this, `${ prop }.${ p }`, v);
+            }
         });
 
         return input;
@@ -26,6 +28,12 @@ export const wrapNested = (root, prop, input) => {
         },
         set(t, p, v) {
             if(v === null || p.startsWith("_") || (Object.getOwnPropertyDescriptor(t, p) || {}).set) {      // Don't emit any _Private/__Internal variables
+                t[ p ] = v;
+
+                return t;
+            }
+
+            if(v === t || v === ((t || {}).$ || {}).proxy || v === ((t || {}).$ || {}).target) {
                 t[ p ] = v;
 
                 return t;
@@ -93,6 +101,12 @@ export class Watchable {
                 }
                 
                 if(value === null || prop.startsWith("_") || (Object.getOwnPropertyDescriptor(target, prop) || {}).set) {      // Don't emit any _Private/__Internal variables
+                    target[ prop ] = value;
+
+                    return target;
+                }
+
+                if(value === target || value === ((target || {}).$ || {}).proxy || value === ((target || {}).$ || {}).target) {
                     target[ prop ] = value;
 
                     return target;

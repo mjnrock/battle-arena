@@ -20,7 +20,7 @@ import Pulse from "./util/Pulse";
     import componentPosition from "./data/entity/components/position";
     import componentTurn from "./data/entity/components/turn";
     import componentHealth from "./data/entity/components/health";
-    import componentAction, { hasMovement } from "./data/entity/components/movement";
+    import componentMovement, { hasMovement } from "./data/entity/components/movement";
 import RenderGroup from "./util/render/RenderGroup";
 import WorldManager from "./manager/WorldManager";
 import Arena from "./Arena";
@@ -78,10 +78,10 @@ export default class Game extends Watcher {
              * tile.
              */
             if(hasMovement(entity)) {
-                if((entity.movement.path || {}).isActive) {
-                    entity.movement.path.test(entity.position.x, entity.position.y);
+                if(entity.movement.wayfinder.hasPath) {
+                    entity.movement.wayfinder.current.test(entity.position.x, entity.position.y);
 
-                    let [ nx, ny ] = entity.movement.path.current;
+                    let [ nx, ny ] = entity.movement.wayfinder.current.current;
 
                     if(nx === void 0 || ny === void 0) {
                         [ nx, ny ] = [ ~~entity.position.x, ~~entity.position.y ];
@@ -89,6 +89,7 @@ export default class Game extends Watcher {
 
                     entity.position.vx = Math.round(-(~~entity.position.x - nx));
                     entity.position.vy = Math.round(-(~~entity.position.y - ny));
+                    console.log(entity.position.vx, entity.position.vy, ~~entity.position.x, ~~entity.position.y, nx, ny)
 
                     //TODO  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
                     if(entity.position.vx < 0) {
@@ -118,7 +119,7 @@ export default class Game extends Watcher {
                         }
                     }
                 } else {
-                    entity.movement.path = null;
+                    entity.movement.wayfinder.drop();
                 }
             }
 
@@ -148,20 +149,11 @@ export default class Game extends Watcher {
                 [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
                 [ componentPosition, { x: 4, y: 7 } ],
                 [ componentHealth, { current: 10, max: 10 } ],
-                [ componentAction, {} ],
-                [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-                    if(entity.movement.path && !entity.movement.path.isActive) {
-                        entity.movement.path = null;
-                    }
-                    // if(entity.movement.path.length) {
-                    //     const [ x, y ] = entity.movement.path.shift();
-                    //     const [ x, y ] = entity.movement.path.shift();
-
-                    //     entity.position.x = x;
-                    //     entity.position.y = y;
-                    // }
-                } } ],
-            ]);
+                [ componentMovement, {} ],
+                [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {} } ],
+            ], (entity) => {
+                entity.movement.wayfinder.entity = entity;
+            });
             game.world.get("overworld").join(player);
 
             game.players.register(player, "player");
@@ -245,11 +237,13 @@ export default class Game extends Watcher {
                             console.info(pos.txi, pos.tyi, game.world.current.node(pos.txi, pos.tyi));
                         } else if(button === 2) {
                             const player = game.players.player;
-                            // const player = game.world.current.entities.player;
-                            player.movement.destination = [ pos.txi, pos.tyi ];
-                            player.movement.path = Path.FindPath(game.world.current, [ Math.round(player.position.x), Math.round(player.position.y) ], player.movement.destination);
-                            player.movement.path.start();
-                            // player.movement.path = findPath(game.world.current, [ Math.round(player.position.x), Math.round(player.position.y) ], player.movement.destination);
+
+                            if(e.shiftKey) {
+                                player.movement.wayfinder.waypoint(game.world.current, pos.txi, pos.tyi);
+                            } else {
+                                const path = Path.FindPath(game.world.current, [ player.position.x, player.position.y ], [ pos.txi, pos.tyi ]);
+                                player.movement.wayfinder.set(path);
+                            }
                         }
                     } else if(type === "mousemove") {
                         game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];

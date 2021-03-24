@@ -61,32 +61,34 @@ export function drawMouseHighlighter() {
 export function drawPlayerPath() {
     this.save();
         const entity = this.game.players.player;
-        const path = entity.movement.path;
-
-        if(path) {
-            const steps = path.remaining || [];
-            const [ x, y ] = path.destination || [];
-    
-            for(let [ tx, ty ] of steps) {
-                this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
-                    tx,
-                    ty,
-                    1,
-                    1,
-                    { isFilled: true },
-                );
-            }
-            
-            if(!(entity.position.x === x && entity.position.y === y)) {
-                this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
-                    x,
-                    y,
-                    1,
-                    1,
-                    { isFilled: true },
-                );
+        for(let path of entity.movement.wayfinder.paths) {
+            if(path) {
+                const steps = path.remaining || [];
+                const [ x, y ] = path.destination || [];
+        
+                for(let [ tx, ty ] of steps) {
+                    this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
+                        tx,
+                        ty,
+                        1,
+                        1,
+                        { isFilled: true },
+                    );
+                }
+                
+                if(!(entity.position.x === x && entity.position.y === y)) {
+                    this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
+                        x,
+                        y,
+                        1,
+                        1,
+                        { isFilled: true },
+                    );
+                }
             }
         }
+
+        
     this.restore();
 };
 

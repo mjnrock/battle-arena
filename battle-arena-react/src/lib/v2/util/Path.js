@@ -89,9 +89,12 @@ export class Path extends Watchable {
 };
 
 export function FindPath(world, origin, destination, { algorithm = AStar } = {}) {
+    origin = origin.map(v => ~~v);
+    destination = destination.map(v => ~~v);
+
     const path = algorithm(world, origin, destination);
 
-    return new Path(origin.map(v => ~~v), destination.map(v => ~~v), path);
+    return new Path(origin, destination, path);
 };
 
 Path.FindPath = FindPath;
