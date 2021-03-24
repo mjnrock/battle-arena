@@ -89,7 +89,6 @@ export default class Game extends Watcher {
 
                     entity.position.vx = Math.round(-(~~entity.position.x - nx));
                     entity.position.vy = Math.round(-(~~entity.position.y - ny));
-                    console.log(entity.position.vx, entity.position.vy, ~~entity.position.x, ~~entity.position.y, nx, ny)
 
                     //TODO  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
                     if(entity.position.vx < 0) {
