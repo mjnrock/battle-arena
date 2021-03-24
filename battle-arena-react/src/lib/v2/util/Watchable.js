@@ -69,10 +69,13 @@ export class Watchable {
         this.__id = uuidv4();
 
         this.__subscribers = new Map();
-        this.__filter = {
-            type: only.length ? true : (ignore.length ? false : null),
-            props: only.length ? only : (ignore.length ? ignore : []),
-        };
+
+        if(only.length || ignore.length) {
+            this.__filter = {
+                type: only.length ? true : (ignore.length ? false : null),
+                props: only.length ? only : (ignore.length ? ignore : []),
+            };
+        }
         
         const _this = new Proxy(this, {
             get(target, prop) {
@@ -152,13 +155,15 @@ export class Watchable {
             },
 
             async emit(prop, value) {
-                if(_this.__filter.type === true) {
-                    if(!_this.__filter.props.includes(prop)) {
-                        return _this;
-                    }
-                } else if(_this.__filter.type === false) {
-                    if(_this.__filter.props.includes(prop)) {
-                        return _this;
+                if(_this.__filter) {
+                    if(_this.__filter.type === true) {
+                        if(!_this.__filter.props.includes(prop)) {
+                            return _this;
+                        }
+                    } else if(_this.__filter.type === false) {
+                        if(_this.__filter.props.includes(prop)) {
+                            return _this;
+                        }
                     }
                 }
 

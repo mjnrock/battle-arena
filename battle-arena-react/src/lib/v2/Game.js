@@ -165,9 +165,9 @@ export default class Game extends Watcher {
 
             game.players.register(player, "player");
 
-            game.players.player.$.subscribe(function(prop, value) {
-                console.log(prop, value);
-            });
+            // game.players.player.$.subscribe(function(prop, value) {
+            //     console.log(prop, value);
+            // });
 
             
             //? Bootstrap the rendering
