@@ -27,6 +27,7 @@ import Arena from "./Arena";
 import PlayerManager from "./manager/PlayerManager";
 import Entity from "./Entity";
 import Animator from "./util/render/Animator";
+import Path from "./util/Path";
 //STUB END "Imports"
 
 export default class Game extends Watcher {
@@ -68,30 +69,37 @@ export default class Game extends Watcher {
              * The semi-jittery movement is a result of the ratio between @GCD:1000,
              * as the @dt = step_dt / 1000, as well as the progress in @entity.turn.timeout
              * as it approaches the next turn.  For example, if the pie is in the red,
-             * then the path will be changed in ~200ms--instead of a normal "full" timeout
-             * change equal to the @GCD--followed by a full timeout of @GCDms before the next
+             * then the path will be changed within milliseconds--instead of a normal "full" timeout
+             * change equal to the @GCD--followed by a full timeout of @GCD (ms) before the next
              * path change.
              */
             if(hasMovement(entity)) {
-                if(entity.movement.path.length) {
-                    let [ nx, ny ] = entity.movement.path[ 0 ] || [ entity.position.x, entity.position.y ];
-    
-                    entity.position.vx = -(entity.position.x - nx);
-                    entity.position.vy = -(entity.position.y - ny);
+                if((entity.movement.path || {}).isActive) {
+                    entity.movement.path.test(entity.position.x, entity.position.y);
+
+                    let [ nx, ny ] = entity.movement.path.current;
+
+                    if(nx === void 0 || ny === void 0) {
+                        [ nx, ny ] = [ ~~entity.position.x, ~~entity.position.y ];
+                    }
+
+                    entity.position.vx = Math.round(-(~~entity.position.x - nx));
+                    entity.position.vy = Math.round(-(~~entity.position.y - ny));
 
                     //TODO  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
                     if(entity.position.vx < 0) {
                         entity.position.vx = -1;
                     } else if(entity.position.vx > 0) {
                         entity.position.vx = 1;
-                    } else if(entity.position.vy < 0) {
+                    }
+                    if(entity.position.vy < 0) {
                         entity.position.vy = -1;
                     } else if(entity.position.vy > 0) {
                         entity.position.vy = 1;
                     }
 
                     const { x: ox, y: oy } = entity.position;
-    
+
                     if(nx !== ox) {
                         if(nx > ox) {
                             entity.position.facing = 90;
@@ -105,9 +113,8 @@ export default class Game extends Watcher {
                             entity.position.facing = 0;
                         }
                     }
-                } else {    
-                    entity.position.vx = 0;
-                    entity.position.vy = 0;
+                } else {
+                    entity.movement.path = null;
                 }
             }
 
@@ -139,12 +146,16 @@ export default class Game extends Watcher {
                 [ componentHealth, { current: 10, max: 10 } ],
                 [ componentAction, {} ],
                 [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-                    if(entity.movement.path.length) {
-                        const [ x, y ] = entity.movement.path.shift();
-
-                        entity.position.x = x;
-                        entity.position.y = y;
+                    if(entity.movement.path && !entity.movement.path.isActive) {
+                        entity.movement.path = null;
                     }
+                    // if(entity.movement.path.length) {
+                    //     const [ x, y ] = entity.movement.path.shift();
+                    //     const [ x, y ] = entity.movement.path.shift();
+
+                    //     entity.position.x = x;
+                    //     entity.position.y = y;
+                    // }
                 } } ],
             ]);
             game.world.get("overworld").join(player);
@@ -232,7 +243,9 @@ export default class Game extends Watcher {
                             const player = game.players.player;
                             // const player = game.world.current.entities.player;
                             player.movement.destination = [ pos.txi, pos.tyi ];
-                            player.movement.path = findPath(game.world.current, [ Math.round(player.position.x), Math.round(player.position.y) ], player.movement.destination);
+                            player.movement.path = Path.FindPath(game.world.current, [ Math.round(player.position.x), Math.round(player.position.y) ], player.movement.destination);
+                            player.movement.path.start();
+                            // player.movement.path = findPath(game.world.current, [ Math.round(player.position.x), Math.round(player.position.y) ], player.movement.destination);
                         }
                     } else if(type === "mousemove") {
                         game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];

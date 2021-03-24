@@ -40,4 +40,6 @@ export class Portal {
 
         return false;
     }
-}
+};
+
+export default Portal;
