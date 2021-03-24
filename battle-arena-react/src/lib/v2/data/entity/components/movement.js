@@ -2,7 +2,7 @@
 const _name = "movement";
 
 export const schema = {
-    [ _name ]: ({ destination = [], path = [], speed = 5 } = {}) => ({
+    [ _name ]: ({ destination = [], path = [], speed = 2.5 } = {}) => ({
         destination,
         path,
         speed,

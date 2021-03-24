@@ -72,6 +72,10 @@ export default class Game extends Watcher {
              * 
              * This should resolve itself after the transition to center of
              * mass positions, instead of top-left of tile box.
+             * 
+             * FIXME:   @entity.movement.speed that exceeds a tile width/height
+             * will prevent the progression of a <Path>, as it will miss the next
+             * tile.
              */
             if(hasMovement(entity)) {
                 if((entity.movement.path || {}).isActive) {
