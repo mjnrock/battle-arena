@@ -1,13 +1,9 @@
 import Agency from "@lespantsfancy/agency";
 
-import Watcher from "./../util/Watcher";
-
 import Entity from "../Entity";
 
-export class NodeManager extends Watcher {
-    constructor(size = [ 1, 1 ], ...watchables) {
-        super([], {}, { deep: true });
-        
+export class NodeManager {
+    constructor(size = [ 1, 1 ], watchables = []) {        
         this._cache = {};
         this._watchables = watchables;
 

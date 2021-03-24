@@ -23,7 +23,7 @@ export class World {
         this.entities = new EntityManager();
         this.terrain = new EntityManager();
 
-        this.__nodes = new NodeManager([ width, height ], this.entities);
+        this.__nodes = new NodeManager([ width, height ], [ this.entities ]);
     }
 
     get id() {

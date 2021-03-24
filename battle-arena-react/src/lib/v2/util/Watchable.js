@@ -10,9 +10,9 @@ export const wrapNested = (root, prop, input) => {
     if(input instanceof WatchableArchetype) {
         return input;
     } else if(root instanceof Watchable && input instanceof Watchable) {
-        if(root.$.proxy !== input.$.proxy) {    // Don't emit if the input is also the root (e.g. circular references)
+        if(root.$.proxy !== input.$.proxy) {    // Don't broadcast if the input is also the root (e.g. circular references)
             input.$.subscribe(function(p, v) {
-                root.$.emit.call(this, `${ prop }.${ p }`, v);
+                root.$.broadcast.call(this, `${ prop }.${ p }`, v);
             });
         }
 
@@ -33,7 +33,7 @@ export const wrapNested = (root, prop, input) => {
                 return t;
             }
 
-            if(v === null || p.startsWith("_") || (Object.getOwnPropertyDescriptor(t, p) || {}).set) {      // Don't emit any _Private/__Internal variables
+            if(v === null || p[ 0 ] === "_" || (Object.getOwnPropertyDescriptor(t, p) || {}).set) {      // Don't broadcast any _Private/__Internal variables
                 t[ p ] = v;
 
                 return t;
@@ -47,12 +47,19 @@ export const wrapNested = (root, prop, input) => {
                 t[ p ] = v;
             }
             
-            if(!(Array.isArray(input) && p in Array.prototype)) {   // Don't emit native <Array> keys (i.e. .push returns .length)
-                root.$.emit(`${ prop }.${ p }`, v);
+            if(!(Array.isArray(input) && p in Array.prototype)) {   // Don't broadcast native <Array> keys (i.e. .push returns .length)
+                root.$.broadcast(`${ prop }.${ p }`, v);
             }
 
             return t;
         },
+        deleteProperty(t, p) {
+            if(p in t) {
+                delete t[ p ];
+
+                t.$.broadcast(p, void 0);
+            }
+        }
     });
 
     for(let [ key, value ] of Object.entries(input)) {
@@ -107,7 +114,7 @@ export class Watchable {
                     return target;
                 }
                 
-                if(value === null || prop.startsWith("_") || (Object.getOwnPropertyDescriptor(target, prop) || {}).set) {      // Don't emit any _Private/__Internal variables
+                if(value === null || prop[ 0 ] === "_" || (Object.getOwnPropertyDescriptor(target, prop) || {}).set) {      // Don't broadcast any _Private/__Internal variables
                     target[ prop ] = value;
 
                     return target;
@@ -116,14 +123,21 @@ export class Watchable {
                 if(deep && typeof value === "object") {
                     target[ prop ] = wrapNested(target, prop, value);
 
-                    target.$.emit(prop, target[ prop ]);
+                    target.$.broadcast(prop, target[ prop ]);
                 } else {
                     target[ prop ] = value;
 
-                    target.$.emit(prop, value);
+                    target.$.broadcast(prop, value);
                 }
 
                 return target;
+            },
+            deleteProperty(target, prop) {
+                if(prop in target) {
+                    delete target[ prop ];
+
+                    target.$.broadcast(prop, void 0);
+                }
             }
         });
 
@@ -133,7 +147,7 @@ export class Watchable {
             }
         }
 
-        //NOTE  Allow @target to regain its <Proxy>, such as in a .emit(...) --> { subject: @target } situation
+        //NOTE  Allow @target to regain its <Proxy>, such as in a .broadcast(...) --> { subject: @target } situation
         this.__ = { proxy: _this, target: this };  // Store a proxy and target accessor so that either can access each other
 
         return _this;
@@ -154,7 +168,7 @@ export class Watchable {
                 return _this.__.target;
             },
 
-            async emit(prop, value) {
+            async broadcast(prop, value) {
                 if(_this.__filter) {
                     if(_this.__filter.type === true) {
                         if(!_this.__filter.props.includes(prop)) {
@@ -171,7 +185,7 @@ export class Watchable {
                     /**
                      * @prop | The chain-prop from the original emission
                      * @value | The chain-prop's value from the original emission
-                     * @subject | The original .emit <Watchable>
+                     * @subject | The original .broadcast <Watchable>
                      * @observer | The original subscriber (fn|Watcher) -- The original <Watcher> in a chain emission
                      * @emitter | The emitting <Watchable> -- The final <Watcher> in a chain emission
                      * @subscriber | The subscription fn|Watcher receiving the invocation
@@ -187,7 +201,7 @@ export class Watchable {
                     if(typeof subscriber === "function") {
                         subscriber.call(payload, prop, value, payload.subject.$.id);
                     } else if(subscriber instanceof Watchable) {
-                        subscriber.$.emit.call(payload, prop, value, payload.subject.$.id);
+                        subscriber.$.broadcast.call(payload, prop, value, payload.subject.$.id);
                     }
                 }
         
@@ -246,7 +260,7 @@ export class Watchable {
         
                 if(includePrivateKeys) {
                     for(let [ key, value ] of Object.entries(_this)) {
-                        if(!key.startsWith("__")) {
+                        if(!(key[ 0 ] === "_" && key[ 1 ] === "_")) {
                             if(value instanceof Watchable) {
                                 obj[ key ] = value.$.toData();
                             } else {
@@ -259,7 +273,7 @@ export class Watchable {
                 }
         
                 for(let [ key, value ] of Object.entries(_this)) {
-                    if(!key.startsWith("_")) {
+                    if(key[ 0 ] !== "_") {
                         if(value instanceof Watchable) {
                             obj[ key ] = value.$.toData();
                         } else {
