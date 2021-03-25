@@ -135,7 +135,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
         [ componentMovement, {} ],
         [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-            if(!entity.movement.wayfinder.hasPath && Agency.Util.Dice.percento(0.40)) {
+            if(!entity.movement.wayfinder.hasPath && Agency.Util.Dice.percento(0.10)) {
                 const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
                 const path = Path.FindPath(world, [ entity.position.x, entity.position.y ], [ tx, ty ]);
 

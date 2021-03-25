@@ -97,29 +97,17 @@ export default class Game extends AgencyLocal.Watcher {
                     //TODO  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
                     if(Vx < 0) {
                         Vx = -1 * entity.movement.speed;
+                        entity.position.facing = 270;
                     } else if(Vx > 0) {
                         Vx = 1 * entity.movement.speed;
+                        entity.position.facing = 90;
                     }
                     if(Vy < 0) {
                         Vy = -1 * entity.movement.speed;
+                        entity.position.facing = 0;
                     } else if(Vy > 0) {
                         Vy = 1 * entity.movement.speed;
-                    }
-
-                    const { x: ox, y: oy } = entity.position;
-
-                    if(nx !== ox) {
-                        if(nx > ox) {
-                            entity.position.facing = 90;
-                        } else if(nx < ox) {
-                            entity.position.facing = 270;
-                        }
-                    } else if(ny !== oy) {
-                        if(ny > oy) {
-                            entity.position.facing = 180;
-                        } else if(ny < oy) {
-                            entity.position.facing = 0;
-                        }
+                        entity.position.facing = 180;
                     }
                 } else {
                     entity.movement.wayfinder.drop();
