@@ -2,12 +2,13 @@ import { v4 as uuidv4 } from "uuid";
 import Agency from "@lespantsfancy/agency";
 
 import EntityManager from "./manager/EntityManager";
-import { hasPosition as hasComponentPosition } from "./data/entity/components/position";
-
 import NodeManager from "./manager/NodeManager";
 
+import Path from "./util/Path";
+
 import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
-import componentPosition from "./data/entity/components/position";
+import componentPosition, { hasPosition as hasComponentPosition }  from "./data/entity/components/position";
+import componentMovement from "./data/entity/components/movement";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
@@ -130,10 +131,17 @@ export function CreateRandom(width, height, enemyCount = 5) {
 
     const entities = world.entities.createMany(enemyCount, [
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
-        [ componentPosition, { world, x: () => Agency.Util.Dice.random(4, 6), y: () => Agency.Util.Dice.random(7, 9), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
-        // [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
+        [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
-        [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 999), current: () => () => false } ],
+        [ componentMovement, {} ],
+        [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
+            if(!entity.movement.wayfinder.hasPath && Agency.Util.Dice.percento(0.40)) {
+                const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
+                const path = Path.FindPath(world, [ entity.position.x, entity.position.y ], [ tx, ty ]);
+
+                entity.movement.wayfinder.set(path);
+            }
+        } } ],
     ], (i) => `enemy-${ i }`);
 
     entities.forEach(entity => world.join(entity));

@@ -143,7 +143,7 @@ export default class Game extends AgencyLocal.Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.add(World.CreateRandom(25, 25, 2), "overworld");
+            game.world.add(World.CreateRandom(25, 25, 15), "overworld");
             game.world.add(
                 Arena.CreateArena(game.world.get("overworld"), 10, 10, {
                     entities: [
@@ -199,36 +199,6 @@ export default class Game extends AgencyLocal.Watcher {
                         game.config.SHOW_UI = !game.config.SHOW_UI;
                     }
                 };
-                // window.onkeydown = e => {
-                //     let [ dx, dy ] = [ 0, 0 ];
-                //     if(e.key === "w")  {
-                //         dy = -1;
-                //     } else if(e.key === "a")  {
-                //         dx = -1;
-                //     } else if(e.key === "s")  {
-                //         dy = 1;
-                //     } else if(e.key === "d")  {
-                //         dx = 1;
-                //     }
-
-                //     game.players.player.position.vx = dx;
-                //     game.players.player.position.vy = dy;
-                // };
-                // window.onkeyup = e => {
-                //     let [ dx, dy ] = [ game.players.player.position.vx, game.players.player.position.vy ];
-                //     if(e.key === "w")  {
-                //         dy = 0;
-                //     } else if(e.key === "a")  {
-                //         dx = 0;
-                //     } else if(e.key === "s")  {
-                //         dy = 0;
-                //     } else if(e.key === "d")  {
-                //         dx = 0;
-                //     }
-
-                //     game.players.player.position.vx = dx;
-                //     game.players.player.position.vy = dy;
-                // };
                 game.render.__handler.$.subscribe((type, entry) => {
                     const [ e ] = entry.data;
                     const { target: canvas, button, clientX: x, clientY: y } = e;
