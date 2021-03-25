@@ -87,8 +87,8 @@ export class Path {
 };
 
 export function FindPath(world, origin, destination, { algorithm = AStar } = {}) {
-    origin = origin.map(v => ~~v);
-    destination = destination.map(v => ~~v);
+    origin = origin.map(v => Helper.round(v, 1));
+    destination = destination.map(v => Helper.round(v, 1));
 
     const path = algorithm(world, origin, destination);
 
