@@ -77,6 +77,11 @@ export default class Game extends AgencyLocal.Watcher {
              * FIXME:   @entity.movement.speed that exceeds a tile width/height
              * will prevent the progression of a <Path>, as it will miss the next
              * tile.
+             * 
+             * FIXME:   If a tile becomes occupied while another entity is traveling
+             * to that tile, a collision occurs.  Create a "wait if path obstructed"
+             * time threshold before the entity either: 1) drops its path, or 2) recalculates
+             * it to the same destination.  Check World..Node of Path..next to see if still traversable.
              */
             let Vx = entity.position.vx,
                 Vy = entity.position.vy;
