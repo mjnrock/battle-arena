@@ -1,4 +1,5 @@
 import Agency from "@lespantsfancy/agency";
+import Helper from "./../util/helper";
 
 import Entity from "../Entity";
 
@@ -24,13 +25,16 @@ export class NodeManager {
     }
 
     node(x, y) {
-        return this.nodes.get(x, y);
+        return this.nodes.get(Helper.round(x, 1), Helper.round(y, 1));
     }
     /**
      * If [@centered=true], then consider @w and @h as radii
      */
     range(x, y, w, h, { asGrid = false, centered = false } = {}) {
         const nodes = [];
+
+        x = Helper.round(x, 1);
+        y = Helper.round(y, 1);
 
         if(centered) {  // Refactor values to become center point and radii
             x -= w;
@@ -62,13 +66,13 @@ export class NodeManager {
     }
 
     joinNode(entity) {
-        const node = this.nodes.get(entity.position.x, entity.position.y);
+        const node = this.nodes.get(Helper.round(entity.position.x, 1), Helper.round(entity.position.y, 1));
 
         if(node instanceof Set) {
             node.add(entity.$.proxy);
             this._cache[ entity.__id ] = {
-                x: entity.position.x,
-                y: entity.position.y,
+                x: Helper.round(entity.position.x, 1),
+                y: Helper.round(entity.position.y, 1),
             };
 
             return true;

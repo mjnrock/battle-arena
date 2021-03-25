@@ -42,17 +42,17 @@ export class Registry extends Watcher {
 
     get $() {
         const _this = this;
-        const _emit = super.$.emit;
+        const _broadcast = super.$.broadcast;
 
         return {
             ...super.$,
 
-            async emit(prop, value) {
+            async broadcast(prop, value) {
                 if(validate(prop.substring(0, 36))) {
                     prop = prop.slice(37);
                 }
 
-                _emit.call("emitter" in this ? this : _this.$.proxy, prop, value);
+                _broadcast.call("emitter" in this ? this : _this.$.proxy, prop, value);
         
                 return _this;
             },
