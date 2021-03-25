@@ -144,7 +144,15 @@ export function CreateRandom(width, height, enemyCount = 5) {
         } } ],
     ], (i) => `enemy-${ i }`);
 
-    entities.forEach(entity => world.join(entity));
+    entities.forEach(entity => {
+        world.join(entity);
+
+        if(entity.meta.type === EnumEntityType.BUNNY) {
+            entity.movement.speed = 1.5;
+        } else if(entity.meta.type === EnumEntityType.SQUIRREL) {
+            entity.movement.speed = 2.0;
+        }
+    });
 
     return world;
 }
