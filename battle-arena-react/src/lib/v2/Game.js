@@ -94,7 +94,8 @@ export default class Game extends AgencyLocal.Watcher {
                     Vx = Helper.round(-(entity.position.x - nx), 10);
                     Vy = Helper.round(-(entity.position.y - ny), 10);
 
-                    //TODO  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
+                    //NOTE  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
+                    //FIXME @entity.movement.speed >= 3 overshoots the tile, causing jitters.  Overcompensated movement must be discretized and applied sequentially to each progressive step in the Path.
                     if(Vx < 0) {
                         Vx = -1 * entity.movement.speed;
                         entity.position.facing = 270;
