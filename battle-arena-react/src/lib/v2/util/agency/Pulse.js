@@ -58,7 +58,7 @@ export class Pulse extends Watchable {
      */
     update(dt) {
         this.tick = {
-            dt,
+            dt: dt / 1000,
             now: Date.now(),
         };
     }

@@ -1,4 +1,5 @@
 import SpriteStack from "../../util/render/SpriteStack";
+import { hasTurn } from "../entity/components/turn";
 
 export function comparator(data = {}, oldData = {}) {
     return data.hash !== oldData.hash
@@ -95,14 +96,18 @@ export async function drawAnimationFrame(dt, elapsed) {
     return this;
 };
 export async function drawAnimationFrameEntity(dt, elapsed, entity) {
-    const prog = ((Date.now() - entity.turn.timeout) % this.game.config.GCD) / this.game.config.GCD;      // % this.game.config.GCD hides information and should only be used for testing
-            
     //STUB  Dynamically add <Sprite(s)> // const sprite = new SpriteStack([ this.sprite({ entity: entity }), this.sprite({ entity: this.game.world.current.entities[ `player` ] }) ]);
     const spriteSheet = this.game.render.sprite("entity", { entity: entity });
 
     if (spriteSheet) {        
         spriteSheet.paint(0, elapsed, this.canvas, entity.position.x * this.tw, entity.position.y * this.th);
 
+        if(!hasTurn(entity)) {
+            return;
+        }
+
+        const prog = ((Date.now() - entity.turn.timeout) % this.game.config.GCD) / this.game.config.GCD;      // % this.game.config.GCD hides information and should only be used for testing
+            
         if(this.game.config.SHOW_UI) {
             let frameWidth = this.tw;
             

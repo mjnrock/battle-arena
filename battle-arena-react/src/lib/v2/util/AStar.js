@@ -32,7 +32,7 @@ export function findPath(world, start = [], goal = []) {
         for (let next of world.adjacent(...current, false)) {
             let new_cost = cost_so_far[ current.toString() ] + (world.cost(...next) || 0);
 
-            if (!(next.toString() in cost_so_far) || (new_cost < cost_so_far[ next.toString() ])) {
+            if (new_cost < Infinity && (!(next.toString() in cost_so_far) || (new_cost < cost_so_far[ next.toString() ]))) {
                 cost_so_far[ next.toString() ] = new_cost;
                 let priority = new_cost + heuristic(next, goal, start, true);
 

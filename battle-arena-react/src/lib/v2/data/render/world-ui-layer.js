@@ -5,6 +5,10 @@ export async function drawAnimationFrame(dt, elapsed) {
     if(this.game.config.SHOW_UI) {
         drawMouseHighlighter.call(this);
         drawPlayerPath.call(this);
+
+        for(let entity of this.game.world.current.entities.values) {
+            drawMovementPath.call(this, entity);
+        }
     }
 
     return this;
@@ -61,28 +65,70 @@ export function drawMouseHighlighter() {
 export function drawPlayerPath() {
     this.save();
         const entity = this.game.players.player;
-        const path = entity.movement.path || [];
-        const [ x, y ] = entity.movement.destination || [];
+        for(let i = 0; i < entity.movement.wayfinder.paths.length; i++) {
+            const path = entity.movement.wayfinder.paths[ i ];
 
-        for(let [ tx, ty ] of path) {
-            this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
-                tx,
-                ty,
-                1,
-                1,
-                { isFilled: true },
-            );
-        }
+            if(path) {
+                const steps = path.remaining || [];
+                const [ x, y ] = path.destination || [];
         
-        if(!(entity.position.x === x && entity.position.y === y)) {
-            this.prop({ fillStyle: `rgba(0, 0, 255, 0.15)` }).tRect(
-                x,
-                y,
-                1,
-                1,
-                { isFilled: true },
-            );
+                for(let [ tx, ty ] of steps) {
+                    this.prop({ fillStyle: `rgba(0, 0, 155, ${ i === 0 ? 0.20 : 0.10 })` }).tRect(
+                        tx,
+                        ty,
+                        1,
+                        1,
+                        { isFilled: true },
+                    );
+                }
+                
+                if(!(entity.position.x === x && entity.position.y === y)) {
+                    this.prop({ fillStyle: `rgba(0, 0, 155, ${ i === 0 ? 0.20 : 0.10 })` }).tRect(
+                        x,
+                        y,
+                        1,
+                        1,
+                        { isFilled: true },
+                    );
+                }
+            }
         }
+
+        
+    this.restore();
+};
+export function drawMovementPath(entity) {
+    this.save();
+        for(let i = 0; i < entity.movement.wayfinder.paths.length; i++) {
+            const path = entity.movement.wayfinder.paths[ i ];
+
+            if(path) {
+                const steps = path.remaining || [];
+                const [ x, y ] = path.destination || [];
+        
+                for(let [ tx, ty ] of steps) {
+                    this.prop({ fillStyle: `rgba(0, 45, 155, 0.1` }).tRect(
+                        tx,
+                        ty,
+                        1,
+                        1,
+                        { isFilled: true },
+                    );
+                }
+                
+                if(!(entity.position.x === x && entity.position.y === y)) {
+                    this.prop({ fillStyle: `rgba(0, 45, 155, 0.1` }).tRect(
+                        x,
+                        y,
+                        1,
+                        1,
+                        { isFilled: true },
+                    );
+                }
+            }
+        }
+
+        
     this.restore();
 };
 

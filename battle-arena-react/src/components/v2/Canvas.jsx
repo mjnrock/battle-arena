@@ -1,8 +1,6 @@
-/* eslint-disable */
-import Agency from "@lespantsfancy/agency";
+// import Agency from "@lespantsfancy/agency";
+import Agency from "./../../lib/v2/util/agency/package";
 import React,{ useEffect } from "react";
-
-import EventWatchable from "./../../lib/v2/util/EventWatchable";
 
 /**
  * Props
@@ -30,7 +28,7 @@ function Canvas(props) {
             }
 
             //NOTE  Presumably this gc's itself on @ref:@canvas.canvas destruction, but I haven't tested it
-            canvas.__handler = new EventWatchable(ref, [
+            canvas.__handler = new Agency.EventWatchable(ref, [
                 "click",
                 "contextmenu",
                 "mousedown",
@@ -46,7 +44,7 @@ function Canvas(props) {
             // Overwrite the reference to attach canvas to React
             canvas.canvas = ref;
         }
-    }, []);
+    }, [ canvas, canvasRef ]);
 
     return (
         <>

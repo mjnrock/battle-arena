@@ -2,19 +2,17 @@ import { v4 as uuidv4 } from "uuid";
 import Agency from "@lespantsfancy/agency";
 
 import EntityManager from "./manager/EntityManager";
-import { hasPosition as hasComponentPosition } from "./data/entity/components/position";
-
 import NodeManager from "./manager/NodeManager";
 
+import Path from "./util/Path";
+
 import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
-import componentPosition from "./data/entity/components/position";
+import componentPosition, { hasPosition as hasComponentPosition }  from "./data/entity/components/position";
+import componentMovement from "./data/entity/components/movement";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
-import componentAction from "./data/entity/components/movement";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
-
-import Entity from "./Entity";
 
 export class World {
     constructor(width, height) {
@@ -23,23 +21,14 @@ export class World {
         this.width = width;
         this.height = height;
 
-        this.__entities = new EntityManager();
-        this.__terrain = new EntityManager();
+        this.entities = new EntityManager();
+        this.terrain = new EntityManager();
 
-        //TODO Once <Model>s are added, put a reference in any <Node> where an <Entity> overlaps (x+/-w, y+/-h)
-        this.__nodes = new NodeManager([ width, height ], this.__entities);  // Entities only
-        // this.__nodes = new NodeManager([ width, height ], this.__entities, this.__terrain);
+        this.__nodes = new NodeManager([ width, height ], [ this.entities ]);
     }
 
     get id() {
         return this.__id;
-    }
-
-    get entities() {
-        return this.__entities;
-    }
-    get terrain() {
-        return this.__terrain;
     }
 
     get nodes() {
@@ -62,17 +51,6 @@ export class World {
         this.entities.register(entity, ...synonyms);
 
         this.__nodes.joinNode(entity);
-
-        const _this = this.__nodes;
-        this.entities.$.subscribe(function(prop, value) {
-            if(prop.startsWith("position")) {
-                const entity = this.subject;
-
-                if(entity instanceof Entity) {
-                    _this.moveToNode(entity);
-                }
-            }
-        });
 
         return true;
     }
@@ -151,13 +129,30 @@ export function CreateRandom(width, height, enemyCount = 5) {
 
     CalculateEdgeMasks(world);
 
-    world.entities.createMany(enemyCount, [
+    const entities = world.entities.createMany(enemyCount, [
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
-        [ componentPosition, { world, x: () => Agency.Util.Dice.random(4, 6), y: () => Agency.Util.Dice.random(7, 9), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
-        // [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
+        [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
-        [ componentTurn, { timeout: () => Date.now() - Agency.Util.Dice.random(0, 1499), current: () => () => false } ],
+        [ componentMovement, {} ],
+        [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
+            if(!entity.movement.wayfinder.hasPath && Agency.Util.Dice.percento(0.10)) {
+                const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
+                const path = Path.FindPath(world, [ entity.position.x, entity.position.y ], [ tx, ty ]);
+
+                entity.movement.wayfinder.set(path);
+            }
+        } } ],
     ], (i) => `enemy-${ i }`);
+
+    entities.forEach(entity => {
+        world.join(entity);
+
+        if(entity.meta.type === EnumEntityType.BUNNY) {
+            entity.movement.speed = 1.5;
+        } else if(entity.meta.type === EnumEntityType.SQUIRREL) {
+            entity.movement.speed = 2.0;
+        }
+    });
 
     return world;
 }

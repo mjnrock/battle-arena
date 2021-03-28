@@ -1,7 +1,7 @@
-import Agency from "@lespantsfancy/agency";
-import Watchable from "./Watchable";
+// import Agency from "@lespantsfancy/agency";
+import Agency from "./agency/package";
 
-export default class Value extends Watchable {
+export default class Value extends Agency.Watchable {
     constructor(current, { min, max, softMax = false, softMin = false } = {}) {
         super();
 

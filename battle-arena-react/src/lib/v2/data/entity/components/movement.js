@@ -1,11 +1,13 @@
+import Wayfinder from "../../../util/Wayfinder";
+
 //! Component Schemas should always be functions
 const _name = "movement";
 
 export const schema = {
-    [ _name ]: ({ destination = [], path = [], range = 1 } = {}) => ({
-        destination,
+    [ _name ]: ({ path = [], speed = 2.5 } = {}) => ({
+        wayfinder: new Wayfinder(),
         path,
-        range,
+        speed,
     }),
 };
 

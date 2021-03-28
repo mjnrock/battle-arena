@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
-        "@lespantsfancy/agency": "0.4.2",
+        "@lespantsfancy/agency": "0.4.7",
         "is-base64": "^1.1.0",
         "mainloop.js": "^1.0.4",
         "node-fetch": "^2.6.1",

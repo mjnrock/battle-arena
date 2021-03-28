@@ -1,19 +1,29 @@
-import Agency from "@lespantsfancy/agency";
-import Watchable from "./util/Watchable";
+// import Agency from "@lespantsfancy/agency";
+import Agency from "./util/agency/package";
 
-export class Entity extends Watchable {
+export class Entity extends Agency.Watchable {
     constructor() {
         super();
     }
 }
 
 //? A <Component> schema should only ever have ONE (1) entry i.e. { [_name]: { ...} }
-export function FromSchema(schemaWithArgs = []) {
+/**
+ * 
+ * @param {[ [ componentFn, argObj ], ... ]} schemaWithArgs 
+ * @param {fn} callback | Useful for post-init/circular assignments
+ * @returns 
+ */
+export function FromSchema(schemaWithArgs = [], callback) {
     let entity = new Entity();
 
     for(let [ comp, argObj ] of schemaWithArgs) {        
         const key = Object.keys(comp)[ 0 ];
         entity[ key ] = CreateComponent(comp, argObj);
+    }
+
+    if(typeof callback === "function") {
+        callback(entity);
     }
 
     return entity;

@@ -3,16 +3,20 @@ import { v4 as uuidv4 } from "uuid";
 export const WatchableArchetype = class {};
 
 export const wrapNested = (root, prop, input) => {
-    if(prop.includes("__")) {
+    if(input === null || prop.includes("__")) {
         return input;
     }
 
     if(input instanceof WatchableArchetype) {
         return input;
-    } else if(input instanceof Watchable) {
-        input.$.subscribe(function(p, v) {
-            root.$.emit.call(this, `${ prop }.${ p }`, v);
-        });
+    } else if(root instanceof Watchable && input instanceof Watchable) {
+        if(root.$.proxy !== input.$.proxy) {    // Don't broadcast if the input is also the root (e.g. circular references)
+            input.$.subscribe(function(p, v) {
+                root.$.broadcast.call(this, `${ prop }.${ p }`, v);
+            });
+        }
+
+        //FIXME  Watchable{1}.Object.Watchable{2} --> w/ ref to Watchable{1} creates infinite loop (e.g. Entity.Movement.Wayfinder.entity = Entity)
 
         return input;
     }
@@ -25,7 +29,11 @@ export const wrapNested = (root, prop, input) => {
             return t[ p ];
         },
         set(t, p, v) {
-            if(p.startsWith("_")) {      // Don't emit any _Private/__Internal variables
+            if(t[ p ] === v) {  // Ignore if the old value === new value
+                return t;
+            }
+
+            if(v === null || p[ 0 ] === "_" || (Object.getOwnPropertyDescriptor(t, p) || {}).set) {      // Don't broadcast any _Private/__Internal variables
                 t[ p ] = v;
 
                 return t;
@@ -39,12 +47,22 @@ export const wrapNested = (root, prop, input) => {
                 t[ p ] = v;
             }
             
-            if(!(Array.isArray(input) && p in Array.prototype)) {   // Don't emit native <Array> keys (i.e. .push returns .length)
-                root.$.emit(`${ prop }.${ p }`, v);
+            if(!(Array.isArray(input) && p in Array.prototype)) {   // Don't broadcast native <Array> keys (i.e. .push returns .length)
+                root.$.broadcast(`${ prop }.${ p }`, v);
             }
 
             return t;
         },
+        // deleteProperty(t, p) {
+        //     if(p in t) {
+        //         delete t[ p ];
+
+
+        //         t.$.broadcast(p, void 0);
+        //     }
+
+        //     return t;
+        // }
     });
 
     for(let [ key, value ] of Object.entries(input)) {
@@ -57,10 +75,17 @@ export const wrapNested = (root, prop, input) => {
 };
 
 export class Watchable {
-    constructor(state = {}, { deep = true } = {}) {
+    constructor(state = {}, { deep = true, only = [], ignore = [] } = {}) {
         this.__id = uuidv4();
 
         this.__subscribers = new Map();
+
+        if(only.length || ignore.length) {
+            this.__filter = {
+                type: only.length ? true : (ignore.length ? false : null),
+                props: only.length ? only : (ignore.length ? ignore : []),
+            };
+        }
         
         const _this = new Proxy(this, {
             get(target, prop) {
@@ -88,11 +113,11 @@ export class Watchable {
                 return target[ prop ];
             },
             set(target, prop, value) {
-                if(target[ prop ] === value || prop === "$") {
+                if(target[ prop ] === value || prop === "$") {  // Ignore if the old value === new value, or if accessing get $()
                     return target;
                 }
                 
-                if(prop.startsWith("_") || (Object.getOwnPropertyDescriptor(target, prop) || {}).set) {      // Don't emit any _Private/__Internal variables
+                if(value === null || prop[ 0 ] === "_" || (Object.getOwnPropertyDescriptor(target, prop) || {}).set) {      // Don't broadcast any _Private/__Internal variables
                     target[ prop ] = value;
 
                     return target;
@@ -101,15 +126,24 @@ export class Watchable {
                 if(deep && typeof value === "object") {
                     target[ prop ] = wrapNested(target, prop, value);
 
-                    target.$.emit(prop, target[ prop ]);
+                    target.$.broadcast(prop, target[ prop ]);
                 } else {
                     target[ prop ] = value;
 
-                    target.$.emit(prop, value);
+                    target.$.broadcast(prop, value);
                 }
 
                 return target;
-            }
+            },
+            // deleteProperty(target, prop) {
+            //     if(prop in target) {
+            //         delete target[ prop ];
+
+            //         target.$.broadcast(prop, void 0);
+
+            //         return target;
+            //     }
+            // }
         });
 
         if(typeof state === "object") {
@@ -118,7 +152,7 @@ export class Watchable {
             }
         }
 
-        //NOTE  Allow @target to regain its <Proxy>, such as in a .emit(...) --> { subject: @target } situation
+        //NOTE  Allow @target to regain its <Proxy>, such as in a .broadcast(...) --> { subject: @target } situation
         this.__ = { proxy: _this, target: this };  // Store a proxy and target accessor so that either can access each other
 
         return _this;
@@ -139,12 +173,24 @@ export class Watchable {
                 return _this.__.target;
             },
 
-            async emit(prop, value) {
+            async broadcast(prop, value) {
+                if(_this.__filter) {
+                    if(_this.__filter.type === true) {
+                        if(!_this.__filter.props.includes(prop)) {
+                            return _this;
+                        }
+                    } else if(_this.__filter.type === false) {
+                        if(_this.__filter.props.includes(prop)) {
+                            return _this;
+                        }
+                    }
+                }
+
                 for(let subscriber of _this.__subscribers.values()) {
                     /**
                      * @prop | The chain-prop from the original emission
                      * @value | The chain-prop's value from the original emission
-                     * @subject | The original .emit <Watchable>
+                     * @subject | The original .broadcast <Watchable>
                      * @observer | The original subscriber (fn|Watcher) -- The original <Watcher> in a chain emission
                      * @emitter | The emitting <Watchable> -- The final <Watcher> in a chain emission
                      * @subscriber | The subscription fn|Watcher receiving the invocation
@@ -152,15 +198,15 @@ export class Watchable {
                     const payload = {
                         prop,
                         value,
-                        subject: this.subject || _this,
-                        emitter: _this,
-                        subscriber,
+                        subject: "subject" in this ? this.subject.$.proxy : _this.$.proxy,
+                        emitter: _this.$.proxy,
+                        subscriber: subscriber instanceof Watchable ? subscriber.$.proxy : subscriber,
                     };
         
                     if(typeof subscriber === "function") {
                         subscriber.call(payload, prop, value, payload.subject.$.id);
                     } else if(subscriber instanceof Watchable) {
-                        subscriber.$.emit.call(payload, prop, value, payload.subject.$.id);
+                        subscriber.$.broadcast.call(payload, prop, value, payload.subject.$.id);
                     }
                 }
         
@@ -219,7 +265,7 @@ export class Watchable {
         
                 if(includePrivateKeys) {
                     for(let [ key, value ] of Object.entries(_this)) {
-                        if(!key.startsWith("__")) {
+                        if(!(key[ 0 ] === "_" && key[ 1 ] === "_")) {
                             if(value instanceof Watchable) {
                                 obj[ key ] = value.$.toData();
                             } else {
@@ -232,7 +278,7 @@ export class Watchable {
                 }
         
                 for(let [ key, value ] of Object.entries(_this)) {
-                    if(!key.startsWith("_")) {
+                    if(key[ 0 ] !== "_") {
                         if(value instanceof Watchable) {
                             obj[ key ] = value.$.toData();
                         } else {

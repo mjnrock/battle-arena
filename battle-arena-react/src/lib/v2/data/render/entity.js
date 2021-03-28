@@ -8,6 +8,10 @@ export async function loadEntity(game) {
         `squirrel`,
         `bunny`,
         `bear`,
+
+        `tree`,
+        `stump`,
+
         // `fire`,
         // `ghost-squirrel`,
         // `ghost-bunny`,
@@ -37,10 +41,15 @@ export async function loadEntity(game) {
                 Agency.Util.Base64.FileDecode(`./assets/images/${ file }.png`)
                     .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true }))
                     .then(tessellation => {
-                        for(let i = 0; i <= 270; i += 90) {
-                            tessellation.absolute(24).add(`0.${ i / 90 }`, 250).add(`1.${ i / 90 }`, 250);
-                            
-                            game.render.repository.get("entity").get(file, 0, i).set(0, tessellation.toSprite({ purgePattern: true }));
+                        if(file === "tree" || file === "stump") {
+                            tessellation.absolute(24).add(`0.0`, 1000);
+                            game.render.repository.get("entity").get(file, 0, 0).set(0, tessellation.toSprite({ purgePattern: true }));
+                        } else {
+                            for(let i = 0; i <= 270; i += 90) {
+                                tessellation.absolute(24).add(`0.${ i / 90 }`, 250).add(`1.${ i / 90 }`, 250);
+                                
+                                game.render.repository.get("entity").get(file, 0, i).set(0, tessellation.toSprite({ purgePattern: true }));
+                            }
                         }
                     })
                     .catch(e => { console.error(e); console.warn(`Ensure that "${ file }" is present in the <ImageRegistry>`); })

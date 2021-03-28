@@ -1,7 +1,5 @@
 import Agency from "@lespantsfancy/agency";
-
-import Watcher from "./util/Watcher";
-import Pulse from "./util/Pulse";
+import AgencyLocal from "./util/agency/package";
 
 //STUB START "Imports" for stub below
     import World from "./World";
@@ -18,23 +16,25 @@ import Pulse from "./util/Pulse";
     
     import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
     import componentPosition from "./data/entity/components/position";
-    import componentTurn from "./data/entity/components/turn";
+    import componentTurn, { hasTurn } from "./data/entity/components/turn";
     import componentHealth from "./data/entity/components/health";
-    import componentAction from "./data/entity/components/movement";
+    import componentMovement, { hasMovement } from "./data/entity/components/movement";
 import RenderGroup from "./util/render/RenderGroup";
 import WorldManager from "./manager/WorldManager";
 import Arena from "./Arena";
 import PlayerManager from "./manager/PlayerManager";
 import Entity from "./Entity";
 import Animator from "./util/render/Animator";
+import Path from "./util/Path";
+import Helper from "./util/helper";
 //STUB END "Imports"
 
-export default class Game extends Watcher {
+export default class Game extends AgencyLocal.Watcher {
     // constructor({ fps = 2, GCD = 1000 } = {}) {
-    constructor({ fps = 24, GCD = 1000 } = {}) {
+    constructor({ fps = 20, GCD = 1000 } = {}) {
         super([], {}, { deep: false });
 
-        this.loop = new Pulse(fps, { autostart: false });
+        this.loop = new AgencyLocal.Pulse(fps, { autostart: false });
         this.players = new PlayerManager();
 
         this.config = {
@@ -59,10 +59,74 @@ export default class Game extends Watcher {
 
     onTick({ dt, now } = {}) {
         for(let entity of this.world.current.entities.values) {
-            if(now - entity.turn.timeout >= this.config.GCD) {
-                entity.turn.current(entity);
-                entity.turn.timeout = now;
+            if(hasTurn(entity)) {
+                if(now - entity.turn.timeout >= this.config.GCD) {
+                    entity.turn.current(entity);
+                    entity.turn.timeout = now;
+                }
             }
+
+            /** NOTE:    Odd Path Following
+             * The ~~ operator setup here causes only SOUTHEAST movements
+             * to appear correct, while all other directions suffer from
+             * "technically" being in the tile, thus the <Path> continues.
+             * 
+             * This should resolve itself after the transition to center of
+             * mass positions, instead of top-left of tile box.
+             * 
+             * FIXME:   @entity.movement.speed that exceeds a tile width/height
+             * will prevent the progression of a <Path>, as it will miss the next
+             * tile.
+             * 
+             * FIXME:   If a tile becomes occupied while another entity is traveling
+             * to that tile, a collision occurs.  Create a "wait if path obstructed"
+             * time threshold before the entity either: 1) drops its path, or 2) recalculates
+             * it to the same destination.  Check World..Node of Path..next to see if still traversable.
+             */
+            let Vx = entity.position.vx,
+                Vy = entity.position.vy;
+                
+            if(hasMovement(entity)) {
+                if(entity.movement.wayfinder.hasPath) {
+                    entity.movement.wayfinder.current.test(entity.position.x, entity.position.y);
+
+                    let [ nx, ny ] = entity.movement.wayfinder.current.current;
+
+                    if(nx === void 0 || ny === void 0) {
+                        [ nx, ny ] = [ entity.position.x, entity.position.y ];
+                    }
+
+                    Vx = Helper.round(-(entity.position.x - nx), 10);
+                    Vy = Helper.round(-(entity.position.y - ny), 10);
+
+                    //NOTE  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
+                    //FIXME @entity.movement.speed >= 3 overshoots the tile, causing jitters.  Overcompensated movement must be discretized and applied sequentially to each progressive step in the Path.
+                    if(Vx < 0) {
+                        Vx = -1 * entity.movement.speed;
+                        entity.position.facing = 270;
+                    } else if(Vx > 0) {
+                        Vx = 1 * entity.movement.speed;
+                        entity.position.facing = 90;
+                    }
+                    if(Vy < 0) {
+                        Vy = -1 * entity.movement.speed;
+                        entity.position.facing = 0;
+                    } else if(Vy > 0) {
+                        Vy = 1 * entity.movement.speed;
+                        entity.position.facing = 180;
+                    }
+                } else {
+                    entity.movement.wayfinder.drop();
+                }
+            }
+
+            if(Vx || Vy) {
+                entity.position.x += Vx * dt;
+                entity.position.y += Vy * dt;
+            }
+            
+            entity.position.vx = Vx;
+            entity.position.vy = Vy;
         }
     }
 
@@ -73,7 +137,7 @@ export default class Game extends Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.add(World.CreateRandom(25, 25, 2), "overworld");
+            game.world.add(World.CreateRandom(25, 25, 15), "overworld");
             game.world.add(
                 Arena.CreateArena(game.world.get("overworld"), 10, 10, {
                     entities: [
@@ -87,34 +151,18 @@ export default class Game extends Watcher {
                 [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
                 [ componentPosition, { x: 4, y: 7 } ],
                 [ componentHealth, { current: 10, max: 10 } ],
-                [ componentAction, {} ],
-                [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-                    if(entity.movement.path.length) {
-                        const [ x, y ] = entity.movement.path.shift();
-                        const { x: ox, y: oy } = entity.position;
-        
-                        entity.position.x = x;
-                        entity.position.y = y;
-        
-                        if(x !== ox) {
-                            if(x > ox) {
-                                entity.position.facing = 90;
-                            } else if(x < ox) {
-                                entity.position.facing = 270;
-                            }
-                        } else if(y !== oy) {
-                            if(y > oy) {
-                                entity.position.facing = 180;
-                            } else if(y < oy) {
-                                entity.position.facing = 0;
-                            }
-                        }
-                    }
-                } } ],
-            ]);
+                [ componentMovement, {} ],
+                [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {} } ],
+            ], (entity) => {
+                entity.movement.wayfinder.entity = entity;
+            });
             game.world.get("overworld").join(player);
 
             game.players.register(player, "player");
+
+            // game.players.player.$.subscribe(function(prop, value) {
+            //     console.log(prop, value);
+            // });
 
             
             //? Bootstrap the rendering
@@ -165,9 +213,13 @@ export default class Game extends Watcher {
                             console.info(pos.txi, pos.tyi, game.world.current.node(pos.txi, pos.tyi));
                         } else if(button === 2) {
                             const player = game.players.player;
-                            // const player = game.world.current.entities.player;
-                            player.movement.destination = [ pos.txi, pos.tyi ];
-                            player.movement.path = findPath(game.world.current, [ player.position.x, player.position.y ], player.movement.destination);
+
+                            if(e.shiftKey) {
+                                player.movement.wayfinder.waypoint(game.world.current, pos.txi, pos.tyi);
+                            } else {
+                                const path = Path.FindPath(game.world.current, [ player.position.x, player.position.y ], [ pos.txi, pos.tyi ]);
+                                player.movement.wayfinder.set(path);
+                            }
                         }
                     } else if(type === "mousemove") {
                         game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];
@@ -175,22 +227,26 @@ export default class Game extends Watcher {
                 });
                 
                 //STUB  Change the World at interval
-                let bool = true;
-                setInterval(() => {
-                    if(bool) {
-                        game.world.migrate(game.players.player, "arena");
+                // let bool = true;
+                // setInterval(() => {
+                //     if(bool) {
+                //         game.world.migrate(game.players.player, "arena");
 
-                        game.render.width = game.world.get("arena").width * 32;
-                        game.render.height = game.world.get("arena").height * 32;
-                    } else {
-                        game.world.migrate(game.players.player, "overworld");
+                //         game.render.width = game.world.get("arena").width * 32;
+                //         game.render.height = game.world.get("arena").height * 32;
+                //     } else {
+                //         game.world.migrate(game.players.player, "overworld");
 
-                        game.render.width = game.world.get("overworld").width * 32;
-                        game.render.height = game.world.get("overworld").height * 32;
-                    }
+                //         game.render.width = game.world.get("overworld").width * 32;
+                //         game.render.height = game.world.get("overworld").height * 32;
+                //     }
 
-                    bool = !bool;
-                }, 2500);
+                //     bool = !bool;
+                // }, 2500);
+
+                // setTimeout(() => {
+                //     game.render.ctx.translate(game.config.render.tile.width / 2, game.config.render.tile.height / 2);
+                // }, 1000);
             })();
 
             game.loop.start();

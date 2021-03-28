@@ -22,7 +22,7 @@ export async function ToGrid(tw, th, canvas, { keyFn = (x, y) => `${ x }.${ y }`
     return obj;
 };
 
-export async function ToCanvasMap(tw, th, canvas, { keyFn, asTessellation = false, includeMeta = false } = {}) {
+export async function ToCanvasMap(tw, th, canvas, { keyFn, asTessellation = false, includeMeta = false, anchorPoint } = {}) {
     const obj = await ToGrid(tw, th, canvas, { keyFn });
     const image = await Agency.Util.Base64.Decode(obj.source);
 
@@ -37,6 +37,9 @@ export async function ToCanvasMap(tw, th, canvas, { keyFn, asTessellation = fals
             x, y, tw, th,
             0, 0, tw, th,
         );
+
+        cvs.__anchorPoint = typeof anchorPoint === "function" ? anchorPoint(key, x, y, tw, th) : [ 0, 0 ];
+        // cvs.__anchorPoint = typeof anchorPoint === "function" ? anchorPoint(key, x, y, tw, th) : [ tw / 2, th / 2 ];
 
         res[ key ] = cvs;
     }

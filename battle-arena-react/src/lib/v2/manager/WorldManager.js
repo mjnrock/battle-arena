@@ -1,29 +1,30 @@
 import { v4 as uuidv4 } from "uuid";
-import Agency from "@lespantsfancy/agency";
+// import Agency from "@lespantsfancy/agency";
+import Agency from "./../util/agency/package";
 
 import World from "../World";
 import { hasPosition } from "../data/entity/components/position";
 
 export class WorldManager {
-    constructor(game) {
+    constructor(game, { repository } = {}) {
         this.__id = uuidv4();
         this.__game = game;
 
-        this.worlds = new Agency.Registry();
+        this.repository = repository || new Agency.Registry();
     }
 
     add(world, ...synonyms) {
-        this.worlds.register(world, ...synonyms);
+        this.repository.register(world, ...synonyms);
 
         return this;
     }
-    remove(world, ...synonyms) {
-        this.worlds.unregister(world, ...synonyms);
+    remove(world) {
+        this.repository.unregister(world);
 
         return this;
     }
     get(id) {
-        return this.worlds[ id ];
+        return this.repository[ id ];
     }
 
     get id() {
@@ -38,14 +39,14 @@ export class WorldManager {
             const player = this.game.players.player;
             
             if(player) {
-                return this.worlds[ player.position.world ];
+                return this.repository[ player.position.world ];
             }
         }
 
-        return this.worlds[ `overworld` ];
+        return this.repository[ `overworld` ];
     }
 
-    migrate(entity, world) {
+    migrate(entity, world, x, y) {
         if(!hasPosition(entity)) {
             return false;
         }
@@ -56,9 +57,14 @@ export class WorldManager {
         }        
         
         if(world instanceof World) {
-            this.worlds[ world.id ].join(entity);
+            this.repository[ world.id ].join(entity);
         } else {
-            this.worlds[ world ].join(entity);
+            this.repository[ world ].join(entity);
+        }
+
+        if(x !== void 0 && y !== void 0) {
+            entity.position.x = x;
+            entity.position.y = y;
         }
 
         return this;
