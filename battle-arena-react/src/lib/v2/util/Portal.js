@@ -31,14 +31,17 @@ export class Portal {
         }
     }
 
-    activate(worldManager, entity) {
-        if(hasPosition(entity) && this.activator(entity) === true) {
-            worldManager.migrate(entity, this.world, this.x, this.y);
+    // activate(worldManager, entity) {
+    activate(entity) {
+        return this.activator(entity);
 
-            return true;
-        }
+        // if(hasPosition(entity) && this.activator(entity) === true) {
+        //     worldManager.migrate(entity, this.world, this.x, this.y);
 
-        return false;
+        //     return true;
+        // }
+
+        // return false;
     }
 };
 

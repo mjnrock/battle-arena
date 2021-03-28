@@ -6,7 +6,14 @@ export class Emitter extends Watchable {
     constructor(events = {}) {
         super();
 
-        this.__events = events;
+        this.__events = {};
+        if(Array.isArray(events)) {
+            for(let event of events) {
+                this.$.handle(event);
+            }
+        } else {
+            this.__events = events;
+        }
 
         return new Proxy(this, {
             get(target, prop) {
