@@ -132,6 +132,12 @@ export class World extends Network {
         return this;
     }
 
+    node(x, y) {
+        return this.nodes.node(
+            Agency.Util.Helper.round(x, 1),
+            Agency.Util.Helper.round(y, 1),
+        );
+    }
     
     adjacent(x, y, addDiagonals = false) {
         let dirs = [

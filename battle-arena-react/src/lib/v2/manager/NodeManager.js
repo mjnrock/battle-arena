@@ -100,7 +100,7 @@ export class NodeManager extends Watcher {
     }
 
     node(...pos) {
-        return this.nodes.get(...pos.map(p => Agency.Util.Helper.round(p, 1)));
+        return this.nodes.get(...pos);
     }
 
     /**

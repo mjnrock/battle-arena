@@ -93,8 +93,8 @@ export default class Game extends AgencyLocal.Watcher {
                         [ nx, ny ] = [ entity.position.x, entity.position.y ];
                     }
 
-                    Vx = Helper.round(-(entity.position.x - nx), 10);
-                    Vy = Helper.round(-(entity.position.y - ny), 10);
+                    Vx = Agency.Util.Helper.round(-(entity.position.x - nx), 10);
+                    Vy = Agency.Util.Helper.round(-(entity.position.y - ny), 10);
 
                     //NOTE  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
                     //FIXME @entity.movement.speed >= 3 overshoots the tile, causing jitters.  Overcompensated movement must be discretized and applied sequentially to each progressive step in the Path.
@@ -205,7 +205,7 @@ export default class Game extends AgencyLocal.Watcher {
                     if(type === "mouseup") {
                         if(button === 0) {
                             // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
-                            console.info(pos.txi, pos.tyi, game.world.current.node(pos.txi, pos.tyi));
+                            console.info(pos.txi, pos.tyi, game.world.current.node(pos.txi, pos.tyi).occupants);
                         } else if(button === 2) {
                             const player = game.players.player;
 

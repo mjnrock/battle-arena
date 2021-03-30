@@ -94,7 +94,7 @@ export class Pulse extends Emitter {
     update(dt) {
         ++this.__tick;
 
-        this.$tick(dt, Date.now());
+        this.$tick(dt / 1000, Date.now());
     }
 
     /**
