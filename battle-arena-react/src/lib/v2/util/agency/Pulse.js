@@ -1,20 +1,35 @@
 import MainLoop from "mainloop.js";
+import Emitter from "./Emitter";
+import AgencyWatcher from "./Watcher";
 
-// import Watchable from "./Watchable";
-import Watchable from "@lespantsfancy/agency/src/v4/Watchable";
+export function preUpdate(ts, dt) {};
+export function postUpdate(fps, panic) {
+    if (panic) {
+        let discardedTime = Math.round(MainLoop.resetFrameDelta());
+        console.warn("Main loop panicked, probably because the browser tab was put in the background. Discarding ", discardedTime, "ms");
+    }
+};
 
-export class Pulse extends Watchable {
-    constructor(bps = 30, { state = {}, deep = false, autostart = false } = {}) {
-        super(state, { deep });
+export class Pulse extends Emitter {
+    static Events = [
+        "tick",
+    ];
+
+    constructor(bps = 30, { state = {}, deep = false, autostart = false, pre, post, ...opts } = {}) {
+        super(Pulse.Events, { state, deep, ...opts });
 
         this._bps = bps;
         this.tick = {};
+        this.__ticks = 0;
 
-        this.loop = MainLoop.setBegin(this.pre.bind(this))
+        this.loop = MainLoop.setBegin(preUpdate.bind(this))
             .setUpdate(this.update.bind(this))
             .setDraw(this.draw.bind(this))
-            .setEnd(this.post.bind(this))
+            .setEnd(postUpdate.bind(this))
             .setSimulationTimestep(this.spb);
+
+        this.pre = pre;
+        this.post = post;
 
         if(autostart) {
             this.start();
@@ -36,6 +51,10 @@ export class Pulse extends Watchable {
         return 1000 / this.bps;
     }
 
+    get ticks() {
+        return this.__ticks;
+    }
+
     start() {
         this.loop.start();
 
@@ -46,21 +65,36 @@ export class Pulse extends Watchable {
 
         return this;
     }
+    
+    get pre() {
+        return this._pre;
+    }
+    set pre(fn) {
+        if(typeof fn === "function") {
+            this._pre = fn;
 
-    /**
-     * @param {number} ts Total elapsed time
-     * @param {number} dt Frame delta in ms
-     */
-    pre(ts, dt) {}
+            this.loop.setBegin(this.pre);
+        }
+    }
+    
+    get post() {
+        return this._post;
+    }
+    set post(fn) {
+        if(typeof fn === "function") {
+            this._post = fn;
+
+            this.loop.setEnd(this.post);
+        }
+    }
 
     /**
      * @param {number} dt Frame delta in ms
      */
     update(dt) {
-        this.tick = {
-            dt: dt / 1000,
-            now: Date.now(),
-        };
+        ++this.__tick;
+
+        this.$tick(dt, Date.now());
     }
 
     /**
@@ -69,19 +103,22 @@ export class Pulse extends Watchable {
     draw(interpolationPercentage) {
         // console.log("%", interpolationPercentage);   //TODO Figure out how to add these "rendering fractional steps" into implementation
     }
-
-    post(fps, panic) {
-        if (panic) {
-            let discardedTime = Math.round(MainLoop.resetFrameDelta());
-            console.warn("Main loop panicked, probably because the browser tab was put in the background. Discarding ", discardedTime, "ms");
-        }
-    }
 };
 
 export function Factory(bps, opts = {}) {
     return new Pulse(bps, opts);
 };
 
+export function Watcher(bps, opts = {}) {
+    const pulse = new Pulse(bps, opts);
+    const watcher = new AgencyWatcher();
+
+    watcher.$.watch(pulse);
+
+    return watcher;
+};
+
 Pulse.Factory = Factory;
+Pulse.Watcher = Watcher;
 
 export default Pulse;

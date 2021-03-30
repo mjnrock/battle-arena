@@ -1,40 +1,116 @@
 import Agency from "@lespantsfancy/agency";
-import Helper from "./../util/helper";
 
-import Entity from "../Entity";
+import Watcher from "./../util/agency/Watcher";
+import Node from "./../util/Node";
+import CrossMap from "./../util/agency/util/CrossMap";
 
-export class NodeManager {
-    constructor(size = [ 1, 1 ], watchables = []) {        
-        this._cache = {};
-        this._watchables = watchables;
+export class NodeManager extends Watcher {
+    static Extractor = function(entity) { return [ entity.position.x, entity.position.y ] };
 
-        this.nodes = Agency.Util.CrossMap.CreateGrid([ ...size ], { seedFn: () => new Set() });
+    constructor(size = [ 1, 1 ], { extractor, namespace, ...opts } = {}) {
+        super([], { ...opts });
 
-        const _this = this;
-        for(let watchable of watchables) {
-            watchable.$.subscribe(function(prop, value) {
-                if(prop.startsWith("position")) {
-                    const entity = this.subject;
-    
-                    if(entity instanceof Entity) {
-                        _this.moveToNode(entity);
-                    }
-                }
-            });
+        this._cache = new WeakMap();
+        
+        // this._nodes = Agency.Util.CrossMap.CreateGrid(size, {
+        this._nodes = CrossMap.CreateGrid(size, {
+            seedFn: (...coords) => {
+                const node = new Node(coords, {}, { namespace });
+
+                this.$.watch(node);
+
+                return node;
+            },
+        });
+
+        this.__extractor = extractor;
+    }
+
+    get extractor() {
+        if(typeof this.__extractor === "function") {
+            return this.__extractor.bind(this);
         }
+        
+        return NodeManager.Extractor.bind(this);
+    }
+    get nodes() {
+        return this._nodes;
+    }
+    get cache() {
+        return this._cache;
     }
 
-    node(x, y) {
-        return this.nodes.get(Helper.round(x, 1), Helper.round(y, 1));
+    cached(entity) {
+        return this.cache.get(entity);
     }
+    extract(entity) {
+        return this.nodes.get(...this.extractor(entity));
+    }
+
+    move(entity) {
+        const pos = this.cached(entity) || [];
+        const leaveNode = this.node(...pos);
+        const joinNode = this.extract(entity);
+
+        if(leaveNode !== joinNode) {
+            if(leaveNode instanceof Node) {
+                leaveNode.leave(entity);
+            }
+            if(joinNode instanceof Node) {
+                joinNode.join(entity);
+            }
+        }
+
+        return this;
+    }
+    remove(entity) {
+        const pos = this.cached(entity) || [];
+        const cacheNode = this.node(...pos);
+        const posNode = this.extract(entity);
+
+        const leaver = node => node instanceof Node && node.leave(entity);
+
+        if(cacheNode instanceof Node) {
+            if(cacheNode.leave(entity)) {
+                return true;
+            } else if(posNode instanceof Node) {
+                if(posNode.leave(entity)) {
+
+                }
+            }
+        }
+
+        if(leaver(cacheNode)) {
+            return true;
+        } else if(leaver(posNode)) {
+            return true;
+        }
+        
+        return this.findAndRemove(entity);
+    }
+    findAndRemove(entity) {
+        const nodes = this.nodes.toLeaf({ flatten: true });
+        for(let node of nodes) {
+            if(node.leave(entity)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    node(...pos) {
+        return this.nodes.get(...pos.map(p => Agency.Util.Helper.round(p, 1)));
+    }
+
     /**
      * If [@centered=true], then consider @w and @h as radii
      */
     range(x, y, w, h, { asGrid = false, centered = false } = {}) {
         const nodes = [];
 
-        x = Helper.round(x, 1);
-        y = Helper.round(y, 1);
+        x = Agency.Util.Helper.round(x, 1);
+        y = Agency.Util.Helper.round(y, 1);
 
         if(centered) {  // Refactor values to become center point and radii
             x -= w;
@@ -63,57 +139,6 @@ export class NodeManager {
         }        
 
         return nodes;
-    }
-
-    joinNode(entity) {
-        const node = this.nodes.get(Helper.round(entity.position.x, 1), Helper.round(entity.position.y, 1));
-
-        if(node instanceof Set) {
-            node.add(entity.$.proxy);
-            this._cache[ entity.__id ] = {
-                x: Helper.round(entity.position.x, 1),
-                y: Helper.round(entity.position.y, 1),
-            };
-
-            return true;
-        }
-
-        return false;
-    }
-    leaveNode(entity) {
-        const { x, y } = this._cache[ entity.__id ] || {};
-        if(x !== void 0 && y !== void 0) {
-            const node = this.nodes.get(x, y);
-    
-            if(node instanceof Set) {
-                node.delete(entity.$.proxy);
-    
-                return true;
-            }
-
-            return false;
-        }
-
-        return false;
-    }
-    moveToNode(entity) {
-        this.leaveNode(entity);
-        this.joinNode(entity);
-
-        return this;
-    }
-    clearFromNodes(entity) {
-        for(let row of this.nodes.toLeaf()) {
-            for(let cell of row) {
-                if(cell instanceof Set) {
-                    if(cell.delete(entity.$.proxy)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
     }
 }
 

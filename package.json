@@ -5,6 +5,7 @@
     "author": "Matt Nawrocki <mjnrock@umich.edu>",
     "license": "MIT",
     "dependencies": {
+        "@lespantsfancy/agency": "0.4.9",
         "esm": "^3.2.25",
         "express": "^4.17.1",
         "express-ws": "^4.0.0"

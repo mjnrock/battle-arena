@@ -14,12 +14,12 @@ export class WorldManager {
     }
 
     add(world, ...synonyms) {
-        this.repository.register(world, ...synonyms);
+        this.repository.$.register(world, ...synonyms);
 
         return this;
     }
     remove(world) {
-        this.repository.unregister(world);
+        this.repository.$.unregister(world);
 
         return this;
     }
@@ -53,13 +53,13 @@ export class WorldManager {
 
         const oldWorld = this[ entity.position.world ];
         if(oldWorld instanceof World) {
-            oldWorld.leave(entity);
+            oldWorld.$.leave(entity);
         }        
         
         if(world instanceof World) {
-            this.repository[ world.id ].join(entity);
+            this.repository[ world.id ].$.join(entity);
         } else {
-            this.repository[ world ].join(entity);
+            this.repository[ world ].$.join(entity);
         }
 
         if(x !== void 0 && y !== void 0) {

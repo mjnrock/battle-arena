@@ -1,9 +1,12 @@
-import { v4 as uuidv4 } from "uuid";
 import Agency from "@lespantsfancy/agency";
+import { v4 as uuidv4 } from "uuid";
 
-import EntityManager from "./manager/EntityManager";
-import NodeManager from "./manager/NodeManager";
+import Network from "./util/agency/Network";
+import Registry from "./util/agency/Registry";
 
+import Node from "./util/Node";
+import NodeManager from "./manager/NodeManager"
+import Portal from "./util/Portal";
 import Path from "./util/Path";
 
 import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
@@ -13,57 +16,120 @@ import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
+import EntityManager from "./manager/EntityManager";
 
-export class World {
-    constructor(width, height) {
-        this.__id = uuidv4();
+export class World extends Network {
+    static Events = [
+        "join",
+        "leave",
+    ];
 
-        this.width = width;
-        this.height = height;
+    constructor(size = [], { entities = [], portals = [], namespace, config = {} } = {}) {
+        super([], { events: World.Events, namespace });
+        
+        this.size = size;
+        this._nodes = new NodeManager(this.size, { namespace });
 
-        this.entities = new EntityManager();
-        this.terrain = new EntityManager();
+        this._entities = new EntityManager(entities);
+        this._terrain = new EntityManager();
+        // this._entities = new Network(entities);
 
-        this.__nodes = new NodeManager([ width, height ], [ this.entities ]);
-    }
+        this._config = {
+            ...config,
 
-    get id() {
-        return this.__id;
+            spawn: config.spawn || [ 0, 0 ],
+        };
+
+        for(let [ x, y, portal ] of portals) {
+            this.openPortal(x, y, portal);
+        }
+        for(let entity of entities) {
+            this.joinWorld(entity);
+        }
     }
 
     get nodes() {
-        return this.__nodes.nodes;  // Agency..CrossMap
+        return this._nodes;
     }
-    get node() {
-        return this.__nodes.node;   // fn
+    get entities() {
+        return this._entities;
+        // return this._entities.emitters;
     }
-    get range() {
-        return this.__nodes.range;  // fn
+    get terrain() {
+        return this._terrain;
+        // return this._entities.emitters;
+    }
+    get subnodes() {
+        return this._nodes.nodes;
+    }
+    get overworld() {
+        return this._overworld;
+    }
+    get config() {
+        return this._config;
     }
 
-    join(entity, ...synonyms) {
-        if(!hasComponentPosition(entity)) {
-            return false;
-        }
-
-        entity.position.world = this.id;
-
-        this.entities.register(entity, ...synonyms);
-
-        this.__nodes.joinNode(entity);
-
-        return true;
+    get width() {
+        return this.size[ 0 ];
     }
-    leave(entity) {
-        this.entities.unregister(entity);
+    get height() {
+        return this.size[ 1 ];
+    }
+    get dim() {
+        return dim => this.size[ dim ];
+    }
 
-        entity.position.world = null;
+    joinWorld(entity, ...synonyms) {
+        this._entities.$.register(entity, ...synonyms);
+        // this._entities.join(entity, ...synonyms)
 
-        if(!this.__nodes.leaveNode(entity)) {
-            this.__nodes.clearFromNodes(entity);
-        }
+        this._nodes.move(entity);
+
+        this.$join(this, entity);
         
-        delete this.__nodes._cache[ entity.__id ];
+        return this;
+    }
+    leaveWorld(entity) {
+        this._entities.$.unregister(entity);
+        // this._entities.join(entity);
+
+        if(this._nodes.remove(entity)) {
+            this.$leave(this, entity);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    openPortal(x, y, portal) {
+        const node = this.subnodes.get(x, y);
+
+        if(node instanceof Node && portal instanceof Portal) {
+            node.portals.add(portal);
+
+            return true;
+        }
+
+        return false;
+    }
+    closePortal(x, y, portal) {
+        const node = this.subnodes.get(x, y);
+
+        if(node instanceof Node && portal instanceof Portal) {
+            node.portals.delete(portal);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    setSpawnPoint(...pos) {
+        this._config.spawn = pos;
+
+        return this;
     }
 
     
@@ -100,7 +166,7 @@ export class World {
     }
 
     cost(x, y) {
-        const entity = this.terrain[ `${ x }.${ y }`];
+        const entity = this.terrain[ `${ x },${ y }`];
 
         if(entity) {
             return entity.terrain.cost;
@@ -145,7 +211,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
     ], (i) => `enemy-${ i }`);
 
     entities.forEach(entity => {
-        world.join(entity);
+        world.joinWorld(entity);
 
         if(entity.meta.type === EnumEntityType.BUNNY) {
             entity.movement.speed = 1.5;

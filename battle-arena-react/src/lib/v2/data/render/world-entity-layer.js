@@ -87,7 +87,7 @@ export async function drawAnimationFrame(dt, elapsed) {
     //STUB  This should be performed at the <RenderManager> response to a <World> swap
     [ this.width, this.height ] = [ this.game.render.width, this.game.render.height ];
 
-    for(let entity of this.game.world.current.entities.values) {
+    for(let entity of this.game.world.current.entities) {
         drawAnimationFrameEntity.call(this, dt, elapsed, entity);
     }
 

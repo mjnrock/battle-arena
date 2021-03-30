@@ -45,7 +45,7 @@ export class EventWatchable extends Watchable {
         return this;
     }
 
-    async __updateFn(type, ...args) {        
+    async __record(type, ...args) {        
         this[ type ] = {
             previous: {
                 data: this[ type ].data,
@@ -74,7 +74,7 @@ export class EventWatchable extends Watchable {
                     }
                 }
 
-                this.__updateFn(eventName, ...args);
+                this.__record(eventName, ...args);
 
                 return true;
             }

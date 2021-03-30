@@ -6,7 +6,7 @@ export async function drawAnimationFrame(dt, elapsed) {
         drawMouseHighlighter.call(this);
         drawPlayerPath.call(this);
 
-        for(let entity of this.game.world.current.entities.values) {
+        for(let entity of this.game.world.current.entities) {
             drawMovementPath.call(this, entity);
         }
     }

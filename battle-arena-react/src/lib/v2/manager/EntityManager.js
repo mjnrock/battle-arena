@@ -1,9 +1,10 @@
 // import Agency from "@lespantsfancy/agency";
-import Agency from "./../util/agency/package";
+// import Agency from "./../util/agency/package";
+import Registry from "./../util/agency/Registry";
 
 import Entity from "./../Entity";
 
-export class EntityManager extends Agency.Registry {
+export class EntityManager extends Registry {
     constructor(entities = []) {
         super(entities);
     }
@@ -11,7 +12,7 @@ export class EntityManager extends Agency.Registry {
     create(comps = [], ...synonyms) {
         const entity = Entity.FromSchema(comps);
 
-        this.register(entity, ...synonyms);
+        this.$.register(entity, ...synonyms);
 
         return entity;
     }

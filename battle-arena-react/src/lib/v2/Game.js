@@ -19,12 +19,9 @@ import AgencyLocal from "./util/agency/package";
     import componentTurn, { hasTurn } from "./data/entity/components/turn";
     import componentHealth from "./data/entity/components/health";
     import componentMovement, { hasMovement } from "./data/entity/components/movement";
-import RenderGroup from "./util/render/RenderGroup";
 import WorldManager from "./manager/WorldManager";
-import Arena from "./Arena";
 import PlayerManager from "./manager/PlayerManager";
 import Entity from "./Entity";
-import Animator from "./util/render/Animator";
 import Path from "./util/Path";
 import Helper from "./util/helper";
 //STUB END "Imports"
@@ -32,7 +29,7 @@ import Helper from "./util/helper";
 export default class Game extends AgencyLocal.Watcher {
     // constructor({ fps = 2, GCD = 1000 } = {}) {
     constructor({ fps = 20, GCD = 1000 } = {}) {
-        super([], {}, { deep: false });
+        super([], { deep: false });
 
         this.loop = new AgencyLocal.Pulse(fps, { autostart: false });
         this.players = new PlayerManager();
@@ -57,8 +54,8 @@ export default class Game extends AgencyLocal.Watcher {
         this.loop.$.subscribe((prop, value) => this.onTick.call(this, value));
     }
 
-    onTick({ dt, now } = {}) {
-        for(let entity of this.world.current.entities.values) {
+    onTick([ dt, now ]) {
+        for(let entity of this.world.current.entities) {
             if(hasTurn(entity)) {
                 if(now - entity.turn.timeout >= this.config.GCD) {
                     entity.turn.current(entity);
@@ -137,15 +134,7 @@ export default class Game extends AgencyLocal.Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.add(World.CreateRandom(25, 25, 15), "overworld");
-            game.world.add(
-                Arena.CreateArena(game.world.get("overworld"), 10, 10, {
-                    entities: [
-                        game.world.get("overworld").entities.player,
-                    ],
-                }),
-                "arena",
-            );
+            game.world.add(World.CreateRandom([ 25, 25 ], 15), "overworld");
 
             const player = Entity.FromSchema([
                 [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
@@ -156,9 +145,15 @@ export default class Game extends AgencyLocal.Watcher {
             ], (entity) => {
                 entity.movement.wayfinder.entity = entity;
             });
-            game.world.get("overworld").join(player);
+            game.world.get("overworld").$.on("join", ([ world, entity ]) => {
+                entity.position.world = world.$.id;
+            });
+            game.world.get("overworld").$.on("leave", ([ world, entity ]) => {
+                entity.position.world = null;
+            });
+            game.world.get("overworld").joinWorld(player);
 
-            game.players.register(player, "player");
+            game.players.$.register(player, "player");
 
             // game.players.player.$.subscribe(function(prop, value) {
             //     console.log(prop, value);
