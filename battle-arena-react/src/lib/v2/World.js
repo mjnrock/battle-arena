@@ -1,8 +1,6 @@
+import EventEmitter from "events";
 import Agency from "@lespantsfancy/agency";
 import { v4 as uuidv4 } from "uuid";
-
-import Network from "./util/agency/Network";
-import Registry from "./util/agency/Registry";
 
 import Node from "./util/Node";
 import NodeManager from "./manager/NodeManager"
@@ -18,21 +16,23 @@ import componentTerrain, { DictTerrain } from "./data/entity/components/terrain"
 import { CalculateEdgeMasks } from "./data/render/edges";
 import EntityManager from "./manager/EntityManager";
 
-export class World extends Network {
+export class World extends EventEmitter {
     static Events = [
         "join",
         "leave",
     ];
 
-    constructor(size = [], { entities = [], portals = [], namespace, config = {} } = {}) {
-        super([], { events: World.Events, namespace });
-        
+    constructor(size = [], { game, entities = [], portals = [], namespace, config = {} } = {}) {
+        super();
+
+        this.__id = uuidv4();
+        this.__game = game;
+
         this.size = size;
         this._nodes = new NodeManager(this.size, { namespace });
 
-        this._entities = new EntityManager(entities);
-        this._terrain = new EntityManager();
-        // this._entities = new Network(entities);
+        this._entities = new EntityManager(this.game, entities);
+        this._terrain = new EntityManager(this.game);
 
         this._config = {
             ...config,
@@ -46,6 +46,13 @@ export class World extends Network {
         for(let entity of entities) {
             this.joinWorld(entity);
         }
+    }
+
+    get id() {
+        return this.__id;
+    }
+    get game() {
+        return this.__game;
     }
 
     get nodes() {
@@ -80,21 +87,21 @@ export class World extends Network {
     }
 
     joinWorld(entity, ...synonyms) {
-        this._entities.$.register(entity, ...synonyms);
+        this._entities.register(entity, ...synonyms);
         // this._entities.join(entity, ...synonyms)
 
         this._nodes.move(entity);
 
-        this.$join(this, entity);
+        this.emit("join", this, entity);
         
         return this;
     }
     leaveWorld(entity) {
-        this._entities.$.unregister(entity);
+        this._entities.unregister(entity);
         // this._entities.join(entity);
 
         if(this._nodes.remove(entity)) {
-            this.$leave(this, entity);
+            this.emit("leave", this, entity);
 
             return true;
         }
@@ -186,8 +193,8 @@ export class World extends Network {
     }
 };
 
-export function CreateRandom(width, height, enemyCount = 5) {
-    const world = new World([ width, height ]);
+export function CreateRandom(game, width, height, enemyCount = 5) {
+    const world = new World([ width, height ], { game });
 
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
@@ -219,7 +226,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
     entities.forEach(entity => {
         world.joinWorld(entity);
 
-        entity.position.world = world.$.id;
+        entity.position.world = world.id;
         if(entity.meta.type === EnumEntityType.BUNNY) {
             entity.movement.speed = 1.5;
         } else if(entity.meta.type === EnumEntityType.SQUIRREL) {

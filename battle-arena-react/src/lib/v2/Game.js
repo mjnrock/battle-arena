@@ -24,14 +24,15 @@ import PlayerManager from "./manager/PlayerManager";
 import Entity from "./Entity";
 import Path from "./util/Path";
 import Helper from "./util/helper";
+import GameLoop from "./GameLoop";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
     // constructor({ fps = 10, GCD = 1000 } = {}) {
-    constructor({ fps = 20, GCD = 1000 } = {}) {
+    constructor({ fps = 24, GCD = 1000 } = {}) {
         super([], { deep: false });
 
-        this.loop = new AgencyLocal.Pulse(fps, { autostart: false });
+        this.loop = new GameLoop(fps);
         this.players = new PlayerManager();
 
         this.config = {
@@ -51,13 +52,13 @@ export default class Game extends AgencyLocal.Watcher {
             Game.Instance = this;
         }
         
-        this.loop.mainLoop.setUpdate(this.onTick.bind(this));
-        // this.$.watch(this.loop);
-        // this.$.on("tick", (...args) => this.onTick.call(this, ...args));     //FIXME This is broke af; it runs out of memory within seconds, so presumably it's adding a shit ton of subscribers
+        this.loop.setTick(this.onTick.bind(this));
+        this.loop.setPreTick(this.onPreTick.bind(this));
+        // this.loop.setDraw(this.onDraw.bind(this));
     }
 
-    onTick(dt, now) {
-        dt /= 1000;
+    onPreTick() {        
+        let now = Date.now();
 
         for(let entity of this.world.current.entities) {
             if(hasTurn(entity)) {
@@ -120,16 +121,27 @@ export default class Game extends AgencyLocal.Watcher {
                     entity.movement.wayfinder.drop();
                 }
             }
-
-            if(Vx || Vy) {
-                entity.position.x += Vx * dt;
-                entity.position.y += Vy * dt;
-            }
             
             entity.position.vx = Vx;
             entity.position.vy = Vy;
         }
+
     }
+    onTick(odt) {
+        let dt = odt / 1000,
+            now = Date.now();
+
+        for(let entity of this.world.current.entities) {
+            if(hasMovement(entity)) {
+                entity.position.x += entity.position.vx * dt;
+                entity.position.y += entity.position.vy * dt;
+            }
+        }
+    }
+
+    // onDraw() {
+
+    // }
 
     // Access Singleton pattern via Game._
     static get _() {
@@ -138,9 +150,9 @@ export default class Game extends AgencyLocal.Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.add(World.CreateRandom(25, 25, 1), "overworld");
+            game.world.register(World.CreateRandom(game, 25, 25, 1), "overworld");
 
-            const player = Entity.FromSchema([
+            const player = Entity.FromSchema(game, [
                 [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
                 [ componentPosition, { x: 4, y: 7 } ],
                 [ componentHealth, { current: 10, max: 10 } ],
@@ -149,20 +161,16 @@ export default class Game extends AgencyLocal.Watcher {
             ], (entity) => {
                 entity.movement.wayfinder.entity = entity;
             });
-            game.world.get("overworld").$.on("join", ([ world, entity ]) => {
-                entity.position.world = world.$.id;
+
+            game.world.overworld.on("join", (world, entity) => {
+                entity.position.world = world.id;
             });
-            game.world.get("overworld").$.on("leave", ([ world, entity ]) => {
+            game.world.overworld.on("leave", (world, entity) => {
                 entity.position.world = null;
             });
-            game.world.get("overworld").joinWorld(player);
+            game.world.overworld.joinWorld(player);
 
-            game.players.$.register(player, "player");
-
-            // game.players.player.$.subscribe(function(prop, value) {
-            //     console.log(prop, value);
-            // });
-
+            game.players.register(player, "player");
             
             //? Bootstrap the rendering
             (async () => {

@@ -38,7 +38,7 @@ export class Network extends Watcher {
 
             join(emitter, ...synonyms) {
                 if(emitter instanceof Emitter) {
-                    _this.emitters.$.register(emitter, ...synonyms);
+                    _this.emitters.register(emitter, ...synonyms);
         
                     _this.$.watch(emitter);
         
@@ -61,7 +61,7 @@ export class Network extends Watcher {
                 let bools = [];
                 for(let emitter of emitters) {
                     if(emitter instanceof Emitter) {
-                        let bool = _this.emitters.$.unregister(emitter).length;
+                        let bool = _this.emitters.unregister(emitter).length;
             
                         if(bool) {    
                             _this.$.unwatch(emitter);

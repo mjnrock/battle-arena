@@ -1,23 +1,24 @@
+import EventEmitter from "events";
 import Agency from "@lespantsfancy/agency";
 
-import Watcher from "./../util/agency/Watcher";
 import Node from "./../util/Node";
 import CrossMap from "./../util/agency/util/CrossMap";
 
-export class NodeManager extends Watcher {
+export class NodeManager extends EventEmitter {
     static Extractor = function(entity) { return [ entity.position.x, entity.position.y ] };
 
-    constructor(size = [ 1, 1 ], { extractor, namespace, ...opts } = {}) {
-        super([], { ...opts });
+    constructor(size = [ 1, 1 ], { extractor } = {}) {
+        super();
 
         this._cache = new WeakMap();
         
-        // this._nodes = Agency.Util.CrossMap.CreateGrid(size, {
         this._nodes = CrossMap.CreateGrid(size, {
             seedFn: (...coords) => {
-                const node = new Node(coords, {}, { namespace });
+                const node = new Node(coords);
 
-                this.$.watch(node);
+                for(let event of Node.Events) {
+                    node.on(event, (...args) => this.emit(event, ...args));
+                }
 
                 return node;
             },
@@ -75,7 +76,7 @@ export class NodeManager extends Watcher {
                 return true;
             } else if(posNode instanceof Node) {
                 if(posNode.leave(entity)) {
-
+                    return true;
                 }
             }
         }

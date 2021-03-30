@@ -1,18 +1,25 @@
 // import Agency from "@lespantsfancy/agency";
 // import Agency from "./../util/agency/package";
-import Registry from "./../util/agency/Registry";
+// import Registry from "./../util/agency/Registry";
+import Registry from "./../util/Registry";
 
 import Entity from "./../Entity";
 
 export class EntityManager extends Registry {
-    constructor(entities = []) {
+    constructor(game, entities = []) {
         super(entities);
+
+        this.__game = game;
+    }
+
+    get game() {
+        return this.__game;
     }
     
     create(comps = [], ...synonyms) {
-        const entity = Entity.FromSchema(comps);
+        const entity = Entity.FromSchema(this.game, comps);
 
-        this.$.register(entity, ...synonyms);
+        this.register(entity, ...synonyms);
 
         return entity;
     }
@@ -42,8 +49,8 @@ export class EntityManager extends Registry {
     }
 }
 
-export function Factory(entities = []) {
-    return new EntityManager(entities);
+export function Factory(game, entities = []) {
+    return new EntityManager(game, entities);
 };
 
 EntityManager.Factory = Factory;

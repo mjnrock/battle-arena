@@ -1,9 +1,16 @@
-// import Agency from "@lespantsfancy/agency";
-import Agency from "./util/agency/package";
+import { v4 as uuidv4 } from "uuid";
 
-export class Entity extends Agency.Emitter {
-    constructor() {
-        super();
+export class Entity {
+    constructor(game) {
+        this.__id = uuidv4();
+        this.__game = game;
+    }
+
+    get id() {
+        return this.__id;
+    }
+    get game() {
+        return this.__game;
     }
 }
 
@@ -14,8 +21,8 @@ export class Entity extends Agency.Emitter {
  * @param {fn} callback | Useful for post-init/circular assignments
  * @returns 
  */
-export function FromSchema(schemaWithArgs = [], callback) {
-    let entity = new Entity();
+export function FromSchema(game, schemaWithArgs = [], callback) {
+    let entity = new Entity(game);
 
     for(let [ comp, argObj ] of schemaWithArgs) {        
         const key = Object.keys(comp)[ 0 ];

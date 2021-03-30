@@ -1,15 +1,14 @@
-// import Emitter from "./util/agency/Emitter";
-import Emitter from "./agency/Emitter";
+import EventEmitter from "events";
 
-export class Node extends Emitter {
+export class Node extends EventEmitter {
     static Events = [
         "join",
         "leave",
         "portal",
     ];
 
-    constructor(coords = [], terrain, { portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity, ...rest } = {}) {
-        super(Node.Events, { ...rest });
+    constructor(coords = [], terrain, { portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity } = {}) {
+        super();
 
         this._coords = coords;
         this._terrain = terrain;
@@ -74,7 +73,7 @@ export class Node extends Emitter {
     portal(entity) {
         for(let portal of this.portals) {
             if(portal.activate(entity)) {
-                this.$portal(portal, entity);
+                this.emit("portal", portal, entity);
             }
         }
 
@@ -89,7 +88,7 @@ export class Node extends Emitter {
         if(this._occupants.size >= size) {
             ++this._frequency;
 
-            this.$join(entity);
+            this.emit("join", entity);
 
             this.portal(entity);
 
@@ -100,7 +99,7 @@ export class Node extends Emitter {
     }
     leave(entity) {
         if(this._occupants.delete(entity)) {
-            this.$leave(entity);
+            this.emit("leave", entity);
 
             return true;
         }
