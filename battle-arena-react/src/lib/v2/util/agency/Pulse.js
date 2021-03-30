@@ -19,10 +19,8 @@ export class Pulse extends Emitter {
         super(Pulse.Events, { state, deep, ...opts });
 
         this._bps = bps;
-        this.tick = {};
-        this.__ticks = 0;
 
-        this.loop = MainLoop.setBegin(preUpdate.bind(this))
+        this.mainLoop = MainLoop.setBegin(preUpdate.bind(this))
             .setUpdate(this.update.bind(this))
             .setDraw(this.draw.bind(this))
             .setEnd(postUpdate.bind(this))
@@ -42,7 +40,7 @@ export class Pulse extends Emitter {
     set bps(fps) {
         this._bps = fps;
 
-        if(this.loop.isRunning()) {
+        if(this.mainLoop.isRunning()) {
             this.stop();
             this.start();
         }
@@ -51,17 +49,13 @@ export class Pulse extends Emitter {
         return 1000 / this.bps;
     }
 
-    get ticks() {
-        return this.__ticks;
-    }
-
     start() {
-        this.loop.start();
+        this.mainLoop.start();
 
         return this;
     }
     stop() {
-        this.loop.stop();
+        this.mainLoop.stop();
 
         return this;
     }
@@ -73,7 +67,7 @@ export class Pulse extends Emitter {
         if(typeof fn === "function") {
             this._pre = fn;
 
-            this.loop.setBegin(this.pre);
+            this.mainLoop.setBegin(this.pre);
         }
     }
     
@@ -84,7 +78,7 @@ export class Pulse extends Emitter {
         if(typeof fn === "function") {
             this._post = fn;
 
-            this.loop.setEnd(this.post);
+            this.mainLoop.setEnd(this.post);
         }
     }
 
@@ -92,8 +86,6 @@ export class Pulse extends Emitter {
      * @param {number} dt Frame delta in ms
      */
     update(dt) {
-        ++this.__tick;
-
         this.$tick(dt / 1000, Date.now());
     }
 

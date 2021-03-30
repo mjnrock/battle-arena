@@ -187,7 +187,7 @@ export class World extends Network {
 };
 
 export function CreateRandom(width, height, enemyCount = 5) {
-    const world = new World(width, height);
+    const world = new World([ width, height ]);
 
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
@@ -199,7 +199,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
         }
     }
 
-    CalculateEdgeMasks(world);
+    // CalculateEdgeMasks(world);
 
     const entities = world.entities.createMany(enemyCount, [
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
@@ -219,6 +219,7 @@ export function CreateRandom(width, height, enemyCount = 5) {
     entities.forEach(entity => {
         world.joinWorld(entity);
 
+        entity.position.world = world.$.id;
         if(entity.meta.type === EnumEntityType.BUNNY) {
             entity.movement.speed = 1.5;
         } else if(entity.meta.type === EnumEntityType.SQUIRREL) {

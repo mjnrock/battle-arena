@@ -27,7 +27,7 @@ import Helper from "./util/helper";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
-    // constructor({ fps = 2, GCD = 1000 } = {}) {
+    // constructor({ fps = 10, GCD = 1000 } = {}) {
     constructor({ fps = 20, GCD = 1000 } = {}) {
         super([], { deep: false });
 
@@ -51,10 +51,14 @@ export default class Game extends AgencyLocal.Watcher {
             Game.Instance = this;
         }
         
-        this.loop.$.subscribe((prop, value) => this.onTick.call(this, value));
+        this.loop.mainLoop.setUpdate(this.onTick.bind(this));
+        // this.$.watch(this.loop);
+        // this.$.on("tick", (...args) => this.onTick.call(this, ...args));     //FIXME This is broke af; it runs out of memory within seconds, so presumably it's adding a shit ton of subscribers
     }
 
-    onTick([ dt, now ]) {
+    onTick(dt, now) {
+        dt /= 1000;
+
         for(let entity of this.world.current.entities) {
             if(hasTurn(entity)) {
                 if(now - entity.turn.timeout >= this.config.GCD) {
@@ -134,7 +138,7 @@ export default class Game extends AgencyLocal.Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.add(World.CreateRandom([ 25, 25 ], 15), "overworld");
+            game.world.add(World.CreateRandom(25, 25, 1), "overworld");
 
             const player = Entity.FromSchema([
                 [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
@@ -205,7 +209,13 @@ export default class Game extends AgencyLocal.Watcher {
                     if(type === "mouseup") {
                         if(button === 0) {
                             // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
-                            console.info(pos.txi, pos.tyi, game.world.current.node(pos.txi, pos.tyi).occupants);
+                            const occupants = game.world.current.node(pos.txi, pos.tyi).occupants;
+
+                            console.info(pos.txi, pos.tyi, occupants);
+
+                            for(let occupant of occupants) {
+                                console.log(Object.assign({}, occupant.position))
+                            }
                         } else if(button === 2) {
                             const player = game.players.player;
 
@@ -220,28 +230,6 @@ export default class Game extends AgencyLocal.Watcher {
                         game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];
                     }
                 });
-                
-                //STUB  Change the World at interval
-                // let bool = true;
-                // setInterval(() => {
-                //     if(bool) {
-                //         game.world.migrate(game.players.player, "arena");
-
-                //         game.render.width = game.world.get("arena").width * 32;
-                //         game.render.height = game.world.get("arena").height * 32;
-                //     } else {
-                //         game.world.migrate(game.players.player, "overworld");
-
-                //         game.render.width = game.world.get("overworld").width * 32;
-                //         game.render.height = game.world.get("overworld").height * 32;
-                //     }
-
-                //     bool = !bool;
-                // }, 2500);
-
-                // setTimeout(() => {
-                //     game.render.ctx.translate(game.config.render.tile.width / 2, game.config.render.tile.height / 2);
-                // }, 1000);
             })();
 
             game.loop.start();

@@ -55,7 +55,8 @@ export class Registry extends Watchable {
      */
     [ Symbol.iterator ]() {
         var index = -1;
-        var data = Object.values(this);
+        var data = Object.keys(this).reduce((a, key) => validate(key) ? [ ...a, this[ key ] ] : a, []);
+        // var data = Object.values(this);
 
         return {
             next: () => ({ value: data[ ++index ], done: !(index in data) })

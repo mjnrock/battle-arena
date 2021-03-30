@@ -4,7 +4,7 @@ export async function drawAnimationFrame(dt, elapsed) {
 
     if(this.game.config.SHOW_UI) {
         drawMouseHighlighter.call(this);
-        drawPlayerPath.call(this);
+        // drawPlayerPath.call(this);
 
         for(let entity of this.game.world.current.entities) {
             drawMovementPath.call(this, entity);
