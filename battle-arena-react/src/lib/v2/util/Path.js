@@ -22,6 +22,39 @@ export class Path {
         };
     }
 
+    static isPoint(end, ...args) {
+        const [ dx, dy ] = end;
+        let x = Infinity,
+            y = Infinity;
+
+        if(Array.isArray(args[ 0 ])) {
+            [ x, y ] = args[ 0 ];
+        } else if(typeof args[ 0 ] === "object") {
+            x = args[ 0 ].x;
+            y = args[ 0 ].y;
+        } else {
+            [ x, y ] = args;
+        }
+
+        return x === dx && y === dy;
+    }
+
+    isDestination(...args) {
+        return Path.isPoint(this.destination, ...args);
+    }
+    isOrigin(...args) {
+        return Path.isPoint(this.origin, ...args);
+    }
+    isInPath(...args) {
+        for(let [ px, py ] of this.path) {
+            if(Path.isPoint([ px, py ], ...args)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     get isActive() {
         return this.status === EnumPathStatus.IN_PROGRESS;
     }

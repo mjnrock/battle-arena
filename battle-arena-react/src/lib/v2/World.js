@@ -219,6 +219,13 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
                 const path = Path.FindPath(world, [ entity.position.x, entity.position.y ], [ tx, ty ]);
 
                 entity.movement.wayfinder.set(path);
+            } else if(entity.movement.wayfinder.hasPath ) {
+                if(entity.movement.wayfinder.isCurrentDestination(entity.position)) {
+                    const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
+                    const path = Path.FindPath(world, [ entity.position.x, entity.position.y ], [ tx, ty ]);
+    
+                    entity.movement.wayfinder.set(path);
+                }
             }
         } } ],
     ], (i) => `enemy-${ i }`);

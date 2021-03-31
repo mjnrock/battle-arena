@@ -150,7 +150,7 @@ export default class Game extends AgencyLocal.Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.register(World.CreateRandom(game, 25, 25, 1), "overworld");
+            game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
 
             const player = Entity.FromSchema(game, [
                 [ componentMeta, { type: EnumEntityType.SQUIRREL } ],

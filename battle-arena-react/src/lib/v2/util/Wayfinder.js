@@ -15,13 +15,29 @@ export class Wayfinder {
     }
 
     get hasPath() {
-        return this.current.isActive;
+        return this.current && this.current.isActive === true;
     }
     get current() {
-        return this.__paths[ 0 ] || [];
+        return this.__paths[ 0 ] || {};
     }
     get last() {
-        return this.__paths[ this.__paths.length ? this.__paths.length - 1 : 0 ] || [];
+        return this.__paths[ this.__paths.length ? this.__paths.length - 1 : 0 ] || {};
+    }
+
+    isCurrentDestination(...args) {
+        return Path.isPoint((this.current.destination || []), ...args);
+    }
+    isCurrentOrigin(...args) {
+        return Path.isPoint((this.current.origin || []), ...args);
+    }
+    isInCurrentPath(...args) {
+        for(let [ px, py ] of (this.current.path || [])) {
+            if(Path.isPoint([ px, py ], ...args)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     start() {            
