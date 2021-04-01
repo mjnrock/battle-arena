@@ -1,3 +1,6 @@
+import Agency from "@lespantsfancy/agency";
+
+import Path from "./../../../util/Path";
 import World from "../../../World";
 
 //! Component Schemas should always be functions
@@ -39,7 +42,7 @@ export const schema = {
                 }
             }
         },
-        
+
         ...rest,
     }),
 };

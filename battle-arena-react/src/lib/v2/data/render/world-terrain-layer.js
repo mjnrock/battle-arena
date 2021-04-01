@@ -39,7 +39,7 @@ export async function drawAnimationFrameEntity(dt, elapsed, node) {
         );
     }
         
-    const wear = Math.min(node.frequency / 1000.0, 0.25);
+    const wear = Math.min(node.frequency / 1000.0, 0.33);
     this.prop({ fillStyle: `rgba(0, 0, 0, ${ wear }` }).tRect(
         terrain.position.x,
         terrain.position.y,
