@@ -1,30 +1,35 @@
-import EventEmitter from "events";
 import Agency from "@lespantsfancy/agency";
 
 import Node from "./../util/Node";
 import CrossMap from "./../util/agency/util/CrossMap";
 
-export class NodeManager extends EventEmitter {
-    static Extractor = function(entity) { return [ entity.position.x, entity.position.y ] };
+export class NodeManager extends Agency.Event.Network {
+    static Extractor = function(entity) { return [ Agency.Util.Helper.round(entity.position.x, 1), Agency.Util.Helper.round(entity.position.y, 1) ] };
 
     constructor(size = [ 1, 1 ], { extractor } = {}) {
         super();
 
         this._cache = new WeakMap();
-        
+
         this._nodes = CrossMap.CreateGrid(size, {
             seedFn: (...coords) => {
                 const node = new Node(coords);
 
-                for(let event of Node.Events) {
-                    node.on(event, (...args) => this.emit(event, ...args));
-                }
+                this.join(node);
 
                 return node;
             },
         });
 
         this.__extractor = extractor;
+
+        this.addHandler("join", (node, entity) => {
+            if(node instanceof Node) {
+                const { x, y } = node;
+
+                this._cache.set(entity, [ x, y ]);
+            }
+        });
     }
 
     get extractor() {

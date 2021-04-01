@@ -68,6 +68,8 @@ export default class Game extends AgencyLocal.Watcher {
                 }
             }
 
+            this.world.current.nodes.move(entity);
+
             /** NOTE:    Odd Path Following
              * The ~~ operator setup here causes only SOUTHEAST movements
              * to appear correct, while all other directions suffer from
@@ -162,10 +164,12 @@ export default class Game extends AgencyLocal.Watcher {
                 entity.movement.wayfinder.entity = entity;
             });
 
-            game.world.overworld.on("join", (world, entity) => {
+            // game.world.overworld.addSubscriber(function(...args) {
+            game.world.overworld.addHandler("join", (world, entity) => {
+                console.log(world)
                 entity.position.world = world.id;
             });
-            game.world.overworld.on("leave", (world, entity) => {
+            game.world.overworld.addHandler("leave", (world, entity) => {
                 entity.position.world = null;
             });
             game.world.overworld.joinWorld(player);

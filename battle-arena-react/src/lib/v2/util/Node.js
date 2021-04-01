@@ -1,6 +1,6 @@
-import EventEmitter from "events";
+import Agency from "@lespantsfancy/agency";
 
-export class Node extends EventEmitter {
+export class Node extends Agency.Event.Emitter {
     static Events = [
         "join",
         "leave",
@@ -73,7 +73,7 @@ export class Node extends EventEmitter {
     portal(entity) {
         for(let portal of this.portals) {
             if(portal.activate(entity)) {
-                this.emit("portal", portal, entity);
+                this.$.emit("portal", portal, entity);
             }
         }
 
@@ -86,9 +86,9 @@ export class Node extends EventEmitter {
         this._occupants.add(entity);
 
         if(this._occupants.size >= size) {
-            ++this._frequency;
+            // ++this._frequency;
 
-            this.emit("join", entity);
+            this.$.emit("join", this, entity);
 
             this.portal(entity);
 
@@ -99,7 +99,7 @@ export class Node extends EventEmitter {
     }
     leave(entity) {
         if(this._occupants.delete(entity)) {
-            this.emit("leave", entity);
+            this.$.emit("leave", this, entity);
 
             return true;
         }

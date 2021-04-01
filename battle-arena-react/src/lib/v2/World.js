@@ -16,20 +16,21 @@ import componentTerrain, { DictTerrain } from "./data/entity/components/terrain"
 import { CalculateEdgeMasks } from "./data/render/edges";
 import EntityManager from "./manager/EntityManager";
 
-export class World extends EventEmitter {
+export class World extends Agency.Event.Emitter {
     static Events = [
         "join",
         "leave",
     ];
 
-    constructor(size = [], { game, entities = [], portals = [], namespace, config = {} } = {}) {
+    constructor(size = [], { game, entities = [], portals = [], config = {} } = {}) {
         super();
 
         this.__id = uuidv4();
         this.__game = game;
 
         this.size = size;
-        this._nodes = new NodeManager(this.size, { namespace });
+        this._nodes = new NodeManager(this.size);
+        this._nodes.join(this);
 
         this._entities = new EntityManager(this.game, entities);
         this._terrain = new EntityManager(this.game);
@@ -92,7 +93,7 @@ export class World extends EventEmitter {
 
         this._nodes.move(entity);
 
-        this.emit("join", this, entity);
+        this.$.emit("join", this, entity);
         
         return this;
     }
@@ -101,7 +102,7 @@ export class World extends EventEmitter {
         // this._entities.join(entity);
 
         if(this._nodes.remove(entity)) {
-            this.emit("leave", this, entity);
+            this.$.emit("leave", this, entity);
 
             return true;
         }
