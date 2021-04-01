@@ -2,43 +2,62 @@ import MainLoop from "mainloop.js";
 
 export default class GameLoop {
     constructor(fps = 24) {
-        this.loop = MainLoop
+        this.mainLoop = MainLoop
             .setBegin(this.onPreTick)
             .setUpdate(this.onTick)
             .setDraw(this.onDraw)
             .setSimulationTimestep(1000 / fps);
+
+        this.__lastUpdate = null;
+        this.__lastDraw = null;
     }
 
     get fps() {
-        return this.loop.getSimulationTimestep();
+        return this.mainLoop.getSimulationTimestep();
     }
     get spf() {
-        return 1000 / this.fps;
+        return this.fps / 1000;
     }
 
     start() {
-        this.loop.start();
+        this.mainLoop.start();
 
         return this;
     }
     stop() {
-        this.loop.stop();
+        this.mainLoop.stop();
 
         return this;
     }
 
     setPreTick(fn) {
-        this.loop.setBegin(fn.bind(this));
+        this.mainLoop.setBegin(() => {
+            let now = Date.now();
+
+            fn.call(this, this.spf, now);
+        });
 
         return this;
     }
     setTick(fn) {
-        this.loop.setUpdate(fn.bind(this));
+        this.mainLoop.setUpdate((dt) => {
+                dt /= 1000;
+            let now = Date.now();
+
+            this.__lastUpdate = now;
+            fn.call(this, dt, now);
+        });
 
         return this;
     }
     setDraw(fn) {
-        this.loop.setDraw(fn.bind(this));
+        this.mainLoop.setDraw((ip) => {
+            let dt = this.spf * ip,  // @24fps --> (41.7 / 1000 * [0,1])
+                now = Date.now();
+
+            this.__lastDraw = now;
+            fn.call(this, dt, now);
+        });
 
         return this;
     }

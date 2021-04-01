@@ -54,12 +54,10 @@ export default class Game extends AgencyLocal.Watcher {
         
         this.loop.setTick(this.onTick.bind(this));
         this.loop.setPreTick(this.onPreTick.bind(this));
-        // this.loop.setDraw(this.onDraw.bind(this));
+        this.loop.setDraw(this.onDraw.bind(this));
     }
 
-    onPreTick() {        
-        let now = Date.now();
-
+    onPreTick(spf, now) {
         for(let entity of this.world.current.entities) {
             if(hasTurn(entity)) {
                 if(now - entity.turn.timeout >= this.config.GCD) {
@@ -129,10 +127,7 @@ export default class Game extends AgencyLocal.Watcher {
         }
 
     }
-    onTick(odt) {
-        let dt = odt / 1000,
-            now = Date.now();
-
+    onTick(dt, now) {
         for(let entity of this.world.current.entities) {
             if(hasMovement(entity)) {
                 entity.position.x += entity.position.vx * dt;
@@ -141,9 +136,9 @@ export default class Game extends AgencyLocal.Watcher {
         }
     }
 
-    // onDraw() {
-
-    // }
+    onDraw(dt, now) {
+        this.render.drawAnimationLayers(dt, now);
+    }
 
     // Access Singleton pattern via Game._
     static get _() {
@@ -185,8 +180,6 @@ export default class Game extends AgencyLocal.Watcher {
                     drawEntityLayer,
                     drawUILayer,
                 );
-                game.render.animator.start();
-
 
                 //? Key and Mouse Bindings
                 window.onkeypress = e => {
