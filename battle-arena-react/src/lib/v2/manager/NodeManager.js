@@ -23,13 +23,15 @@ export class NodeManager extends Agency.Event.Network {
 
         this.__extractor = extractor;
 
-        this.addHandler("join", (node, entity) => {
-            if(node instanceof Node) {
-                const { x, y } = node;
+        this.addHandlers([
+            [ "join", (node, entity) => {
+                if(node instanceof Node) {
+                    const { x, y } = node;
 
-                this._cache.set(entity, [ x, y ]);
-            }
-        });
+                    this._cache.set(entity, [ x, y ]);
+                }
+            }],
+        ]);
     }
 
     get extractor() {

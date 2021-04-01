@@ -47,6 +47,19 @@ export class World extends Agency.Event.Emitter {
         for(let entity of entities) {
             this.joinWorld(entity);
         }
+
+        this.addHandlers([
+            [ "join", (world, entity) => {
+                if(world instanceof World) {
+                    entity.position.world = world.id;
+                }
+            }],
+            [ "leave", (world, entity) => {
+                if(world instanceof World) {
+                    entity.position.world = null;
+                }
+            }],
+        ]);
     }
 
     get id() {

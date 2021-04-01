@@ -164,14 +164,6 @@ export default class Game extends AgencyLocal.Watcher {
                 entity.movement.wayfinder.entity = entity;
             });
 
-            // game.world.overworld.addSubscriber(function(...args) {
-            game.world.overworld.addHandler("join", (world, entity) => {
-                console.log(world)
-                entity.position.world = world.id;
-            });
-            game.world.overworld.addHandler("leave", (world, entity) => {
-                entity.position.world = null;
-            });
             game.world.overworld.joinWorld(player);
 
             game.players.register(player, "player");
