@@ -1,4 +1,5 @@
-import { DictTerrain } from "../entity/components/terrain";
+// import { DictTerrain } from "../entity/components/terrain";
+import { DictTerrain } from "./../../util/component/Terrain";
 
 export function comparator(data = {}, oldData = {}) {
     return data.hash !== oldData.hash;

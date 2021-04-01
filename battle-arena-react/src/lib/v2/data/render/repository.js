@@ -3,7 +3,7 @@ import SpriteSheet from "../../util/render/SpriteSheet";
 
 import ImageRegistry, { EntityTemplate, TerrainTemplate } from "./../../util/render/ImageRegistry";
 
-import { TerrainLookup } from "./../entity/components/terrain";
+import { TerrainLookup } from "./../../util/component/Terrain";
 
 export const repository = (root) => new Agency.Util.CrossMap([
     root || [

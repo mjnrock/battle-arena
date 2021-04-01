@@ -10,7 +10,8 @@ import Path from "./util/Path";
 import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
-import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
+// import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
+import { DictTerrain } from "./util/component/Terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
 import EntityManager from "./manager/EntityManager";
 import Entity from "./Entity";
@@ -273,7 +274,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
             const terrain = Entity.FromSchema(game, [
-                [ componentTerrain, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT ],
+                [ { terrain: null }, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT],
                 [ { world: null }, { x, y, facing: 0 } ],
                 [ componentTurn, { timeout: 0 } ],
             ]);

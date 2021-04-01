@@ -3,8 +3,8 @@ import Component from "./Component";
 export class Terrain extends Component {
     static Name = "action";
     static DefaultProperties = () => ({
-        type: null,
-        cost: null,
+        type: "void",
+        cost: Infinity,
         edges: 0,
         meta: 0,
     });

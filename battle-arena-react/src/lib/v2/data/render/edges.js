@@ -1,7 +1,7 @@
 import Agency from "@lespantsfancy/agency";
 import Frame from "../../util/render/Frame";
 
-import { DictTerrain } from "./../entity/components/terrain";
+import { DictTerrain } from "./../../util/component/Terrain";
 
 //TODO  This entire edge situation is pretty iffy; basics work but still need a lot of improvement and reconsideration.
 //? Removing "corners" and making edges blend decently can relieve some basic headache and simplify greatly out of the gate

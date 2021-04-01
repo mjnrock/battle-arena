@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import Terrain from "./util/component/Terrain";
 import World from "./util/component/World";
 
 export class Entity {
@@ -31,6 +32,8 @@ export function FromSchema(game, schemaWithArgs = [], callback) {
         //STUB
         if(key === "world") {
             entity[ key ] = new World(game, entity, argObj)
+        } else if(key === "terrain") {
+            entity[ key ] = new Terrain(game, entity, argObj)
         } else {
             // entity[ key ] = new Component(game, entity, argObj);
             entity[ key ] = CreateComponent(comp, argObj);
