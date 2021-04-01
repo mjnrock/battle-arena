@@ -25,6 +25,7 @@ import Entity from "./Entity";
 import Path from "./util/Path";
 import Helper from "./util/helper";
 import GameLoop from "./GameLoop";
+import Portal from "./util/Portal";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
@@ -151,7 +152,11 @@ export default class Game extends AgencyLocal.Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
+            game.world.register(World.CreateRandom(game, 25, 25, 25), "overworld");
+            game.world.register(World.CreateRandom(game, 25, 25, 0), "arena");
+
+            game.world.overworld.openPortal(3, 3, new Portal(game.world.arena, { x: 1, y: 1 }));
+            game.world.arena.openPortal(3, 3, new Portal(game.world.overworld, { x: 1, y: 1 }));
 
             const player = Entity.FromSchema(game, [
                 [ componentMeta, { type: EnumEntityType.SQUIRREL } ],

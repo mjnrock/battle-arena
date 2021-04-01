@@ -7,7 +7,7 @@ export class NodeManager extends Agency.Event.Network {
     static Extractor = function(entity) { return [ Agency.Util.Helper.round(entity.position.x, 1), Agency.Util.Helper.round(entity.position.y, 1) ] };
 
     constructor(size = [ 1, 1 ], { extractor } = {}) {
-        super();
+        super({ pairBinding: true });
 
         this._cache = new WeakMap();
 

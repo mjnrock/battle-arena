@@ -9,14 +9,15 @@ export async function drawAnimationFrame(dt, elapsed) {
     [ this.width, this.height ] = [ this.game.render.width, this.game.render.height ];
 
     for(let node of this.game.world.current) {
-        drawAnimationFrameEntity.call(this, dt, elapsed, node.terrain);
+        drawAnimationFrameEntity.call(this, dt, elapsed, node);
     }
 
     this.__hooks.forEach(fn => fn.call(this, dt, elapsed));
 
     return this;
 };
-export async function drawAnimationFrameEntity(dt, elapsed, terrain) {            
+export async function drawAnimationFrameEntity(dt, elapsed, node) {
+    const terrain = node.terrain;
     const spriteSheet = this.game.render.sprite("terrain", { entity: terrain });
 
     if(spriteSheet) {
@@ -26,6 +27,16 @@ export async function drawAnimationFrameEntity(dt, elapsed, terrain) {
         if(terrain.terrain.type === DictTerrain.DIRT.type) {
             this.image(spriteSheet.entries[ 1 ].get(terrain.terrain.edges), terrain.position.x * this.tw, terrain.position.y * this.th);
         }
+    }
+
+    if(node.hasPortals) {
+        this.prop({ fillStyle: `rgba(155, 0, 155, 0.25` }).tRect(
+            terrain.position.x,
+            terrain.position.y,
+            1,
+            1,
+            { isFilled: true },
+        );
     }
 };
 // export async function drawAnimationFrameEntity(dt, elapsed, terrain) {

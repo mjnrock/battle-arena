@@ -50,12 +50,25 @@ export class World extends Agency.Event.Emitter {
         this.addHandlers([
             [ "join", (world, entity) => {
                 if(world instanceof World) {
+                    entity.movement.wayfinder.empty();
+                    
                     entity.position.world = world.id;
+                    entity.position.vx = 0;
+                    entity.position.vy = 0;
                 }
             }],
             [ "leave", (world, entity) => {
                 if(world instanceof World) {
                     entity.position.world = null;
+                }
+            }],
+            [ "portal", (portal, entity) => {
+                if(portal instanceof Portal) {
+                    this.leaveWorld(entity);
+
+                    entity.position.x = portal.x;
+                    entity.position.y = portal.y;
+                    portal.world.joinWorld(entity);
                 }
             }],
         ]);
@@ -78,6 +91,12 @@ export class World extends Agency.Event.Emitter {
     }    
     get config() {
         return this.__config;
+    }
+
+    get spawn() {
+        const [ x, y ] = this.__config.spawn;
+
+        return { x, y };
     }
 
     get nodes() {

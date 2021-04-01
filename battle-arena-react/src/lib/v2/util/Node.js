@@ -47,6 +47,10 @@ export class Node extends Agency.Event.Emitter {
         return this._occupants;
     }
 
+    get hasPortals() {
+        return this._portals.size > 0;
+    }
+
     get cost() {
         return this._terrain.terrain.cost;
         // return this._terrain.terrain.cost + (this._occupants.size ? Infinity : 0);
@@ -86,7 +90,7 @@ export class Node extends Agency.Event.Emitter {
         this._occupants.add(entity);
 
         if(this._occupants.size >= size) {
-            // ++this._frequency;
+            ++this._frequency;
 
             this.$.emit("join", this, entity);
 
