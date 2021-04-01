@@ -68,6 +68,10 @@ export class Registry {
             next: () => ({ value: data[ ++index ], done: !(index in data) })
         };
     };
+
+    get size() {
+        return Object.keys(this).length;
+    }
         
     get synonyms() {
         return Reflect.ownKeys(this).reduce((a, k) => {

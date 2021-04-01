@@ -63,80 +63,83 @@ export default class Game extends AgencyLocal.Watcher {
     }
 
     onPreTick(spf, now) {
-        for(let entity of this.world.current.entities) {
-            if(hasTurn(entity)) {
-                if(now - entity.turn.timeout >= this.config.GCD) {
-                    entity.turn.current(entity);
-                    entity.turn.timeout = now;
+        for(let world of this.world) {
+            for(let entity of world.entities) {
+                if(hasTurn(entity)) {
+                    if(now - entity.turn.timeout >= this.config.GCD) {
+                        entity.turn.current(entity);
+                        entity.turn.timeout = now;
+                    }
                 }
-            }
 
-            this.world.current.nodes.move(entity);
+                world.nodes.move(entity);
 
-            /** NOTE:    Odd Path Following
-             * The ~~ operator setup here causes only SOUTHEAST movements
-             * to appear correct, while all other directions suffer from
-             * "technically" being in the tile, thus the <Path> continues.
-             * 
-             * This should resolve itself after the transition to center of
-             * mass positions, instead of top-left of tile box.
-             * 
-             * FIXME:   @entity.movement.speed that exceeds a tile width/height
-             * will prevent the progression of a <Path>, as it will miss the next
-             * tile.
-             * 
-             * FIXME:   If a tile becomes occupied while another entity is traveling
-             * to that tile, a collision occurs.  Create a "wait if path obstructed"
-             * time threshold before the entity either: 1) drops its path, or 2) recalculates
-             * it to the same destination.  Check World..Node of Path..next to see if still traversable.
-             */
-            let Vx = entity.position.vx,
-                Vy = entity.position.vy;
+                /** NOTE:    Odd Path Following
+                 * The ~~ operator setup here causes only SOUTHEAST movements
+                 * to appear correct, while all other directions suffer from
+                 * "technically" being in the tile, thus the <Path> continues.
+                 * 
+                 * This should resolve itself after the transition to center of
+                 * mass positions, instead of top-left of tile box.
+                 * 
+                 * FIXME:   @entity.movement.speed that exceeds a tile width/height
+                 * will prevent the progression of a <Path>, as it will miss the next
+                 * tile.
+                 * 
+                 * FIXME:   If a tile becomes occupied while another entity is traveling
+                 * to that tile, a collision occurs.  Create a "wait if path obstructed"
+                 * time threshold before the entity either: 1) drops its path, or 2) recalculates
+                 * it to the same destination.  Check World..Node of Path..next to see if still traversable.
+                 */
+                let Vx = entity.position.vx,
+                    Vy = entity.position.vy;
+                    
+                if(hasMovement(entity)) {
+                    if(entity.movement.wayfinder.hasPath) {
+                        entity.movement.wayfinder.current.test(entity.position.x, entity.position.y);
+
+                        let [ nx, ny ] = entity.movement.wayfinder.current.current;
+
+                        if(nx === void 0 || ny === void 0) {
+                            [ nx, ny ] = [ entity.position.x, entity.position.y ];
+                        }
+
+                        Vx = Agency.Util.Helper.round(-(entity.position.x - nx), 10);
+                        Vy = Agency.Util.Helper.round(-(entity.position.y - ny), 10);
+
+                        //NOTE  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
+                        //FIXME @entity.movement.speed >= 3 overshoots the tile, causing jitters.  Overcompensated movement must be discretized and applied sequentially to each progressive step in the Path.
+                        if(Vx < 0) {
+                            Vx = -1 * entity.movement.speed;
+                            entity.position.facing = 270;
+                        } else if(Vx > 0) {
+                            Vx = 1 * entity.movement.speed;
+                            entity.position.facing = 90;
+                        }
+                        if(Vy < 0) {
+                            Vy = -1 * entity.movement.speed;
+                            entity.position.facing = 0;
+                        } else if(Vy > 0) {
+                            Vy = 1 * entity.movement.speed;
+                            entity.position.facing = 180;
+                        }
+                    } else {
+                        entity.movement.wayfinder.drop();
+                    }
+                }
                 
-            if(hasMovement(entity)) {
-                if(entity.movement.wayfinder.hasPath) {
-                    entity.movement.wayfinder.current.test(entity.position.x, entity.position.y);
-
-                    let [ nx, ny ] = entity.movement.wayfinder.current.current;
-
-                    if(nx === void 0 || ny === void 0) {
-                        [ nx, ny ] = [ entity.position.x, entity.position.y ];
-                    }
-
-                    Vx = Agency.Util.Helper.round(-(entity.position.x - nx), 10);
-                    Vy = Agency.Util.Helper.round(-(entity.position.y - ny), 10);
-
-                    //NOTE  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
-                    //FIXME @entity.movement.speed >= 3 overshoots the tile, causing jitters.  Overcompensated movement must be discretized and applied sequentially to each progressive step in the Path.
-                    if(Vx < 0) {
-                        Vx = -1 * entity.movement.speed;
-                        entity.position.facing = 270;
-                    } else if(Vx > 0) {
-                        Vx = 1 * entity.movement.speed;
-                        entity.position.facing = 90;
-                    }
-                    if(Vy < 0) {
-                        Vy = -1 * entity.movement.speed;
-                        entity.position.facing = 0;
-                    } else if(Vy > 0) {
-                        Vy = 1 * entity.movement.speed;
-                        entity.position.facing = 180;
-                    }
-                } else {
-                    entity.movement.wayfinder.drop();
-                }
+                entity.position.vx = Vx;
+                entity.position.vy = Vy;
             }
-            
-            entity.position.vx = Vx;
-            entity.position.vy = Vy;
         }
-
     }
     onTick(dt, now) {
-        for(let entity of this.world.current.entities) {
-            if(hasMovement(entity)) {       //* Calculate new positions based on velocities
-                entity.position.x += entity.position.vx * dt;
-                entity.position.y += entity.position.vy * dt;
+        for(let world of this.world) {
+            for(let entity of world.entities) {
+                if(hasMovement(entity)) {       //* Calculate new positions based on velocities
+                    entity.position.x += entity.position.vx * dt;
+                    entity.position.y += entity.position.vy * dt;
+                }
             }
         }
     }
