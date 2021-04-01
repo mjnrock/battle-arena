@@ -10,10 +10,10 @@ import Path from "./util/Path";
 import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
 import componentHealth from "./data/entity/components/health";
 // import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
-import { DictTerrain } from "./util/component/Terrain";
+import { DictTerrain } from "./entity/component/Terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
 import EntityManager from "./manager/EntityManager";
-import Entity from "./Entity";
+import Entity from "./entity/Entity";
 
 export class World extends Agency.Event.Emitter {
     static Events = [

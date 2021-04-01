@@ -1,5 +1,5 @@
 import Agency from "@lespantsfancy/agency";
-import Tessellation from "../../../util/render/Tessellation";
+import Tessellation from "../../../render/Tessellation";
 
 export async function ToGrid(tw, th, canvas, { keyFn = (x, y) => `${ x }.${ y }`, asJson = false } = {}) {
     const obj = {

@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import Agency from "@lespantsfancy/agency";
 
-import LayeredCanvas from "./../util/render/LayeredCanvas";
-import ImageRegistry from "../util/render/ImageRegistry";
+import LayeredCanvas from "./../render/LayeredCanvas";
+import ImageRegistry from "../render/ImageRegistry";
 
-import RenderLayer from "./../util/render/RenderLayer";
+import RenderLayer from "./../render/RenderLayer";
 
 export class RenderManager extends LayeredCanvas {
     constructor(game, { tw, th, width, height, repository } = {}) {

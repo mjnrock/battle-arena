@@ -1,6 +1,6 @@
 import Component from "./Component";
 
-import Wayfinder from "../Wayfinder";
+import Wayfinder from "./../../util/Wayfinder";
 
 export class World extends Component {
     static Name = "world";

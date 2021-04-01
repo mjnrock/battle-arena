@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import TileCanvas from "./TileCanvas";
 
-import Game from "./../../Game";
+import Game from "./../Game";
 
 export class RenderLayer extends TileCanvas {
     constructor(game, { drawAnimationFrame, tw = 32, th = 32, config = {} } = {}) {

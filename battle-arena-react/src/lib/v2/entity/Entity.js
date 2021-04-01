@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
-import Terrain from "./util/component/Terrain";
-import World from "./util/component/World";
-import Action from "./util/component/Action";
+import Terrain from "./component/Terrain";
+import World from "./component/World";
+import Action from "./component/Action";
 
 export class Entity {
     constructor(game) {

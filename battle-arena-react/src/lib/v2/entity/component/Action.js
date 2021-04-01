@@ -6,6 +6,7 @@ export class Action extends Component {
         current: entity => {},
         cooldown: null,
         actions: {},
+        queue: new Set(),
     });
 
     constructor(game, entity, state = {}) {

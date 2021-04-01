@@ -3,7 +3,7 @@ import AgencyLocal from "./util/agency/package";
 
 //STUB START "Imports" for stub below
     import World from "./World";
-    import RenderLayer from "./util/render/RenderLayer";
+    import RenderLayer from "./render/RenderLayer";
     import RenderManager from "./manager/RenderManager";
     import findPath from "./util/AStar";
 
@@ -18,13 +18,13 @@ import AgencyLocal from "./util/agency/package";
     import componentHealth from "./data/entity/components/health";
 import WorldManager from "./manager/WorldManager";
 import PlayerManager from "./manager/PlayerManager";
-import Entity from "./Entity";
+import Entity from "./entity/Entity";
 import Path from "./util/Path";
 import Helper from "./util/helper";
 import GameLoop from "./GameLoop";
 import Portal from "./util/Portal";
 import Cooldown from "./util/Cooldown";
-import Action from "./util/component/Action";
+import Action from "./entity/component/Action";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {

@@ -1,9 +1,9 @@
 import Agency from "@lespantsfancy/agency";
-import SpriteSheet from "../../util/render/SpriteSheet";
+import SpriteSheet from "../../render/SpriteSheet";
 
-import ImageRegistry, { EntityTemplate, TerrainTemplate } from "./../../util/render/ImageRegistry";
+import ImageRegistry, { EntityTemplate, TerrainTemplate } from "./../../render/ImageRegistry";
 
-import { TerrainLookup } from "./../../util/component/Terrain";
+import { TerrainLookup } from "./../../entity/component/Terrain";
 
 export const repository = (root) => new Agency.Util.CrossMap([
     root || [

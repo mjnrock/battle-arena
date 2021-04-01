@@ -3,7 +3,7 @@
 // import Registry from "./../util/agency/Registry";
 import Registry from "./../util/Registry";
 
-import Entity from "./../Entity";
+import Entity from "../entity/Entity";
 
 export class EntityManager extends Registry {
     constructor(game, entities = []) {

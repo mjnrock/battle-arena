@@ -1,5 +1,5 @@
-import SpriteStack from "../../util/render/SpriteStack";
-import Action from "./../../util/component/Action";
+import SpriteStack from "../../render/SpriteStack";
+import Action from "./../../entity/component/Action";
 
 export function comparator(data = {}, oldData = {}) {
     return data.hash !== oldData.hash
