@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import Position from "./util/component/Position";
+import World from "./util/component/World";
 
 export class Entity {
     constructor(game) {
@@ -29,8 +29,8 @@ export function FromSchema(game, schemaWithArgs = [], callback) {
         const key = Object.keys(comp)[ 0 ];
 
         //STUB
-        if(key === "position") {
-            entity[ key ] = new Position(game, entity, argObj)
+        if(key === "world") {
+            entity[ key ] = new World(game, entity, argObj)
         } else {
             // entity[ key ] = new Component(game, entity, argObj);
             entity[ key ] = CreateComponent(comp, argObj);

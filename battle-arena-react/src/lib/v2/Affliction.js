@@ -17,8 +17,8 @@ export class Affliction {
     /**
      * Flatten <Affliction> to a [ [ <Effect>[], x, y, { ignore, only } ], ... ] format, with
      *      optional origin point to make the relative positions absolute.
-     * @ox | OPTIONAL | "Origin X" : Make the relative x coordinate absolute (e.g. entity.position.x)
-     * @oy | OPTIONAL | "Origin Y" : Make the relative y coordinate absolute (e.g. entity.position.y)
+     * @ox | OPTIONAL | "Origin X" : Make the relative x coordinate absolute (e.g. entity.world.x)
+     * @oy | OPTIONAL | "Origin Y" : Make the relative y coordinate absolute (e.g. entity.world.y)
      */
     flatten(ox = 0, oy = 0, ...args) {
         const arr = [];

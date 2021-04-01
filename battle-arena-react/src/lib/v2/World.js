@@ -8,7 +8,6 @@ import Portal from "./util/Portal";
 import Path from "./util/Path";
 
 import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
-import componentPosition, { hasPosition as hasComponentPosition }  from "./data/entity/components/position";
 import componentMovement from "./data/entity/components/movement";
 import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
@@ -52,22 +51,22 @@ export class World extends Agency.Event.Emitter {
                 if(world instanceof World) {
                     entity.movement.wayfinder.empty();
                     
-                    entity.position.world = world.id;
-                    entity.position.vx = 0;
-                    entity.position.vy = 0;
+                    entity.world.world = world.id;
+                    entity.world.vx = 0;
+                    entity.world.vy = 0;
                 }
             }],
             [ "leave", (world, entity) => {
                 if(world instanceof World) {
-                    entity.position.world = null;
+                    entity.world.world = null;
                 }
             }],
             [ "portal", (portal, entity) => {
                 if(portal instanceof Portal) {
                     this.leaveWorld(entity);
 
-                    entity.position.x = portal.x;
-                    entity.position.y = portal.y;
+                    entity.world.x = portal.x;
+                    entity.world.y = portal.y;
                     portal.world.joinWorld(entity);
                 }
             }],
@@ -276,7 +275,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
         for(let y = 0; y < world.height; y++) {
             const terrain = Entity.FromSchema(game, [
                 [ componentTerrain, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT ],
-                [ componentPosition, { x, y, facing: 0 } ],
+                [ { world: null }, { x, y, facing: 0 } ],
                 [ componentTurn, { timeout: 0 } ],
             ]);
 
@@ -292,19 +291,19 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
 
     const entities = world.entities.createMany(enemyCount, [
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
-        [ componentPosition, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
+        [ { world: null }, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
         [ componentMovement, {} ],
         [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
             if(!entity.movement.wayfinder.hasPath && Agency.Util.Dice.percento(0.10)) {
                 const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
-                const path = Path.FindPath(world, [ entity.position.x, entity.position.y ], [ tx, ty ]);
+                const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
 
                 entity.movement.wayfinder.set(path);
             } else if(entity.movement.wayfinder.hasPath ) {
-                if(entity.movement.wayfinder.isCurrentDestination(entity.position)) {
+                if(entity.movement.wayfinder.isCurrentDestination(entity.world)) {
                     const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
-                    const path = Path.FindPath(world, [ entity.position.x, entity.position.y ], [ tx, ty ]);
+                    const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
     
                     entity.movement.wayfinder.set(path);
                 }
@@ -315,7 +314,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
     entities.forEach(entity => {
         world.joinWorld(entity);
 
-        entity.position.world = world.id;
+        entity.world.world = world.id;
         if(entity.meta.type === EnumEntityType.BUNNY) {
             entity.movement.speed = 1.5;
         } else if(entity.meta.type === EnumEntityType.SQUIRREL) {

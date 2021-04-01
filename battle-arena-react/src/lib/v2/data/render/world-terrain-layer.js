@@ -21,18 +21,18 @@ export async function drawAnimationFrameEntity(dt, elapsed, node) {
     const spriteSheet = this.game.render.sprite("terrain", { entity: terrain });
 
     if(spriteSheet) {
-        spriteSheet.paint(0, elapsed, this.canvas, terrain.position.x * this.tw, terrain.position.y * this.th);
+        spriteSheet.paint(0, elapsed, this.canvas, terrain.world.x * this.tw, terrain.world.y * this.th);
         
         //STUB  Draw dirt edges
         if(terrain.terrain.type === DictTerrain.DIRT.type) {
-            this.image(spriteSheet.entries[ 1 ].get(terrain.terrain.edges), terrain.position.x * this.tw, terrain.position.y * this.th);
+            this.image(spriteSheet.entries[ 1 ].get(terrain.terrain.edges), terrain.world.x * this.tw, terrain.world.y * this.th);
         }
     }
 
     if(node.hasPortals) {
         this.prop({ fillStyle: `rgba(155, 0, 155, 0.25` }).tRect(
-            terrain.position.x,
-            terrain.position.y,
+            terrain.world.x,
+            terrain.world.y,
             1,
             1,
             { isFilled: true },
@@ -41,8 +41,8 @@ export async function drawAnimationFrameEntity(dt, elapsed, node) {
         
     const wear = Math.min(node.frequency / 1000.0, 0.33);
     this.prop({ fillStyle: `rgba(0, 0, 0, ${ wear }` }).tRect(
-        terrain.position.x,
-        terrain.position.y,
+        terrain.world.x,
+        terrain.world.y,
         1,
         1,
         { isFilled: true },
@@ -53,7 +53,7 @@ export async function drawAnimationFrameEntity(dt, elapsed, node) {
 
 //     if(spriteSheet) {
 //         const [[ hash, [ canvas, x, y, w, h ]]] = spriteSheet.get(elapsed);
-//         const newData = { hash, x: terrain.position.x, y: terrain.position.y }
+//         const newData = { hash, x: terrain.world.x, y: terrain.world.y }
 
 //         if(this.check(terrain, newData)) {
 //             const oldData = this.get(terrain);
@@ -61,11 +61,11 @@ export async function drawAnimationFrameEntity(dt, elapsed, node) {
 //             this.erase(oldData.x * this.tw, oldData.y * this.th, w, h);
 //             this.set(terrain, newData);
 
-//             spriteSheet.paint(0, elapsed, this.canvas, terrain.position.x * this.tw, terrain.position.y * this.th);
+//             spriteSheet.paint(0, elapsed, this.canvas, terrain.world.x * this.tw, terrain.world.y * this.th);
 
 //             //STUB  Edge system has to be overhauled, but this is the general application principle
 //             if(terrain.terrain.type === DictTerrain.DIRT.type) {
-//                 this.image(spriteSheet.entries[ 1 ].get(terrain.terrain.edges), terrain.position.x * this.tw, terrain.position.y * this.th);
+//                 this.image(spriteSheet.entries[ 1 ].get(terrain.terrain.edges), terrain.world.x * this.tw, terrain.world.y * this.th);
 //             }
 //         }
 //     }

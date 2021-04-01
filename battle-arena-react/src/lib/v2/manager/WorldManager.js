@@ -20,7 +20,7 @@ export class WorldManager extends Registry {
         const player = this.game.players.player;
         
         if(player) {
-            return this[ player.position.world ];
+            return this[ player.world.world ];
         }
 
         return this[ `overworld` ];

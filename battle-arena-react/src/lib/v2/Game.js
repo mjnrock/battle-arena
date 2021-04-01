@@ -15,7 +15,6 @@ import AgencyLocal from "./util/agency/package";
     import drawUILayer from "./data/render/world-ui-layer";
     
     import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
-    import componentPosition from "./data/entity/components/position";
     import componentTurn, { hasTurn } from "./data/entity/components/turn";
     import componentHealth from "./data/entity/components/health";
     import componentMovement, { hasMovement } from "./data/entity/components/movement";
@@ -102,45 +101,45 @@ export default class Game extends AgencyLocal.Watcher {
                  * time threshold before the entity either: 1) drops its path, or 2) recalculates
                  * it to the same destination.  Check World..Node of Path..next to see if still traversable.
                  */
-                let Vx = entity.position.vx,
-                    Vy = entity.position.vy;
+                let Vx = entity.world.vx,
+                    Vy = entity.world.vy;
                     
                 if(hasMovement(entity)) {
                     if(entity.movement.wayfinder.hasPath) {
-                        entity.movement.wayfinder.current.test(entity.position.x, entity.position.y);
+                        entity.movement.wayfinder.current.test(entity.world.x, entity.world.y);
 
                         let [ nx, ny ] = entity.movement.wayfinder.current.current;
 
                         if(nx === void 0 || ny === void 0) {
-                            [ nx, ny ] = [ entity.position.x, entity.position.y ];
+                            [ nx, ny ] = [ entity.world.x, entity.world.y ];
                         }
 
-                        Vx = Agency.Util.Helper.round(-(entity.position.x - nx), 10);
-                        Vy = Agency.Util.Helper.round(-(entity.position.y - ny), 10);
+                        Vx = Agency.Util.Helper.round(-(entity.world.x - nx), 10);
+                        Vy = Agency.Util.Helper.round(-(entity.world.y - ny), 10);
 
                         //NOTE  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
                         //FIXME @entity.movement.speed >= 3 overshoots the tile, causing jitters.  Overcompensated movement must be discretized and applied sequentially to each progressive step in the Path.
                         if(Vx < 0) {
                             Vx = -1 * entity.movement.speed;
-                            entity.position.facing = 270;
+                            entity.world.facing = 270;
                         } else if(Vx > 0) {
                             Vx = 1 * entity.movement.speed;
-                            entity.position.facing = 90;
+                            entity.world.facing = 90;
                         }
                         if(Vy < 0) {
                             Vy = -1 * entity.movement.speed;
-                            entity.position.facing = 0;
+                            entity.world.facing = 0;
                         } else if(Vy > 0) {
                             Vy = 1 * entity.movement.speed;
-                            entity.position.facing = 180;
+                            entity.world.facing = 180;
                         }
                     } else {
                         entity.movement.wayfinder.drop();
                     }
                 }
                 
-                entity.position.vx = Vx;
-                entity.position.vy = Vy;
+                entity.world.vx = Vx;
+                entity.world.vy = Vy;
             }
         }
     }
@@ -148,9 +147,9 @@ export default class Game extends AgencyLocal.Watcher {
         for(let world of this.world) {
             for(let entity of world.entities) {
                 if(hasMovement(entity)) {       //* Calculate new positions based on velocities
-                    // entity.position.x += entity.position.vx * dt;
-                    // entity.position.y += entity.position.vy * dt;
-                    entity.position.applyVelocity(dt);
+                    // entity.world.x += entity.world.vx * dt;
+                    // entity.world.y += entity.world.vy * dt;
+                    entity.world.applyVelocity(dt);
                 }
             }
         }
@@ -175,7 +174,8 @@ export default class Game extends AgencyLocal.Watcher {
 
             const player = Entity.FromSchema(game, [
                 [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
-                [ componentPosition, { x: 4, y: 7 } ],
+                //FIXME Entity.FromSchema gets the key from args[ 0 ] during the transition
+                [ { world: null }, { x: 4, y: 7 } ],
                 [ componentHealth, { current: 10, max: 10 } ],
                 [ componentMovement, {} ],
                 [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {} } ],
@@ -235,7 +235,7 @@ export default class Game extends AgencyLocal.Watcher {
                             console.info(pos.txi, pos.tyi, occupants);
 
                             for(let occupant of occupants) {
-                                console.log(Object.assign({}, occupant.position))
+                                console.log(Object.assign({}, occupant.world))
                             }
                         } else if(button === 2) {
                             const player = game.players.player;
@@ -243,7 +243,7 @@ export default class Game extends AgencyLocal.Watcher {
                             if(e.shiftKey) {
                                 player.movement.wayfinder.waypoint(game.world.current, pos.txi, pos.tyi);
                             } else {
-                                const path = Path.FindPath(game.world.current, [ player.position.x, player.position.y ], [ pos.txi, pos.tyi ]);
+                                const path = Path.FindPath(game.world.current, [ player.world.x, player.world.y ], [ pos.txi, pos.tyi ]);
                                 player.movement.wayfinder.set(path);
                             }
                         }

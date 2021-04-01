@@ -1,9 +1,9 @@
 import Component from "./Component";
 
-import Wayfinder from "./../Wayfinder";
+import Wayfinder from "../Wayfinder";
 
-export class Position extends Component {
-    static Name = "position";
+export class World extends Component {
+    static Name = "world";
     static DefaultProperties = () => ({
         world: null,
         facing: 0,
@@ -11,11 +11,13 @@ export class Position extends Component {
         y: 0,
         vx: 0,
         vy: 0,
+        speed: 2.5,
+        range: 10,
     });
 
     constructor(game, entity, state = {}) {
-        super(Position.Name, game, entity, {
-            ...Position.DefaultProperties(),
+        super(World.Name, game, entity, {
+            ...World.DefaultProperties(),
             ...state,
         });
 
@@ -49,14 +51,14 @@ export class Position extends Component {
     }
     // wayfind() {
     //     const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
-    //     const path = Path.FindPath(world, [ entity.position.x, entity.position.y ], [ tx, ty ]);
+    //     const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
 
     //     this.wayfinder.set(path);
     // }
 
     static Has(entity) {
-        return Position.Name in entity;
+        return World.Name in entity;
     }
 };
 
-export default Position;
+export default World;

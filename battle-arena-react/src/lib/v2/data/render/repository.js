@@ -19,7 +19,7 @@ export const repository = (root) => new Agency.Util.CrossMap([
                     lookupFns: [
                         ({ entity }) => entity.meta.type,
                         ({ entity }) => 0,
-                        ({ entity }) => Math.floor(entity.position.facing / 90) * 90,
+                        ({ entity }) => Math.floor(entity.world.facing / 90) * 90,
                     ]
                 });
             case "terrain":
@@ -37,7 +37,7 @@ export const repository = (root) => new Agency.Util.CrossMap([
                         //     return entity.terrain.edges === 0 ? TerrainLookup(entity.terrain.type) : "water";
                         // },
                         ({ entity }) => 0,
-                        ({ entity }) => Math.floor(entity.position.facing / 90) * 90,
+                        ({ entity }) => Math.floor(entity.world.facing / 90) * 90,
                     ]
                 });
             default:

@@ -72,7 +72,7 @@ export class Wayfinder {
             const [ nx, ny ] = this.current.next;
 
             // If entity gets more than 1 tile away from the next tile, empty
-            if(this.entity.position.x < nx - 1 || this.entity.position.x > nx + 1 || this.entity.position.y < ny - 1 || this.entity.position.y > ny + 1) {
+            if(this.entity.world.x < nx - 1 || this.entity.world.x > nx + 1 || this.entity.world.y < ny - 1 || this.entity.world.y > ny + 1) {
                 this.empty();
             }
         }
@@ -87,7 +87,7 @@ export class Wayfinder {
     }
 
     waypoint(world, x, y) {
-        const [ dx, dy ] = this.last.destination || [ this.entity.position.x, this.entity.position.y ];
+        const [ dx, dy ] = this.last.destination || [ this.entity.world.x, this.entity.world.y ];
 
         this.add(Path.FindPath(world, [ dx, dy ], [ x, y ]));
     }

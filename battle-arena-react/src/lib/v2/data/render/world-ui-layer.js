@@ -82,7 +82,7 @@ export function drawPlayerPath() {
                     );
                 }
                 
-                if(!(entity.position.x === x && entity.position.y === y)) {
+                if(!(entity.world.x === x && entity.world.y === y)) {
                     this.prop({ fillStyle: `rgba(0, 0, 155, ${ i === 0 ? 0.20 : 0.10 })` }).tRect(
                         x,
                         y,
@@ -116,7 +116,7 @@ export function drawMovementPath(entity) {
                     );
                 }
                 
-                if(!(entity.position.x === x && entity.position.y === y)) {
+                if(!(entity.world.x === x && entity.world.y === y)) {
                     this.prop({ fillStyle: `rgba(0, 45, 155, 0.1` }).tRect(
                         x,
                         y,

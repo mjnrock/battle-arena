@@ -14,7 +14,7 @@ export function comparator(data = {}, oldData = {}) {
 
 //     if (spriteSheet) {
 //         // const [ hash, [ canvas, x, y, w, h ]] = spriteSheet.get(elapsed);
-//         // const newData = { hash, x: entity.position.x, y: entity.position.y }
+//         // const newData = { hash, x: entity.world.x, y: entity.world.y }
 
 //         // if(this.check(entity, newData)) {
 //         //     const oldData = this.get(entity);
@@ -22,10 +22,10 @@ export function comparator(data = {}, oldData = {}) {
 //         //     this.erase(oldData.x * this.tw, oldData.y * this.th, w, h);
 //         //     this.set(entity, newData);
 
-//         //     spriteSheet.paint(0, elapsed, this.canvas, entity.position.x * this.tw, entity.position.y * this.th);
+//         //     spriteSheet.paint(0, elapsed, this.canvas, entity.world.x * this.tw, entity.world.y * this.th);
 //         // }
         
-//         spriteSheet.paint(0, elapsed, this.canvas, entity.position.x * this.tw, entity.position.y * this.th);
+//         spriteSheet.paint(0, elapsed, this.canvas, entity.world.x * this.tw, entity.world.y * this.th);
 
 //         if(this.game.config.SHOW_UI) {
 //             let frameWidth = this.tw;
@@ -39,16 +39,16 @@ export function comparator(data = {}, oldData = {}) {
 //             }
 //             this.save();
 //                 this.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
-//                     entity.position.x * this.tw + frameWidth / 2,
-//                     entity.position.y * this.th - this.th / 2,
+//                     entity.world.x * this.tw + frameWidth / 2,
+//                     entity.world.y * this.th - this.th / 2,
 //                     6,
 //                     { isFilled: true },
 //                 );
 //             this.restore();
 //             this.save();
 //                 this.prop({ fillStyle: color, strokeStyle: `rgba(0, 0, 0, 0.35)` }).pie(
-//                     entity.position.x * this.tw + frameWidth / 2,
-//                     entity.position.y * this.th - this.th / 2,
+//                     entity.world.x * this.tw + frameWidth / 2,
+//                     entity.world.y * this.th - this.th / 2,
 //                     5,
 //                     0,
 //                     prog * Math.PI * 2,
@@ -65,15 +65,15 @@ export function comparator(data = {}, oldData = {}) {
 //             }
 //             this.save();
 //                 this.prop({ fillStyle: `rgba(0, 0, 0, 0.35)`, strokeStyle: `rgba(0, 0, 0, 0.35)` }).rect(
-//                     entity.position.x * this.tw,
-//                     entity.position.y * this.th - this.th / 4 + 2,
+//                     entity.world.x * this.tw,
+//                     entity.world.y * this.th - this.th / 4 + 2,
 //                     frameWidth,
 //                     5,
 //                     { isFilled: true },
 //                 );
 //                 this.prop({ fillStyle: hp }).rect(
-//                     entity.position.x * this.tw + 1,
-//                     entity.position.y * this.th - this.th / 4 + 2 + 1,
+//                     entity.world.x * this.tw + 1,
+//                     entity.world.y * this.th - this.th / 4 + 2 + 1,
 //                     entity.health.value.rate * (frameWidth - 2),
 //                     3,
 //                     { isFilled: true },
@@ -100,7 +100,7 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
     const spriteSheet = this.game.render.sprite("entity", { entity: entity });
 
     if (spriteSheet) {        
-        spriteSheet.paint(0, elapsed, this.canvas, entity.position.x * this.tw, entity.position.y * this.th);
+        spriteSheet.paint(0, elapsed, this.canvas, entity.world.x * this.tw, entity.world.y * this.th);
 
         if(!hasTurn(entity)) {
             return;
@@ -121,16 +121,16 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
                 }
                 this.save();
                     this.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
-                        entity.position.x * this.tw + frameWidth / 2,
-                        entity.position.y * this.th - this.th / 2,
+                        entity.world.x * this.tw + frameWidth / 2,
+                        entity.world.y * this.th - this.th / 2,
                         6,
                         { isFilled: true },
                     );
                 this.restore();
                 this.save();
                     this.prop({ fillStyle: color, strokeStyle: `rgba(0, 0, 0, 0.35)` }).pie(
-                        entity.position.x * this.tw + frameWidth / 2,
-                        entity.position.y * this.th - this.th / 2,
+                        entity.world.x * this.tw + frameWidth / 2,
+                        entity.world.y * this.th - this.th / 2,
                         5,
                         0,
                         prog * Math.PI * 2,
@@ -148,15 +148,15 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
             }
             this.save();
                 this.prop({ fillStyle: `rgba(0, 0, 0, 0.35)`, strokeStyle: `rgba(0, 0, 0, 0.35)` }).rect(
-                    entity.position.x * this.tw,
-                    entity.position.y * this.th - this.th / 4 + 2,
+                    entity.world.x * this.tw,
+                    entity.world.y * this.th - this.th / 4 + 2,
                     frameWidth,
                     5,
                     { isFilled: true },
                 );
                 this.prop({ fillStyle: hp }).rect(
-                    entity.position.x * this.tw + 1,
-                    entity.position.y * this.th - this.th / 4 + 2 + 1,
+                    entity.world.x * this.tw + 1,
+                    entity.world.y * this.th - this.th / 4 + 2 + 1,
                     entity.health.value.rate * (frameWidth - 2),
                     3,
                     { isFilled: true },

@@ -29,28 +29,28 @@ export function getTrig(x1, y1, x2, y2) {
 }
 
 export const Random = (xmax, ymax) => (target, source) =>{
-    if(target instanceof Entity && target.position) {
-        target.position.x = Agency.Util.Dice.random(1, xmax) - 1;
-        target.position.y = Agency.Util.Dice.random(1, ymax) - 1;
+    if(target instanceof Entity && target.world) {
+        target.world.x = Agency.Util.Dice.random(1, xmax) - 1;
+        target.world.y = Agency.Util.Dice.random(1, ymax) - 1;
     }
 }
 
 export const CenterPoint = (shape) => (target, source) => {
-    if(target instanceof Entity && target.position && shape instanceof Point) {
+    if(target instanceof Entity && target.world && shape instanceof Point) {
         const { x, y } = shape.origin;
 
-        target.position.x = x;
-        target.position.y = y;
+        target.world.x = x;
+        target.world.y = y;
     }
 }
 export const Attract = (shape, amplify = 1.0, threshold = 0) => (target, source) => {
-    if(target instanceof Entity && target.position && shape instanceof Point) {
+    if(target instanceof Entity && target.world && shape instanceof Point) {
         const { x, y } = shape.origin;
 
         let trig;
         const { cos, sin, hypot, vx, vy } = trig = getTrig(
-            target.position.x,
-            target.position.y,
+            target.world.x,
+            target.world.y,
             x,
             y,
         );
@@ -73,8 +73,8 @@ export const Attract = (shape, amplify = 1.0, threshold = 0) => (target, source)
             dy = -(vy * sin / hypot) * amplify;
         }
 
-        target.position.x = Math.round(parseFloat(target.position.x + dx));
-        target.position.y = Math.round(parseFloat(target.position.y + dy));
+        target.world.x = Math.round(parseFloat(target.world.x + dx));
+        target.world.y = Math.round(parseFloat(target.world.y + dy));
     }
 }
 
