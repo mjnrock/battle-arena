@@ -28,6 +28,12 @@ export class RenderManager extends LayeredCanvas {
     get game() {
         return this.__game;
     }
+    
+    set canvas(canvas) {
+        //TODO  Transition the EventWatchable in React to this trap
+        console.warn(`[RenderManager]: The << set canvas >> trap has been called.`);
+        return Reflect.set(this, "_canvas", canvas);
+    }
 
     get current() {
         return this.__current;

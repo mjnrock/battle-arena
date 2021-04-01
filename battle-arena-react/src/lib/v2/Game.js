@@ -55,6 +55,10 @@ export default class Game extends AgencyLocal.Watcher {
         this.loop.setTick(this.onTick.bind(this));
         this.loop.setPreTick(this.onPreTick.bind(this));
         this.loop.setDraw(this.onDraw.bind(this));
+
+        //FIXME Probably should make this more robust
+        window.onfocus = e => this.loop.start();
+        window.onblur = e => this.loop.stop();
     }
 
     onPreTick(spf, now) {
@@ -129,7 +133,7 @@ export default class Game extends AgencyLocal.Watcher {
     }
     onTick(dt, now) {
         for(let entity of this.world.current.entities) {
-            if(hasMovement(entity)) {
+            if(hasMovement(entity)) {       //* Calculate new positions based on velocities
                 entity.position.x += entity.position.vx * dt;
                 entity.position.y += entity.position.vy * dt;
             }

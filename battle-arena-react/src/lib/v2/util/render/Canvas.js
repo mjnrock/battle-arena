@@ -1,3 +1,5 @@
+// import Agency from "@lespantsfancy/agency";
+
 import Animator from "./Animator";
 
 export default class Canvas {
@@ -8,13 +10,13 @@ export default class Canvas {
             }
         };
         
-        this.canvas = canvas || document.createElement("canvas");
+        this._canvas = canvas || document.createElement("canvas");
         if(canvas) {
             width = canvas.width;
             height = canvas.height;
         } else {
-            this.canvas.width = width;
-            this.canvas.height = height;
+            this._canvas.width = width;
+            this._canvas.height = height;
         }
 
         this.prop(props);
@@ -23,28 +25,34 @@ export default class Canvas {
         this.drawAnimationFrame = typeof drawAnimationFrame === "function" ? drawAnimationFrame : () => {};
     }
 
+    get canvas() {
+        return this._canvas;
+    }
+    set canvas(canvas) {
+        return Reflect.set(this, "_canvas", canvas);
+    }
     get ctx() {
-        return this.canvas.getContext("2d");
+        return this._canvas.getContext("2d");
     }
     
     get width() {
-        return this.canvas.width;
+        return this._canvas.width;
     }
     set width(value) {
-        this.canvas.width = value;
+        return Reflect.set(this._canvas, "width", value);
     }
     
     get height() {
-        return this.canvas.height;
+        return this._canvas.height;
     }
     set height(value) {
-        this.canvas.height = value;
+        return Reflect.set(this._canvas, "height", value);
     }
     
     resize(width, height) {
         if(Number.isInteger(width) && Number.isInteger(height)) {
-            this.canvas.width = width;
-            this.canvas.height = height;
+            this._canvas.width = width;
+            this._canvas.height = height;
         }
 
         return this;

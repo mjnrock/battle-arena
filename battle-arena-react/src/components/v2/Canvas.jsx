@@ -27,7 +27,7 @@ function Canvas(props) {
                 }
             }
 
-            //NOTE  Presumably this gc's itself on @ref:@canvas.canvas destruction, but I haven't tested it
+            //FIXME Refactor and move to the "canvas" handler in RenderManager
             canvas.__handler = new Agency.EventWatchable(ref, [
                 "click",
                 "contextmenu",
