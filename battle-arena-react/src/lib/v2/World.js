@@ -8,7 +8,6 @@ import Portal from "./util/Portal";
 import Path from "./util/Path";
 
 import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
-import componentTurn from "./data/entity/components/turn";
 import componentHealth from "./data/entity/components/health";
 // import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import { DictTerrain } from "./util/component/Terrain";
@@ -276,7 +275,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
             const terrain = Entity.FromSchema(game, [
                 [ { terrain: null }, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT],
                 [ { world: null }, { x, y, facing: 0 } ],
-                [ componentTurn, { timeout: 0 } ],
+                [ { action: null }, { timeout: 0 } ],
             ]);
 
             const node = world._nodes.node(x, y);
@@ -293,7 +292,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
         [ { world: null }, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
-        [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
+        [ { action: null}, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
             if(!entity.world.wayfinder.hasPath && Agency.Util.Dice.percento(0.10)) {
                 //FIXME Make the max distance restricted to entity.world.range
                 const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];

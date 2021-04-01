@@ -1,5 +1,5 @@
 import SpriteStack from "../../util/render/SpriteStack";
-import { hasTurn } from "../entity/components/turn";
+import Action from "./../../util/component/Action";
 
 export function comparator(data = {}, oldData = {}) {
     return data.hash !== oldData.hash
@@ -25,7 +25,7 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
     if (spriteSheet) {        
         spriteSheet.paint(0, elapsed, this.canvas, entity.world.x * this.tw, entity.world.y * this.th);
 
-        if(!hasTurn(entity)) {
+        if(!Action.Has(entity)) {
             return;
         }
 
@@ -33,7 +33,7 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
         if(this.game.config.SHOW_UI) {
             let frameWidth = this.tw;
             
-            const prog = entity.turn.cooldown ? entity.turn.cooldown.progress : null;      // % this.game.config.GCD hides information and should only be used for testing
+            const prog = entity.action.cooldown ? entity.action.cooldown.progress : null;      // % this.game.config.GCD hides information and should only be used for testing
             if(prog != null) {
                 // //? Draw Pie Timer
                 let color = `rgba(95, 160, 80, 0.75)`;

@@ -15,7 +15,6 @@ import AgencyLocal from "./util/agency/package";
     import drawUILayer from "./data/render/world-ui-layer";
     
     import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
-    import componentTurn, { hasTurn } from "./data/entity/components/turn";
     import componentHealth from "./data/entity/components/health";
 import WorldManager from "./manager/WorldManager";
 import PlayerManager from "./manager/PlayerManager";
@@ -25,6 +24,7 @@ import Helper from "./util/helper";
 import GameLoop from "./GameLoop";
 import Portal from "./util/Portal";
 import Cooldown from "./util/Cooldown";
+import Action from "./util/component/Action";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
@@ -64,22 +64,16 @@ export default class Game extends AgencyLocal.Watcher {
     onPreTick(spf, now) {
         for(let world of this.world) {
             for(let entity of world.entities) {
-                if(hasTurn(entity)) {
-                    if(!entity.turn.cooldown) {
-                        entity.turn.current(entity);
-                        entity.turn.cooldown = new Cooldown(this.config.GCD * (Math.random() * 3));
+                if(Action.Has(entity)) {
+                    if(!entity.action.cooldown) {
+                        entity.action.current(entity);
+                        entity.action.cooldown = new Cooldown(this.config.GCD * (Math.random() * 3));
                     } else {
-                        if(entity.turn.cooldown.isComplete) {
-                            entity.turn.cooldown = null;
+                        if(entity.action.cooldown.isComplete) {
+                            entity.action.cooldown = null;
                         }
                     }
                 }
-                // if(hasTurn(entity)) {
-                //     if(now - (entity.turn.timeout || 0) >= this.config.GCD) {
-                //         entity.turn.current(entity);
-                //         entity.turn.timeout = now;
-                //     }
-                // }
 
                 world.nodes.move(entity);
 
@@ -170,7 +164,7 @@ export default class Game extends AgencyLocal.Watcher {
                 //FIXME Entity.FromSchema gets the key from args[ 0 ] during the transition
                 [ { world: null }, { x: 4, y: 7 } ],
                 [ componentHealth, { current: 10, max: 10 } ],
-                [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {} } ],
+                [ { action: null}, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {} } ],
             ], (entity) => {
                 entity.world.wayfinder.entity = entity;
             });
