@@ -268,7 +268,8 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
         }
     }
 
-    // CalculateEdgeMasks(world);
+    //FIXME The edge paradigm is not good; use the 1x1 -> 4x4 storage solution
+    CalculateEdgeMasks(world);
 
     const entities = world.entities.createMany(enemyCount, [
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
