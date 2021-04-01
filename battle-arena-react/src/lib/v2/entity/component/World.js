@@ -49,12 +49,10 @@ export class World extends Component {
 
         return this;
     }
-    // wayfind() {
-    //     const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
-    //     const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
-
-    //     this.wayfinder.set(path);
-    // }
+    
+    onTick(dt, now) {
+        this.applyVelocity(dt);
+    }
 };
 
 export default World;

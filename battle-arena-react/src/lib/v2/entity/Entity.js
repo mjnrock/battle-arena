@@ -2,11 +2,27 @@ import { v4 as uuidv4 } from "uuid";
 import Terrain from "./component/Terrain";
 import World from "./component/World";
 import Action from "./component/Action";
+import Component from "./component/Component";
 
 export class Entity {
     constructor(game) {
         this.__id = uuidv4();
         this.__game = game;
+    }
+
+    [ Symbol.iterator ]() {
+        var index = -1;
+        var data = Object.keys(this).reduce((a, key) => {
+            if(this[ key ] instanceof Component) {
+                return [ ...a, this[ key ] ];
+            }
+
+            return a;
+        }, []);
+
+        return {
+            next: () => ({ value: data[ ++index ], done: !(index in data) })
+        };
     }
 
     get id() {

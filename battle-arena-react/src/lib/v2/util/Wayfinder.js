@@ -47,16 +47,24 @@ export class Wayfinder {
     }
 
     add(...paths) {
-        this.paths.push(...paths);
+        for(let path of paths) {            
+            if(path instanceof Path) {
+                this.paths.push(path);
+            }
+        }
 
-        this.start();
+        if(this.paths.length) {
+            this.start();
+        }
 
         return this;
     }
     set(path) {
-        this.paths = [ path ];
+        if(path instanceof Path) {
+            this.paths = [ path ];
 
-        this.start();
+            this.start();
+        }
 
         return this;
     }

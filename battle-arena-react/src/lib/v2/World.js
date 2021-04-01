@@ -141,6 +141,11 @@ export class World extends Agency.Event.Emitter {
         return dim => this.size[ dim ];
     }
 
+    isWithinBounds(x, y) {
+        return x >= 0 && (x <= this.width - 1)
+            && y >= 0 && (y <= this.height - 1);
+    }
+
     joinWorld(entity, ...synonyms) {
         this._entities.register(entity, ...synonyms);
 
@@ -275,7 +280,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
             const terrain = Entity.FromSchema(game, [
                 [ { terrain: null }, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT],
                 [ { world: null }, { x, y, facing: 0 } ],
-                [ { action: null }, { timeout: 0 } ],
+                [ { action: null}, {} ],
             ]);
 
             const node = world._nodes.node(x, y);
@@ -292,22 +297,23 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
         [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
         [ { world: null }, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
-        [ { action: null}, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-            if(!entity.world.wayfinder.hasPath && Agency.Util.Dice.percento(0.10)) {
-                //FIXME Make the max distance restricted to entity.world.range
-                const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
-                const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
+        [ { action: null}, {} ],
+        // [ { action: null}, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
+        //     if(!entity.world.wayfinder.hasPath && Agency.Util.Dice.percento(0.10)) {
+        //         //FIXME Make the max distance restricted to entity.world.range
+        //         const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
+        //         const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
 
-                entity.world.wayfinder.set(path);
-            } else if(entity.world.wayfinder.hasPath ) {
-                if(entity.world.wayfinder.isCurrentDestination(entity.world)) {
-                    const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
-                    const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
+        //         entity.world.wayfinder.set(path);
+        //     } else if(entity.world.wayfinder.hasPath ) {
+        //         if(entity.world.wayfinder.isCurrentDestination(entity.world)) {
+        //             const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
+        //             const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
     
-                    entity.world.wayfinder.set(path);
-                }
-            }
-        } } ],
+        //             entity.world.wayfinder.set(path);
+        //         }
+        //     }
+        // }} ],
     ], (i) => `enemy-${ i }`);
 
     entities.forEach(entity => {

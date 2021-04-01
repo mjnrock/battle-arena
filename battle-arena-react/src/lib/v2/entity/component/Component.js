@@ -37,6 +37,8 @@ export class Component extends Agency.Event.Emitter {
         return this.__entity;
     }
 
+    onTick(dt, now) {}
+
     static Has(entity) {
         return this.Name in entity;     // @this is the constructor in static methods and *does* appropriately descend to ancestors
     }

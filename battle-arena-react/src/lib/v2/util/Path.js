@@ -120,6 +120,10 @@ export class Path {
 };
 
 export function FindPath(world, origin, destination, { algorithm = AStar } = {}) {
+    if(!world.isWithinBounds(...destination)) {
+        return;
+    }
+    
     origin = origin.map(v => Helper.round(v, 1));
     destination = destination.map(v => Helper.round(v, 1));
 

@@ -64,16 +64,6 @@ export default class Game extends AgencyLocal.Watcher {
     onPreTick(spf, now) {
         for(let world of this.world) {
             for(let entity of world.entities) {
-                if(Action.Has(entity)) {
-                    if(!entity.action.cooldown) {
-                        entity.action.current(entity);
-                        entity.action.cooldown = new Cooldown(this.config.GCD * (Math.random() * 3));
-                    } else {
-                        if(entity.action.cooldown.isComplete) {
-                            entity.action.cooldown = null;
-                        }
-                    }
-                }
 
                 world.nodes.move(entity);
 
@@ -137,7 +127,10 @@ export default class Game extends AgencyLocal.Watcher {
     onTick(dt, now) {
         for(let world of this.world) {
             for(let entity of world.entities) {
-                entity.world.applyVelocity(dt);
+                for(let comp of entity) {
+                    comp.onTick.call(comp, dt, now);
+                }
+                // entity.world.applyVelocity(dt);
             }
         }
     }
@@ -164,7 +157,7 @@ export default class Game extends AgencyLocal.Watcher {
                 //FIXME Entity.FromSchema gets the key from args[ 0 ] during the transition
                 [ { world: null }, { x: 4, y: 7 } ],
                 [ componentHealth, { current: 10, max: 10 } ],
-                [ { action: null}, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {} } ],
+                [ { action: null}, {} ],
             ], (entity) => {
                 entity.world.wayfinder.entity = entity;
             });
