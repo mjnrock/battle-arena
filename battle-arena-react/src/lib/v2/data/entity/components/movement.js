@@ -4,10 +4,11 @@ import Wayfinder from "../../../util/Wayfinder";
 const _name = "movement";
 
 export const schema = {
-    [ _name ]: ({ path = [], speed = 2.5 } = {}) => ({
+    [ _name ]: ({ path = [], speed = 2.5, ...rest } = {}) => ({
         wayfinder: new Wayfinder(),
         path,
         speed,
+        ...rest,
     }),
 };
 

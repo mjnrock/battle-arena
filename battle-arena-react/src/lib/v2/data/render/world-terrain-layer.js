@@ -38,6 +38,15 @@ export async function drawAnimationFrameEntity(dt, elapsed, node) {
             { isFilled: true },
         );
     }
+        
+    const wear = Math.min(node.frequency / 1000.0, 0.25);
+    this.prop({ fillStyle: `rgba(0, 0, 0, ${ wear }` }).tRect(
+        terrain.position.x,
+        terrain.position.y,
+        1,
+        1,
+        { isFilled: true },
+    );
 };
 // export async function drawAnimationFrameEntity(dt, elapsed, terrain) {
 //     const spriteSheet = this.game.render.sprite("terrain", { entity: terrain });

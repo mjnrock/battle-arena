@@ -7,7 +7,7 @@ export function comparator(data = {}, oldData = {}) {
 }
 
 // export async function drawLayer(dt, elapsed, entity) {
-//     const prog = ((Date.now() - entity.turn.timeout) % this.game.config.GCD) / this.game.config.GCD;      // % this.game.config.GCD hides information and should only be used for testing
+//     const prog = ((Date.now() - entity.turn.cooldown) % this.game.config.GCD) / this.game.config.GCD;      // % this.game.config.GCD hides information and should only be used for testing
             
 //     //STUB  Dynamically add <Sprite(s)> // const sprite = new SpriteStack([ this.sprite({ entity: entity }), this.sprite({ entity: this.game.world.current.entities[ `player` ] }) ]);
 //     const spriteSheet = this.game.render.sprite("entity", { entity: entity });
@@ -106,7 +106,7 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
             return;
         }
 
-        const prog = ((Date.now() - entity.turn.timeout) % this.game.config.GCD) / this.game.config.GCD;      // % this.game.config.GCD hides information and should only be used for testing
+        const prog = ((Date.now() - entity.turn.cooldown) % this.game.config.GCD) / this.game.config.GCD;      // % this.game.config.GCD hides information and should only be used for testing
             
         if(this.game.config.SHOW_UI) {
             let frameWidth = this.tw;

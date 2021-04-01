@@ -4,9 +4,9 @@ import { random } from "../ai/random";
 const _name = "turn";
 
 export const schema = {
-    [ _name ]: ({ current = random, timeout = 0 } = {}) => ({
+    [ _name ]: ({ current = random, cooldown = 0 } = {}) => ({
         current,
-        timeout,
+        cooldown,
     }),
 };
 

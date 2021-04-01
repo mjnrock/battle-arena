@@ -46,6 +46,16 @@ export class Node extends Agency.Event.Emitter {
     get occupants() {
         return this._occupants;
     }
+    
+    get frequency() {
+        return this._frequency;
+    }
+    get value() {
+        return this._value;
+    }
+    get clearance() {
+        return this._clearance;
+    }
 
     get hasPortals() {
         return this._portals.size > 0;

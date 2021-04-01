@@ -26,6 +26,7 @@ import Path from "./util/Path";
 import Helper from "./util/helper";
 import GameLoop from "./GameLoop";
 import Portal from "./util/Portal";
+import Cooldown from "./util/Cooldown";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
@@ -58,15 +59,25 @@ export default class Game extends AgencyLocal.Watcher {
         this.loop.setDraw(this.onDraw.bind(this));
 
         //FIXME Probably should make this more robust
-        window.onfocus = e => this.loop.start();
-        window.onblur = e => this.loop.stop();
+        // window.onfocus = e => this.loop.start();
+        // window.onblur = e => this.loop.stop();
     }
 
     onPreTick(spf, now) {
         for(let world of this.world) {
             for(let entity of world.entities) {
+                // if(hasTurn(entity)) {
+                //     if(!entity.turn.cooldown) {
+                //         entity.turn.current(entity);
+                //         entity.turn.cooldown = new Cooldown(this.config.GCD);
+                //     } else {
+                //         if(entity.turn.cooldown.isComplete) {
+                //             entity.turn.cooldown = null;
+                //         }
+                //     }
+                // }
                 if(hasTurn(entity)) {
-                    if(now - entity.turn.timeout >= this.config.GCD) {
+                    if(now - (entity.turn.timeout || 0) >= this.config.GCD) {
                         entity.turn.current(entity);
                         entity.turn.timeout = now;
                     }
@@ -155,7 +166,7 @@ export default class Game extends AgencyLocal.Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.register(World.CreateRandom(game, 25, 25, 50), "overworld");
+            game.world.register(World.CreateRandom(game, 25, 25, 0), "overworld");
             game.world.register(World.CreateRandom(game, 25, 25, 0), "arena");
 
             game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15, y: 15 }));
