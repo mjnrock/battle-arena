@@ -148,8 +148,9 @@ export default class Game extends AgencyLocal.Watcher {
         for(let world of this.world) {
             for(let entity of world.entities) {
                 if(hasMovement(entity)) {       //* Calculate new positions based on velocities
-                    entity.position.x += entity.position.vx * dt;
-                    entity.position.y += entity.position.vy * dt;
+                    // entity.position.x += entity.position.vx * dt;
+                    // entity.position.y += entity.position.vy * dt;
+                    entity.position.applyVelocity(dt);
                 }
             }
         }
