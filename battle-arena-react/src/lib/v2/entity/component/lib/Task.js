@@ -8,7 +8,7 @@ export class Task {
     }
 
     cooldown() {
-        return new Cooldown(this.__cooldown);
+        return new Cooldown(this.__cooldown || 0);
     }
 
     perform(game, entity, ...args) {
@@ -19,5 +19,15 @@ export class Task {
         }
     }
 };
+
+export function Create({ executer, activator, cooldown } = {}) {
+    return new Task({ executer, activator, cooldown });
+};
+export function Perform(obj = {}, game, entity, ...args) {
+    return (new Task(obj)).perform(game, entity, ...args);
+};
+
+Task.Create = Create;
+Task.Perform = Perform;
 
 export default Task;

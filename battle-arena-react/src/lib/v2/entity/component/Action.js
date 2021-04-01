@@ -8,6 +8,11 @@ import Path from "./../../util/Path";
 
 const Repository = {
     MOVE: {
+        Persist: {
+            executer: () => {
+                console.log("Yup");
+            }
+        },
         RandomPath: {
             activator: (game, entity) => !entity.world.wayfinder.hasPath || entity.world.wayfinder.isCurrentDestination(entity.world),
             executer: (game, entity) => {
@@ -31,12 +36,12 @@ const Repository = {
 export class Action extends Component {
     static Name = "action";
     static DefaultProperties = () => ({
-        current: null,
+        current: () => Repository.MOVE.RandomPath,
         cooldown: null,
         ai: null,
         actions: {},
         queue: new Set(),
-        throttle: null,
+        throttle: () => (dt) => Agency.Util.Dice.permille(0.15 * dt),
     });
 
     constructor(game, entity, state = {}) {
@@ -44,15 +49,19 @@ export class Action extends Component {
             ...Action.DefaultProperties(),
             ...state,
         });
-
-        this.current = Repository.MOVE.RandomPath;
-        this.throttle = (dt) => Agency.Util.Dice.permille(0.15 * dt);
     }
 
     onTick(dt, now) {
         if(!this.cooldown) {
             if(this.throttle(dt, now) === true) {
-                this.cooldown = (new Task(this.current)).perform(this.game, this.entity);
+                //STUB
+                if(Agency.Util.Dice.coin()) {
+                    this.current = Repository.MOVE.Persist;
+                } else {
+                    this.current = Repository.MOVE.RandomPath;
+                }
+
+                this.cooldown = Task.Perform(this.current, this.game, this.entity);
             }
         } else if(this.cooldown.isComplete) {
             this.cooldown = null;
