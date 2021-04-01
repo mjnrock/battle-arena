@@ -294,6 +294,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
         [ componentHealth, { current: () => Agency.Util.Dice.d10(), max: 10 } ],
         [ componentTurn, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
             if(!entity.world.wayfinder.hasPath && Agency.Util.Dice.percento(0.10)) {
+                //FIXME Make the max distance restricted to entity.world.range
                 const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
                 const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
 

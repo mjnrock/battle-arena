@@ -55,10 +55,6 @@ export class World extends Component {
 
     //     this.wayfinder.set(path);
     // }
-
-    static Has(entity) {
-        return World.Name in entity;
-    }
 };
 
 export default World;

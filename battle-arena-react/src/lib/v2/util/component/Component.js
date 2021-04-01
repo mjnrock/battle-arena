@@ -36,6 +36,10 @@ export class Component extends Agency.Event.Emitter {
     get entity() {
         return this.__entity;
     }
+
+    static Has(entity) {
+        return this.Name in entity;     // @this is the constructor in static methods and *does* appropriately descend to ancestors
+    }
 }
 
 export function FromSchema(game, entity, schema, argObj = {}) {
