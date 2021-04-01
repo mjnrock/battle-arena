@@ -65,8 +65,8 @@ export function drawMouseHighlighter() {
 export function drawPlayerPath() {
     this.save();
         const entity = this.game.players.player;
-        for(let i = 0; i < entity.movement.wayfinder.paths.length; i++) {
-            const path = entity.movement.wayfinder.paths[ i ];
+        for(let i = 0; i < entity.world.wayfinder.paths.length; i++) {
+            const path = entity.world.wayfinder.paths[ i ];
 
             if(path) {
                 const steps = path.remaining || [];
@@ -99,8 +99,8 @@ export function drawPlayerPath() {
 };
 export function drawMovementPath(entity) {
     this.save();
-        for(let i = 0; i < entity.movement.wayfinder.paths.length; i++) {
-            const path = entity.movement.wayfinder.paths[ i ];
+        for(let i = 0; i < entity.world.wayfinder.paths.length; i++) {
+            const path = entity.world.wayfinder.paths[ i ];
 
             if(path) {
                 const steps = path.remaining || [];
