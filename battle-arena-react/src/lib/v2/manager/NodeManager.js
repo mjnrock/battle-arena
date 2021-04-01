@@ -111,6 +111,19 @@ export class NodeManager extends Agency.Event.Network {
         return this.nodes.get(...pos);
     }
 
+    clearCache() {
+        this._cache = new WeakMap();
+
+        return this;
+    }
+    clearOccupants() {
+        for(let node of this.nodes.toLeaf({ flatten: true })) {
+            node.clearOccupants();
+        }
+
+        return this;
+    }
+
     /**
      * If [@centered=true], then consider @w and @h as radii
      */

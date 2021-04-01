@@ -15,6 +15,7 @@ import componentHealth from "./data/entity/components/health";
 import componentTerrain, { DictTerrain } from "./data/entity/components/terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
 import EntityManager from "./manager/EntityManager";
+import Entity from "./Entity";
 
 export class World extends Agency.Event.Emitter {
     static Events = [
@@ -27,19 +28,17 @@ export class World extends Agency.Event.Emitter {
 
         this.__id = uuidv4();
         this.__game = game;
+        this.__config = {
+            ...config,
+
+            spawn: config.spawn || [ 0, 0 ],
+        };
 
         this.size = size;
         this._nodes = new NodeManager(this.size);
         this._nodes.join(this);
 
         this._entities = new EntityManager(this.game, entities);
-        this._terrain = new EntityManager(this.game);
-
-        this._config = {
-            ...config,
-
-            spawn: config.spawn || [ 0, 0 ],
-        };
 
         for(let [ x, y, portal ] of portals) {
             this.openPortal(x, y, portal);
@@ -62,32 +61,57 @@ export class World extends Agency.Event.Emitter {
         ]);
     }
 
+    [ Symbol.iterator ]() {
+        var index = -1;
+        var data = this._nodes._nodes.toLeaf({ flatten: true });
+
+        return {
+            next: () => ({ value: data[ ++index ], done: !(index in data) })
+        };
+    }
+
     get id() {
         return this.__id;
     }
     get game() {
         return this.__game;
+    }    
+    get config() {
+        return this.__config;
     }
 
     get nodes() {
         return this._nodes;
     }
-    get entities() {
-        return this._entities;
-        // return this._entities.emitters;
-    }
-    get terrain() {
-        return this._terrain;
-        // return this._entities.emitters;
-    }
     get subnodes() {
         return this._nodes.nodes;
     }
-    get overworld() {
-        return this._overworld;
+
+    get entities() {
+        return this._entities;
     }
-    get config() {
-        return this._config;
+    set entities(entityMgr) {
+        this.resetEntities();
+
+        if(entityMgr instanceof EntityManager) {
+            this._entities = entityMgr;
+
+            for(let entity of this._entities) {
+                this.joinWorld(entity);
+            }
+        }
+
+        return this;
+    }
+    resetEntities() {
+        for(let entity of this._entities) {
+            this.leaveWorld(entity);
+        }
+
+        this.nodes.clearCache();
+        this.nodes.clearOccupants();
+
+        return this;
     }
 
     get width() {
@@ -102,7 +126,6 @@ export class World extends Agency.Event.Emitter {
 
     joinWorld(entity, ...synonyms) {
         this._entities.register(entity, ...synonyms);
-        // this._entities.join(entity, ...synonyms)
 
         this._nodes.move(entity);
 
@@ -112,7 +135,6 @@ export class World extends Agency.Event.Emitter {
     }
     leaveWorld(entity) {
         this._entities.unregister(entity);
-        // this._entities.join(entity);
 
         if(this._nodes.remove(entity)) {
             this.$.emit("leave", this, entity);
@@ -148,7 +170,7 @@ export class World extends Agency.Event.Emitter {
 
 
     setSpawnPoint(...pos) {
-        this._config.spawn = pos;
+        this.__config.spawn = pos;
 
         return this;
     }
@@ -193,17 +215,38 @@ export class World extends Agency.Event.Emitter {
     }
 
     cost(x, y) {
-        const entity = this.terrain[ `${ x },${ y }`];
+        const node = this.nodes.node(x, y);
 
-        if(entity) {
-            return entity.terrain.cost;
+        if(node) {
+            const entity = node.terrain;
+
+            if(entity) {
+                return entity.terrain.cost;
+            }
         }
 
         return false;
     }
 
     getTerrain(x, y) {
-        return this.terrain[ `${ x },${ y }`];
+        const node = this.nodes.node(x, y);
+
+        if(node) {
+            return node.terrain;
+        }
+
+        return false;
+    }
+    setTerrain(x, y, terrain) {
+        const node = this.nodes.node(x, y);
+
+        if(node) {
+            node._terrain = terrain;
+
+            return true;
+        }
+
+        return false;
     }
 };
 
@@ -212,11 +255,16 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
 
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
-            world.terrain.create([
+            const terrain = Entity.FromSchema(game, [
                 [ componentTerrain, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT ],
                 [ componentPosition, { x, y, facing: 0 } ],
                 [ componentTurn, { timeout: 0 } ],
-            ], `${ x },${ y }`);
+            ]);
+
+            const node = world._nodes.node(x, y);
+            if(node instanceof Node) {
+                node._terrain = terrain;                
+            }
         }
     }
 

@@ -106,6 +106,12 @@ export class Node extends Agency.Event.Emitter {
 
         return false;
     }
+
+    clearOccupants() {
+        this._occupants = new Set();
+
+        return this;
+    }
 };
 
 export default Node;
