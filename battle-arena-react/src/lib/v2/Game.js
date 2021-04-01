@@ -66,22 +66,22 @@ export default class Game extends AgencyLocal.Watcher {
     onPreTick(spf, now) {
         for(let world of this.world) {
             for(let entity of world.entities) {
-                // if(hasTurn(entity)) {
-                //     if(!entity.turn.cooldown) {
-                //         entity.turn.current(entity);
-                //         entity.turn.cooldown = new Cooldown(this.config.GCD);
-                //     } else {
-                //         if(entity.turn.cooldown.isComplete) {
-                //             entity.turn.cooldown = null;
-                //         }
-                //     }
-                // }
                 if(hasTurn(entity)) {
-                    if(now - (entity.turn.timeout || 0) >= this.config.GCD) {
+                    if(!entity.turn.cooldown) {
                         entity.turn.current(entity);
-                        entity.turn.timeout = now;
+                        entity.turn.cooldown = new Cooldown(this.config.GCD * (Math.random() * 3));
+                    } else {
+                        if(entity.turn.cooldown.isComplete) {
+                            entity.turn.cooldown = null;
+                        }
                     }
                 }
+                // if(hasTurn(entity)) {
+                //     if(now - (entity.turn.timeout || 0) >= this.config.GCD) {
+                //         entity.turn.current(entity);
+                //         entity.turn.timeout = now;
+                //     }
+                // }
 
                 world.nodes.move(entity);
 
@@ -166,7 +166,7 @@ export default class Game extends AgencyLocal.Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.register(World.CreateRandom(game, 25, 25, 0), "overworld");
+            game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
             game.world.register(World.CreateRandom(game, 25, 25, 0), "arena");
 
             game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15, y: 15 }));

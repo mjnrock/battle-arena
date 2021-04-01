@@ -106,36 +106,38 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
             return;
         }
 
-        const prog = ((Date.now() - entity.turn.cooldown) % this.game.config.GCD) / this.game.config.GCD;      // % this.game.config.GCD hides information and should only be used for testing
-            
+        
         if(this.game.config.SHOW_UI) {
             let frameWidth = this.tw;
             
-            // //? Draw Pie Timer
-            let color = `rgba(95, 160, 80, 0.75)`;
-            if(prog >= 0.80) {
-                color = `rgba(196, 74, 74, 0.75)`;
-            } else if(prog >= 0.55) {
-                color = `rgba(201, 199, 72, 0.75)`;
+            const prog = entity.turn.cooldown ? entity.turn.cooldown.progress : null;      // % this.game.config.GCD hides information and should only be used for testing
+            if(prog != null) {
+                // //? Draw Pie Timer
+                let color = `rgba(95, 160, 80, 0.75)`;
+                if(prog >= 0.80) {
+                    color = `rgba(196, 74, 74, 0.75)`;
+                } else if(prog >= 0.55) {
+                    color = `rgba(201, 199, 72, 0.75)`;
+                }
+                this.save();
+                    this.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
+                        entity.position.x * this.tw + frameWidth / 2,
+                        entity.position.y * this.th - this.th / 2,
+                        6,
+                        { isFilled: true },
+                    );
+                this.restore();
+                this.save();
+                    this.prop({ fillStyle: color, strokeStyle: `rgba(0, 0, 0, 0.35)` }).pie(
+                        entity.position.x * this.tw + frameWidth / 2,
+                        entity.position.y * this.th - this.th / 2,
+                        5,
+                        0,
+                        prog * Math.PI * 2,
+                        { isFilled: true, counterClockwise: true },
+                    );
+                this.restore();
             }
-            this.save();
-                this.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
-                    entity.position.x * this.tw + frameWidth / 2,
-                    entity.position.y * this.th - this.th / 2,
-                    6,
-                    { isFilled: true },
-                );
-            this.restore();
-            this.save();
-                this.prop({ fillStyle: color, strokeStyle: `rgba(0, 0, 0, 0.35)` }).pie(
-                    entity.position.x * this.tw + frameWidth / 2,
-                    entity.position.y * this.th - this.th / 2,
-                    5,
-                    0,
-                    prog * Math.PI * 2,
-                    { isFilled: true, counterClockwise: true },
-                );
-            this.restore();
             
             // //? Draw Health bar
             let hp = `rgba(95, 160, 80, 0.75)`;

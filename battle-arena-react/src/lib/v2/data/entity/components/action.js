@@ -1,4 +1,4 @@
-import World from "../../../World";
+import Path from "./../../../util/Path";
 
 //! Component Schemas should always be functions
 const _name = "action";
@@ -8,16 +8,11 @@ export const schema = {
         actions: actions || {
             MOVE: {
                 label: "Move",
-                list: {
-                    nudge: (game, entity, dx, dy) => {
-                        entity.position.x += dx;
-                        entity.position.y += dy;
-                    },
-                    move: (game, entity, nx, ny) => {
-                        entity.position.x = nx;
-                        entity.position.y = ny;
-                    },
-                }
+                list: {}
+            },
+            CAST: {
+                label: "Cast",
+                list: {}
             },
         },
         ...rest,
