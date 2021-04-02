@@ -1,5 +1,4 @@
 import Agency from "@lespantsfancy/agency";
-import Health from "./Health";
 
 export class ComponentPackage {
     constructor(...props) {

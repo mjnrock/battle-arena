@@ -1,11 +1,9 @@
-import Agency from "@lespantsfancy/agency";
+// import Agency from "@lespantsfancy/agency";
 import AgencyLocal from "./util/agency/package";
 
 //STUB START "Imports" for stub below
     import World from "./World";
-    import RenderLayer from "./render/RenderLayer";
     import RenderManager from "./manager/RenderManager";
-    import findPath from "./util/AStar";
 
     import initImageRepository from "./data/render/repository";
     import { loadEntity, loadTerrain } from "./data/render/entity";
@@ -13,18 +11,15 @@ import AgencyLocal from "./util/agency/package";
     import drawEntityLayer from "./data/render/world-entity-layer";
     import drawTerrainLayer from "./data/render/world-terrain-layer";
     import drawUILayer from "./data/render/world-ui-layer";
-    
-    import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
 import WorldManager from "./manager/WorldManager";
 import PlayerManager from "./manager/PlayerManager";
 import Entity from "./entity/Entity";
 import Path from "./util/Path";
-import Helper from "./util/helper";
 import GameLoop from "./GameLoop";
 import Portal from "./util/Portal";
-import Cooldown from "./util/Cooldown";
-import Action from "./entity/component/Action";
-import Health from "./entity/component/Health";
+
+
+import { EnumEntityType } from "./entity/component/Meta";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
@@ -104,7 +99,7 @@ export default class Game extends AgencyLocal.Watcher {
             game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15, y: 15 }));
 
             const player = Entity.FromSchema(game, [
-                [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
+                [ { meta: null }, { type: EnumEntityType.SQUIRREL } ],
                 //FIXME Entity.FromSchema gets the key from args[ 0 ] during the transition
                 [ { world: null }, { x: 4, y: 7 } ],
                 [ { health: null }, { args: { current: 10, max: 10 } } ],

@@ -5,7 +5,6 @@ export class Health extends Component {
     static Name = "health";
     static DefaultProperties = () => ({
         value: null,
-        cat: null,
     });
 
     constructor(game, entity, state = {}) {

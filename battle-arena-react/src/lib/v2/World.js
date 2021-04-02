@@ -1,18 +1,17 @@
-import EventEmitter from "events";
 import Agency from "@lespantsfancy/agency";
 import { v4 as uuidv4 } from "uuid";
 
 import Node from "./util/Node";
 import NodeManager from "./manager/NodeManager"
 import Portal from "./util/Portal";
-import Path from "./util/Path";
 
-import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
-import Health from "./entity/component/Health";
 import { DictTerrain } from "./entity/component/Terrain";
 import { CalculateEdgeMasks } from "./data/render/edges";
 import EntityManager from "./manager/EntityManager";
 import Entity from "./entity/Entity";
+
+import { EnumEntityType } from "./entity/component/Meta";
+// import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
 
 export class World extends Agency.Event.Emitter {
     static Events = [
@@ -293,7 +292,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
     CalculateEdgeMasks(world);
 
     const entities = world.entities.createMany(enemyCount, [
-        [ componentMeta, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
+        [ { meta: null }, { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY } ],
         [ { world: null }, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ { health: null }, { args: { current: () => Agency.Util.Dice.d10(), max: 10 } } ],
         [ { action: null}, {} ],
