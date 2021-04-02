@@ -7,6 +7,15 @@ import Task from "./lib/Task";
 import Path from "./../../util/Path";
 
 const Repository = {
+    AI: {
+        Test: function(game, entity) {
+            if(Agency.Util.Dice.coin()) {
+                this.current = Repository.MOVE.Persist;
+            } else {
+                this.current = Repository.MOVE.RandomPath;
+            }
+        },
+    },
     MOVE: {
         Persist: {
             executer: () => {
@@ -36,11 +45,11 @@ const Repository = {
 export class Action extends Component {
     static Name = "action";
     static DefaultProperties = () => ({
-        current: () => Repository.MOVE.RandomPath,
-        cooldown: null,
-        ai: null,
+        current: null,
+        ai: () => Repository.AI.Test,
         actions: {},
         queue: new Set(),
+        cooldown: null,
         throttle: () => (dt) => Agency.Util.Dice.permille(0.15 * dt),
     });
 
@@ -54,12 +63,7 @@ export class Action extends Component {
     onTick(dt, now) {
         if(!this.cooldown) {
             if(this.throttle(dt, now) === true) {
-                //STUB
-                if(Agency.Util.Dice.coin()) {
-                    this.current = Repository.MOVE.Persist;
-                } else {
-                    this.current = Repository.MOVE.RandomPath;
-                }
+                this.ai.call(this, this.game, this.entity);
 
                 this.cooldown = Task.Perform(this.current, this.game, this.entity);
             }
