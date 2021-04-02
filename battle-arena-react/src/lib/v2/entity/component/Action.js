@@ -50,7 +50,7 @@ export class Action extends Component {
         actions: {},
         queue: new Set(),
         cooldown: null,
-        throttle: () => (dt) => Agency.Util.Dice.permille(0.15 * dt),
+        throttle: () => (dt) => Agency.Util.Dice.permille(1.0 * dt),
     });
 
     constructor(game, entity, state = {}) {
