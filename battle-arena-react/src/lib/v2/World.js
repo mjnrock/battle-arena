@@ -66,6 +66,12 @@ export class World extends Agency.Event.Emitter {
                     portal.world.joinWorld(entity);
                 }
             }],
+            [ "interaction", (actor, target) => {
+                if(actor instanceof Entity && target instanceof Entity) {
+                    //TODO  Perform an interaction
+                    console.log(actor.meta.type, target.meta.type)
+                }
+            }],
         ]);
     }
 
@@ -275,6 +281,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
             const terrain = Entity.FromSchema(game, [
+                [ { meta: null }, { type: EnumEntityType.TERRAIN } ],
                 [ { terrain: null }, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT],
                 [ { world: null }, { x, y, facing: 0 } ],
             ]);
@@ -294,22 +301,6 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
         [ { world: null }, { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 } ],
         [ { health: null }, { args: { current: () => Agency.Util.Dice.d10(), max: 10 } } ],
         [ { action: null}, {} ],
-        // [ { action: null}, { timeout: () => Agency.Util.Dice.random(0, 2499), current: () => (entity) => {
-        //     if(!entity.world.wayfinder.hasPath && Agency.Util.Dice.percento(0.10)) {
-        //         //FIXME Make the max distance restricted to entity.world.range
-        //         const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
-        //         const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
-
-        //         entity.world.wayfinder.set(path);
-        //     } else if(entity.world.wayfinder.hasPath ) {
-        //         if(entity.world.wayfinder.isCurrentDestination(entity.world)) {
-        //             const [ tx, ty ] = [ Agency.Util.Dice.random(0, world.width - 1), Agency.Util.Dice.random(0, world.height - 1) ];
-        //             const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
-    
-        //             entity.world.wayfinder.set(path);
-        //         }
-        //     }
-        // }} ],
     ], (i) => `enemy-${ i }`);
 
     entities.forEach(entity => {

@@ -1,6 +1,8 @@
 import Component from "./Component";
 
 export const EnumEntityType = {
+    TERRAIN: "terrain",
+
     SQUIRREL: "squirrel",
     BUNNY: "bunny",
     BEAR: "bear",

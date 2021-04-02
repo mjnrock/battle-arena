@@ -43,6 +43,10 @@ const Repository = {
 }
 
 export class Action extends Component {
+    static Events = [
+        "interaction",
+    ];
+
     static Name = "action";
     static DefaultProperties = () => ({
         current: null,
@@ -73,7 +77,8 @@ export class Action extends Component {
         const now = Date.now();
 
         return (now - this.interaction) <= this.game.config.time.interaction;
-    }
+    }    
+    static IsInteracting = entity => this.Has(entity) && entity.action.isInteracting;
 
     onTick(dt, now) {
         if(!this.cooldown) {

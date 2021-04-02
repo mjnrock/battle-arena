@@ -1,4 +1,5 @@
 import Agency from "@lespantsfancy/agency";
+import Entity from "../entity/Entity";
 
 export class Node extends Agency.Event.Emitter {
     static Events = [
@@ -19,6 +20,19 @@ export class Node extends Agency.Event.Emitter {
         this._frequency = frequency;
         this._value = value;
         this._clearance = clearance;
+        
+        this.addHandler("interaction", (actor, target) => {
+            if(target == null) {
+                for(let entity of [ ...this.occupants, this.terrain ]) {
+                    if(entity !== actor) {
+                        this.$.emit("interaction", actor, entity);
+                        break;  // Allow only one interaction
+                    }
+                }
+
+                this.portal(actor);
+            }
+        });
     }
 
     get coords() {
@@ -104,6 +118,8 @@ export class Node extends Agency.Event.Emitter {
 
             this.$.emit("join", this, entity);
 
+            entity.addSubscriber(this);
+
             this.portal(entity);
 
             return true;
@@ -113,6 +129,8 @@ export class Node extends Agency.Event.Emitter {
     }
     leave(entity) {
         if(this._occupants.delete(entity)) {
+            entity.removeSubscriber(this);
+
             this.$.emit("leave", this, entity);
 
             return true;

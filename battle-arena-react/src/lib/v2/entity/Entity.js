@@ -13,17 +13,15 @@ export class Entity extends Agency.Event.Network {
         
         this.__game = game;
 
-        this.addHandler("interaction", function(...args) {
-            console.log(this.provenance);
-            console.log(...args);
-        });
-        this.addSubscriber((...args) => console.log(...args));
+        this.__relay = function(...args) {
+            return this.type === "interaction";
+        }
 
         return new Proxy(this, {
             set(target, prop, value) {
                 if(value == null && target[ prop ] instanceof Component) {
                     target.leave(target[ prop ]);
-                } else if(prop === "action" && value instanceof Component) {
+                } else if(value instanceof Component) {
                     target.join(value);
                 }
 

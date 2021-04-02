@@ -32,6 +32,11 @@ export class NodeManager extends Agency.Event.Network {
                 }
             }],
         ]);
+
+        this.__relay = function(...args) {
+            return this.type === "portal"
+                || this.type === "interaction";
+        }
     }
 
     get extractor() {
