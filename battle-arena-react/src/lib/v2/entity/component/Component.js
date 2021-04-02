@@ -1,11 +1,5 @@
 import Agency from "@lespantsfancy/agency";
 
-export class ComponentPackage {
-    constructor(...props) {
-        this.props = props;
-    }
-}
-
 export class Component extends Agency.Event.Emitter {
     static Name = "component";
     static DefaultProperties = () => ({});

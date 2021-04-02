@@ -1,4 +1,5 @@
-import { v4 as uuidv4 } from "uuid";
+import Agency from "@lespantsfancy/agency";
+
 import Terrain from "./component/Terrain";
 import World from "./component/World";
 import Action from "./component/Action";
@@ -6,10 +7,36 @@ import Component from "./component/Component";
 import Health from "./component/Health";
 import Meta from "./component/Meta";
 
-export class Entity {
+export class Entity extends Agency.Event.Network {
     constructor(game) {
-        this.__id = uuidv4();
+        super();
+        
         this.__game = game;
+
+        this.addHandler("interaction", function(...args) {
+            console.log(this.provenance);
+            console.log(...args);
+        });
+        this.addSubscriber((...args) => console.log(...args));
+
+        return new Proxy(this, {
+            set(target, prop, value) {
+                if(value == null && target[ prop ] instanceof Component) {
+                    target.leave(target[ prop ]);
+                } else if(prop === "action" && value instanceof Component) {
+                    target.join(value);
+                }
+
+                return Reflect.set(target, prop, value);
+            },
+            deleteProperty(target, prop) {
+                if(target[ prop ] instanceof Component) {
+                    target.leave(target[ prop ]);
+                }
+
+                return Reflect.deleteProperty(target, prop);
+            },
+        });
     }
 
     [ Symbol.iterator ]() {
@@ -27,9 +54,6 @@ export class Entity {
         };
     }
 
-    get id() {
-        return this.__id;
-    }
     get game() {
         return this.__game;
     }

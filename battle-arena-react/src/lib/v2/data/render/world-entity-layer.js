@@ -34,7 +34,7 @@ export async function drawAnimationFrameEntity(dt, now, entity) {
         }
         
         if(this.game.config.SHOW_UI) {            
-            const prog = entity.action.cooldown ? entity.action.cooldown.progress : null;      // % this.game.config.GCD hides information and should only be used for testing
+            const prog = entity.action.cooldown ? entity.action.cooldown.progress : null;
             if(prog != null && prog <= 1) {
                 // //? Draw Pie Timer
                 let color = `rgba(95, 160, 80, 0.75)`;

@@ -9,6 +9,7 @@ import AgencyLocal from "./util/agency/package";
     import PlayerManager from "./manager/PlayerManager";
     import Entity from "./entity/Entity";
     import { EnumEntityType } from "./entity/component/Meta";
+    import Action from "./entity/component/Action";
 
     import Path from "./util/Path";
     import Portal from "./util/Portal";
@@ -29,7 +30,10 @@ export default class Game extends AgencyLocal.Watcher {
         this.players = new PlayerManager();
 
         this.config = {
-            GCD,
+            time: {
+                GCD,
+                interaction: 500,
+            },
             render: {
                 tile: {
                     width: 32,
@@ -93,8 +97,8 @@ export default class Game extends AgencyLocal.Watcher {
             game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
             game.world.register(World.CreateRandom(game, 25, 25, 0), "arena");
 
-            game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15, y: 15 }));
-            game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15, y: 15 }));
+            game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15, y: 15, activator: entity => Action.Has(entity) && entity.action.isInteracting }));
+            game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15, y: 15, activator: entity => Action.Has(entity) && entity.action.isInteracting }));
 
             const player = Entity.FromSchema(game, [
                 [ { meta: null }, { type: EnumEntityType.SQUIRREL } ],
@@ -135,8 +139,10 @@ export default class Game extends AgencyLocal.Watcher {
                 window.onkeypress = e => {
                     e.preventDefault();
 
-                    if(e.key === "v") {
+                    if(e.code === "KeyV") {
                         game.config.SHOW_UI = !game.config.SHOW_UI;
+                    } else if(e.code === "Space") {
+                        game.players.player.action.interact();
                     }
                 };
                 game.render.__handler.$.subscribe((type, entry) => {

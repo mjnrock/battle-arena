@@ -51,6 +51,7 @@ export class Action extends Component {
         actions: {},
         queue: new Set(),
         cooldown: null,
+        interaction: 0,
         throttle: () => (dt) => Agency.Util.Dice.permille(1.0 * dt),    // Determines how frequently a decision should be made, if possible.  (1.0 * dt ~= 1 choice/second, or @24fps ~4% per tick)
     });
 
@@ -59,6 +60,19 @@ export class Action extends Component {
             ...Action.DefaultProperties(),
             ...state,
         });
+    }
+
+    interact() {
+        this.interaction = Date.now();
+
+        this.$.emit("interaction", this.entity);
+
+        return this;
+    }
+    get isInteracting() {
+        const now = Date.now();
+
+        return (now - this.interaction) <= this.game.config.time.interaction;
     }
 
     onTick(dt, now) {

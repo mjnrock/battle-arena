@@ -277,7 +277,6 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
             const terrain = Entity.FromSchema(game, [
                 [ { terrain: null }, Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT],
                 [ { world: null }, { x, y, facing: 0 } ],
-                [ { action: null}, {} ],
             ]);
 
             const node = world._nodes.node(x, y);

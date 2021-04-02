@@ -1,6 +1,5 @@
 // import Agency from "@lespantsfancy/agency";
 
-// import { hasPosition } from "../data/entity/components/position";
 import World from "./../World";
 
 export class Portal {
@@ -58,18 +57,8 @@ export class Portal {
         }
     }
 
-    // activate(worldManager, entity) {
     activate(entity) {
         return this.activator(entity);
-
-        // if(hasPosition(entity) && this.activator(entity) === true) {
-        // if(this.activator(entity) === true) {
-        //     this.world.join(entity);
-
-        //     return true;
-        // }
-
-        // return false;
     }
 };
 
