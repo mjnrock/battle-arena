@@ -33,7 +33,7 @@ export class World extends Component {
         const world = this.getCurrentWorld();
 
         if(world instanceof MapWorld) {
-            return world.node(this.x, this.y);
+            return world.node(~~this.x, ~~this.y);
         }
     }
 

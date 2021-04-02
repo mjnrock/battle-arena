@@ -12,7 +12,7 @@ const Repository = {
         Test: function(game, entity, data) {
             //? Attempt any portals at current node
             const node = entity.world.getCurrentNode() || {};
-            if(node.hasPortals && !this.cooldown) {
+            if(node.hasPortals) {
                 entity.action.interact();
             }
 

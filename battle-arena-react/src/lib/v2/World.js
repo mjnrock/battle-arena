@@ -59,19 +59,24 @@ export class World extends Agency.Event.Emitter {
             }],
             [ "portal", (portal, entity) => {
                 if(portal instanceof Portal) {
-                    this.leaveWorld(entity);
+                    //NOTE  Node handler for "interaction" can emit "portal", and if it does, both the portal
+                    //      node AND the teleportation node end up receiving the same event.  This setTimeout
+                    //      stops that, by forcing the Node transitions to happen (slightly) later.
+                    setTimeout(() => {
+                        this.leaveWorld(entity);
 
-                    entity.world.x = portal.x;
-                    entity.world.y = portal.y;
-                    portal.world.joinWorld(entity);
+                        entity.world.x = portal.x;
+                        entity.world.y = portal.y;
+                        portal.world.joinWorld(entity);
+                    }, 0);
                 }
             }],
-            // [ "contact", (actor, target) => {
-            //     if(actor instanceof Entity && target instanceof Entity) {
-            //         //TODO  Perform an interaction
-            //         console.log(actor.meta.type, target.meta.type)
-            //     }
-            // }],
+            [ "contact", (actor, target) => {
+                if(actor instanceof Entity && target instanceof Entity) {
+                    //TODO  Perform an interaction
+                    console.log(actor.meta.type, target.meta.type, target.world.x, target.world.y)
+                }
+            }],
         ]);
     }
 
@@ -202,9 +207,13 @@ export class World extends Agency.Event.Emitter {
 
     node(x, y) {
         return this.nodes.node(
-            Agency.Util.Helper.round(x, 1),
-            Agency.Util.Helper.round(y, 1),
+            ~~x,
+            ~~y,
         );
+        // return this.nodes.node(
+        //     Agency.Util.Helper.round(x, 1),
+        //     Agency.Util.Helper.round(y, 1),
+        // );
     }
     
     adjacent(x, y, addDiagonals = false) {
@@ -288,7 +297,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
 
             const node = world._nodes.node(x, y);
             if(node instanceof Node) {
-                node._terrain = terrain;                
+                node._terrain = terrain;   
             }
         }
     }

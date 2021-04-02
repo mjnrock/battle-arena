@@ -1,5 +1,5 @@
 import Agency from "@lespantsfancy/agency";
-import Entity from "../entity/Entity";
+import Game from "../Game";
 
 export class Node extends Agency.Event.Emitter {
     static Events = [
@@ -27,7 +27,8 @@ export class Node extends Agency.Event.Emitter {
                 for(let target of [ this.terrain, ...this.occupants ].reverse()) {
                     if(target !== entity) {
                         this.$.emit("contact", entity, target);
-                        return;  // Allow only one interaction--choose most recent entity addition first, terrain last
+
+                        return;    // Allow only one interaction--choose most recent entity addition first, terrain last
                     }
                 }
             }
@@ -97,13 +98,10 @@ export class Node extends Agency.Event.Emitter {
         return [ this.x, this.y ];
     }
     
-    /**
-     * Async/await is necessary to prevent incorret results, such as in the "interaction" handler--it will cause a portal activation AND a tile interaction without it, due to a false << false >> being returned.
-     */
-    async portal(entity) {
+    portal(entity) {
         for(let portal of this.portals) {
             if(portal.activate(entity)) {
-                await this.$.emit("portal", portal, entity);
+                this.$.emit("portal", portal, entity);
 
                 return true;
             }
@@ -123,8 +121,6 @@ export class Node extends Agency.Event.Emitter {
             this.$.emit("join", this, entity);
 
             entity.addSubscriber(this);
-
-            this.portal(entity);
 
             return true;
         }
