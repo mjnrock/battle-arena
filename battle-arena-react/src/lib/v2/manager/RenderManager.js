@@ -35,8 +35,15 @@ export class RenderManager extends LayeredCanvas {
         return Reflect.set(this, "_canvas", canvas);
     }
 
+    //FIXME Determine if the RenderManager should have its own "current world" or if it should just use game.world.current
+    //STUB  This is a partial stub for "world-terrain-layer > .drawAnimationFrame"
     get current() {
         return this.__current;
+    }
+    set current(world) {
+        this.__current = world;
+
+        return this;
     }
 
     async loadImages(fn, ...args) {
