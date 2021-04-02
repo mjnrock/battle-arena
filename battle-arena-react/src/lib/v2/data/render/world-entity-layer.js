@@ -7,19 +7,19 @@ export function comparator(data = {}, oldData = {}) {
         || !(data.x === oldData.x && data.y === oldData.y);
 }
 
-export async function drawAnimationFrame(dt, elapsed) {
+export async function drawAnimationFrame(dt, now) {
     //STUB  This should be performed at the <RenderManager> response to a <World> swap
     [ this.width, this.height ] = [ this.game.render.width, this.game.render.height ];
 
     for(let entity of this.game.world.current.entities) {
-        drawAnimationFrameEntity.call(this, dt, elapsed, entity);
+        drawAnimationFrameEntity.call(this, dt, now, entity);
     }
 
-    this.__hooks.forEach(fn => fn.call(this, dt, elapsed));
+    this.__hooks.forEach(fn => fn.call(this, dt, now));
 
     return this;
 };
-export async function drawAnimationFrameEntity(dt, elapsed, entity) {
+export async function drawAnimationFrameEntity(dt, now, entity) {
     //STUB  Dynamically add <Sprite(s)> // const sprite = new SpriteStack([ this.sprite({ entity: entity }), this.sprite({ entity: this.game.world.current.entities[ `player` ] }) ]);
     const spriteSheet = this.game.render.sprite("entity", { entity: entity });
 
@@ -27,7 +27,7 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
         let [ frameWidth, frameHeight ] = [ this.tw, this.th ];
         const { x, y } = entity.world;
 
-        spriteSheet.paint(0, elapsed, this.canvas, x * frameWidth, y * frameHeight);
+        spriteSheet.paint(0, now, this.canvas, x * frameWidth, y * frameHeight);
 
         if(!Action.Has(entity)) {
             return;

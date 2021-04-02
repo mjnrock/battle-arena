@@ -8,6 +8,7 @@ export default class GameLoop {
             .setDraw(this.onDraw)
             .setSimulationTimestep(1000 / fps);
 
+        this.__start = null;
         this.__lastUpdate = null;
         this.__lastDraw = null;
     }
@@ -20,11 +21,13 @@ export default class GameLoop {
     }
 
     start() {
+        this.__start = Date.now();
         this.mainLoop.start();
 
         return this;
     }
     stop() {
+        this.__start = null;
         this.mainLoop.stop();
 
         return this;

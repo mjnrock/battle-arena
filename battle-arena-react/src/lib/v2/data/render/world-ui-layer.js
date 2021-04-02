@@ -1,4 +1,4 @@
-export async function drawAnimationFrame(dt, elapsed) {
+export async function drawAnimationFrame(dt, now) {
     //STUB  This should be performed at the <RenderManager> response to a <World> swap
     [ this.width, this.height ] = [ this.game.render.width, this.game.render.height ];
 

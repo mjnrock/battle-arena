@@ -126,6 +126,7 @@ export default class Game extends AgencyLocal.Watcher {
                     th: game.config.render.tile.height,
                     repository: initImageRepository()
                 });
+                game.render.config.clearBeforeDraw = true;
 
                 //  Load Images
                 await game.render.loadImages(loadEntity);

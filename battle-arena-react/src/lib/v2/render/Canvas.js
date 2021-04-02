@@ -5,6 +5,7 @@ import Animator from "./Animator";
 export default class Canvas {
     constructor({ canvas, width = 300, height = 150, drawAnimationFrame, props = {} } = {}) {
         this.config = {
+            clearBeforeDraw: false,
             normalization: {
                 arc: -Math.PI / 4,
             }
