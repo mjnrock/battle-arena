@@ -1,17 +1,16 @@
 import Agency from "@lespantsfancy/agency";
 import { v4 as uuidv4 } from "uuid";
 
-import Node from "./util/Node";
 import NodeManager from "./manager/NodeManager"
-import Portal from "./util/Portal";
-
-import { DictTerrain } from "./entity/component/Terrain";
-import { CalculateEdgeMasks } from "./data/render/edges";
 import EntityManager from "./manager/EntityManager";
 import Entity from "./entity/Entity";
-
+import { DictTerrain } from "./entity/component/Terrain";
 import { EnumEntityType } from "./entity/component/Meta";
-// import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
+
+import Node from "./util/Node";
+import Portal from "./util/Portal";
+
+import { CalculateEdgeMasks } from "./data/render/edges";
 
 export class World extends Agency.Event.Emitter {
     static Events = [

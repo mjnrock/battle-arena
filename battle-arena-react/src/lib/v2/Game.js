@@ -3,23 +3,21 @@ import AgencyLocal from "./util/agency/package";
 
 //STUB START "Imports" for stub below
     import World from "./World";
+    import GameLoop from "./GameLoop";
     import RenderManager from "./manager/RenderManager";
+    import WorldManager from "./manager/WorldManager";
+    import PlayerManager from "./manager/PlayerManager";
+    import Entity from "./entity/Entity";
+    import { EnumEntityType } from "./entity/component/Meta";
+
+    import Path from "./util/Path";
+    import Portal from "./util/Portal";
 
     import initImageRepository from "./data/render/repository";
     import { loadEntity, loadTerrain } from "./data/render/entity";
-
     import drawEntityLayer from "./data/render/world-entity-layer";
     import drawTerrainLayer from "./data/render/world-terrain-layer";
     import drawUILayer from "./data/render/world-ui-layer";
-import WorldManager from "./manager/WorldManager";
-import PlayerManager from "./manager/PlayerManager";
-import Entity from "./entity/Entity";
-import Path from "./util/Path";
-import GameLoop from "./GameLoop";
-import Portal from "./util/Portal";
-
-
-import { EnumEntityType } from "./entity/component/Meta";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
