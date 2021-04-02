@@ -6,6 +6,7 @@ export class Node extends Agency.Event.Emitter {
         "join",
         "leave",
         "portal",
+        "interaction",
     ];
 
     constructor(coords = [], terrain, { portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity } = {}) {
@@ -23,14 +24,14 @@ export class Node extends Agency.Event.Emitter {
         
         this.addHandler("interaction", (actor, target) => {
             if(target == null) {
-                for(let entity of [ ...this.occupants, this.terrain ]) {
-                    if(entity !== actor) {
-                        this.$.emit("interaction", actor, entity);
-                        break;  // Allow only one interaction
+                if(!this.portal(actor)) {   // Prioritize portals
+                    for(let entity of [ this.terrain, ...this.occupants ].reverse()) {
+                        if(entity !== actor) {
+                            this.$.emit("interaction", actor, entity);
+                            break;  // Allow only one interaction--choose most recent entity addition first, terrain last
+                        }
                     }
                 }
-
-                this.portal(actor);
             }
         });
     }
@@ -102,10 +103,12 @@ export class Node extends Agency.Event.Emitter {
         for(let portal of this.portals) {
             if(portal.activate(entity)) {
                 this.$.emit("portal", portal, entity);
+
+                return true;
             }
         }
 
-        return this;
+        return false;
     }
 
     join(entity) {

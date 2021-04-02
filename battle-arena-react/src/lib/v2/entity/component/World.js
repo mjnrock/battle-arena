@@ -26,6 +26,17 @@ export class World extends Component {
         this.wayfinder = new Wayfinder(this.entity);
     }
 
+    getCurrentWorld() {
+        return this.game.world[ this.world ];
+    }
+    getCurrentNode() {
+        const world = this.getCurrentWorld();
+
+        if(world instanceof MapWorld) {
+            return world.node(this.x, this.y);
+        }
+    }
+
     nudge(dx, dy) {
         this.x += dx;
         this.y += dy;

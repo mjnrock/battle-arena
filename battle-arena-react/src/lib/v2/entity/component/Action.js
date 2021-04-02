@@ -5,10 +5,17 @@ import World from "../../World";
 
 import Task from "./lib/Task";
 import Path from "./../../util/Path";
+import Cooldown from "../../util/Cooldown";
 
 const Repository = {
     AI: {
         Test: function(game, entity, data) {
+            //? Attempt any portals at current node
+            const node = entity.world.getCurrentNode() || {};
+            if(node.hasPortals && !this.cooldown) {
+                entity.action.interact();
+            }
+
             if(Agency.Util.Dice.coin()) {
                 this.current = Repository.MOVE.Persist;
             } else {
@@ -66,10 +73,17 @@ export class Action extends Component {
         });
     }
 
-    interact() {
-        this.interaction = Date.now();
+    async decide() {
+        return this.ai(this.game, this.entity, this.data)
+    }
 
-        this.$.emit("interaction", this.entity);
+    interact() {
+        if(!this.cooldown) {
+            this.interaction = Date.now();
+            this.cooldown = new Cooldown(this.game.config.time.interaction);
+    
+            this.$.emit("interaction", this.entity);
+        }
 
         return this;
     }
@@ -82,9 +96,9 @@ export class Action extends Component {
 
     onTick(dt, now) {
         if(!this.cooldown) {
-            if(this.throttle(dt, now) === true) {
-                this.ai.call(this, this.game, this.entity, this.data);
+            this.decide();
 
+            if(this.throttle(dt, now) === true) {
                 this.cooldown = Task.Perform(this.current, this.game, this.entity);
             }
         } else if(this.cooldown.isComplete) {
