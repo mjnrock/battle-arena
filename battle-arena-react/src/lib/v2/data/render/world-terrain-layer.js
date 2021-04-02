@@ -6,7 +6,7 @@ export function comparator(data = {}, oldData = {}) {
 }
 
 export async function drawAnimationFrame(dt, now) {
-    //FIXME  Don't bother updating terrain canvas (after initial draws) until this is substantially more optimized
+    //FIXME  Don't bother updating terrain canvas (after initial draws) until this is substantially more optimized, as this is a very intense draw loop drawing every tile with edges every frame
     if(now - this.game.loop.__start < 1000) {
         //STUB  This should be performed at the <RenderManager> response to a <World> swap
         [ this.width, this.height ] = [ this.game.render.width, this.game.render.height ];
