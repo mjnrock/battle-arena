@@ -31,11 +31,14 @@ export class NodeManager extends Agency.Event.Network {
                     this._cache.set(entity, [ x, y ]);
                 }
             }],
+            [ "contact", (actor, target) => {
+                console.log(actor.meta.type, actor.world.x, actor.world.y, target.meta.type, target.world.x, target.world.y)
+            }],
         ]);
 
         this.__relay = function(...args) {
             return this.type === "portal"
-                || this.type === "interaction";
+                // || this.type === "contact";
         }
     }
 

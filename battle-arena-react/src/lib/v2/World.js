@@ -66,12 +66,12 @@ export class World extends Agency.Event.Emitter {
                     portal.world.joinWorld(entity);
                 }
             }],
-            [ "interaction", (actor, target) => {
-                if(actor instanceof Entity && target instanceof Entity) {
-                    //TODO  Perform an interaction
-                    console.log(actor.meta.type, target.meta.type)
-                }
-            }],
+            // [ "contact", (actor, target) => {
+            //     if(actor instanceof Entity && target instanceof Entity) {
+            //         //TODO  Perform an interaction
+            //         console.log(actor.meta.type, target.meta.type)
+            //     }
+            // }],
         ]);
     }
 

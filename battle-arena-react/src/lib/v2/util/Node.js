@@ -6,7 +6,7 @@ export class Node extends Agency.Event.Emitter {
         "join",
         "leave",
         "portal",
-        "interaction",
+        "contact",
     ];
 
     constructor(coords = [], terrain, { portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity } = {}) {
@@ -22,14 +22,12 @@ export class Node extends Agency.Event.Emitter {
         this._value = value;
         this._clearance = clearance;
         
-        this.addHandler("interaction", (actor, target) => {
-            if(target == null) {
-                if(!this.portal(actor)) {   // Prioritize portals
-                    for(let entity of [ this.terrain, ...this.occupants ].reverse()) {
-                        if(entity !== actor) {
-                            this.$.emit("interaction", actor, entity);
-                            break;  // Allow only one interaction--choose most recent entity addition first, terrain last
-                        }
+        this.addHandler("interaction", (entity) => {
+            if(!this.portal(entity)) {   // Prioritize portals
+                for(let target of [ this.terrain, ...this.occupants ].reverse()) {
+                    if(target !== entity) {
+                        this.$.emit("contact", entity, target);
+                        return;  // Allow only one interaction--choose most recent entity addition first, terrain last
                     }
                 }
             }
@@ -98,11 +96,14 @@ export class Node extends Agency.Event.Emitter {
 
         return [ this.x, this.y ];
     }
-
-    portal(entity) {
+    
+    /**
+     * Async/await is necessary to prevent incorret results, such as in the "interaction" handler--it will cause a portal activation AND a tile interaction without it, due to a false << false >> being returned.
+     */
+    async portal(entity) {
         for(let portal of this.portals) {
             if(portal.activate(entity)) {
-                this.$.emit("portal", portal, entity);
+                await this.$.emit("portal", portal, entity);
 
                 return true;
             }
