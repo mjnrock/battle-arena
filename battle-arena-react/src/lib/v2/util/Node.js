@@ -1,5 +1,4 @@
 import Agency from "@lespantsfancy/agency";
-import Game from "../Game";
 
 export class Node extends Agency.Event.Emitter {
     static Events = [
@@ -21,18 +20,6 @@ export class Node extends Agency.Event.Emitter {
         this._frequency = frequency;
         this._value = value;
         this._clearance = clearance;
-        
-        this.addHandler("interaction", (entity) => {
-            if(!this.portal(entity)) {   // Prioritize portals
-                for(let target of [ this.terrain, ...this.occupants ].reverse()) {
-                    if(target !== entity) {
-                        this.$.emit("contact", entity, target);
-
-                        return;    // Allow only one interaction--choose most recent entity addition first, terrain last
-                    }
-                }
-            }
-        });
     }
 
     get coords() {
@@ -120,8 +107,6 @@ export class Node extends Agency.Event.Emitter {
 
             this.$.emit("join", this, entity);
 
-            entity.addSubscriber(this);
-
             return true;
         }
 
@@ -129,8 +114,6 @@ export class Node extends Agency.Event.Emitter {
     }
     leave(entity) {
         if(this._occupants.delete(entity)) {
-            entity.removeSubscriber(this);
-
             this.$.emit("leave", this, entity);
 
             return true;

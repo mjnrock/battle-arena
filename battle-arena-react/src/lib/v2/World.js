@@ -59,12 +59,10 @@ export class World extends Agency.Event.Emitter {
             }],
             [ "portal", (portal, entity) => {
                 if(portal instanceof Portal) {
-                    //NOTE  Node handler for "interaction" can emit "portal", and if it does, both the portal
-                    //      node AND the teleportation node end up receiving the same event.  This setTimeout
-                    //      stops that, by forcing the Node transitions to happen (slightly) later.
+                    //NOTE  This is needed to push the world changes to the end of the stack, otherwise multiple nodes get invoked
                     setTimeout(() => {
                         this.leaveWorld(entity);
-
+    
                         entity.world.x = portal.x;
                         entity.world.y = portal.y;
                         portal.world.joinWorld(entity);
@@ -75,6 +73,19 @@ export class World extends Agency.Event.Emitter {
                 if(actor instanceof Entity && target instanceof Entity) {
                     //TODO  Perform an interaction
                     console.log(actor.meta.type, target.meta.type, target.world.x, target.world.y)
+                }
+            }],
+            [ "interaction", (entity) => {
+                const node = entity.world.getCurrentNode();
+    
+                if(!node.portal(entity)) {   // Prioritize portals
+                    for(let target of [ node.terrain, ...node.occupants ].reverse()) {
+                        if(target !== entity) {
+                            this.$.emit("contact", entity, target);
+    
+                            return;    // Allow only one interaction--choose most recent entity addition first, terrain last
+                        }
+                    }
                 }
             }],
         ]);
@@ -155,6 +166,7 @@ export class World extends Agency.Event.Emitter {
     }
 
     joinWorld(entity, ...synonyms) {
+        entity.addSubscriber(this);
         this._entities.register(entity, ...synonyms);
 
         this._nodes.move(entity);
@@ -164,6 +176,7 @@ export class World extends Agency.Event.Emitter {
         return this;
     }
     leaveWorld(entity) {
+        entity.removeSubscriber(this);
         this._entities.unregister(entity);
 
         if(this._nodes.remove(entity)) {

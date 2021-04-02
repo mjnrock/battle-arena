@@ -94,8 +94,8 @@ export default class Game extends AgencyLocal.Watcher {
             const game = Game.Instance;
 
             game.world = new WorldManager(game);
-            game.world.register(World.CreateRandom(game, 25, 25, 0), "overworld");
-            game.world.register(World.CreateRandom(game, 25, 25, 0), "arena");
+            game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
+            game.world.register(World.CreateRandom(game, 25, 25, 10), "arena");
 
             // game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15, y: 15 }));
             // game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15, y: 15 }));
