@@ -74,7 +74,7 @@ export class Action extends Component {
     }
 
     async decide() {
-        return this.ai(this.game, this.entity, this.data)
+        return await this.ai(this.game, this.entity, this.data);
     }
 
     interact() {
