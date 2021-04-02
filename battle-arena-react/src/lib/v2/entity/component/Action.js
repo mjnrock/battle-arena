@@ -8,7 +8,7 @@ import Path from "./../../util/Path";
 
 const Repository = {
     AI: {
-        Test: function(game, entity) {
+        Test: function(game, entity, data) {
             if(Agency.Util.Dice.coin()) {
                 this.current = Repository.MOVE.Persist;
             } else {
@@ -47,10 +47,11 @@ export class Action extends Component {
     static DefaultProperties = () => ({
         current: null,
         ai: () => Repository.AI.Test,
+        data: {},
         actions: {},
         queue: new Set(),
         cooldown: null,
-        throttle: () => (dt) => Agency.Util.Dice.permille(1.0 * dt),
+        throttle: () => (dt) => Agency.Util.Dice.permille(1.0 * dt),    // Determines how frequently a decision should be made, if possible.  (1.0 * dt ~= 1 choice/second, or @24fps ~4% per tick)
     });
 
     constructor(game, entity, state = {}) {
@@ -63,7 +64,7 @@ export class Action extends Component {
     onTick(dt, now) {
         if(!this.cooldown) {
             if(this.throttle(dt, now) === true) {
-                this.ai.call(this, this.game, this.entity);
+                this.ai.call(this, this.game, this.entity, this.data);
 
                 this.cooldown = Task.Perform(this.current, this.game, this.entity);
             }

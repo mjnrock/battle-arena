@@ -17,7 +17,7 @@ export default class GameLoop {
         return this.mainLoop.getSimulationTimestep();
     }
     get spf() {
-        return this.fps / 1000;
+        return 1000 / this.fps;
     }
 
     start() {
