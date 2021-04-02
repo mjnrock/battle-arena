@@ -65,6 +65,8 @@ export class Action extends Component {
         interaction: 0,
         throttle: () => (dt) => Agency.Util.Dice.permille(1.0 * dt),    // Determines how frequently a decision should be made, if possible.  (1.0 * dt ~= 1 choice/second, or @24fps ~4% per tick)
     });
+    
+    static IsInteracting = entity => this.Has(entity) && entity.action.isInteracting;
 
     constructor(game, entity, state = {}) {
         super(Action.Name, game, entity, {
@@ -91,8 +93,7 @@ export class Action extends Component {
         const now = Date.now();
 
         return (now - this.interaction) <= this.game.config.time.interaction;
-    }    
-    static IsInteracting = entity => this.Has(entity) && entity.action.isInteracting;
+    }
 
     onTick(dt, now) {
         if(!this.cooldown) {
