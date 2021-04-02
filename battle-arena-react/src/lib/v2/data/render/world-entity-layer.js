@@ -1,3 +1,4 @@
+import Health from "../../entity/component/Health";
 import SpriteStack from "../../render/SpriteStack";
 import Action from "./../../entity/component/Action";
 
@@ -22,17 +23,17 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
     //STUB  Dynamically add <Sprite(s)> // const sprite = new SpriteStack([ this.sprite({ entity: entity }), this.sprite({ entity: this.game.world.current.entities[ `player` ] }) ]);
     const spriteSheet = this.game.render.sprite("entity", { entity: entity });
 
-    if (spriteSheet) {        
-        spriteSheet.paint(0, elapsed, this.canvas, entity.world.x * this.tw, entity.world.y * this.th);
+    if (spriteSheet) {
+        let [ frameWidth, frameHeight ] = [ this.tw, this.th ];
+        const { x, y } = entity.world;
+
+        spriteSheet.paint(0, elapsed, this.canvas, x * frameWidth, y * frameHeight);
 
         if(!Action.Has(entity)) {
             return;
         }
-
         
-        if(this.game.config.SHOW_UI) {
-            let frameWidth = this.tw;
-            
+        if(this.game.config.SHOW_UI) {            
             const prog = entity.action.cooldown ? entity.action.cooldown.progress : null;      // % this.game.config.GCD hides information and should only be used for testing
             if(prog != null && prog <= 1) {
                 // //? Draw Pie Timer
@@ -44,16 +45,16 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
                 }
                 this.save();
                     this.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
-                        entity.world.x * this.tw + frameWidth / 2,
-                        entity.world.y * this.th - this.th / 2,
+                        x * frameWidth + frameWidth / 2,
+                        y * frameHeight - frameHeight / 2,
                         6,
                         { isFilled: true },
                     );
                 this.restore();
                 this.save();
                     this.prop({ fillStyle: color, strokeStyle: `rgba(0, 0, 0, 0.35)` }).pie(
-                        entity.world.x * this.tw + frameWidth / 2,
-                        entity.world.y * this.th - this.th / 2,
+                        x * frameWidth + frameWidth / 2,
+                        y * frameHeight - frameHeight / 2,
                         5,
                         0,
                         prog * Math.PI * 2,
@@ -63,28 +64,30 @@ export async function drawAnimationFrameEntity(dt, elapsed, entity) {
             }
             
             // //? Draw Health bar
-            let hp = `rgba(95, 160, 80, 0.75)`;
-            if(entity.health.value.rate <= 0.3) {
-                hp = `rgba(196, 74, 74, 0.75)`;
-            } else if(entity.health.value.rate <= 0.6) {
-                hp = `rgba(201, 199, 72, 0.75)`;
+            if(Health.Has(entity)) {
+                let hp = `rgba(95, 160, 80, 0.75)`;
+                if(entity.health.value.rate <= 0.3) {
+                    hp = `rgba(196, 74, 74, 0.75)`;
+                } else if(entity.health.value.rate <= 0.6) {
+                    hp = `rgba(201, 199, 72, 0.75)`;
+                }
+                this.save();
+                    this.prop({ fillStyle: `rgba(0, 0, 0, 0.35)`, strokeStyle: `rgba(0, 0, 0, 0.35)` }).rect(
+                        x * frameWidth,
+                        y * frameHeight - frameHeight / 4 + 2,
+                        frameWidth,
+                        5,
+                        { isFilled: true },
+                    );
+                    this.prop({ fillStyle: hp }).rect(
+                        x * frameWidth + 1,
+                        y * frameHeight - frameHeight / 4 + 2 + 1,
+                        entity.health.value.rate * (frameWidth - 2),
+                        3,
+                        { isFilled: true },
+                    );
+                this.restore();
             }
-            this.save();
-                this.prop({ fillStyle: `rgba(0, 0, 0, 0.35)`, strokeStyle: `rgba(0, 0, 0, 0.35)` }).rect(
-                    entity.world.x * this.tw,
-                    entity.world.y * this.th - this.th / 4 + 2,
-                    frameWidth,
-                    5,
-                    { isFilled: true },
-                );
-                this.prop({ fillStyle: hp }).rect(
-                    entity.world.x * this.tw + 1,
-                    entity.world.y * this.th - this.th / 4 + 2 + 1,
-                    entity.health.value.rate * (frameWidth - 2),
-                    3,
-                    { isFilled: true },
-                );
-            this.restore();
         }
     }
 };

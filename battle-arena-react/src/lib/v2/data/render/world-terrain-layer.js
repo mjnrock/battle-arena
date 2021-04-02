@@ -41,7 +41,7 @@ export async function drawAnimationFrameEntity(dt, elapsed, node) {
     }
         
     const wear = Math.min(node.frequency / 1000.0, 0.33);
-    this.prop({ fillStyle: `rgba(0, 0, 0, ${ wear }` }).tRect(
+    this.prop({ fillStyle: `rgba(74, 46, 10, ${ wear }` }).tRect(
         terrain.world.x,
         terrain.world.y,
         1,

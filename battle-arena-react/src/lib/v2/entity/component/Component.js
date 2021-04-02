@@ -1,4 +1,11 @@
 import Agency from "@lespantsfancy/agency";
+import Health from "./Health";
+
+export class ComponentPackage {
+    constructor(...props) {
+        this.props = props;
+    }
+}
 
 export class Component extends Agency.Event.Emitter {
     static Name = "component";
@@ -15,12 +22,30 @@ export class Component extends Agency.Event.Emitter {
         this.__merge(state);
     }
 
+    /**
+     * Helper function to invoke a class via the FromSchema paradigm.
+     * This ensures seed functions are executed properly.
+     */    
+    //  A accessibility function to safely get an args key
+    static ArgsKey = "args";
+    static GetArgsKey = (state, key) => (((state || {})[ Component.ArgsKey ] || {})[ key ]);
+    static Invoke(target, args = []) {
+        return new target(...args.map(param => {                    
+            if(typeof param === "function") {
+                return param(this.game, this.entity);
+            } else {
+                return param;
+            }
+        }));
+    }
     __merge(state = {}) {
         for(let [ key, value ] of Object.entries(state)) {
-            if(typeof value === "function") {
-                this[ key ] = value(this.game, this.entity);
-            } else {
-                this[ key ] = value;
+            if(key !== Component.ArgsKey) {
+                if(typeof value === "function") {
+                    this[ key ] = value(this.game, this.entity);
+                } else {
+                    this[ key ] = value;
+                }
             }
         }
 
@@ -37,8 +62,9 @@ export class Component extends Agency.Event.Emitter {
         return this.__entity;
     }
 
-    onTick(dt, now) {}
     onPreTick(spf, now) {}
+    onTick(dt, now) {}
+    onDraw(dt, now) {}
 
     static Has(entity) {
         return this.Name in entity;     // @this is the constructor in static methods and *does* appropriately descend to ancestors

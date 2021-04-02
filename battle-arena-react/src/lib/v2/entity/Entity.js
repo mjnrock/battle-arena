@@ -3,6 +3,7 @@ import Terrain from "./component/Terrain";
 import World from "./component/World";
 import Action from "./component/Action";
 import Component from "./component/Component";
+import Health from "./component/Health";
 
 export class Entity {
     constructor(game) {
@@ -51,6 +52,8 @@ export function FromSchema(game, schemaWithArgs = [], callback) {
             entity[ key ] = new World(game, entity, argObj)
         } else if(key === "action") {
             entity[ key ] = new Action(game, entity, argObj)
+        } else if(key === "health") {
+            entity[ key ] = new Health(game, entity, argObj)
         } else if(key === "terrain") {
             entity[ key ] = new Terrain(game, entity, argObj)
         } else {

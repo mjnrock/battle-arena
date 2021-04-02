@@ -15,7 +15,6 @@ import AgencyLocal from "./util/agency/package";
     import drawUILayer from "./data/render/world-ui-layer";
     
     import componentMeta, { EnumEntityType } from "./data/entity/components/meta";
-    import componentHealth from "./data/entity/components/health";
 import WorldManager from "./manager/WorldManager";
 import PlayerManager from "./manager/PlayerManager";
 import Entity from "./entity/Entity";
@@ -25,6 +24,7 @@ import GameLoop from "./GameLoop";
 import Portal from "./util/Portal";
 import Cooldown from "./util/Cooldown";
 import Action from "./entity/component/Action";
+import Health from "./entity/component/Health";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
@@ -82,6 +82,12 @@ export default class Game extends AgencyLocal.Watcher {
 
     onDraw(dt, now) {
         this.render.drawAnimationLayers(dt, now);
+
+        // for(let entity of this.world.current.entities) {
+        //     for(let comp of entity) {
+        //         comp.onDraw.call(comp, dt, now);
+        //     }
+        // }
     }
 
     // Access Singleton pattern via Game._
@@ -101,7 +107,7 @@ export default class Game extends AgencyLocal.Watcher {
                 [ componentMeta, { type: EnumEntityType.SQUIRREL } ],
                 //FIXME Entity.FromSchema gets the key from args[ 0 ] during the transition
                 [ { world: null }, { x: 4, y: 7 } ],
-                [ componentHealth, { current: 10, max: 10 } ],
+                [ { health: null }, { args: { current: 10, max: 10 } } ],
                 [ { action: null}, {} ],
             ], (entity) => {
                 entity.world.wayfinder.entity = entity;
@@ -116,6 +122,8 @@ export default class Game extends AgencyLocal.Watcher {
                 game.render = new RenderManager(game, {
                     width: game.world.current.width * game.config.render.tile.width,
                     height: game.world.current.height * game.config.render.tile.height,
+                    tw: game.config.render.tile.width,
+                    th: game.config.render.tile.height,
                     repository: initImageRepository()
                 });
 

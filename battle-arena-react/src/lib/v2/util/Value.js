@@ -2,7 +2,7 @@
 import Agency from "./agency/package";
 
 export default class Value extends Agency.Watchable {
-    constructor(current, { min, max, softMax = false, softMin = false } = {}) {
+    constructor(current = 0, { min, max, softMax = false, softMin = false } = {}) {
         super();
 
         this._current = current;

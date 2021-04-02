@@ -19,7 +19,7 @@ const Repository = {
     MOVE: {
         Persist: {
             executer: () => {
-                console.log("Yup");
+                // console.log("Yup");
             }
         },
         RandomPath: {
