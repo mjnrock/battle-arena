@@ -60,6 +60,7 @@ export class World extends Agency.Event.Emitter {
             [ "portal", (portal, entity) => {
                 if(portal instanceof Portal) {
                     //NOTE  This is needed to push the world changes to the end of the stack, otherwise multiple nodes get invoked
+                    //! This setTimeout is essential--both the portal node AND the teleportation node will activate without this delay
                     setTimeout(() => {
                         this.leaveWorld(entity);
     
