@@ -1,4 +1,3 @@
-// import { DictTerrain } from "../entity/components/terrain";
 import { DictTerrain } from "./../../entity/component/Terrain";
 
 export function comparator(data = {}, oldData = {}) {

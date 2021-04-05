@@ -4,27 +4,17 @@ import AgencyLocal from "./util/agency/package";
 //STUB START "Imports" for stub below
     import World from "./World";
     import GameLoop from "./GameLoop";
-    import RenderManager from "./manager/RenderManager";
     import WorldManager from "./manager/WorldManager";
     import PlayerManager from "./manager/PlayerManager";
     import Entity from "./entity/Entity";
     import { EnumEntityType } from "./entity/component/Meta";
     import Action from "./entity/component/Action";
 
-    import Path from "./util/Path";
     import Portal from "./util/Portal";
 
-    import initImageRepository from "./data/render/repository";
-    import { loadEntity, loadTerrain } from "./data/render/entity";
-    import drawEntityLayer from "./data/render/world-entity-layer";
-    import drawTerrainLayer from "./data/render/world-terrain-layer";
-    import drawUILayer from "./data/render/world-ui-layer";
-
-    import worldHandlers from "./data/handlers/world";
-    import nodeHandlers from "./data/handlers/node";
-    import entityHandlers from "./data/handlers/entity";
-import Node from "./util/Node";
-import Component from "./entity/component/Component";
+    import initializeHandlers from "./data/handlers/_init";
+    import initializeRenderers from "./data/render/_init";
+    import initializeBindings from "./data/input/_init";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
@@ -105,52 +95,12 @@ export default class Game extends AgencyLocal.Watcher {
             Game.Instance = new Game();
             const game = Game.Instance;
 
-            //? Load the handlers
-            Agency.Event.Network.$.router.createContexts([
-                [ "node", {
-                    globals: {
-                        game,
-                    },
-                    handlers: {
-                        ...Object.fromEntries(nodeHandlers),
-                    },
-                }],
-                [ "world", {
-                    globals: {
-                        game,
-                    },
-                    handlers: {
-                        ...Object.fromEntries(worldHandlers),
-                    },
-                }],
-                [ "entity", {
-                    globals: {
-                        game,
-                    },
-                    handlers: {
-                        ...Object.fromEntries(entityHandlers),
-                    },
-                }],
-            ]);
-            Agency.Event.Network.$.router.createRoutes([
-                // () => "main",
-                payload => {
-                    if(payload.emitter instanceof Node) {
-                        return "node";
-                    } else if(payload.emitter instanceof World) {
-                        return "world";
-                    } else if(payload.emitter instanceof Entity || payload.emitter instanceof Component) {
-                        return "entity";
-                    }
-                },
-            ]);
+            initializeHandlers(game);
 
             game.world = new WorldManager(game);
             game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
             game.world.register(World.CreateRandom(game, 25, 25, 10), "arena");
 
-            // game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15, y: 15 }));
-            // game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15, y: 15 }));
             game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15, y: 15, activator: Action.IsInteracting }));
             game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15, y: 15, activator: Action.IsInteracting }));
 
@@ -168,75 +118,11 @@ export default class Game extends AgencyLocal.Watcher {
 
             game.players.register(player, "player");
             
-            //? Bootstrap the rendering
             (async () => {
-                game.render = new RenderManager(game, {
-                    width: game.world.current.width * game.config.render.tile.width,
-                    height: game.world.current.height * game.config.render.tile.height,
-                    tw: game.config.render.tile.width,
-                    th: game.config.render.tile.height,
-                    repository: initImageRepository()
-                });
-                game.render.config.clearBeforeDraw = true;
-
-                //  Load Images
-                await game.render.loadImages(loadEntity);
-                await game.render.loadImages(loadTerrain);
-
-                game.render.addAnimationLayers(
-                    drawTerrainLayer,
-                    drawEntityLayer,
-                    drawUILayer,
-                );
+                await initializeRenderers(game);
 
                 //? Key and Mouse Bindings
-                window.onkeypress = e => {
-                    e.preventDefault();
-
-                    if(e.code === "KeyV") {
-                        game.config.SHOW_UI = !game.config.SHOW_UI;
-                    } else if(e.code === "Space") {
-                        game.players.player.action.interact();
-                    }
-                };
-                game.render.__handler.$.subscribe((type, entry) => {
-                    const [ e ] = entry.data;
-                    const { target: canvas, button, clientX: x, clientY: y } = e;
-
-                    const { left, top } = canvas.getBoundingClientRect();
-                    const pos = {
-                        px: x - left,
-                        py: y - top,
-                    };
-                    pos.tx = pos.px / game.config.render.tile.width;
-                    pos.ty = pos.py / game.config.render.tile.height;
-                    pos.txi = Math.floor(pos.tx);
-                    pos.tyi = Math.floor(pos.ty);
-
-                    if(type === "mouseup") {
-                        if(button === 0) {
-                            // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
-                            const occupants = game.world.current.node(pos.txi, pos.tyi).occupants;
-
-                            console.info(pos.txi, pos.tyi, occupants);
-
-                            for(let occupant of occupants) {
-                                console.log(Object.assign({}, occupant.world))
-                            }
-                        } else if(button === 2) {
-                            const player = game.players.player;
-
-                            if(e.shiftKey) {
-                                player.world.wayfinder.waypoint(game.world.current, pos.txi, pos.tyi);
-                            } else {
-                                const path = Path.FindPath(game.world.current, [ player.world.x, player.world.y ], [ pos.txi, pos.tyi ]);
-                                player.world.wayfinder.set(path);
-                            }
-                        }
-                    } else if(type === "mousemove") {
-                        game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];
-                    }
-                });
+                await initializeBindings(game);
             })();
 
             Agency.Event.Network.$.router.useBatchProcess();    // Return to batch process before game loop starts
