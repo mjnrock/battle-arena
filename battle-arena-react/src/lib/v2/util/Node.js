@@ -82,9 +82,7 @@ export class Node extends Agency.Event.Emitter {
     portal(entity) {
         for(let portal of this.portals) {
             if(portal.activate(entity)) {
-                //~!@
                 this.$.emit("portal", portal, entity);
-                // Agency.Event.Emitter.$.$.emit("portal", portal, entity);
 
                 return true;
             }
@@ -101,9 +99,9 @@ export class Node extends Agency.Event.Emitter {
         if(this._occupants.size >= size) {
             ++this._frequency;
 
-            //~!@
-            this.$.emit("join", this, entity);
-            // Agency.Event.Emitter.$.$.emit("join", this, entity);
+            this.portal(entity)
+
+            // this.$.emit("join", this, entity);
 
             return true;
         }
@@ -112,9 +110,7 @@ export class Node extends Agency.Event.Emitter {
     }
     leave(entity) {
         if(this._occupants.delete(entity)) {
-            //~!@
-            this.$.emit("leave", this, entity);
-            // Agency.Event.Emitter.$.$.emit("leave", this, entity);
+            // this.$.emit("leave", this, entity);
 
             return true;
         }

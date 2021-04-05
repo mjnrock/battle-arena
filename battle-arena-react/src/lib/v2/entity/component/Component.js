@@ -1,6 +1,6 @@
-import AgencyBase from "@lespantsfancy/agency/src/AgencyBase";
+import Agency from "@lespantsfancy/agency";
 
-export class Component extends AgencyBase {
+export class Component extends Agency.Event.Emitter {
     static Name = "component";
     static DefaultProperties = () => ({});
 

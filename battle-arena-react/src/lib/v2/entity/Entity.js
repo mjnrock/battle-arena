@@ -1,4 +1,4 @@
-import AgencyBase from "@lespantsfancy/agency/src/AgencyBase";
+import Agency from "@lespantsfancy/agency";
 
 import Terrain from "./component/Terrain";
 import World from "./component/World";
@@ -7,7 +7,7 @@ import Component from "./component/Component";
 import Health from "./component/Health";
 import Meta from "./component/Meta";
 
-export class Entity extends AgencyBase {
+export class Entity extends Agency.Event.Emitter {
     constructor(game) {
         super();
         

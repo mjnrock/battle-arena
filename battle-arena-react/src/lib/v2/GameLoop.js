@@ -6,6 +6,7 @@ export default class GameLoop {
             .setBegin(this.onPreTick)
             .setUpdate(this.onTick)
             .setDraw(this.onDraw)
+            .setEnd(this.onPostTick)
             .setSimulationTimestep(1000 / fps);
 
         this.__start = null;
@@ -64,9 +65,17 @@ export default class GameLoop {
 
         return this;
     }
+    setEnd(fn) {
+        this.mainLoop.setEnd((fps, panic) => {
+            fn.call(this, fps, panic);
+        });
+
+        return this;
+    }
 
     onPreTick(dt, now) {}
     onTick(dt, now) {}
+    onPostTick(dt, now) {}
 
     onDraw(dt, now) {}
 }

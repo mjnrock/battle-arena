@@ -20,38 +20,11 @@ export const handlers = [
         }
     }],
     [ "portal", ([ portal, entity ]) => {
-        if(portal instanceof Portal) {
-            //NOTE  This is needed to push the world changes to the end of the stack, otherwise multiple nodes get invoked
-            //! This setTimeout is essential--both the portal node AND the teleportation node will activate without this delay
-            setTimeout(() => {
-                this.leaveWorld(entity);
+        entity.world.getCurrentWorld().leaveWorld(entity);
 
-                entity.world.x = portal.x;
-                entity.world.y = portal.y;
-                portal.world.joinWorld(entity);
-            }, 0);
-        }
-    }],
-    [ "contact", ([ actor, target ]) => {
-        if(actor instanceof Entity && target instanceof Entity) {
-            //TODO  Perform an interaction
-            console.log(actor.meta.type, target.meta.type, target.world.x, target.world.y)
-        }
-    }],
-    [ "interaction", ([ entity ]) => {
-        const node = entity.world.getCurrentNode();
-
-        if(!node.portal(entity)) {   // Prioritize portals
-            for(let target of [ node.terrain, ...node.occupants ].reverse()) {
-                if(target !== entity) {
-                    //~!@
-                    // this.$.emit("contact", entity, target);
-                    Agency.Event.Emitter.$.$.emit("contact", entity, target);
-
-                    return;    // Allow only one interaction--choose most recent entity addition first, terrain last
-                }
-            }
-        }
+        entity.world.x = portal.x;
+        entity.world.y = portal.y;
+        portal.world.joinWorld(entity);
     }],
 ];
 

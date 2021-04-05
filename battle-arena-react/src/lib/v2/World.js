@@ -25,8 +25,6 @@ export class World extends Agency.Event.Emitter {
 
         this.size = size;
         this._nodes = new NodeManager(this.size);
-        //FIXME
-        // this._nodes.join(this);
 
         this._entities = new EntityManager(this.game, entities);
 
@@ -113,25 +111,19 @@ export class World extends Agency.Event.Emitter {
     }
 
     joinWorld(entity, ...synonyms) {
-        // entity.addSubscriber(this);
         this._entities.register(entity, ...synonyms);
 
         this._nodes.move(entity);
 
-        //~!@
         this.$.emit("join", this, entity);
-        // Agency.Event.Emitter.$.$.emit("join", this, entity);
         
         return this;
     }
     leaveWorld(entity) {
-        // entity.removeSubscriber(this);
         this._entities.unregister(entity);
 
         if(this._nodes.remove(entity)) {
-            //~!@
             this.$.emit("leave", this, entity);
-            // Agency.Event.Emitter.$.$.emit("leave", this, entity);
 
             return true;
         }

@@ -22,11 +22,13 @@ import AgencyLocal from "./util/agency/package";
 
     import worldHandlers from "./data/handlers/world";
     import nodeHandlers from "./data/handlers/node";
+    import entityHandlers from "./data/handlers/entity";
 import Node from "./util/Node";
+import Component from "./entity/component/Component";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
-    // constructor({ fps = 10, GCD = 1000 } = {}) {
+    // constructor({ fps = 4, GCD = 1000 } = {}) {
     constructor({ fps = 24, GCD = 1000 } = {}) {
         super([], { deep: false });
 
@@ -56,6 +58,7 @@ export default class Game extends AgencyLocal.Watcher {
         this.loop.setTick(this.onTick.bind(this));
         this.loop.setPreTick(this.onPreTick.bind(this));
         this.loop.setDraw(this.onDraw.bind(this));
+        this.loop.setEnd(this.onPostTick.bind(this));
 
         //FIXME Probably should make this more robust
         // window.onfocus = e => this.loop.start();
@@ -79,6 +82,9 @@ export default class Game extends AgencyLocal.Watcher {
                 }
             }
         }
+    }
+    onPostTick(fps, panic) {
+        Agency.Event.Network.$.router.process();
     }
 
     onDraw(dt, now) {
@@ -115,6 +121,14 @@ export default class Game extends AgencyLocal.Watcher {
                         ...Object.fromEntries(worldHandlers),
                     },
                 }],
+                [ "entity", {
+                    globals: {
+                        game,
+                    },
+                    handlers: {
+                        ...Object.fromEntries(entityHandlers),
+                    },
+                }],
             ]);
             Agency.Event.Network.$.router.createRoutes([
                 // () => "main",
@@ -123,13 +137,15 @@ export default class Game extends AgencyLocal.Watcher {
                         return "node";
                     } else if(payload.emitter instanceof World) {
                         return "world";
+                    } else if(payload.emitter instanceof Entity || payload.emitter instanceof Component) {
+                        return "entity";
                     }
                 },
             ]);
 
             game.world = new WorldManager(game);
-            game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
-            game.world.register(World.CreateRandom(game, 25, 25, 10), "arena");
+            game.world.register(World.CreateRandom(game, 25, 25, 0), "overworld");
+            game.world.register(World.CreateRandom(game, 25, 25, 0), "arena");
 
             // game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15, y: 15 }));
             // game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15, y: 15 }));

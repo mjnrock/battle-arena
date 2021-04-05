@@ -1,14 +1,9 @@
-export const handlers = [
-    [ "join", ([ node, entity ]) => {
-        if(node instanceof Node) {
-            const { x, y } = node;
+import Agency from "@lespantsfancy/agency";
 
-            this._cache.set(entity, [ x, y ]);
-        }
+export const handlers = [
+    [ "portal", function(args) {
+        Agency.Event.Network.$.share("world", this, args);      // pass the event to the "world" <Context>
     }],
-    // [ "contact", ([ actor, target ]) => {
-    //     console.log(actor.meta.type, actor.world.x, actor.world.y, target.meta.type, target.world.x, target.world.y)
-    // }],
 ];
 
 export default handlers;

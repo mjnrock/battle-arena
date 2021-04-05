@@ -6,6 +6,7 @@ import CrossMap from "./../util/agency/util/CrossMap";
 
 export class NodeManager extends AgencyBase {
     static Extractor = function(entity) { return [ Agency.Util.Helper.round(entity.world.x, 1), Agency.Util.Helper.round(entity.world.y, 1) ] };
+    // static Extractor = function(entity) { return [ ~~entity.world.x, ~~entity.world.y ] };
 
     constructor(size = [ 1, 1 ], { extractor } = {}) {
         super();
@@ -13,14 +14,7 @@ export class NodeManager extends AgencyBase {
         this._cache = new WeakMap();
 
         this._nodes = CrossMap.CreateGrid(size, {
-            seedFn: (...coords) => {
-                const node = new Node(coords);
-
-                //FIXME
-                // this.join(node);
-
-                return node;
-            },
+            seedFn: (...coords) => new Node(coords),
         });
 
         this.__extractor = extractor;
@@ -47,6 +41,12 @@ export class NodeManager extends AgencyBase {
         return this.nodes.get(...this.extractor(entity));
     }
 
+    updateCache(entity, x, y) {
+        this.cache.set(entity, [ x, y ]);
+
+        return this;
+    }
+
     move(entity) {
         const pos = this.cached(entity) || [];
         const leaveNode = this.node(...pos);
@@ -58,6 +58,8 @@ export class NodeManager extends AgencyBase {
             }
             if(joinNode instanceof Node) {
                 joinNode.join(entity);
+
+                this.updateCache(entity, joinNode.x, joinNode.y);
             }
         }
 
