@@ -1,11 +1,7 @@
 import Agency from "@lespantsfancy/agency";
 
-import Terrain from "./component/Terrain";
-import World from "./component/World";
-import Action from "./component/Action";
 import Component from "./component/Component";
-import Health from "./component/Health";
-import Meta from "./component/Meta";
+import { Accessor as ComponentRegistry} from "./component/_init";
 
 export class Entity extends Agency.Event.Emitter {
     constructor(game) {
@@ -44,7 +40,7 @@ export function FromSchema(game, schemaWithArgs = {}, callback) {
     let entity = new Entity(game);
 
     for(let [ key, argObj ] of Object.entries(schemaWithArgs)) {
-        const fn = Agency.Registry._.component[ key ];
+        const fn = ComponentRegistry(key);
         if(typeof fn === "function") {
             const component = fn(game, entity, argObj);
 
