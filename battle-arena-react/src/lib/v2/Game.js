@@ -104,13 +104,12 @@ export default class Game extends AgencyLocal.Watcher {
             game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15, y: 15, activator: Action.IsInteracting }));
             game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15, y: 15, activator: Action.IsInteracting }));
 
-            const player = Entity.FromSchema(game, [
-                [ { meta: null }, { type: EnumEntityType.SQUIRREL } ],
-                //FIXME Entity.FromSchema gets the key from args[ 0 ] during the transition
-                [ { world: null }, { x: 4, y: 7 } ],
-                [ { health: null }, { args: { current: 10, max: 10 } } ],
-                [ { action: null}, {} ],
-            ], (entity) => {
+            const player = Entity.FromSchema(game, {
+                meta: { type: EnumEntityType.SQUIRREL },
+                world: { x: 4, y: 7 },
+                health: { args: { current: 10, max: 10 } },
+                action: {},
+            }, (entity) => {
                 entity.world.wayfinder.entity = entity;
             });
 

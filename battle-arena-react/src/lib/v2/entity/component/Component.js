@@ -64,23 +64,4 @@ export class Component extends Agency.Event.Emitter {
     }
 }
 
-export function FromSchema(game, entity, schema, argObj = {}) {
-    const [ value ] = Object.values(schema);
-
-    if(typeof value === "function") {
-        const obj = { ...argObj };
-        for(let [ k, v ] of Object.entries(obj)) {
-            if(typeof v === "function") {
-                obj[ k ] = v();
-            }
-        }
-
-        return value(obj);
-    } else {
-        return value;
-    }
-}
-
-Component.FromSchema = FromSchema;
-
 export default Component;

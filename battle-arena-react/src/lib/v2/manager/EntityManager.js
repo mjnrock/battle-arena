@@ -16,14 +16,14 @@ export class EntityManager extends Registry {
         return this.state.__game;
     }
     
-    create(comps = [], ...synonyms) {
+    create(comps = {}, ...synonyms) {
         const entity = Entity.FromSchema(this.game, comps);
 
         this.register(entity, ...synonyms);
 
         return entity;
     }
-    createMany(qty, comps = [], synonymFunction) {
+    createMany(qty, comps = {}, synonymFunction) {
         const entities = [];
         for(let i = 0; i < qty; i++) {
             const synonyms = typeof synonymFunction === "function" ? synonymFunction(i) : null;

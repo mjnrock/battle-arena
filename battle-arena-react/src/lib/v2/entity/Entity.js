@@ -34,30 +34,26 @@ export class Entity extends Agency.Event.Emitter {
     }
 }
 
-//? A <Component> schema should only ever have ONE (1) entry i.e. { [_name]: { ...} }
 /**
  * 
  * @param {[ [ componentFn, argObj ], ... ]} schemaWithArgs 
  * @param {fn} callback | Useful for post-init/circular assignments
  * @returns 
  */
-export function FromSchema(game, schemaWithArgs = [], callback) {
+export function FromSchema(game, schemaWithArgs = {}, callback) {
     let entity = new Entity(game);
 
-    for(let [ comp, argObj ] of schemaWithArgs) {        
-        const key = Object.keys(comp)[ 0 ];
-
-        //STUB
+    for(let [ key, argObj ] of Object.entries(schemaWithArgs)) {
         if(key === "world") {
-            entity[ key ] = new World(game, entity, argObj)
+            entity[ key ] = new World(game, entity, argObj);
         } else if(key === "action") {
-            entity[ key ] = new Action(game, entity, argObj)
+            entity[ key ] = new Action(game, entity, argObj);
         } else if(key === "health") {
-            entity[ key ] = new Health(game, entity, argObj)
+            entity[ key ] = new Health(game, entity, argObj);
         } else if(key === "meta") {
-            entity[ key ] = new Meta(game, entity, argObj)
+            entity[ key ] = new Meta(game, entity, argObj);
         } else if(key === "terrain") {
-            entity[ key ] = new Terrain(game, entity, argObj)
+            entity[ key ] = new Terrain(game, entity, argObj);
         }
     }
 
