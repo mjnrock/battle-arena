@@ -22,6 +22,7 @@ import AgencyLocal from "./util/agency/package";
 
     import worldHandlers from "./data/handlers/world";
     import nodeHandlers from "./data/handlers/node";
+import Node from "./util/Node";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
@@ -96,6 +97,36 @@ export default class Game extends AgencyLocal.Watcher {
             Game.Instance = new Game();
             const game = Game.Instance;
 
+            //? Load the handlers
+            Agency.Event.Network.$.router.createContexts([
+                [ "node", {
+                    globals: {
+                        game,
+                    },
+                    handlers: {
+                        ...Object.fromEntries(nodeHandlers),
+                    },
+                }],
+                [ "world", {
+                    globals: {
+                        game,
+                    },
+                    handlers: {
+                        ...Object.fromEntries(worldHandlers),
+                    },
+                }],
+            ]);
+            Agency.Event.Network.$.router.createRoutes([
+                // () => "main",
+                payload => {
+                    if(payload.emitter instanceof Node) {
+                        return "node";
+                    } else if(payload.emitter instanceof World) {
+                        return "world";
+                    }
+                },
+            ]);
+
             game.world = new WorldManager(game);
             game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
             game.world.register(World.CreateRandom(game, 25, 25, 10), "arena");
@@ -119,23 +150,7 @@ export default class Game extends AgencyLocal.Watcher {
 
             game.players.register(player, "player");
 
-
-            //? Load the handlers
-            Agency.Event.Network.$.router.createContexts([
-                [ "main", {
-                    globals: {
-                        game,
-                    },
-                    handlers: {
-                        ...Object.fromEntries(worldHandlers),
-                        ...Object.fromEntries(nodeHandlers),
-                    },
-                }],
-            ]);
-            Agency.Event.Network.$.router.createRoutes([
-                () => "main",
-                // payload => {},
-            ]);
+            Agency.Event.Network.$.router.process();
             
             //? Bootstrap the rendering
             (async () => {

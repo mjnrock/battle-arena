@@ -1,5 +1,11 @@
+import Agency from "@lespantsfancy/agency";
+
+import World from "./../../World";
+import Entity from "./../../entity/Entity";
+import Portal from "./../../util/Portal";
+
 export const handlers = [
-    [ "join", (world, entity) => {
+    [ "join", ([ world, entity ]) => {
         if(world instanceof World) {
             entity.world.wayfinder.empty();
             
@@ -8,12 +14,12 @@ export const handlers = [
             entity.world.vy = 0;
         }
     }],
-    [ "leave", (world, entity) => {
+    [ "leave", ([ world, entity ]) => {
         if(world instanceof World) {
             entity.world.world = null;
         }
     }],
-    [ "portal", (portal, entity) => {
+    [ "portal", ([ portal, entity ]) => {
         if(portal instanceof Portal) {
             //NOTE  This is needed to push the world changes to the end of the stack, otherwise multiple nodes get invoked
             //! This setTimeout is essential--both the portal node AND the teleportation node will activate without this delay
@@ -26,13 +32,13 @@ export const handlers = [
             }, 0);
         }
     }],
-    [ "contact", (actor, target) => {
+    [ "contact", ([ actor, target ]) => {
         if(actor instanceof Entity && target instanceof Entity) {
             //TODO  Perform an interaction
             console.log(actor.meta.type, target.meta.type, target.world.x, target.world.y)
         }
     }],
-    [ "interaction", (entity) => {
+    [ "interaction", ([ entity ]) => {
         const node = entity.world.getCurrentNode();
 
         if(!node.portal(entity)) {   // Prioritize portals

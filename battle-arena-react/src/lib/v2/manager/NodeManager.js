@@ -16,7 +16,8 @@ export class NodeManager extends AgencyBase {
             seedFn: (...coords) => {
                 const node = new Node(coords);
 
-                this.join(node);
+                //FIXME
+                // this.join(node);
 
                 return node;
             },

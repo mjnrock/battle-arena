@@ -58,9 +58,6 @@ export function FromSchema(game, schemaWithArgs = [], callback) {
             entity[ key ] = new Meta(game, entity, argObj)
         } else if(key === "terrain") {
             entity[ key ] = new Terrain(game, entity, argObj)
-        } else {
-            // entity[ key ] = new Component(game, entity, argObj);
-            entity[ key ] = CreateComponent(comp, argObj);
         }
     }
 
@@ -71,24 +68,6 @@ export function FromSchema(game, schemaWithArgs = [], callback) {
     return entity;
 }
 
-export function CreateComponent(schema, argObj = {}) {
-    const [ value ] = Object.values(schema);
-
-    if(typeof value === "function") {
-        const obj = { ...argObj };
-        for(let [ k, v ] of Object.entries(obj)) {
-            if(typeof v === "function") {
-                obj[ k ] = v();
-            }
-        }
-
-        return value(obj);
-    } else {
-        return value;
-    }
-}
-
 Entity.FromSchema = FromSchema;
-Entity.CreateComponent= CreateComponent;
 
 export default Entity;

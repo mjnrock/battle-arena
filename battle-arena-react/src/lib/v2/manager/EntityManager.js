@@ -13,7 +13,7 @@ export class EntityManager extends Registry {
     }
 
     get game() {
-        return this.__game;
+        return this.state.__game;
     }
     
     create(comps = [], ...synonyms) {

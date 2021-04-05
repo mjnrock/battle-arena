@@ -12,7 +12,7 @@ import Portal from "./util/Portal";
 
 import { CalculateEdgeMasks } from "./data/render/edges";
 
-export class World extends AgencyBase {
+export class World extends Agency.Event.Emitter {
     constructor(size = [], { game, entities = [], portals = [], config = {} } = {}) {
         super();
 
@@ -25,7 +25,8 @@ export class World extends AgencyBase {
 
         this.size = size;
         this._nodes = new NodeManager(this.size);
-        this._nodes.join(this);
+        //FIXME
+        // this._nodes.join(this);
 
         this._entities = new EntityManager(this.game, entities);
 
@@ -112,25 +113,25 @@ export class World extends AgencyBase {
     }
 
     joinWorld(entity, ...synonyms) {
-        entity.addSubscriber(this);
+        // entity.addSubscriber(this);
         this._entities.register(entity, ...synonyms);
 
         this._nodes.move(entity);
 
         //~!@
-        // this.$.emit("join", this, entity);
-        Agency.Event.Emitter.$.$.emit("join", this, entity);
+        this.$.emit("join", this, entity);
+        // Agency.Event.Emitter.$.$.emit("join", this, entity);
         
         return this;
     }
     leaveWorld(entity) {
-        entity.removeSubscriber(this);
+        // entity.removeSubscriber(this);
         this._entities.unregister(entity);
 
         if(this._nodes.remove(entity)) {
             //~!@
-            // this.$.emit("leave", this, entity);
-            Agency.Event.Emitter.$.$.emit("leave", this, entity);
+            this.$.emit("leave", this, entity);
+            // Agency.Event.Emitter.$.$.emit("leave", this, entity);
 
             return true;
         }

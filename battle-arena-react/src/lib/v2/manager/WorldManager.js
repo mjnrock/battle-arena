@@ -6,15 +6,11 @@ export class WorldManager extends Registry {
     constructor(game, { worlds = [] } = {}) {
         super(worlds);
 
-        this.__id = uuidv4();
         this.__game = game;
     }
 
-    get id() {
-        return this.__id;
-    }
     get game() {
-        return this.__game;
+        return this.state.__game;
     }
 
     get current() {

@@ -1,7 +1,7 @@
 import Agency from "@lespantsfancy/agency";
-import AgencyBase from "@lespantsfancy/agency/src/AgencyBase";
+// import AgencyBase from "@lespantsfancy/agency/src/AgencyBase";
 
-export class Node extends AgencyBase {
+export class Node extends Agency.Event.Emitter {
     constructor(coords = [], terrain, { portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity } = {}) {
         super();
 
@@ -83,8 +83,8 @@ export class Node extends AgencyBase {
         for(let portal of this.portals) {
             if(portal.activate(entity)) {
                 //~!@
-                // this.$.emit("portal", portal, entity);
-                Agency.Event.Emitter.$.$.emit("portal", portal, entity);
+                this.$.emit("portal", portal, entity);
+                // Agency.Event.Emitter.$.$.emit("portal", portal, entity);
 
                 return true;
             }
@@ -102,8 +102,8 @@ export class Node extends AgencyBase {
             ++this._frequency;
 
             //~!@
-            // this.$.emit("join", this, entity);
-            Agency.Event.Emitter.$.$.emit("join", this, entity);
+            this.$.emit("join", this, entity);
+            // Agency.Event.Emitter.$.$.emit("join", this, entity);
 
             return true;
         }
@@ -113,8 +113,8 @@ export class Node extends AgencyBase {
     leave(entity) {
         if(this._occupants.delete(entity)) {
             //~!@
-            // this.$.emit("leave", this, entity);
-            Agency.Event.Emitter.$.$.emit("leave", this, entity);
+            this.$.emit("leave", this, entity);
+            // Agency.Event.Emitter.$.$.emit("leave", this, entity);
 
             return true;
         }
