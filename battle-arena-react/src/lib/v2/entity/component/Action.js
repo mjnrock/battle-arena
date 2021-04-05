@@ -84,7 +84,9 @@ export class Action extends Component {
             this.interaction = Date.now();
             this.cooldown = new Cooldown(this.game.config.time.interaction);
     
-            this.$.emit("interaction", this.entity);
+            //~!@
+            // this.$.emit("interaction", this.entity);
+            Agency.Event.Emitter.$.$.emit("interaction", this.entity);
         }
 
         return this;

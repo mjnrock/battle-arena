@@ -1,4 +1,4 @@
-import Agency from "@lespantsfancy/agency";
+import AgencyBase from "@lespantsfancy/agency/src/AgencyBase";
 
 import Terrain from "./component/Terrain";
 import World from "./component/World";
@@ -7,34 +7,11 @@ import Component from "./component/Component";
 import Health from "./component/Health";
 import Meta from "./component/Meta";
 
-export class Entity extends Agency.Event.Network {
+export class Entity extends AgencyBase {
     constructor(game) {
         super();
         
         this.__game = game;
-
-        this.__relay = function(...args) {
-            return this.type === "interaction";
-        }
-
-        return new Proxy(this, {
-            set(target, prop, value) {
-                if(value == null && target[ prop ] instanceof Component) {
-                    target.leave(target[ prop ]);
-                } else if(value instanceof Component) {
-                    target.join(value);
-                }
-
-                return Reflect.set(target, prop, value);
-            },
-            deleteProperty(target, prop) {
-                if(target[ prop ] instanceof Component) {
-                    target.leave(target[ prop ]);
-                }
-
-                return Reflect.deleteProperty(target, prop);
-            },
-        });
     }
 
     [ Symbol.iterator ]() {

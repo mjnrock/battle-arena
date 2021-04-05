@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
-import Registry from "./../util/Registry";
+import Registry from "@lespantsfancy/agency/src/Registry";
+// import Registry from "./../util/Registry";
 
 export class WorldManager extends Registry {
     constructor(game, { worlds = [] } = {}) {

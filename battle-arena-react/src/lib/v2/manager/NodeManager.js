@@ -1,13 +1,14 @@
 import Agency from "@lespantsfancy/agency";
+import AgencyBase from "@lespantsfancy/agency/src/AgencyBase";
 
 import Node from "./../util/Node";
 import CrossMap from "./../util/agency/util/CrossMap";
 
-export class NodeManager extends Agency.Event.Network {
+export class NodeManager extends AgencyBase {
     static Extractor = function(entity) { return [ Agency.Util.Helper.round(entity.world.x, 1), Agency.Util.Helper.round(entity.world.y, 1) ] };
 
     constructor(size = [ 1, 1 ], { extractor } = {}) {
-        super({ pairBinding: true });
+        super();
 
         this._cache = new WeakMap();
 
@@ -22,24 +23,6 @@ export class NodeManager extends Agency.Event.Network {
         });
 
         this.__extractor = extractor;
-
-        this.addHandlers([
-            [ "join", (node, entity) => {
-                if(node instanceof Node) {
-                    const { x, y } = node;
-
-                    this._cache.set(entity, [ x, y ]);
-                }
-            }],
-            // [ "contact", (actor, target) => {
-            //     console.log(actor.meta.type, actor.world.x, actor.world.y, target.meta.type, target.world.x, target.world.y)
-            // }],
-        ]);
-
-        this.__relay = function(...args) {
-            return this.type === "portal"
-                || this.type === "contact";
-        }
     }
 
     get extractor() {

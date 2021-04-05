@@ -1,5 +1,5 @@
 import Agency from "@lespantsfancy/agency";
-import { v4 as uuidv4 } from "uuid";
+import AgencyBase from "@lespantsfancy/agency/src/AgencyBase";
 
 import NodeManager from "./manager/NodeManager"
 import EntityManager from "./manager/EntityManager";
@@ -12,16 +12,10 @@ import Portal from "./util/Portal";
 
 import { CalculateEdgeMasks } from "./data/render/edges";
 
-export class World extends Agency.Event.Emitter {
-    static Events = [
-        "join",
-        "leave",
-    ];
-
+export class World extends AgencyBase {
     constructor(size = [], { game, entities = [], portals = [], config = {} } = {}) {
         super();
 
-        this.__id = uuidv4();
         this.__game = game;
         this.__config = {
             ...config,
@@ -41,55 +35,6 @@ export class World extends Agency.Event.Emitter {
         for(let entity of entities) {
             this.joinWorld(entity);
         }
-
-        this.addHandlers([
-            [ "join", (world, entity) => {
-                if(world instanceof World) {
-                    entity.world.wayfinder.empty();
-                    
-                    entity.world.world = world.id;
-                    entity.world.vx = 0;
-                    entity.world.vy = 0;
-                }
-            }],
-            [ "leave", (world, entity) => {
-                if(world instanceof World) {
-                    entity.world.world = null;
-                }
-            }],
-            [ "portal", (portal, entity) => {
-                if(portal instanceof Portal) {
-                    //NOTE  This is needed to push the world changes to the end of the stack, otherwise multiple nodes get invoked
-                    //! This setTimeout is essential--both the portal node AND the teleportation node will activate without this delay
-                    setTimeout(() => {
-                        this.leaveWorld(entity);
-    
-                        entity.world.x = portal.x;
-                        entity.world.y = portal.y;
-                        portal.world.joinWorld(entity);
-                    }, 0);
-                }
-            }],
-            [ "contact", (actor, target) => {
-                if(actor instanceof Entity && target instanceof Entity) {
-                    //TODO  Perform an interaction
-                    console.log(actor.meta.type, target.meta.type, target.world.x, target.world.y)
-                }
-            }],
-            [ "interaction", (entity) => {
-                const node = entity.world.getCurrentNode();
-    
-                if(!node.portal(entity)) {   // Prioritize portals
-                    for(let target of [ node.terrain, ...node.occupants ].reverse()) {
-                        if(target !== entity) {
-                            this.$.emit("contact", entity, target);
-    
-                            return;    // Allow only one interaction--choose most recent entity addition first, terrain last
-                        }
-                    }
-                }
-            }],
-        ]);
     }
 
     [ Symbol.iterator ]() {
@@ -172,7 +117,9 @@ export class World extends Agency.Event.Emitter {
 
         this._nodes.move(entity);
 
-        this.$.emit("join", this, entity);
+        //~!@
+        // this.$.emit("join", this, entity);
+        Agency.Event.Emitter.$.$.emit("join", this, entity);
         
         return this;
     }
@@ -181,7 +128,9 @@ export class World extends Agency.Event.Emitter {
         this._entities.unregister(entity);
 
         if(this._nodes.remove(entity)) {
-            this.$.emit("leave", this, entity);
+            //~!@
+            // this.$.emit("leave", this, entity);
+            Agency.Event.Emitter.$.$.emit("leave", this, entity);
 
             return true;
         }

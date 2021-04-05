@@ -1,4 +1,4 @@
-// import Agency from "@lespantsfancy/agency";
+import Agency from "@lespantsfancy/agency";
 import AgencyLocal from "./util/agency/package";
 
 //STUB START "Imports" for stub below
@@ -19,6 +19,9 @@ import AgencyLocal from "./util/agency/package";
     import drawEntityLayer from "./data/render/world-entity-layer";
     import drawTerrainLayer from "./data/render/world-terrain-layer";
     import drawUILayer from "./data/render/world-ui-layer";
+
+    import worldHandlers from "./data/handlers/world";
+    import nodeHandlers from "./data/handlers/node";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
@@ -115,6 +118,24 @@ export default class Game extends AgencyLocal.Watcher {
             game.world.overworld.joinWorld(player);
 
             game.players.register(player, "player");
+
+
+            //? Load the handlers
+            Agency.Event.Network.$.router.createContexts([
+                [ "main", {
+                    globals: {
+                        game,
+                    },
+                    handlers: {
+                        ...Object.fromEntries(worldHandlers),
+                        ...Object.fromEntries(nodeHandlers),
+                    },
+                }],
+            ]);
+            Agency.Event.Network.$.router.createRoutes([
+                () => "main",
+                // payload => {},
+            ]);
             
             //? Bootstrap the rendering
             (async () => {
