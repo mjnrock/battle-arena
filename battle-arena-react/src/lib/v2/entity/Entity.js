@@ -44,16 +44,13 @@ export function FromSchema(game, schemaWithArgs = {}, callback) {
     let entity = new Entity(game);
 
     for(let [ key, argObj ] of Object.entries(schemaWithArgs)) {
-        if(key === "world") {
-            entity[ key ] = new World(game, entity, argObj);
-        } else if(key === "action") {
-            entity[ key ] = new Action(game, entity, argObj);
-        } else if(key === "health") {
-            entity[ key ] = new Health(game, entity, argObj);
-        } else if(key === "meta") {
-            entity[ key ] = new Meta(game, entity, argObj);
-        } else if(key === "terrain") {
-            entity[ key ] = new Terrain(game, entity, argObj);
+        const fn = Agency.Registry._.component[ key ];
+        if(typeof fn === "function") {
+            const component = fn(game, entity, argObj);
+
+            if(component instanceof Component) {
+                entity[ key ] = component;
+            }
         }
     }
 
