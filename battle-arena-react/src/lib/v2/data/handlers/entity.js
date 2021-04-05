@@ -2,7 +2,7 @@ export const handlers = [
     [ "interaction", ([ entity ]) => {
         const node = entity.world.getCurrentNode();
 
-        if(!node.portal(entity)) {   // Prioritize portals
+        if(node && !node.portal(entity)) {   // Prioritize portals
             for(let target of [ node.terrain, ...node.occupants ].reverse()) {
                 if(target !== entity) {
                     entity.$.emit("contact", entity, target);

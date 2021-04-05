@@ -84,7 +84,7 @@ export default class Game extends AgencyLocal.Watcher {
         }
     }
     onPostTick(fps, panic) {
-        Agency.Event.Network.$.router.process();
+        Agency.Event.Network.$.processAll();
     }
 
     onDraw(dt, now) {
@@ -100,6 +100,8 @@ export default class Game extends AgencyLocal.Watcher {
     // Access Singleton pattern via Game._
     static get _() {
         if(!Game.Instance) {
+            Agency.Event.Network.$.router.useRealTimeProcess();     // Process all setup events as they fire
+
             Game.Instance = new Game();
             const game = Game.Instance;
 
@@ -144,8 +146,8 @@ export default class Game extends AgencyLocal.Watcher {
             ]);
 
             game.world = new WorldManager(game);
-            game.world.register(World.CreateRandom(game, 25, 25, 0), "overworld");
-            game.world.register(World.CreateRandom(game, 25, 25, 0), "arena");
+            game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
+            game.world.register(World.CreateRandom(game, 25, 25, 10), "arena");
 
             // game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15, y: 15 }));
             // game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15, y: 15 }));
@@ -165,8 +167,6 @@ export default class Game extends AgencyLocal.Watcher {
             game.world.overworld.joinWorld(player);
 
             game.players.register(player, "player");
-
-            Agency.Event.Network.$.router.process();
             
             //? Bootstrap the rendering
             (async () => {
@@ -239,6 +239,7 @@ export default class Game extends AgencyLocal.Watcher {
                 });
             })();
 
+            Agency.Event.Network.$.router.useBatchProcess();    // Return to batch process before game loop starts
             game.loop.start();
 
             Game.Instance = game;
