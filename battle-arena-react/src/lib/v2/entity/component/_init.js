@@ -12,16 +12,16 @@ export const Accessor = (key) => Agency.Registry._[ Name ][ key ];
 export function init() {
     Agency.Registry._.register(new Agency.Registry(), Name);     // Create the registry
 
-    const entries = [
-        [ "world", World ],
-        [ "action", Action ],
-        [ "health", Health ],
-        [ "meta", Meta ],
-        [ "terrain", Terrain ],
-    ];
+    const entries = {
+        world: World,
+        action: Action,
+        health: Health,
+        meta: Meta,
+        terrain: Terrain,
+    };
 
     //  Begin data loading
-    for(let [ key, Class ] of entries) {
+    for(let [ key, Class ] of Object.entries(entries)) {
         Agency.Registry._[ Name ].register((game, entity, argObj) => new Class(game, entity, argObj), key);
     }
 }
