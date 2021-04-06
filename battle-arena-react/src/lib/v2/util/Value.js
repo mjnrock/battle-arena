@@ -100,6 +100,42 @@ export default class Value {
         return this;
     }
 
+    /**
+     * @percent [0,1]
+     * @percentize true|false : true --> @percent /= 100
+     */
+    addPercent(percent, percentize = false) {
+        if(percentize) {
+            percent /= 100;
+        }
+
+        return this.add(this.max * percent);
+    }
+    /**
+     * @percent [0,1]
+     * @percentize true|false : true --> @percent /= 100
+     */
+    subtractPercent(percent, percentize = false) {
+        if(percentize) {
+            percent /= 100;
+        }
+
+        return this.subtract(this.max * percent);
+    }
+    /**
+     * @percent [0,1]
+     * @percentize true|false : true --> @percent /= 100
+     */
+    setPercent(percent, percentize = false) {
+        if(percentize) {
+            percent /= 100;
+        }
+
+        this.current = this.max * percent;
+
+        return this;
+    }
+
     repeat(fnName, iters = 1, ...args) {
         const fn = this[ fnName ];
 
