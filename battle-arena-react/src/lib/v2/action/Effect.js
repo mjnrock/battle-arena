@@ -1,7 +1,13 @@
 export class Effect {
-    /**
-     * @method should be one of: "+", "-", "+%", "-%", "=", "=%"
-     */
+    static EnumMethodType = {
+        ADD: "+",
+        SUBTRACT: "-",
+        ADD_PERCENT: "+%",
+        SUBTRACT_PERCENT: "-%",
+        EQUAL: "=",
+        EQUAL_PERCENT: "=%",
+    };
+    
     constructor(executor, value, method, { isAbsolute = false } = {}) {
         this.magnitude = {
             value,

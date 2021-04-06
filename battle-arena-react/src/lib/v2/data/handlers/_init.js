@@ -38,7 +38,6 @@ export function init(game) {
     ]);
     
     Agency.Event.Network.$.router.createRoutes([
-        // () => "main",
         payload => {
             if(payload.emitter instanceof Node) {
                 return "node";

@@ -17,6 +17,14 @@ export class Cooldown {
     get isComplete() {
         return this.progress >= 1;
     }
+
+    static Generate(cooldown) {
+        if(cooldown instanceof Cooldown) {
+            return new Cooldown(cooldown.duration);
+        }
+
+        return new Cooldown(+cooldown);
+    }
 };
 
 export default Cooldown;
