@@ -81,7 +81,7 @@ export default class Canvas {
         return this;
     }
     erase(x, y, w, h) {
-        this.ctx.clearRect(x, y, w, h);
+        this.ctx.clearRect(~~x, ~~y, ~~w, ~~h);
 
         return this;
     }
@@ -130,13 +130,13 @@ export default class Canvas {
     arc(x, y, radius, startAngle = 0, endAngle = Math.PI * 2, { isFilled = false } = {}) {
         if(isFilled) {
             this.ctx.beginPath();
-            this.ctx.arc(x, y, radius, startAngle + this.config.normalization.arc, endAngle + this.config.normalization.arc);
+            this.ctx.arc(~~x, ~~y, radius, startAngle + this.config.normalization.arc, endAngle + this.config.normalization.arc);
             this.ctx.closePath();
             this.ctx.fill();
             this.ctx.stroke();
         } else {
             this.ctx.beginPath();
-            this.ctx.arc(x, y, radius, startAngle + this.config.normalization.arc, endAngle + this.config.normalization.arc);
+            this.ctx.arc(~~x, ~~y, radius, startAngle + this.config.normalization.arc, endAngle + this.config.normalization.arc);
             this.ctx.closePath();
             this.ctx.stroke();
         }
@@ -154,19 +154,19 @@ export default class Canvas {
 
         if(isFilled) {
             this.ctx.beginPath();
-            this.ctx.moveTo(x, y);
-            this.ctx.lineTo(x + dx, y + dy); // This would change if "north" is not the starting point
+            this.ctx.moveTo(~~x, ~~y);
+            this.ctx.lineTo(~~(x + dx), ~~(y + dy)); // This would change if "north" is not the starting point
             this.ctx.arc(x, y, radius, startRadian + alignment, endRadian + alignment, counterClockwise);
-            this.ctx.lineTo(x, y);
+            this.ctx.lineTo(~~x, ~~y);
             this.ctx.closePath();
             this.ctx.fill();
             this.ctx.stroke();
         } else {
             this.ctx.beginPath();
-            this.ctx.moveTo(x, y);
-            this.ctx.lineTo(x + dx, y + dy);
+            this.ctx.moveTo(~~x, ~~y);
+            this.ctx.lineTo(~~(x + dx), ~~(y + dy)); // This would change if "north" is not the starting point
             this.ctx.arc(x, y, radius, startRadian + alignment, endRadian + alignment, counterClockwise);
-            this.ctx.lineTo(x, y);
+            this.ctx.lineTo(~~x, ~~y);
             this.ctx.closePath();
             this.ctx.stroke();
         }
@@ -197,8 +197,8 @@ export default class Canvas {
 
     line(x1, y1, x2, y2) {
         this.ctx.beginPath();
-        this.ctx.moveTo(x1, y1);
-        this.ctx.lineTo(x2, y2);
+        this.ctx.moveTo(~~x1, ~~y1);
+        this.ctx.lineTo(~~x2, ~~y2);
         this.ctx.closePath();
         this.ctx.stroke();
 
@@ -208,12 +208,12 @@ export default class Canvas {
     rect(x, y, width, height, { isFilled = false } = {}) {
         this.ctx.beginPath();
         if(isFilled) {
-            this.ctx.fillRect(x, y, width, height);
+            this.ctx.fillRect(~~x, ~~y, width, height);
             this.ctx.closePath();
             this.ctx.fill();
             this.ctx.stroke();
         } else {
-            this.ctx.rect(x, y, width, height);
+            this.ctx.rect(~~x, ~~y, width, height);
             this.ctx.closePath();
             this.ctx.stroke();
         }
@@ -236,8 +236,8 @@ export default class Canvas {
         let rad = (Math.PI / 180) * deg;
 
         return [
-            x + r * Math.cos(rad),
-            y + r * Math.sin(rad),
+            ~~(x + r * Math.cos(rad)),
+            ~~(y + r * Math.sin(rad)),
         ];
     }
     ngon(n, x, y, radius, { isFilled = false, rotation = 0 } = {}) {
@@ -282,8 +282,8 @@ export default class Canvas {
     }
 
     text(txt, x, y, { align = "center", color = "#000", font = "10pt mono" } = {}) {
-        let xn = x,
-            yn = y;
+        let xn = ~~x,
+            yn = ~~y;
 
         if(align) {
             this.ctx.textAlign = align;
@@ -300,6 +300,7 @@ export default class Canvas {
     }
 
     image(imageOrSrc, ...args) {
+        args = args.map(v => ~~v);
         return new Promise((resolve, reject) => {
             if(imageOrSrc instanceof HTMLImageElement || imageOrSrc instanceof HTMLCanvasElement) {
                 // Synchronously draw if <img> or <canvas>
@@ -324,7 +325,7 @@ export default class Canvas {
     }
 
     tile(imageOrSrc, size, sx, sy, dx, dy) {
-        this.image(imageOrSrc, sx, sy, size, size, dx, dy, size, size);
+        this.image(imageOrSrc, ~~sx, ~~sy, ~~size, ~~size, ~~dx, ~~dy, ~~size, ~~size);
 
         return this;
     }

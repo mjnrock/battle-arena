@@ -261,23 +261,22 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
     //FIXME The edge paradigm is not good; use the 1x1 -> 4x4 storage solution
     CalculateEdgeMasks(world);
 
-    // const entities = world.entities.createMany(enemyCount, {
-    //     meta: { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY },
-    //     world: { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 },
-    //     health: { args: { current: () => Agency.Util.Dice.d10(), max: 10 } },
-    //     action: {},
-    // }, (i) => `enemy-${ i }`);
+    const entities = world.entities.createMany(enemyCount, {
+        meta: { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY },
+        world: { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 },
+        health: { args: { current: () => Agency.Util.Dice.d10(), max: 10 } },
+        action: {},
+    }, (i) => `enemy-${ i }`);
 
-    // entities.forEach(entity => {
-    //     world.joinWorld(entity);
+    entities.forEach(entity => {
+        world.joinWorld(entity);
 
-    //     entity.world.world = world.id;
-    //     if(entity.meta.type === EnumEntityType.BUNNY) {
-    //         entity.world.speed = 1.5;
-    //     } else if(entity.meta.type === EnumEntityType.SQUIRREL) {
-    //         entity.world.speed = 2.0;
-    //     }
-    // });
+        if(entity.meta.type === EnumEntityType.BUNNY) {
+            entity.world.speed = 1.5;
+        } else if(entity.meta.type === EnumEntityType.SQUIRREL) {
+            entity.world.speed = 2.0;
+        }
+    });
 
     return world;
 }
