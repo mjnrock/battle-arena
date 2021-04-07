@@ -38,8 +38,6 @@ export function init() {
     for(let [ key, fn ] of Agency.Util.Helper.flatten(entries, { asArray: true })) {
         Agency.Registry._[ Name ].register(new Effect(fn), key);
     }
-
-    console.log(Agency.Registry._[ Name ])
 }
 
 export default init;
