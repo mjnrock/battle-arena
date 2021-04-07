@@ -13,6 +13,7 @@ import AgencyLocal from "./util/agency/package";
     import Portal from "./util/Portal";
 
     import initializeComponentRegistry from "./entity/component/_init";
+    import initializeEffectRegistry from "./data/entity/effects/_init";
 
     import initializeHandlers from "./data/handlers/_init";
     import initializeRenderers from "./data/render/_init";
@@ -95,6 +96,7 @@ export default class Game extends AgencyLocal.Watcher {
             Agency.Event.Network.$.router.useRealTimeProcess();     // Process all setup events as they fire
 
             initializeComponentRegistry();
+            initializeEffectRegistry();
 
             Game.Instance = new Game();
             const game = Game.Instance;

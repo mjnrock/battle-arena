@@ -3,7 +3,7 @@ import Effect from "../../../action/Effect";
 import Health from "../../../entity/component/Health";
 import World from "../../../entity/component/World";
 
-export const Name = "effects";
+export const Name = "effect";
 export const Accessor = (key) => Agency.Registry._[ Name ][ key ];
 
 export function init() {
@@ -20,22 +20,26 @@ export function init() {
             }
         },
 
-        teleport: ({ target, x = null, y = null }) => {
-            if(World.Has(target) && (x != null && y != null)) {
-                target.world.move(x, y);
-            }
-        },
-        accelerate: ({ target, vx = 0, vy = 0 }) => {
-            if(World.Has(target)) {
-                target.world.accelerate(vx, vy);
-            }
+        movement: {
+            teleport: ({ target, x = null, y = null }) => {
+                if(World.Has(target) && (x != null && y != null)) {
+                    target.world.move(x, y);
+                }
+            },
+            accelerate: ({ target, vx = 0, vy = 0 }) => {
+                if(World.Has(target)) {
+                    target.world.accelerate(vx, vy);
+                }
+            },
         },
     };
 
     //  Begin data loading
-    for(let [ key, fn ] of Object.entries(entries)) {
+    for(let [ key, fn ] of Agency.Util.Helper.flatten(entries, { asArray: true })) {
         Agency.Registry._[ Name ].register(new Effect(fn), key);
     }
+
+    console.log(Agency.Registry._[ Name ])
 }
 
 export default init;
