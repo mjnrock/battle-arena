@@ -14,6 +14,7 @@ import AgencyLocal from "./util/agency/package";
 
     import initializeComponentRegistry from "./entity/component/_init";
     import initializeEffectRegistry from "./data/entity/effects/_init";
+    import initializeActionRegistry from "./action/_init";
 
     import initializeHandlers from "./data/handlers/_init";
     import initializeRenderers from "./data/render/_init";
@@ -97,6 +98,7 @@ export default class Game extends AgencyLocal.Watcher {
 
             initializeComponentRegistry();
             initializeEffectRegistry();
+            initializeActionRegistry();
 
             Game.Instance = new Game();
             const game = Game.Instance;
@@ -114,7 +116,11 @@ export default class Game extends AgencyLocal.Watcher {
                 meta: { type: EnumEntityType.SQUIRREL },
                 world: { x: 4, y: 7 },
                 health: { args: { current: 10, max: 10 } },
-                action: {},
+                action: {
+                    actions: {
+                        holyNova: Agency.Registry._.action.holyNova,
+                    },
+                },
             }, (entity) => {
                 entity.world.wayfinder.entity = entity;
             });

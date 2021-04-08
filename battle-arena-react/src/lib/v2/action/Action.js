@@ -32,27 +32,27 @@ export class Action extends Agency.Event.Emitter {
     onSuccess() {}
     onFailure() {}
 
-    invoke(source, ...args) {
-        if(this.activator(source, this.data, ...args)) {
+    invoke(source, { x, y, ...args } = {}) {
+        if(this.activator(source, args)) {
             if(this.onSuccess instanceof Effect) {
-                this.onSuccess.invoke({ target: source, source, data: this.data, ...args });
+                this.onSuccess.invoke({ target: source, source, ...args });
             } else {
-                this.onSuccess(source, this.data, ...args);
+                this.onSuccess(source, args);
             }
 
             this.$.emit("action", {
+                action: this,
                 source,
-                afflictions: this.afflictions,
-                data: this.data,
+                tile: { x, y },
             });
 
             return true;
         }
 
         if(this.onFailure instanceof Effect) {
-            this.onFailure.invoke({ target: source, source, data: this.data, ...args });
+            this.onFailure.invoke({ target: source, source, ...args });
         } else {
-            this.onFailure(source, this.data, ...args);
+            this.onFailure(source, args);
         }
 
         return false;

@@ -8,6 +8,7 @@ import Component from "../../entity/component/Component";
 import nodeHandlers from "./node";
 import worldHandlers from "./world";
 import entityHandlers from "./entity";
+import Action from "../../action/Action";
 
 export function init(game) {
     Agency.Event.Network.$.router.createContexts([
@@ -43,7 +44,11 @@ export function init(game) {
                 return "node";
             } else if(payload.emitter instanceof World) {
                 return "world";
-            } else if(payload.emitter instanceof Entity || payload.emitter instanceof Component) {
+            } else if(
+                payload.emitter instanceof Entity
+                || payload.emitter instanceof Component
+                || payload.emitter instanceof Action
+            ) {
                 return "entity";
             }
         },

@@ -37,6 +37,17 @@ export class World extends Component {
         }
     }
 
+    pos(asArray = false) {
+        if(asArray) {
+            return [ this.x, this.y ];
+        }
+        
+        return {
+            x: this.x,
+            y: this.y,
+        }
+    }
+
     nudge(dx, dy) {
         this.x += dx;
         this.y += dy;
