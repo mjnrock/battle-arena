@@ -1504,10 +1504,10 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@lespantsfancy/agency@0.6.7":
-  version "0.6.7"
-  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.6.7.tgz#acd152f965b2ced57756cc5f28b34e87c7abdf91"
-  integrity sha512-loByzja2nQdL2aGp5klJmxNIBD6OKzS/WGooN/ANSBcXOk63GITHIGp3CRrdgL00SY5UPJW/qKJgW2hLjasz7Q==
+"@lespantsfancy/agency@0.6.8":
+  version "0.6.8"
+  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.6.8.tgz#06b2119240722a9ba60fe0bb14131da652a7fb50"
+  integrity sha512-4vaI+n/HxFIWyCRy4/cM8PDInKA3qq2TnJEA9ByhspD1BXt7K+6fZYJppV8PP/HKmtD5POcFawXoGuMdJ6Er/g==
   dependencies:
     esm "^3.2.25"
     is-base64 "^1.1.0"

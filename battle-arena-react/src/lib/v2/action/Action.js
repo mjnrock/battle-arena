@@ -1,61 +1,19 @@
-import Agency from "@lespantsfancy/agency";
-import Effect from "./Effect";
-
-export class Action extends Agency.Event.Emitter {
+export class Action {
     /**
      * @activator Should only be used to << Entity[ Component ] >> data (e.g. insufficient mana)
      */
-    constructor(afflictions = [], { data = {}, activator, onSuccess, onFailure } = {}) {
-        super();
-
+    constructor(afflictions = [], qualifier) {
         this.afflictions = afflictions;
-        this.data = data;
 
-        if(typeof activator === "function") {
-            this.activator = activator;
+        if(typeof qualifier === "function") {
+            this.qualifier = qualifier;
         } else {
-            this.activator = () => true;
-        }
-        
-        if(typeof onSuccess === "function") {
-            this.onSuccess = onSuccess;
-        }
-        if(typeof onFailure === "function") {
-            this.onFailure = onFailure;
+            this.qualifier = () => true;
         }
     }
 
-    /**
-     * These should be used as a processor, generator, and/or "cost" function (e.g. drain 50 mana|give 10 gold|etc.)
-     *  If they are an <Effect>, instead, they will be invoked and passed the @source as the @target
-     */
-    onSuccess() {}
-    onFailure() {}
-
-    invoke(source, { x, y, ...args } = {}) {
-        if(this.activator(source, args)) {
-            if(this.onSuccess instanceof Effect) {
-                this.onSuccess.invoke({ target: source, source, ...args });
-            } else {
-                this.onSuccess(source, args);
-            }
-
-            this.$.emit("action", {
-                action: this,
-                source,
-                tile: { x, y },
-            });
-
-            return true;
-        }
-
-        if(this.onFailure instanceof Effect) {
-            this.onFailure.invoke({ target: source, source, ...args });
-        } else {
-            this.onFailure(source, args);
-        }
-
-        return false;
+    attempt(...args) {
+        return this.qualifier(...args);
     }
 };
 

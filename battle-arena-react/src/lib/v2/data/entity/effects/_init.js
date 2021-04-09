@@ -38,7 +38,7 @@ export function init() {
 
     //  Begin data loading
     for(let [ key, fn ] of Agency.Util.Helper.flatten(entries, { asArray: true })) {
-        Agency.Registry._[ Name ].register(new Effect(fn), key);
+        Agency.Registry._[ Name ].register(fn, key);
     }
 }
 

@@ -59,7 +59,7 @@ export class Action extends Component {
         current: null,
         ai: () => Repository.AI.Test,
         data: {},
-        actions: {},
+        abilities: {},
         queue: new Set(),
         cooldown: null,
         interaction: 0,

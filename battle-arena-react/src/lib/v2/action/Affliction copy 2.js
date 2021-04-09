@@ -1,5 +1,3 @@
-import Effect from "./Effect";
-
 /**
  * An <Affliction> will apply *every* <Effect>
  *  to *every* <Point> within it.
@@ -19,13 +17,10 @@ export class Affliction {
             }
         }
 
-        if(!Array.isArray(effects[ 0 ])) {
-            effects = [ effects ];
-        }
-
-        this.effects = [];
-        for(let [ fn, ...args ] of effects) {
-            this.effects.push(new Effect(fn, ...args));
+        if(!Array.isArray(effects)) {
+            this.effects = [ effects ];
+        } else {
+            this.effects = effects;
         }
 
         if(typeof qualifier === "function") {
@@ -43,10 +38,10 @@ export class Affliction {
             let [ x, y, qualifier ] = point;
 
             arr.push([
-                qualifier || (() => true),
+                this.effects,
                 x,
                 y,
-                this.effects,
+                qualifier,
             ]);
         }
 
@@ -63,10 +58,6 @@ export class Affliction {
 
         return results;
     }
-
-
-
-
 
     static Caster(effects = [], qualifier) {
         return new Affliction([ 0, 0 ], effects, qualifier);
@@ -114,7 +105,7 @@ export class Affliction {
             [ -1, -1 ],
         ], effects, qualifier);
     }
-    static Rectangle(xr, yr, effects = [], qualifier, { filled = true, ...opts } = {}) {
+    static Rectangle(xr, yr, effects = [], { filled = true, ...opts } = {}) {
         const points = [];
 
         if(filled) {

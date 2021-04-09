@@ -1,11 +1,10 @@
 export class Effect {    
-    constructor(fn, argsObj = {}) {
-        this.executor = fn;
-        this.args = argsObj;
+    constructor(executor) {
+        this.executor = executor;
     }
 
     invoke({ target, source, ...rest } = {}) {
-        return this.executor({ target, source, ...this.args, ...rest });
+        return this.executor({ target, source, ...rest });
     }
 
     static Invoke(effects = [], ...args) {

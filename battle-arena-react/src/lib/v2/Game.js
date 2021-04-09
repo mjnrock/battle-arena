@@ -117,8 +117,8 @@ export default class Game extends AgencyLocal.Watcher {
                 world: { x: 4, y: 7 },
                 health: { args: { current: 10, max: 10 } },
                 action: {
-                    actions: {
-                        holyNova: Agency.Registry._.action.holyNova,
+                    abilities: {
+                        holyNova: Agency.Registry._.ability.holyNova,
                     },
                 },
             }, (entity) => {
