@@ -9,8 +9,8 @@ export class World extends Component {
     static DefaultProperties = () => ({
         world: null,
         facing: 0,
-        x: 0,
-        y: 0,
+        _x: 0,
+        _y: 0,
         vx: 0,
         vy: 0,
         speed: 2.5,

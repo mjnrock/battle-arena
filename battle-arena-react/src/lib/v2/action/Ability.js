@@ -9,26 +9,24 @@ export class Ability extends Agency.Event.Emitter  {
         this.action = action;
         this.cooldown = cooldown;
         this.range = range;
-        this.cost = cost;
-        this.requirement = requirement;
+        this.cost = cost;       // actor => mana - 50...
+        this.requirement = requirement;     // actor => level >= 5...
     }
 
     invoke(actor, { ...rest } = {}) {
         const argsObj = {
             source: actor,
-            action: {
-                range: this.range,
-                costs: this.cost,
-                cooldown: this.cooldown instanceof Cooldown ? this.cooldown.duration : +this.cooldown,
-            },
+            range: this.range,
             ...rest,
         };
 
-        if(this.requirement.every(fn => fn(argsObj)) && this.action.attempt(argsObj)) {
+        if(this.requirement.every(fn => fn(actor)) && this.action.attempt(argsObj)) {
             const afflictions = Affliction.Flatten(this.action.afflictions, argsObj);
 
-            argsObj.action.afflictions = afflictions;
+            argsObj.afflictions = afflictions;
 
+            this.costs.forEach(cost => cost(actor));
+            this.cooldown = Cooldown.Generate(this.cooldown);
             this.$.emit("ability", argsObj);
         }
     }

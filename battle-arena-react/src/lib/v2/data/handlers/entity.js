@@ -2,37 +2,31 @@ import Cooldown from "../../util/Cooldown";
 
 export const handlers = [
     [ "ability", ([ obj ]) => {
-        const { source, action, ...rest } = obj;
+        const { source, afflictions, ...rest } = obj;
+        const world = source.world.getCurrentWorld();
 
-        if(!source.action.cooldown) {
-            const world = source.world.getCurrentWorld();
+        //TODO  @range check
 
-            //TODO  @action.range check
+        for(let afflictions of afflictions) {
+            for(let [ qualifier, rx, ry, effects ] of afflictions) {
+                let x, y;
+                if(typeof rest.x === "number" && typeof rest.y === "number") {
+                    x = rest.x;
+                    y = rest.y;
+                } else {
+                    x = source.world.x;
+                    y = source.world.y;
+                }
+
+                const entities = (world.node(x + rx, y + ry) || {}).occupants || [];
     
-            action.costs.forEach(cost => cost({ source, action, ...rest }));
-            source.action.cooldown = Cooldown.Generate(action.cooldown);
-    
-            for(let afflictions of action.afflictions) {
-                for(let [ qualifier, rx, ry, effects ] of afflictions) {
-                    let x, y;
-                    if(typeof rest.x === "number" && typeof rest.y === "number") {
-                        x = rest.x;
-                        y = rest.y;
-                    } else {
-                        x = source.world.x;
-                        y = source.world.y;
-                    }
-    
-                    const entities = (world.node(x + rx, y + ry) || {}).occupants || [];
-        
-                    for(let entity of entities) {
-                        if(qualifier(entity)) {
-                            for(let effect of effects) {
-                                effect.invoke({
-                                    target: entity,
-                                    source,
-                                });
-                            }
+                for(let entity of entities) {
+                    if(qualifier(entity)) {
+                        for(let effect of effects) {
+                            effect.invoke({
+                                target: entity,
+                                source,
+                            });
                         }
                     }
                 }

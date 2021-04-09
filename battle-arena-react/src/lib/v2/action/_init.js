@@ -27,8 +27,8 @@ export function init() {
     };
 
     //  Begin data loading
-    for(let [ key, action ] of Agency.Util.Helper.flatten(entries, { asArray: true })) {
-        Agency.Registry._[ Name ].register(action, key);
+    for(let [ key, ability ] of Agency.Util.Helper.flatten(entries, { asArray: true })) {
+        Agency.Registry._[ Name ].register(ability, key);
     }
 }
 
