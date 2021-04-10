@@ -40,10 +40,10 @@ export class Affliction {
         const points = typeof this.points === "function" ? this.points(...args) : this.points;
 
         for(let point of points) {
-            let [ x, y, qualifier ] = point;
+            let [ x, y ] = point;
 
             arr.push([
-                qualifier || (() => true),
+                this.qualifier,
                 x,
                 y,
                 this.effects,
@@ -68,9 +68,8 @@ export class Affliction {
 
 
 
-    static Caster(effects = [], qualifier) {
-        return new Affliction([ 0, 0 ], effects, qualifier);
-        // return new Affliction([ 0, 0 ], effects, ({ target, source }) => target === source);
+    static Caster(effects = []) {
+        return new Affliction([ 0, 0 ], effects, ({ target, source }) => target === source);
     }
     static Facing(tiles = 1, effects = [], qualifier) {
         const lookup = {
@@ -94,6 +93,9 @@ export class Affliction {
         }, effects, qualifier);
     }
     
+    static Current(effects = [], qualifier) {
+        return new Affliction([ 0, 0 ], effects, qualifier);
+    }
     static Surround4(effects = [], qualifier) {
         return new Affliction([
             [ 1, 0 ],

@@ -20,7 +20,8 @@ export class World extends Agency.Event.Emitter {
         this.__config = {
             ...config,
 
-            spawn: config.spawn || [ 0, 0 ],
+            //!GRID-NUDGE
+            spawn: config.spawn || [ 0.5, 0.5 ],
         };
 
         this.size = size;
@@ -263,7 +264,8 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
 
     const entities = world.entities.createMany(enemyCount, {
         meta: { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY },
-        world: { world, x: () => Agency.Util.Dice.random(0, world.width - 1), y: () => Agency.Util.Dice.random(0, world.height - 1), facing: () => Agency.Util.Dice.random(0, 3) * 90 },
+        //!GRID-NUDGE
+        world: { world, x: () => Agency.Util.Dice.random(0, world.width - 1) + 0.5, y: () => Agency.Util.Dice.random(0, world.height - 1) + 0.5, facing: () => Agency.Util.Dice.random(0, 3) * 90 },
         health: { args: { current: () => Agency.Util.Dice.d10(), max: 10 } },
         action: {},
     }, (i) => `enemy-${ i }`);

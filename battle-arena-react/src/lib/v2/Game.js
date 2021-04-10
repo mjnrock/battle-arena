@@ -120,11 +120,12 @@ export default class Game extends AgencyLocal.Watcher {
 
             const player = Entity.FromSchema(game, {
                 meta: { type: EnumEntityType.SQUIRREL },
-                world: { x: 4, y: 7 },
-                health: { args: { current: 10, max: 10 } },
+                world: { x: 4.5, y: 7.5 },
+                health: { args: { current: 1, max: 10 } },
                 action: {
                     abilities: {
                         holyNova: Agency.Registry._.ability.holyNova,
+                        holyLight: Agency.Registry._.ability.holyLight,
                     },
                 },
             }, (entity) => {

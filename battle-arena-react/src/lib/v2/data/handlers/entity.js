@@ -27,7 +27,7 @@ export const handlers = [
                 const entities = (world.node(x + rx, y + ry) || {}).occupants || [];
     
                 for(let entity of entities) {
-                    if(qualifier(entity)) {
+                    if(qualifier({ target: entity, source })) {
                         for(let effect of effects) {
                             effect.invoke({
                                 target: entity,

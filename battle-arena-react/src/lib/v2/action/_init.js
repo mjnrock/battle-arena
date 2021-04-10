@@ -12,7 +12,7 @@ export function init() {
     const entries = {
         holyNova: () => new Ability({
             action: new Action([
-                Affliction.Caster([ 
+                Affliction.Current([ 
                     [ Agency.Registry._.effect.heal, { amount: 1 } ],
                 ]),
                 Affliction.Surround4([ 
@@ -20,6 +20,17 @@ export function init() {
                 ]),
             ]),
             cooldown: 750,
+            cost: [],
+            requirement: [],
+            range: 0,
+        }),
+        holyLight: () => new Ability({
+            action: new Action([
+                Affliction.Caster([ 
+                    [ Agency.Registry._.effect.heal, { amount: 5 } ],
+                ]),
+            ]),
+            cooldown: 2500,
             cost: [],
             requirement: [],
             range: 0,

@@ -11,6 +11,15 @@ export async function init(game) {
                     ...game.players.player.world.pos(),
                 });
             }
+        } else if(e.code === "Digit2") {
+            const [ ,second ] = Object.values(game.players.player.action.abilities);
+
+            if(second) {
+                const ability = second();
+                ability.invoke(game.players.player, {
+                    ...game.players.player.world.pos(),
+                });
+            }
         } else if(e.code === "KeyV") {
             game.config.SHOW_UI = !game.config.SHOW_UI;
         } else if(e.code === "Space") {
