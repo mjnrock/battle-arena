@@ -1,10 +1,8 @@
 export async function init(game) {
-    window.onkeypress = e => {
+    window.onkeydown = e => {
         e.preventDefault();
 
-        //STUB  These "DigitX" invocations need to be moved somewhere else.
-        //FIXME Range check is not robust
-        //FIXME An ability like "holyLight" with Affliction.Current would hit multiple entities if they were stacked.  Add some "Max Entities" limiter and maybe an <Effect> hit accumulator?
+        //FIXME  These "DigitX" invocations need to be generalized and handled via the <Network> event system.
         if(e.code === "Digit1") {
             const [ first ] = Object.values(game.players.player.action.abilities);
 
@@ -28,6 +26,14 @@ export async function init(game) {
                 // ability.invoke(game.players.player, { x: px, y: py });
                 ability.invoke(game.players.player, { x: mx, y: my });
             }
+        } else if(e.code === "F5") {
+            if(e.ctrlKey) {
+                window.location.replace(window.location.href);
+            } else {
+                window.location.reload();
+            }
+        } else if(e.code === "F3") {
+            game.config.SHOW_DEBUG = !game.config.SHOW_DEBUG;
         } else if(e.code === "KeyV") {
             game.config.SHOW_UI = !game.config.SHOW_UI;
         } else if(e.code === "Space") {
