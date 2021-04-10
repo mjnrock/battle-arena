@@ -2,31 +2,56 @@ import Cooldown from "./../../util/Cooldown";
 
 export const handlers = [
     [ "ability", ([ obj ]) => {
-        const { source, afflictions, cost, cooldown, ...rest } = obj;
+        const { source, afflictions, cost, cooldown, priority, escape, affected, ...rest } = obj;
+
+        if(source.action.cooldown) {
+            return;
+        }
+
         const world = source.world.getCurrentWorld();
 
-        //TODO  @range check
-        if(source.action.cooldown) {
+        if(!world) {
             return;
         }
 
         cost.forEach(cost => cost(source));
         source.action.cooldown = Cooldown.Generate(cooldown);
 
+        //TODO  @range check
+        let x, y;
+        if(typeof rest.x === "number" && typeof rest.y === "number") {
+            x = rest.x;
+            y = rest.y;
+        } else {
+            x = source.world.x;
+            y = source.world.y;
+        }
+
         for(let afflictionGrid of afflictions) {
             for(let [ qualifier, rx, ry, effects ] of afflictionGrid) {
-                let x, y;
-                if(typeof rest.x === "number" && typeof rest.y === "number") {
-                    x = rest.x;
-                    y = rest.y;
-                } else {
-                    x = source.world.x;
-                    y = source.world.y;
+                const entities = [ ...(world.node(x + rx, y + ry) || {}).occupants ] || [];    
+
+                if(typeof priority === "function") {
+                    entities.sort((a, b) => {
+                        let ap = priority({
+                            target: a,
+                            source,
+                        });
+                        let bp = priority({
+                            target: b,
+                            source,
+                        });
+    
+                        return ap > bp ? -1 : 1;
+                    });
                 }
 
-                const entities = (world.node(x + rx, y + ry) || {}).occupants || [];
-    
+entityLoop:
                 for(let entity of entities) {
+                    if(escape({ affected, target: entity })) {
+                        break entityLoop;
+                    }
+
                     if(qualifier({ target: entity, source })) {
                         for(let effect of effects) {
                             effect.invoke({
@@ -35,6 +60,8 @@ export const handlers = [
                             });
                         }
                     }
+                    
+                    affected.add(entity);
                 }
             }
         }

@@ -22,7 +22,7 @@ export function init() {
 
     //  Begin data loading
     for(let [ key, Class ] of Object.entries(entries)) {
-        Agency.Registry._[ Name ].register((game, entity, argObj) => new Class(game, entity, argObj), key);
+        Agency.Registry._[ Name ].register((...args) => new Class(...args), key);
     }
 }
 

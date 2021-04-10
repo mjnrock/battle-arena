@@ -60,7 +60,7 @@ export default class GameLoop {
      * @param {number} interpolationPercentage A factor between 0.0 and 1.0, used as a scaling weight similar to delta time
      */
     draw(interpolationPercentage) {
-        // console.log("%", interpolationPercentage);   //TODO Figure out how to add these "rendering fractional steps" into implementation
+        // console.log("%", interpolationPercentage);
     }
 
     post(fps, panic) {

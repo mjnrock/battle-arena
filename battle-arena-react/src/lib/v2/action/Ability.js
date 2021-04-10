@@ -3,7 +3,7 @@ import Cooldown from "../util/Cooldown";
 import Affliction from "./Affliction";
 
 export class Ability extends Agency.Event.Emitter  {
-    constructor({ action, range = 0, cooldown = 0, cost = [], requirement = [] } = {}) {
+    constructor({ action, range = 0, cooldown = 0, cost = [], requirement = [], priority, escape } = {}) {
         super();
 
         this.action = action;
@@ -11,6 +11,8 @@ export class Ability extends Agency.Event.Emitter  {
         this.range = range;
         this.cost = cost;       // actor => mana - 50...
         this.requirement = requirement;     // actor => level >= 5...
+        this.escape = escape || (() => false);
+        this.priority = priority;
     }
 
     invoke(actor, { ...rest } = {}) {
@@ -19,6 +21,9 @@ export class Ability extends Agency.Event.Emitter  {
             range: this.range,
             cost: this.cost,
             cooldown: this.cooldown,
+            affected: new Set(),
+            escape: this.escape,
+            priority: this.priority,
             ...rest,
         };
 
@@ -32,6 +37,35 @@ export class Ability extends Agency.Event.Emitter  {
         }
 
         return false;
+    }
+
+    static MaxAffected(amount = 1) {
+        return {
+            escape: ({ affected }) => affected.size >= amount,
+        };
+    }
+
+    static PrioritizeSelf() {
+        return {
+            priority: ({ target, source }) => {
+                if(target === source) {
+                    return Infinity;
+                }
+
+                return 1;
+            },
+        };
+    }
+    static DeprioritizeSelf() {
+        return {
+            priority: ({ target, source }) => {
+                if(target === source) {
+                    return -Infinity;
+                }
+
+                return 1;
+            },
+        };
     }
 }
 

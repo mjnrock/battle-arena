@@ -15,7 +15,7 @@ export function init() {
                 Affliction.Current([ 
                     [ Agency.Registry._.effect.heal, { amount: 1 } ],
                 ]),
-                Affliction.Surround4([ 
+                Affliction.Surround8([ 
                     [ Agency.Registry._.effect.heal, { amount: 1 } ],
                 ]),
             ]),
@@ -23,6 +23,18 @@ export function init() {
             cost: [],
             requirement: [],
             range: 0,
+            ...Ability.MaxAffected(2),
+            priority: ({ target, source }) => {                     // Prioritize (harmed) self, deprioritize *all* full health
+                if(target.health.value.rate >= 1) {
+                    return -Infinity;
+                }
+
+                if(target === source) {
+                    return -Infinity;
+                }
+
+                return 1;
+            }
         }),
         holyLight: () => new Ability({
             action: new Action([
@@ -34,6 +46,20 @@ export function init() {
             cost: [],
             requirement: [],
             range: 3,
+            ...Ability.MaxAffected(1),
+            // escape: ({ affected, target }) => affected.size > 0,    // Max hits = 1
+            // ...Ability.PrioritizeSelf(),
+            priority: ({ target, source }) => {                     // Prioritize (harmed) self, deprioritize *all* full health
+                if(target.health.value.rate >= 1) {
+                    return -Infinity;
+                }
+
+                if(target === source) {
+                    return Infinity;
+                }
+
+                return 1;
+            }
         }),
     };
 

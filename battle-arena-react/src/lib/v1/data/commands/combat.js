@@ -28,7 +28,6 @@ export const cast = (entity, abilityKey, { x: nx, y: ny, isRelative = false } = 
         const ent = Entity.FromSchema(entityEffectSchema, {
             position: [ x, y ],
             condition: [ effect.type === 1 ? "ATTACKING" : "IDLE" ],    // Debug way to render different colors
-            //TODO Put more variables relevant to the @effect
         });
         Game.$.entities.register(ent);
 
