@@ -2,7 +2,7 @@ import Agency from "@lespantsfancy/agency";
 import Affliction from "./Affliction";
 
 export class Ability extends Agency.Event.Emitter  {
-    constructor({ action, range = 0, cooldown = 0, cost = [], requirement = [], priority, escape, targetsOnly = false } = {}) {
+    constructor({ action, range = 0, cooldown = 0, cost = [], requirement = [], priority, escape, targeted = false } = {}) {
         super();
 
         this.action = action;
@@ -12,7 +12,7 @@ export class Ability extends Agency.Event.Emitter  {
         this.requirement = requirement;     // actor => level >= 5...
         this.escape = escape || (() => false);
         this.priority = priority;
-        this.targetsOnly = targetsOnly;
+        this.targeted = targeted;
     }
 
     invoke(actor, { ...rest } = {}) {
@@ -24,7 +24,7 @@ export class Ability extends Agency.Event.Emitter  {
             affected: new Set(),
             escape: this.escape,
             priority: this.priority,
-            targetsOnly: this.targetsOnly,
+            targeted: this.targeted,
             ...rest,
         };
 

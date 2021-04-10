@@ -3,7 +3,7 @@ import Cooldown from "./../../util/Cooldown";
 
 export const handlers = [
     [ "ability", ([ obj ]) => {
-        const { source, afflictions, cost, cooldown, priority, escape, affected, range, targetsOnly, ...rest } = obj;
+        const { source, afflictions, cost, cooldown, priority, escape, affected, range, targeted, ...rest } = obj;
 
         if(source.action.cooldown) {
             return;
@@ -28,7 +28,7 @@ export const handlers = [
             return;
         }
 
-        if(targetsOnly && !world.node(x, y).hasOccupants) {
+        if(targeted && !world.node(x, y).hasOccupants) {
             return;
         }
 
