@@ -23,7 +23,7 @@ export function init() {
             cost: [],
             requirement: [],
             range: 0,
-            ...Ability.MaxAffected(2),
+            ...Ability.MaxAffected(5),
             priority: ({ target, source }) => {                     // Prioritize (harmed) self, deprioritize *all* full health
                 if(target.health.value.rate >= 1) {
                     return -Infinity;
@@ -46,6 +46,7 @@ export function init() {
             cost: [],
             requirement: [],
             range: 3,
+            targetsOnly: true,
             ...Ability.MaxAffected(1),
             // escape: ({ affected, target }) => affected.size > 0,    // Max hits = 1
             // ...Ability.PrioritizeSelf(),

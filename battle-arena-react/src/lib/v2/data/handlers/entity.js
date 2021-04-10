@@ -1,8 +1,9 @@
+import Ability from "../../action/Ability";
 import Cooldown from "./../../util/Cooldown";
 
 export const handlers = [
     [ "ability", ([ obj ]) => {
-        const { source, afflictions, cost, cooldown, priority, escape, affected, ...rest } = obj;
+        const { source, afflictions, cost, cooldown, priority, escape, affected, range, targetsOnly, ...rest } = obj;
 
         if(source.action.cooldown) {
             return;
@@ -14,10 +15,6 @@ export const handlers = [
             return;
         }
 
-        cost.forEach(cost => cost(source));
-        source.action.cooldown = Cooldown.Generate(cooldown);
-
-        //TODO  @range check
         let x, y;
         if(typeof rest.x === "number" && typeof rest.y === "number") {
             x = rest.x;
@@ -26,44 +23,63 @@ export const handlers = [
             x = source.world.x;
             y = source.world.y;
         }
+        
+        if(!Ability.RangeCheck(x, y, source.world.x, source.world.y, range)) {
+            return;
+        }
 
+        if(targetsOnly && !world.node(x, y).hasOccupants) {
+            return;
+        }
+
+        cost.forEach(cost => cost(source));
+        source.action.cooldown = Cooldown.Generate(cooldown);
+
+        const entityEffects = new Map();
         for(let afflictionGrid of afflictions) {
             for(let [ qualifier, rx, ry, effects ] of afflictionGrid) {
-                const entities = [ ...(world.node(x + rx, y + ry) || {}).occupants ] || [];    
+                const entities = [ ...(world.node(x + rx, y + ry) || {}).occupants ] || [];
 
-                if(typeof priority === "function") {
-                    entities.sort((a, b) => {
-                        let ap = priority({
-                            target: a,
-                            source,
-                        });
-                        let bp = priority({
-                            target: b,
-                            source,
-                        });
-    
-                        return ap > bp ? -1 : 1;
-                    });
-                }
-
-entityLoop:
                 for(let entity of entities) {
-                    if(escape({ affected, target: entity })) {
-                        break entityLoop;
-                    }
-
                     if(qualifier({ target: entity, source })) {
+                        if(!(entityEffects.get(entity) instanceof Set)) {
+                            entityEffects.set(entity, new Set());
+                        }
+
                         for(let effect of effects) {
-                            effect.invoke({
-                                target: entity,
-                                source,
-                            });
+                            entityEffects.get(entity).add(effect);
                         }
                     }
-                    
-                    affected.add(entity);
                 }
             }
+        }
+        
+        const entities = [ ...entityEffects.entries() ].sort(([ a ], [ b ]) => {
+            let ap = priority({
+                target: a,
+                source,
+            });
+            let bp = priority({
+                target: b,
+                source,
+            });
+
+            return ap > bp ? -1 : 1;
+        });
+
+        for(let [ entity, effects ] of entities) {
+            if(escape({ affected, target: entity })) {
+                break;
+            }
+            
+            for(let effect of effects) {
+                effect.invoke({
+                    target: entity,
+                    source,
+                });
+            }
+                
+            affected.add(entity);
         }
     }],
     [ "interaction", ([ entity ]) => {

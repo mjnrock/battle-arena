@@ -24,19 +24,9 @@ export async function init(game) {
                 let [ px, py ] = game.players.player.world.pos(true);
                 px = ~~px;
                 py = ~~py;
-
-                let x, y;
                 
-                const world = game.players.player.world.getCurrentWorld();
-                const node = world.node(mx, my);
-
-                if(node.hasOccupants && (Math.abs(mx - px) + Math.abs(my - py)) <= ability.range) {
-                    [ x, y ] = [ node.x, node.y ];
-                } else {
-                    [ x, y ] = [ px, py ];
-                }
-                
-                ability.invoke(game.players.player, { x, y });
+                // ability.invoke(game.players.player, { x: px, y: py });
+                ability.invoke(game.players.player, { x: mx, y: my });
             }
         } else if(e.code === "KeyV") {
             game.config.SHOW_UI = !game.config.SHOW_UI;

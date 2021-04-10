@@ -121,8 +121,8 @@ export default class Game extends AgencyLocal.Watcher {
             game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
             game.world.register(World.CreateRandom(game, 25, 25, 10), "arena");
 
-            game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15, y: 15, activator: Action.IsInteracting }));
-            game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15, y: 15, activator: Action.IsInteracting }));
+            game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));
+            game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));
 
             const player = Entity.FromSchema(game, {
                 meta: { type: EnumEntityType.SQUIRREL },
