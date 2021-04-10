@@ -21,7 +21,9 @@ export function init() {
             ]),
             cooldown: 750,
             cost: [],
-            requirement: [],
+            requirement: [
+                entity => entity.health.value.rate > 0.5,   // Must have at least half health to cast
+            ],
             range: 0,
             ...Ability.MaxAffected(5),                  // Max hits = 5
             priority: ({ target, source }) => {         // Prioritize lower health
