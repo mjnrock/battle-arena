@@ -28,7 +28,7 @@ export const handlers = [
             return;
         }
 
-        if(targeted && !world.node(x, y).hasOccupants) {
+        if(targeted && !(world.node(x, y) || {}).hasOccupants) {
             return;
         }
 
@@ -38,9 +38,9 @@ export const handlers = [
         const entityEffects = new Map();
         for(let afflictionGrid of afflictions) {
             for(let [ qualifier, rx, ry, effects ] of afflictionGrid) {
-                const entities = [ ...(world.node(x + rx, y + ry) || {}).occupants ] || [];
+                const entities = (world.node(x + rx, y + ry) || {}).occupants || [];
 
-                for(let entity of entities) {
+                for(let entity of [ ...entities ]) {
                     if(qualifier({ target: entity, source })) {
                         if(!(entityEffects.get(entity) instanceof Set)) {
                             entityEffects.set(entity, new Set());
