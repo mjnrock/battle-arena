@@ -40,7 +40,7 @@ export class Ability extends Agency.Event.Emitter  {
         return false;
     }
 
-
+    //FIXME A lot of this Ability-related stuff should be placed in more structured ways
     static RangeCheck(x1, y1, x2, y2, range) {
         return (Math.abs(~~x1 - ~~x2) + Math.abs(~~y1 - ~~y2)) <= range;
     }

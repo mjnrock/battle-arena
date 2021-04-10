@@ -1,6 +1,6 @@
 import Agency from "@lespantsfancy/agency";
 
-import { EnumEntityType } from "./../entity/component/Meta";
+// import { EnumEntityType } from "./../entity/component/Meta";
 import Ability from "./Ability";
 import Action from "./Action";
 import Affliction from "./Affliction";
