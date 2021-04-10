@@ -1,6 +1,12 @@
 import Agency from "@lespantsfancy/agency";
 import AgencyLocal from "./util/agency/package";
 
+/**
+ * NOTE
+ *  !GRID-NUDGE
+ *      This flag indicates nudge work to line up the paths, rendering, and position of AStar movement
+ */
+
 //STUB START "Imports" for stub below
     import World from "./World";
     import GameLoop from "./GameLoop";

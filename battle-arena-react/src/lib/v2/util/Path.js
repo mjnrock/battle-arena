@@ -120,9 +120,10 @@ export class Path {
     }
 };
 
-export function FindPath(world, origin, destination, { algorithm = AStar } = {}) {    
-    origin = origin.map(v => Helper.round(v, 1));
-    destination = destination.map(v => Helper.round(v, 1));
+export function FindPath(world, origin, destination, { algorithm = AStar } = {}) {
+    //!GRID-NUDGE
+    origin = origin.map(v => ~~v);
+    destination = destination.map(v => ~~v);
     
     if(!world.isWithinBounds(...destination)) {
         return;
