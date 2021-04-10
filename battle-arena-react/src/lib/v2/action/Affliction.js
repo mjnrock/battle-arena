@@ -70,7 +70,7 @@ export class Affliction {
 
     static Caster(effects = [], qualifier) {
         return new Affliction([ 0, 0 ], effects, qualifier);
-        return new Affliction([ 0, 0 ], effects, ({ target, source }) => target === source);
+        // return new Affliction([ 0, 0 ], effects, ({ target, source }) => target === source);
     }
     static Facing(tiles = 1, effects = [], qualifier) {
         const lookup = {
