@@ -24,7 +24,6 @@ import AgencyLocal from "./util/agency/package";
 
     import initializeHandlers from "./data/handlers/_init";
     import initializeRenderers from "./data/render/_init";
-    import initializeBindings from "./data/input/_init";
 //STUB END "Imports"
 
 export default class Game extends AgencyLocal.Watcher {
@@ -62,8 +61,8 @@ export default class Game extends AgencyLocal.Watcher {
         this.loop.setEnd(this.onPostTick.bind(this));
 
         //FIXME Probably should make this more robust
-        // window.onfocus = e => this.loop.start();
-        // window.onblur = e => this.loop.stop();
+        window.onfocus = e => this.loop.start();
+        window.onblur = e => this.loop.stop();
     }
 
     onPreTick(spf, now) {
@@ -145,9 +144,6 @@ export default class Game extends AgencyLocal.Watcher {
             
             (async () => {
                 await initializeRenderers(game);
-
-                //? Key and Mouse Bindings
-                await initializeBindings(game);
             })();
 
             Agency.Event.Network.$.router.useBatchProcess();    // Return to batch process before game loop starts

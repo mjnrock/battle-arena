@@ -1,10 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
-import Agency from "@lespantsfancy/agency";
 
 import LayeredCanvas from "./../render/LayeredCanvas";
 import ImageRegistry from "../render/ImageRegistry";
 
 import RenderLayer from "./../render/RenderLayer";
+
+import initializeBindings from "./../data/input/_init";
 
 export class RenderManager extends LayeredCanvas {
     constructor(game, { tw, th, width, height, repository } = {}) {
@@ -30,8 +31,11 @@ export class RenderManager extends LayeredCanvas {
     }
     
     set canvas(canvas) {
-        //TODO  Transition the EventWatchable in React to this trap
         console.warn(`[RenderManager]: The << set canvas >> trap has been called.`);
+
+        //? Key and Mouse Bindings
+        initializeBindings(this.game);
+        
         return Reflect.set(this, "_canvas", canvas);
     }
 
