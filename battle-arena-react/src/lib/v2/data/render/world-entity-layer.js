@@ -25,8 +25,9 @@ export async function drawAnimationFrameEntity(dt, now, entity) {
 
     if (spriteSheet) {
         let [ frameWidth, frameHeight ] = [ this.tw, this.th ];
-        // let [ nudgeX, nudgeY ] = [ -this.tw / 2, -this.th / 2 ];
-        let [ nudgeX, nudgeY ] = [ 0, 0 ];
+        //!GRID-NUDGE
+        let [ nudgeX, nudgeY ] = [ -this.tw / 2, -this.th / 2 ];
+        // let [ nudgeX, nudgeY ] = [ 0, 0 ];
         const { x, y } = entity.world;
 
         spriteSheet.paint(0, now, this.canvas, x * frameWidth + nudgeX, y * frameHeight + nudgeY);

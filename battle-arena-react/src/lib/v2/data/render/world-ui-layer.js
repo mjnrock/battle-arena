@@ -72,10 +72,11 @@ export function drawPlayerPath() {
                 const steps = path.remaining || [];
                 const [ x, y ] = path.destination || [];
         
+                //!GRID-NUDGE
                 for(let [ tx, ty ] of steps) {
                     this.prop({ fillStyle: `rgba(0, 0, 155, ${ i === 0 ? 0.20 : 0.10 })` }).tRect(
-                        tx,
-                        ty,
+                        ~~tx,
+                        ~~ty,
                         1,
                         1,
                         { isFilled: true },
@@ -84,8 +85,8 @@ export function drawPlayerPath() {
                 
                 if(!(entity.world.x === x && entity.world.y === y)) {
                     this.prop({ fillStyle: `rgba(0, 0, 155, ${ i === 0 ? 0.20 : 0.10 })` }).tRect(
-                        x,
-                        y,
+                        ~~x,
+                        ~~y,
                         1,
                         1,
                         { isFilled: true },
@@ -106,10 +107,11 @@ export function drawMovementPath(entity) {
                 const steps = path.remaining || [];
                 const [ x, y ] = path.destination || [];
         
+                //!GRID-NUDGE
                 for(let [ tx, ty ] of steps) {
                     this.prop({ fillStyle: `rgba(0, 45, 155, 0.1` }).tRect(
-                        tx,
-                        ty,
+                        ~~tx,
+                        ~~ty,
                         1,
                         1,
                         { isFilled: true },
@@ -118,8 +120,8 @@ export function drawMovementPath(entity) {
                 
                 if(!(entity.world.x === x && entity.world.y === y)) {
                     this.prop({ fillStyle: `rgba(0, 45, 155, 0.1` }).tRect(
-                        x,
-                        y,
+                        ~~x,
+                        ~~y,
                         1,
                         1,
                         { isFilled: true },

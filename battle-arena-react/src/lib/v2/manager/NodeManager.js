@@ -5,8 +5,9 @@ import Node from "./../util/Node";
 import CrossMap from "./../util/agency/util/CrossMap";
 
 export class NodeManager extends AgencyBase {
-    static Extractor = function(entity) { return [ Agency.Util.Helper.round(entity.world.x, 1), Agency.Util.Helper.round(entity.world.y, 1) ] };
-    // static Extractor = function(entity) { return [ ~~entity.world.x, ~~entity.world.y ] };
+    //!GRID-NUDGE
+    // static Extractor = function(entity) { return [ Agency.Util.Helper.round(entity.world.x, 1), Agency.Util.Helper.round(entity.world.y, 1) ] };
+    static Extractor = function(entity) { return [ ~~entity.world.x, ~~entity.world.y ] };
 
     constructor(size = [ 1, 1 ], { extractor } = {}) {
         super();

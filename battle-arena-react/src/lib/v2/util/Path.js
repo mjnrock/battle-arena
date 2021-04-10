@@ -12,7 +12,8 @@ export class Path {
     constructor(origin, destination, path) {
         this.origin = origin;
         this.destination = destination;
-        this.path = path;
+        //!GRID-NUDGE
+        this.path = path.map(([ x, y ]) => [ x + 0.5, y + 0.5 ]);
 
         this.step = 0;
         this.status = EnumPathStatus.NOT_STARTED;
@@ -36,7 +37,7 @@ export class Path {
             [ x, y ] = args;
         }
 
-        return x === dx && y === dy;
+        return ~~x === ~~dx && ~~y === ~~dy;
     }
 
     isDestination(...args) {
