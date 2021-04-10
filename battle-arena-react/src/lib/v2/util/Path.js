@@ -1,4 +1,4 @@
-import Helper from "./helper";
+import Helper from "@lespantsfancy/agency/src/util/helper";
 import AStar from "./AStar";
 
 export const EnumPathStatus = {
@@ -119,13 +119,13 @@ export class Path {
     }
 };
 
-export function FindPath(world, origin, destination, { algorithm = AStar } = {}) {
+export function FindPath(world, origin, destination, { algorithm = AStar } = {}) {    
+    origin = origin.map(v => Helper.round(v, 1));
+    destination = destination.map(v => Helper.round(v, 1));
+    
     if(!world.isWithinBounds(...destination)) {
         return;
     }
-    
-    origin = origin.map(v => Helper.round(v, 1));
-    destination = destination.map(v => Helper.round(v, 1));
 
     const path = algorithm(world, origin, destination);
 

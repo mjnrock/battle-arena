@@ -1,14 +1,20 @@
-import Cooldown from "../../util/Cooldown";
+import Cooldown from "./../../util/Cooldown";
 
 export const handlers = [
     [ "ability", ([ obj ]) => {
-        const { source, afflictions, ...rest } = obj;
+        const { source, afflictions, cost, cooldown, ...rest } = obj;
         const world = source.world.getCurrentWorld();
 
         //TODO  @range check
+        if(source.action.cooldown) {
+            return;
+        }
 
-        for(let afflictions of afflictions) {
-            for(let [ qualifier, rx, ry, effects ] of afflictions) {
+        cost.forEach(cost => cost(source));
+        source.action.cooldown = Cooldown.Generate(cooldown);
+
+        for(let afflictionGrid of afflictions) {
+            for(let [ qualifier, rx, ry, effects ] of afflictionGrid) {
                 let x, y;
                 if(typeof rest.x === "number" && typeof rest.y === "number") {
                     x = rest.x;

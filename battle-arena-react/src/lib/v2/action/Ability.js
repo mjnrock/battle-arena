@@ -17,6 +17,8 @@ export class Ability extends Agency.Event.Emitter  {
         const argsObj = {
             source: actor,
             range: this.range,
+            cost: this.cost,
+            cooldown: this.cooldown,
             ...rest,
         };
 
@@ -24,11 +26,12 @@ export class Ability extends Agency.Event.Emitter  {
             const afflictions = Affliction.Flatten(this.action.afflictions, argsObj);
 
             argsObj.afflictions = afflictions;
-
-            this.costs.forEach(cost => cost(actor));
-            this.cooldown = Cooldown.Generate(this.cooldown);
             this.$.emit("ability", argsObj);
+
+            return true;
         }
+
+        return false;
     }
 }
 

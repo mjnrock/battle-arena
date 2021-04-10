@@ -25,9 +25,11 @@ export async function drawAnimationFrameEntity(dt, now, entity) {
 
     if (spriteSheet) {
         let [ frameWidth, frameHeight ] = [ this.tw, this.th ];
+        // let [ nudgeX, nudgeY ] = [ -this.tw / 2, -this.th / 2 ];
+        let [ nudgeX, nudgeY ] = [ 0, 0 ];
         const { x, y } = entity.world;
 
-        spriteSheet.paint(0, now, this.canvas, x * frameWidth, y * frameHeight);
+        spriteSheet.paint(0, now, this.canvas, x * frameWidth + nudgeX, y * frameHeight + nudgeY);
 
         if(!Action.Has(entity)) {
             return;
@@ -45,16 +47,16 @@ export async function drawAnimationFrameEntity(dt, now, entity) {
                 }
                 this.save();
                     this.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
-                        x * frameWidth + frameWidth / 2,
-                        y * frameHeight - frameHeight / 2,
+                        x * frameWidth + nudgeX + frameWidth / 2,
+                        y * frameHeight + nudgeY - frameHeight / 2,
                         6,
                         { isFilled: true },
                     );
                 this.restore();
                 this.save();
                     this.prop({ fillStyle: color, strokeStyle: `rgba(0, 0, 0, 0.35)` }).pie(
-                        x * frameWidth + frameWidth / 2,
-                        y * frameHeight - frameHeight / 2,
+                        x * frameWidth + nudgeX + frameWidth / 2,
+                        y * frameHeight + nudgeY - frameHeight / 2,
                         5,
                         0,
                         prog * Math.PI * 2,
@@ -73,15 +75,15 @@ export async function drawAnimationFrameEntity(dt, now, entity) {
                 }
                 this.save();
                     this.prop({ fillStyle: `rgba(0, 0, 0, 0.35)`, strokeStyle: `rgba(0, 0, 0, 0.35)` }).rect(
-                        x * frameWidth,
-                        y * frameHeight - frameHeight / 4 + 2,
+                        x * frameWidth + nudgeX,
+                        y * frameHeight + nudgeY - frameHeight / 4 + 2,
                         frameWidth,
                         5,
                         { isFilled: true },
                     );
                     this.prop({ fillStyle: hp }).rect(
-                        x * frameWidth + 1,
-                        y * frameHeight - frameHeight / 4 + 2 + 1,
+                        x * frameWidth + nudgeX + 1,
+                        y * frameHeight + nudgeY - frameHeight / 4 + 2 + 1,
                         entity.health.value.rate * (frameWidth - 2),
                         3,
                         { isFilled: true },
