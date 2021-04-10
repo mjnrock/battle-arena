@@ -26,14 +26,14 @@ export function init() {
         }),
         holyLight: () => new Ability({
             action: new Action([
-                Affliction.Caster([ 
+                Affliction.Current([ 
                     [ Agency.Registry._.effect.heal, { amount: 5 } ],
                 ]),
             ]),
             cooldown: 2500,
             cost: [],
             requirement: [],
-            range: 0,
+            range: 3,
         }),
     };
 

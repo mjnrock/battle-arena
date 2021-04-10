@@ -84,6 +84,12 @@ export default class Game extends AgencyLocal.Watcher {
         }
     }
     onPostTick(fps, panic) {
+        if(panic) {
+            console.warn(`MainLoop has panicked, resulting in ${ fps }fps.  Dropping all queued events on 'default' <Network>.`)
+            Agency.Event.Network.$.emptyAll();
+            this.loop.mainLoop.resetFrameDelta();
+        }
+        
         Agency.Event.Network.$.processAll();
     }
 

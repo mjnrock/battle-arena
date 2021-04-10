@@ -123,6 +123,13 @@ export class Node extends Agency.Event.Emitter {
 
         return this;
     }
+
+    has(entity) {
+        return this._occupants.has(entity);
+    }
+    get hasOccupants() {
+        return this._occupants.size > 0;
+    }
 };
 
 export default Node;

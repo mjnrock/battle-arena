@@ -67,7 +67,7 @@ export async function drawAnimationFrameEntity(dt, now, entity) {
             }
             
             // //? Draw Health bar
-            if(Health.Has(entity)) {
+            if(Health.Has(entity) && entity.health.value.rate < 1) {
                 let hp = `rgba(95, 160, 80, 0.75)`;
                 if(entity.health.value.rate <= 0.3) {
                     hp = `rgba(196, 74, 74, 0.75)`;
