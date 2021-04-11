@@ -23,9 +23,7 @@ export async function init(game) {
                 console.info(pos.txi, pos.tyi, occupants);
 
                 for(let occupant of occupants) {
-                    console.log(Object.assign({}, occupant.meta))
-                    console.log(Object.assign({}, occupant.world))
-                    console.log(Object.assign({}, occupant.world))
+                    console.log(Object.assign({}, occupant.meta), Object.assign({}, occupant.world))
                 }
             } else if(button === 2) {
                 const player = game.players.player;

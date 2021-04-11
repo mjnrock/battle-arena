@@ -1,4 +1,5 @@
 import Agency from "@lespantsfancy/agency";
+import Health from "../entity/component/Health";
 import { EnumEntityCreatureType } from "../entity/component/Meta";
 
 // import { EnumEntityCreatureType } from "./../entity/component/Meta";
@@ -20,18 +21,17 @@ export function init() {
                 ]),
                 Affliction.Surround8([ 
                     [ Agency.Registry._.effect.heal, { amount: 1 } ],
-                // ]),
-                ], ({ target, source }) => target.meta.subtype === EnumEntityCreatureType.SQUIRREL),    //STUB
+                ]),
             ]),
             cooldown: 750,
             cost: [],
-            requirement: [
-                entity => entity.health.value.rate > 0.5,   // Must have at least half health to cast
-            ],
+            requirement: [],
             range: 0,
             ...Ability.MaxAffected(2),                  // Max hits = 5
             priority: ({ target, source }) => {         // Prioritize lower health
-                return 1 - target.health.value.rate;
+                if(Health.Has(target)) {
+                    return 1 - target.health.value.rate;
+                }
             }
         }),
         holyLight: () => new Ability({
@@ -47,15 +47,17 @@ export function init() {
             targeted: true,                                         // Must hit a target<Entity>
             escape: ({ affected, target }) => affected.size > 0,    // Max hits = 1
             priority: ({ target, source }) => {                     // Prioritize (harmed) self, deprioritize *all* full health
-                if(target.health.value.rate >= 1) {
-                    return -Infinity;
-                }
+                if(Health.Has(target)) {
+                    if(target.health.value.rate >= 1) {
+                        return -Infinity;
+                    }
 
-                if(target === source) {
-                    return Infinity;
-                }
+                    if(target === source) {
+                        return Infinity;
+                    }
 
-                return 1;
+                    return 1;
+                }
             }
         }),
     };

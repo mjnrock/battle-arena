@@ -3,6 +3,16 @@ import { EnumEntityType } from "../../entity/component/Meta";
 import Cooldown from "./../../util/Cooldown";
 
 export const handlers = [
+    [ "destroy", ([ entity ]) => {
+        const world = entity.world.getCurrentWorld();
+        if(world) {
+            world.leaveWorld(entity);
+        }
+
+        for(let key in entity) {
+            delete entity[ key ];
+        }
+    }],
     [ "ability", ([ obj ]) => {
         const { source, afflictions, cost, cooldown, priority, escape, affected, range, targeted, ...rest } = obj;
 
@@ -51,8 +61,8 @@ export const handlers = [
                     // });
                     //STUB
                     effectSchemas.push({
-                        meta: { type: EnumEntityType.EFFECT, subtype: "fire" },
-                        world: { x: x + rx, y: y + ry },
+                        meta: { type: EnumEntityType.EFFECT, subtype: "fire", lifespan: 1000 },
+                        world: { x: (~~x + 0.5) + rx, y: (~~y + 0.5) + ry },
                         effect: { qualifier, effect, args: obj },
                     })
                 }
@@ -77,11 +87,11 @@ export const handlers = [
             let ap = priority({
                 target: a,
                 source,
-            });
+            }) || 0;
             let bp = priority({
                 target: b,
                 source,
-            });
+            }) || 0;
 
             return ap > bp ? -1 : 1;
         });

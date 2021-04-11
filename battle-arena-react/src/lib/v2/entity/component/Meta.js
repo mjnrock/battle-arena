@@ -30,6 +30,8 @@ export class Meta extends Component {
     static DefaultProperties = () => ({
         type: EnumEntityType.CREATURE,
         subtype: EnumEntityCreatureType.SQUIRREL,
+        born: Date.now(),
+        lifespan: Infinity,
     });
 
     constructor(game, entity, state = {}) {
@@ -37,6 +39,14 @@ export class Meta extends Component {
             ...Meta.DefaultProperties(),
             ...state,
         });
+    }
+
+    onPreTick(spf, now) {
+        if(this.lifespan !== Infinity) {
+            if(now >= this.born + this.lifespan) {
+                this.entity.$.emit("destroy", this.entity);
+            }
+        }
     }
 };
 

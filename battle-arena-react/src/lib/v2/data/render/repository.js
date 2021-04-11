@@ -7,14 +7,14 @@ import { TerrainLookup } from "./../../entity/component/Terrain";
 
 export const repository = (root) => new Agency.Util.CrossMap([
     root || [
-        "entity",
+        "creature",
         "terrain",
         "effect",
     ],
 ], {
     seedFn: (chain) => {
         switch(chain) {
-            case "entity":
+            case "creature":
                 return new ImageRegistry(EntityTemplate, {
                     seedFn: () => new SpriteSheet(),
                     lookupFns: [

@@ -2,7 +2,7 @@ import Agency from "@lespantsfancy/agency";
 import { ToCanvasMap } from "../image/tessellator/grid";
 import { createEdgeMap } from "./../render/edges";
 
-export async function loadEntity(game) {
+export async function loadCreature(game) {
     //NOTE  If you want to add more files, they MUST have a corresponding "1st dimension" key in renderGroup (cf. ImageRegistry.EntityTemplate)
     let files = [
         `squirrel`,
@@ -31,7 +31,7 @@ export async function loadEntity(game) {
                                 tessellation.absolute(24).add(`0.${ i / 90 }`, 1000);
                             }
                             
-                            game.render.repository.get("entity").get(file, 0, i).set(0, tessellation.toSprite({ purgePattern: true }));
+                            game.render.repository.get("creature").get(file, 0, i).set(0, tessellation.toSprite({ purgePattern: true }));
                         }
                     })
                     .catch(e => { console.error(e); console.warn(`Ensure that "${ file }" is present in the <ImageRegistry>`); })
@@ -43,12 +43,12 @@ export async function loadEntity(game) {
                     .then(tessellation => {
                         if(file === "tree" || file === "stump") {
                             tessellation.absolute(24).add(`0.0`, 1000);
-                            game.render.repository.get("entity").get(file, 0, 0).set(0, tessellation.toSprite({ purgePattern: true }));
+                            game.render.repository.get("creature").get(file, 0, 0).set(0, tessellation.toSprite({ purgePattern: true }));
                         } else {
                             for(let i = 0; i <= 270; i += 90) {
                                 tessellation.absolute(24).add(`0.${ i / 90 }`, 250).add(`1.${ i / 90 }`, 250);
                                 
-                                game.render.repository.get("entity").get(file, 0, i).set(0, tessellation.toSprite({ purgePattern: true }));
+                                game.render.repository.get("creature").get(file, 0, i).set(0, tessellation.toSprite({ purgePattern: true }));
                             }
                         }
                     })
@@ -143,5 +143,5 @@ export async function loadEffect(game) {
 
 export default {
     loadTerrain,
-    loadEntity,
+    loadEntity: loadCreature,
 };

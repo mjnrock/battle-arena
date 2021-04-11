@@ -1,4 +1,5 @@
 import World from "./../../world/World";
+import ComponentWorld from "./../../entity/component/World";
 
 export const handlers = [
     [ "join", ([ world, entity ]) => {
@@ -11,7 +12,7 @@ export const handlers = [
         }
     }],
     [ "leave", ([ world, entity ]) => {
-        if(world instanceof World) {
+        if(world instanceof World && ComponentWorld.Has(entity)) {
             entity.world.world = null;
         }
     }],

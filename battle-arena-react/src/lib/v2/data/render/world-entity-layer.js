@@ -21,7 +21,8 @@ export async function drawAnimationFrame(dt, now) {
 };
 export async function drawAnimationFrameEntity(dt, now, entity) {
     //STUB  Dynamically add <Sprite(s)> // const sprite = new SpriteStack([ this.sprite({ entity: entity }), this.sprite({ entity: this.game.world.current.entities[ `player` ] }) ]);
-    const spriteSheet = this.game.render.sprite("entity", { entity: entity });
+    // const spriteSheet = this.game.render.sprite("entity", { entity: entity });
+    const spriteSheet = this.game.render.sprite(entity.meta.type, { entity: entity });
 
     if (spriteSheet) {
         let [ frameWidth, frameHeight ] = [ this.tw, this.th ];
