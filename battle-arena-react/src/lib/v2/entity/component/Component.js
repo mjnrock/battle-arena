@@ -57,6 +57,7 @@ export class Component extends Agency.Event.Emitter {
 
     onPreTick(spf, now) {}
     onTick(dt, now) {}
+    onTurn(dt, now) {}
     onDraw(dt, now) {}
 
     static Has(entity) {
