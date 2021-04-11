@@ -1,6 +1,4 @@
-// import Agency from "@lespantsfancy/agency";
-
-import World from "./../World";
+import World from "./../world/World";
 
 export class Portal {
     constructor(world, { x, y, activator } = {}) {

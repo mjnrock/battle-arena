@@ -1,7 +1,7 @@
 import Agency from "@lespantsfancy/agency";
 import Component from "./Component";
 
-import MapWorld from "./../../World";
+import MapWorld from "./../../world/World";
 import Wayfinder from "./../../util/Wayfinder";
 
 export class World extends Component {

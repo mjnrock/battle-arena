@@ -1,16 +1,15 @@
 import Agency from "@lespantsfancy/agency";
-import AgencyBase from "@lespantsfancy/agency/src/AgencyBase";
 
-import NodeManager from "./manager/NodeManager"
-import EntityManager from "./manager/EntityManager";
-import Entity from "./entity/Entity";
-import { DictTerrain } from "./entity/component/Terrain";
-import { EnumEntityType } from "./entity/component/Meta";
+import NodeManager from "./../manager/NodeManager"
+import EntityManager from "./../manager/EntityManager";
+import Entity from "./../entity/Entity";
+import { DictTerrain } from "./../entity/component/Terrain";
+import { EnumEntityType } from "./../entity/component/Meta";
 
-import Node from "./util/Node";
-import Portal from "./util/Portal";
+import Node from "./../util/Node";
+import Portal from "./../util/Portal";
 
-import { CalculateEdgeMasks } from "./data/render/edges";
+import { CalculateEdgeMasks } from "./../data/render/edges";
 
 export class World extends Agency.Event.Emitter {
     constructor(size = [], { game, entities = [], portals = [], config = {} } = {}) {

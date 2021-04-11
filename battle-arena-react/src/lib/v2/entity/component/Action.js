@@ -1,7 +1,7 @@
 import Agency from "@lespantsfancy/agency";
 
 import Component from "./Component";
-import World from "../../World";
+import World from "../../world/World";
 
 import Task from "./lib/Task";
 import Path from "./../../util/Path";

@@ -8,7 +8,7 @@ import AgencyLocal from "./util/agency/package";
  */
 
 //STUB START "Imports" for stub below
-    import World from "./World";
+    import World from "./world/World";
     import GameLoop from "./GameLoop";
     import WorldManager from "./manager/WorldManager";
     import PlayerManager from "./manager/PlayerManager";

@@ -1,8 +1,4 @@
-import Agency from "@lespantsfancy/agency";
-
-import World from "./../../World";
-import Entity from "./../../entity/Entity";
-import Portal from "./../../util/Portal";
+import World from "./../../world/World";
 
 export const handlers = [
     [ "join", ([ world, entity ]) => {

@@ -1,7 +1,7 @@
 import Agency from "@lespantsfancy/agency";
 
 import Node from "../../util/Node";
-import World from "../../World";
+import World from "../../world/World";
 import Entity from "../../entity/Entity";
 import Component from "../../entity/component/Component";
 
