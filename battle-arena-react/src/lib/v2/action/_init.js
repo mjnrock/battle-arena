@@ -1,7 +1,7 @@
 import Agency from "@lespantsfancy/agency";
-import { EnumEntityType } from "../entity/component/Meta";
+import { EnumEntityCreatureType } from "../entity/component/Meta";
 
-// import { EnumEntityType } from "./../entity/component/Meta";
+// import { EnumEntityCreatureType } from "./../entity/component/Meta";
 import Ability from "./Ability";
 import Action from "./Action";
 import Affliction from "./Affliction";
@@ -21,7 +21,7 @@ export function init() {
                 Affliction.Surround8([ 
                     [ Agency.Registry._.effect.heal, { amount: 1 } ],
                 // ]),
-                ], ({ target, source }) => target.meta.type === EnumEntityType.SQUIRREL),    //STUB
+                ], ({ target, source }) => target.meta.subtype === EnumEntityCreatureType.SQUIRREL),    //STUB
             ]),
             cooldown: 750,
             cost: [],

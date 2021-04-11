@@ -1,5 +1,5 @@
 import Ability from "../../action/Ability";
-import { EnumEntityType } from "../../entity/component/Meta";
+import { EnumEntityCreatureType } from "../../entity/component/Meta";
 import Cooldown from "./../../util/Cooldown";
 
 export const handlers = [
@@ -40,15 +40,13 @@ export const handlers = [
         for(let afflictionGrid of afflictions) {
             for(let [ qualifier, rx, ry, effects ] of afflictionGrid) {
 
-                world.create({
-                    meta: { type: EnumEntityType.EFFECT },
-                    world: { x: x + rx, y: y + ry},
-                    
-        //!GRID-NUDGE
-        world: { world, x: () => Agency.Util.Dice.random(0, world.width - 1) + 0.5, y: () => Agency.Util.Dice.random(0, world.height - 1) + 0.5, facing: () => Agency.Util.Dice.random(0, 3) * 90 },
-        health: { args: { current: () => Agency.Util.Dice.d10(), max: 10 } },
-        action: {},
-                });
+                // for(let effect of effects) {
+                //     world.create({
+                //         meta: { type: EnumEntityCreatureType.EFFECT },
+                //         world: { x: x + rx, y: y + ry },
+                //         effect: { qualifier, effect, args: obj },
+                //     });
+                // }
 
                 const entities = (world.node(x + rx, y + ry) || {}).occupants || [];
 
@@ -108,7 +106,7 @@ export const handlers = [
         }
     }],
     [ "contact", ([{ source, target }]) => {
-        console.log(source.meta.type, source.world.x, source.world.y, target.meta.type, target.world.x, target.world.y)
+        console.log(source.meta.subtype, source.world.x, source.world.y, target.meta.subtype, target.world.x, target.world.y)
     }],
 ];
 

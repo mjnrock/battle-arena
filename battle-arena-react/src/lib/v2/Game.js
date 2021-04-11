@@ -13,7 +13,7 @@ import AgencyLocal from "./util/agency/package";
     import WorldManager from "./manager/WorldManager";
     import PlayerManager from "./manager/PlayerManager";
     import Entity from "./entity/Entity";
-    import { EnumEntityType } from "./entity/component/Meta";
+    import { EnumEntityCreatureType } from "./entity/component/Meta";
     import Action from "./entity/component/Action";
 
     import Portal from "./util/Portal";
@@ -119,7 +119,7 @@ export default class Game extends AgencyLocal.Watcher {
             game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));
 
             const player = Entity.FromSchema(game, {
-                meta: { type: EnumEntityType.SQUIRREL },
+                meta: { subtype: EnumEntityCreatureType.SQUIRREL },
                 world: { x: 4.5, y: 7.5 },
                 health: { args: { current: 1, max: 10 } },
                 action: {

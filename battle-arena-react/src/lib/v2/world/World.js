@@ -4,7 +4,7 @@ import NodeManager from "./../manager/NodeManager"
 import EntityManager from "./../manager/EntityManager";
 import Entity from "./../entity/Entity";
 import { DictTerrain } from "./../entity/component/Terrain";
-import { EnumEntityType } from "./../entity/component/Meta";
+import { EnumEntityCreatureType } from "./../entity/component/Meta";
 
 import Node from "./../util/Node";
 import Portal from "./../util/Portal";
@@ -280,7 +280,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
     for(let x = 0; x < world.width; x++) {
         for(let y = 0; y < world.height; y++) {
             const terrain = Entity.FromSchema(game, {
-                meta: { type: EnumEntityType.TERRAIN },
+                meta: { type: EnumEntityCreatureType.TERRAIN },
                 terrain: Math.random() >= 0.35 ? DictTerrain.GRASS : DictTerrain.DIRT,
                 world: { x, y, facing: 0 },
             });
@@ -296,7 +296,7 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
     CalculateEdgeMasks(world);
 
     const entities = world.entities.createMany(enemyCount, {
-        meta: { type: () => Agency.Util.Dice.coin() ? EnumEntityType.SQUIRREL : EnumEntityType.BUNNY },
+        meta: { subtype: () => Agency.Util.Dice.coin() ? EnumEntityCreatureType.SQUIRREL : EnumEntityCreatureType.BUNNY },
         //!GRID-NUDGE
         world: { world, x: () => Agency.Util.Dice.random(0, world.width - 1) + 0.5, y: () => Agency.Util.Dice.random(0, world.height - 1) + 0.5, facing: () => Agency.Util.Dice.random(0, 3) * 90 },
         health: { args: { current: () => Agency.Util.Dice.d10(), max: 10 } },
@@ -306,9 +306,9 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
     entities.forEach(entity => {
         world.joinWorld(entity);
 
-        if(entity.meta.type === EnumEntityType.BUNNY) {
+        if(entity.meta.subtype === EnumEntityCreatureType.BUNNY) {
             entity.world.speed = 1.5;
-        } else if(entity.meta.type === EnumEntityType.SQUIRREL) {
+        } else if(entity.meta.subtype === EnumEntityCreatureType.SQUIRREL) {
             entity.world.speed = 2.0;
         }
     });

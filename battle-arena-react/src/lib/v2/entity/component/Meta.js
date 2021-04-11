@@ -4,14 +4,11 @@ export const EnumEntityType = {
     CREATURE: "creature",
     TERRAIN: "terrain",
     GAIA: "gaia",
+    ITEM: "item",
     EFFECT: "effect",
-
-    SQUIRREL: "squirrel",
-    BUNNY: "bunny",
-    BEAR: "bear",
-    
-    TREE: "tree",
-    STUMP: "stump",
+    ACTION: "action",
+    PORTAL: "portal",
+    BUILDING: "building",
 };
 
 export const EnumEntityCreatureType = {
@@ -31,7 +28,8 @@ export const EnumAggressionType = {
 export class Meta extends Component {
     static Name = "meta";
     static DefaultProperties = () => ({
-        type: EnumEntityType.SQUIRREL,
+        type: EnumEntityType.CREATURE,
+        subtype: EnumEntityCreatureType.SQUIRREL,
     });
 
     constructor(game, entity, state = {}) {
