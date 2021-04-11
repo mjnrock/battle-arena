@@ -46,27 +46,9 @@ export const handlers = [
         cost.forEach(cost => cost(source));
         source.action.cooldown = Cooldown.Generate(cooldown);
 
-        //STUB
-        const effectSchemas = [];
-
         const entityEffects = new Map();
         for(let afflictionGrid of afflictions) {
             for(let [ qualifier, rx, ry, effects ] of afflictionGrid) {
-
-                for(let effect of effects) {
-                    // world.create({
-                    //     meta: { type: EnumEntityType.EFFECT, subtype: "fire" },
-                    //     world: { x: x + rx, y: y + ry },
-                    //     effect: { qualifier, effect, args: obj },
-                    // });
-                    //STUB
-                    effectSchemas.push({
-                        meta: { type: EnumEntityType.EFFECT, subtype: "fire", lifespan: 1000 },
-                        world: { x: (~~x + 0.5) + rx, y: (~~y + 0.5) + ry },
-                        effect: { qualifier, effect, args: obj },
-                    })
-                }
-
                 const entities = (world.node(x + rx, y + ry) || {}).occupants || [];
 
                 for(let entity of [ ...entities ]) {
@@ -106,13 +88,14 @@ export const handlers = [
                     target: entity,
                     source,
                 });
+                
+                world.create({
+                    meta: { type: EnumEntityType.EFFECT, subtype: "fire", lifespan: 1000 },
+                    world: { x: ~~entity.world.x + 0.5, y: ~~entity.world.y + 0.5 },
+                });
             }
                 
             affected.add(entity);
-        }
-
-        for(let schema of effectSchemas) {
-            world.create(schema);
         }
     }],
     [ "interaction", ([ entity ]) => {

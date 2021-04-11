@@ -1,5 +1,4 @@
 import Agency from "@lespantsfancy/agency";
-// import AgencyBase from "@lespantsfancy/agency/src/AgencyBase";
 
 export class Node extends Agency.Event.Emitter {
     constructor(coords = [], terrain, { portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity } = {}) {

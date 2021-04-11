@@ -5,8 +5,8 @@ export const EnumEntityType = {
     TERRAIN: "terrain",
     GAIA: "gaia",
     ITEM: "item",
-    EFFECT: "effect",
-    ACTION: "action",
+    PARTICLE: "particle",   // A render effect (e.g. sparkles)
+    EFFECT: "effect",   // An ability effect (e.g. "movement.teleport")
     PORTAL: "portal",
     BUILDING: "building",
 };
