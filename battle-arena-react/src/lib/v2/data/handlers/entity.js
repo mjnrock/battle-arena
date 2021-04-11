@@ -90,7 +90,7 @@ export const handlers = [
                 });
                 
                 world.create({
-                    meta: { type: EnumEntityType.EFFECT, subtype: "fire", lifespan: 1000 },
+                    meta: { type: EnumEntityType.EFFECT, subtype: "fire", lifespan: Math.min(1000, cooldown) },
                     world: { x: ~~entity.world.x + 0.5, y: ~~entity.world.y + 0.5 },
                     //FIXME While the effect is currently only graphical, the ComponentEffect could be turned into a ComponentAction to handle edge conditions (e.g. MaxAffected)  << create relationship: Child(ren) <--> Parent >>
                     // effect: { qualifier, effect, args: obj },
