@@ -124,14 +124,14 @@ export function FindPath(world, origin, destination, { algorithm = AStar } = {})
     //!GRID-NUDGE
     origin = origin.map(v => ~~v);
     destination = destination.map(v => ~~v);
-    
-    if(!world.isWithinBounds(...destination)) {
-        return;
-    }
 
     const path = algorithm(world, origin, destination);
 
-    return new Path(origin, destination, path);
+    if(path.length) {
+        return new Path(origin, destination, path);
+    }
+
+    return false;
 };
 
 Path.FindPath = FindPath;

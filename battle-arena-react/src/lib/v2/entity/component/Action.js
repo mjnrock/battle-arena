@@ -42,7 +42,9 @@ const Repository = {
                     ];
                     const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
     
-                    entity.world.wayfinder.set(path);
+                    if(path instanceof Path) {
+                        entity.world.wayfinder.set(path);
+                    }
                 }
             },
             cooldown: 500,

@@ -2280,6 +2280,13 @@ alphanum-sort@^1.0.0:
   resolved "https://registry.yarnpkg.com/alphanum-sort/-/alphanum-sort-1.0.2.tgz#97a1119649b211ad33691d9f9f486a8ec9fbe0a3"
   integrity sha1-l6ERlkmyEa0zaR2fn0hqjsn74KM=
 
+amazejs@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/amazejs/-/amazejs-1.0.5.tgz#13e715159b8272446e2da8462cd4e3c74f02294c"
+  integrity sha512-WV2IYaI3scsvAM+CnxyfKibrGEqiXx8kyBNFQMNa+hBfpMsisb7jaMGhqUQAhS787I6WqdknZLFWWPkG4P28Gw==
+  dependencies:
+    priorityjs "^1.2.3"
+
 ansi-colors@^3.0.0:
   version "3.2.4"
   resolved "https://registry.yarnpkg.com/ansi-colors/-/ansi-colors-3.2.4.tgz#e3a3da4bfbae6c86a9c285625de124a234026fbf"
@@ -8830,6 +8837,11 @@ pretty-format@^26.6.0, pretty-format@^26.6.2:
     ansi-regex "^5.0.0"
     ansi-styles "^4.0.0"
     react-is "^17.0.1"
+
+priorityjs@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/priorityjs/-/priorityjs-1.2.3.tgz#009bc73e45b1d172da94cdcbf9514c93801b9fc7"
+  integrity sha512-oa7BjnjEmBdzp+Gwmbbq//VqeCe3qHvA8whA2mtPzQErSELqrUZ1tXrBU/B396Jv73zrcfjc/KvMX7E/MT01gQ==
 
 process-nextick-args@~2.0.0:
   version "2.0.1"

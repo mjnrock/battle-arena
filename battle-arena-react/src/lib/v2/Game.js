@@ -9,6 +9,7 @@ import AgencyLocal from "./util/agency/package";
 
 //STUB START "Imports" for stub below
     import World from "./world/World";
+    import Maze from "./world/Maze";
     import GameLoop from "./GameLoop";
     import WorldManager from "./manager/WorldManager";
     import PlayerManager from "./manager/PlayerManager";
@@ -113,10 +114,14 @@ export default class Game extends AgencyLocal.Watcher {
 
             game.world = new WorldManager(game);
             game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
-            game.world.register(World.CreateRandom(game, 25, 25, 10), "arena");
+            game.world.register(World.CreateRandom(game, 25, 25, 10), "overworld2");
 
-            game.world.overworld.openPortal(10, 10, new Portal(game.world.arena, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));
-            game.world.arena.openPortal(10, 10, new Portal(game.world.overworld, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));
+            game.world.overworld.openPortal(10, 10, new Portal(game.world.overworld2, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));
+            game.world.overworld2.openPortal(10, 10, new Portal(game.world.overworld, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));
+            
+            
+            game.world.register(Maze.CreateRandom(game, 25, 25, game.world.overworld), "maze");
+            game.world.overworld.openPortal(2, 2, new Portal(game.world.maze, { activator: Action.IsInteracting }));
 
             const player = Entity.FromSchema(game, {
                 meta: { subtype: EnumEntityCreatureType.SQUIRREL },
@@ -133,6 +138,7 @@ export default class Game extends AgencyLocal.Watcher {
             });
 
             game.world.overworld.joinWorld(player);
+            // game.world.maze.joinWorld(player);
 
             game.players.register(player, "player");
             
