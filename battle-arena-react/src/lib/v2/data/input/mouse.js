@@ -1,11 +1,20 @@
 import Path from "./../../util/Path";
 
-export function consoleEntityList(entities) {
+export function consoleEntityList(entities, ...focus) {
+    let condition = (key, entity) => focus.includes(key);
+
     for(let entity of entities) {
-        console.groupCollapsed(entity.id);
+        console.group(entity.id);
+        // console.groupCollapsed(entity.id);
+
         for(let key in entity) {
-            console.groupCollapsed(key)
-                console.table(Object.assign({}, entity[ key ]), [ "Value" ]);
+            if(condition(key, entity)) {
+                console.group(key);
+            } else {
+                console.groupCollapsed(key);
+            }
+
+            console.table(Object.assign({}, entity[ key ]), [ "Value" ]);
             console.groupEnd();
         }
         console.groupEnd();
@@ -33,7 +42,7 @@ export async function init(game) {
                 const occupants = game.world.current.node(pos.txi, pos.tyi).occupants;
 
                 console.info(`[${ pos.txi },${ pos.tyi }]`, `x${ occupants.size }`);
-                consoleEntityList(occupants);
+                consoleEntityList(occupants, "world");
             } else if(button === 2) {
                 const player = game.players.player;
 
