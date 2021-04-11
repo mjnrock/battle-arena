@@ -138,6 +138,8 @@ export default class Game extends AgencyLocal.Watcher {
             
             (async () => {
                 await initializeRenderers(game);
+
+                console.log(game.render.repository)
             })();
 
             Agency.Event.Network.$.router.useBatchProcess();    // Return to batch process before game loop starts

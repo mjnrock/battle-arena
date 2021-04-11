@@ -22,6 +22,10 @@ export const EnumTerrain = {
     FIRE: "fire",
 };
 
+export const EnumEffect = {
+    FIRE: "fire",
+};
+
 export const EnumState = {
     NORMAL: 0,
     EDGE_LONG: 1,
@@ -43,6 +47,12 @@ export const EntityTemplate = [
 
 export const TerrainTemplate = [
     [ ...Object.values(EnumTerrain) ],
+    [ ...Object.values(EnumState) ],
+    [ ...Object.values(EnumFacing) ],
+];
+
+export const EffectTemplate = [
+    [ ...Object.values(EnumEffect) ],
     [ ...Object.values(EnumState) ],
     [ ...Object.values(EnumFacing) ],
 ];

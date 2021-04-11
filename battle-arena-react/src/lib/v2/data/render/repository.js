@@ -1,7 +1,7 @@
 import Agency from "@lespantsfancy/agency";
 import SpriteSheet from "../../render/SpriteSheet";
 
-import ImageRegistry, { EntityTemplate, TerrainTemplate } from "./../../render/ImageRegistry";
+import ImageRegistry, { EntityTemplate, TerrainTemplate, EffectTemplate } from "./../../render/ImageRegistry";
 
 import { TerrainLookup } from "./../../entity/component/Terrain";
 
@@ -9,6 +9,7 @@ export const repository = (root) => new Agency.Util.CrossMap([
     root || [
         "entity",
         "terrain",
+        "effect",
     ],
 ], {
     seedFn: (chain) => {
@@ -36,6 +37,15 @@ export const repository = (root) => new Agency.Util.CrossMap([
 
                         //     return entity.terrain.edges === 0 ? TerrainLookup(entity.terrain.type) : "water";
                         // },
+                        ({ entity }) => 0,
+                        ({ entity }) => Math.floor(entity.world.facing / 90) * 90,
+                    ]
+                });
+            case "effect":
+                return new ImageRegistry(EffectTemplate, {
+                    seedFn: () => new SpriteSheet(),
+                    lookupFns: [
+                        ({ entity }) => entity.meta.subtype,
                         ({ entity }) => 0,
                         ({ entity }) => Math.floor(entity.world.facing / 90) * 90,
                     ]

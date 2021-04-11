@@ -115,6 +115,32 @@ export async function loadTerrain(game) {
     return await Promise.all(promises);
 }
 
+export async function loadEffect(game) {
+    let files = [
+        "fire",
+    ];
+
+    let promises = [];
+    for (let file of files) {
+        promises.push(
+            Agency.Util.Base64.FileDecode(`./assets/images/${file}.png`)
+                .then(canvas => ToCanvasMap(32, 32, canvas, { asTessellation: true, includeMeta: true }))
+                .then(([ tessellation, meta ]) => {
+                    tessellation.relative(~~(meta.width / meta.tw));
+
+                    for (let i = 0; i < meta.width; i += meta.tw) {
+                        tessellation.add(`${i / meta.tw}.0`, 1);    // The @key pulls that <Canvas> from the canvas map
+                    }
+
+                    game.render.repository.get("effect").get(file, 0, 0).set(0, tessellation.toSprite({ purgePattern: true }));
+                })
+                .catch(e => { console.error(e); console.warn(`Ensure that "${ file }" is present in the <ImageRegistry>`); })
+        );
+    }
+
+    return await Promise.all(promises);
+}
+
 export default {
     loadTerrain,
     loadEntity,

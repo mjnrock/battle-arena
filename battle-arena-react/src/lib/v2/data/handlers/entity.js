@@ -1,5 +1,5 @@
 import Ability from "../../action/Ability";
-import { EnumEntityCreatureType } from "../../entity/component/Meta";
+import { EnumEntityType } from "../../entity/component/Meta";
 import Cooldown from "./../../util/Cooldown";
 
 export const handlers = [
@@ -36,17 +36,26 @@ export const handlers = [
         cost.forEach(cost => cost(source));
         source.action.cooldown = Cooldown.Generate(cooldown);
 
+        //STUB
+        const effectSchemas = [];
+
         const entityEffects = new Map();
         for(let afflictionGrid of afflictions) {
             for(let [ qualifier, rx, ry, effects ] of afflictionGrid) {
 
-                // for(let effect of effects) {
-                //     world.create({
-                //         meta: { type: EnumEntityCreatureType.EFFECT },
-                //         world: { x: x + rx, y: y + ry },
-                //         effect: { qualifier, effect, args: obj },
-                //     });
-                // }
+                for(let effect of effects) {
+                    // world.create({
+                    //     meta: { type: EnumEntityType.EFFECT, subtype: "fire" },
+                    //     world: { x: x + rx, y: y + ry },
+                    //     effect: { qualifier, effect, args: obj },
+                    // });
+                    //STUB
+                    effectSchemas.push({
+                        meta: { type: EnumEntityType.EFFECT, subtype: "fire" },
+                        world: { x: x + rx, y: y + ry },
+                        effect: { qualifier, effect, args: obj },
+                    })
+                }
 
                 const entities = (world.node(x + rx, y + ry) || {}).occupants || [];
 
@@ -90,6 +99,10 @@ export const handlers = [
             }
                 
             affected.add(entity);
+        }
+
+        for(let schema of effectSchemas) {
+            world.create(schema);
         }
     }],
     [ "interaction", ([ entity ]) => {

@@ -1,9 +1,7 @@
-import Agency from "@lespantsfancy/agency";
-
 import RenderManager from "./../../manager/RenderManager";
 
 import initImageRepository from "./repository";
-import { loadEntity, loadTerrain } from "./entity";
+import { loadEntity, loadTerrain, loadEffect } from "./entity";
 import drawEntityLayer from "./world-entity-layer";
 import drawTerrainLayer from "./world-terrain-layer";
 import drawUILayer from "./world-ui-layer";
@@ -21,6 +19,7 @@ export async function init(game) {
     //  Load Images
     await game.render.loadImages(loadEntity);
     await game.render.loadImages(loadTerrain);
+    await game.render.loadImages(loadEffect);
 
     game.render.addAnimationLayers(
         drawTerrainLayer,
