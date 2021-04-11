@@ -18,8 +18,6 @@ export function init() {
                     target.health.value.add(amount);
                 }
             }
-
-            console.log("HEAL", amount)
         },
 
         movement: {
