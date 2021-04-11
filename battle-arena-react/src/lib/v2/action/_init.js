@@ -27,7 +27,7 @@ export function init() {
             cost: [],
             requirement: [],
             range: 0,
-            ...Ability.MaxAffected(2),                  // Max hits = 5
+            ...Ability.MaxAffected(3),                  // Max hits = 5
             priority: ({ target, source }) => {         // Prioritize lower health
                 if(Health.Has(target)) {
                     return 1 - target.health.value.rate;
