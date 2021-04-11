@@ -1,7 +1,10 @@
 import Component from "./Component";
 
 export const EnumEntityType = {
+    CREATURE: "creature",
     TERRAIN: "terrain",
+    GAIA: "gaia",
+    EFFECT: "effect",
 
     SQUIRREL: "squirrel",
     BUNNY: "bunny",
@@ -9,6 +12,12 @@ export const EnumEntityType = {
     
     TREE: "tree",
     STUMP: "stump",
+};
+
+export const EnumEntityCreatureType = {
+    SQUIRREL: "squirrel",
+    BUNNY: "bunny",
+    BEAR: "bear",
 };
 
 //TODO  Probably move aggression to something more specific than "meta"

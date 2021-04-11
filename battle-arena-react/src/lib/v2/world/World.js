@@ -131,6 +131,23 @@ export class World extends Agency.Event.Emitter {
         return false;
     }
 
+    create(comps = {}, ...synonyms) {
+        const entity = this.entities.create(comps, ...synonyms);
+
+        this.joinWorld(entity);
+
+        return this;
+    }
+    createMany(qty, comps = {}, synonymFunction) {
+        const entities = this.entities.createMany(qty, comps, synonymFunction);
+
+        for(let entity of entities) {
+            this.joinWorld(entity);
+        }
+
+        return this;
+    }
+
     openPortal(x, y, portal) {
         const node = this.subnodes.get(x, y);
 
