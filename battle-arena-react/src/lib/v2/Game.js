@@ -67,21 +67,15 @@ export default class Game extends AgencyLocal.Watcher {
 
     onPreTick(spf, now) {
         for(let world of this.world) {
-            for(let entity of world.entities) {
-                for(let comp of entity) {
-                    comp.onPreTick.call(comp, spf, now);
-                }
-            }
+            world.onPreTick(spf, now);
         }
+        // this.world.current.onPreTick(spf, now);
     }
     onTick(dt, now) {
         for(let world of this.world) {
-            for(let entity of world.entities) {
-                for(let comp of entity) {
-                    comp.onTick.call(comp, dt, now);
-                }
-            }
+            world.onTick(dt, now);
         }
+        // this.world.current.onTick(dt, now);
     }
     onPostTick(fps, panic) {
         if(panic) {

@@ -239,6 +239,23 @@ export class World extends Agency.Event.Emitter {
 
         return false;
     }
+
+    //NOTE  Do not break this down further (e.g. creating << Entity.onTick >>), as it will hinder/break the "World-Constrained Behavior" paradigm necessary for mixing real-time with turn-based
+    onPreTick(spf, now) {
+        for(let entity of this.entities) {
+            for(let comp of entity) {
+                comp.onPreTick.call(comp, spf, now);
+            }
+        }
+    }
+    onTick(dt, now) {
+        for(let entity of this.entities) {
+            for(let comp of entity) {
+                comp.onTick.call(comp, dt, now);
+            }
+        }
+    }
+    onDraw(dt, now) {}
 };
 
 export function CreateRandom(game, width, height, enemyCount = 5) {

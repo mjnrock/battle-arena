@@ -8,7 +8,7 @@ export class Task {
     }
 
     cooldown() {
-        return new Cooldown(this.__cooldown || 0);
+        return Cooldown.Generate(this.__cooldown || 0);
     }
 
     perform(game, entity, ...args) {

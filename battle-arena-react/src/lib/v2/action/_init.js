@@ -1,4 +1,5 @@
 import Agency from "@lespantsfancy/agency";
+import { EnumEntityType } from "../entity/component/Meta";
 
 // import { EnumEntityType } from "./../entity/component/Meta";
 import Ability from "./Ability";
@@ -19,8 +20,8 @@ export function init() {
                 ]),
                 Affliction.Surround8([ 
                     [ Agency.Registry._.effect.heal, { amount: 1 } ],
-                ]),
-                // ], ({ target, source }) => target.meta.type === EnumEntityType.SQUIRREL),    //STUB
+                // ]),
+                ], ({ target, source }) => target.meta.type === EnumEntityType.SQUIRREL),    //STUB
             ]),
             cooldown: 750,
             cost: [],
@@ -28,7 +29,7 @@ export function init() {
                 entity => entity.health.value.rate > 0.5,   // Must have at least half health to cast
             ],
             range: 0,
-            ...Ability.MaxAffected(5),                  // Max hits = 5
+            ...Ability.MaxAffected(2),                  // Max hits = 5
             priority: ({ target, source }) => {         // Prioritize lower health
                 return 1 - target.health.value.rate;
             }

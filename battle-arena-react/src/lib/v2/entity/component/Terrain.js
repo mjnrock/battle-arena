@@ -1,22 +1,5 @@
 import Component from "./Component";
 
-export class Terrain extends Component {
-    static Name = "action";
-    static DefaultProperties = () => ({
-        type: "void",
-        cost: Infinity,
-        edges: 0,
-        meta: 0,
-    });
-
-    constructor(game, entity, state = {}) {
-        super(Terrain.Name, game, entity, {
-            ...Terrain.DefaultProperties(),
-            ...state,
-        });
-    }
-};
-
 export function TerrainLookup(type) {
     switch(type) {
         case DictTerrain.VOID.type:
@@ -49,6 +32,23 @@ export const DictTerrain = {
         type: 3,
         cost: 5,
     },
+};
+
+export class Terrain extends Component {
+    static Name = "action";
+    static DefaultProperties = () => ({
+        type: "void",
+        cost: Infinity,
+        edges: 0,
+        meta: 0,
+    });
+
+    constructor(game, entity, state = {}) {
+        super(Terrain.Name, game, entity, {
+            ...Terrain.DefaultProperties(),
+            ...state,
+        });
+    }
 };
 
 export default Terrain;

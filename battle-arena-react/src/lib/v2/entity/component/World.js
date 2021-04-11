@@ -75,7 +75,7 @@ export class World extends Component {
     }
     
     onPreTick(spf, now) {
-        const world = this.game.world[ this.entity.world.world ];
+        const world = this.entity.world.getCurrentWorld();
         if(world instanceof MapWorld) {
             world.nodes.move(this.entity);
 
