@@ -1,8 +1,8 @@
 import Agency from "@lespantsfancy/agency";
 
 export class Node extends Agency.Event.Emitter {
-    constructor(coords = [], terrain, { portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity } = {}) {
-        super();
+    constructor(coords = [], terrain, { portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity } = {}, opts = {}) {
+        super({}, opts);
 
         this._coords = coords;
         this._terrain = terrain;
@@ -13,6 +13,20 @@ export class Node extends Agency.Event.Emitter {
         this._frequency = frequency;
         this._value = value;
         this._clearance = clearance;
+    }
+
+    __destroy(destroyTerrain = true) {
+        if(destroyTerrain) {
+            this._terrain.__destroy();
+        }
+
+        this._occupants = new Set();
+        
+        for(let key in this) {
+            delete this[ key ];
+        }
+
+        this.__deconstructor();
     }
 
     get coords() {

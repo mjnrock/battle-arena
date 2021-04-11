@@ -20,6 +20,15 @@ export class WorldManager extends Registry {
 
         return this[ `overworld` ];
     }
+
+    removeWorld(world) {
+        if(this.has(world)) {
+            this.unregister(world);
+            world.__destroy(true);
+        }
+
+        return this;
+    }
 }
 
 export default WorldManager;

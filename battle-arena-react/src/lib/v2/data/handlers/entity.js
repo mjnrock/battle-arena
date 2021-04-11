@@ -9,9 +9,7 @@ export const handlers = [
             world.leaveWorld(entity);
         }
 
-        for(let key in entity) {
-            delete entity[ key ];
-        }
+        // entity.__destroy();
     }],
     [ "ability", ([ obj ]) => {
         const { source, afflictions, cost, cooldown, priority, escape, affected, range, targeted, ...rest } = obj;

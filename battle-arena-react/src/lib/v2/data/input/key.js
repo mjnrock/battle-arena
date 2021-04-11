@@ -1,3 +1,6 @@
+import Agency from "@lespantsfancy/agency";
+import { validate } from "uuid";
+
 export async function init(game) {
     window.onkeydown = e => {
         e.preventDefault();
@@ -38,7 +41,26 @@ export async function init(game) {
             game.config.SHOW_UI = !game.config.SHOW_UI;
         } else if(e.code === "Space") {
             game.players.player.action.interact();
-        }
+        } else if(e.code === "Delete") {
+            if(e.ctrlKey) {
+                console.clear();
+            }
+        }  else if(e.code === "F1") {
+            console.clear();
+            console.group(`Debugging`);
+                console.group(`Agency Network`);
+                    const DefaultNetwork = Agency.Event.Network.$;
+                    let entries = [];
+                    console.log(`Network Size:`, DefaultNetwork.size)
+                    for(let key of Reflect.ownKeys(DefaultNetwork)) {
+                        if(!validate(key)) {
+                            entries.push({ key, value: DefaultNetwork[ key ] });
+                        }
+                    }
+                    console.table(entries);
+                console.groupEnd();
+            console.groupEnd();
+        } 
     };
 }
 

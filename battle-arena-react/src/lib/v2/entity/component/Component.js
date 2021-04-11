@@ -4,8 +4,8 @@ export class Component extends Agency.Event.Emitter {
     static Name = "component";
     static DefaultProperties = () => ({});
 
-    constructor(name, game, entity, state = {}) {
-        super();
+    constructor(name, game, entity, state = {}, opts = {}) {
+        super({}, { injectMiddleware: false, ...opts });
 
         this.__name = name;
         
@@ -31,6 +31,7 @@ export class Component extends Agency.Event.Emitter {
             }
         }));
     }
+
     __merge(state = {}) {
         for(let [ key, value ] of Object.entries(state)) {
             if(key !== Component.ArgsKey) {
@@ -43,6 +44,14 @@ export class Component extends Agency.Event.Emitter {
         }
 
         return this;
+    }
+
+    __destroy() {
+        for(let key in this) {
+            delete this[ key ];
+        }
+
+        this.__deconstructor();
     }
 
     get name() {

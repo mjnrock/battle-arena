@@ -12,8 +12,8 @@ import Portal from "./../util/Portal";
 import { CalculateEdgeMasks } from "./../data/render/edges";
 
 export class World extends Agency.Event.Emitter {
-    constructor(size = [], { game, entities = [], portals = [], config = {} } = {}) {
-        super();
+    constructor(size = [], { game, entities = [], portals = [], config = {} } = {}, opts = {}) {
+        super({}, opts);
 
         this.__game = game;
         this.__config = {
@@ -34,6 +34,25 @@ export class World extends Agency.Event.Emitter {
         for(let entity of entities) {
             this.joinWorld(entity);
         }
+    }
+
+    __destroy(destroyEntities = true) {
+        for(let node of this._nodes._nodes.toLeaf({ flatten: true })) {
+            node.__destroy();
+        }
+        
+        if(destroyEntities) {
+            for(let entity of this._entities) {
+                this._entities.unregister(entity);
+                entity.__destroy();
+            }
+        }
+        
+        for(let key in this) {
+            delete this[ key ];
+        }
+        
+        this.__deconstructor();
     }
 
     [ Symbol.iterator ]() {

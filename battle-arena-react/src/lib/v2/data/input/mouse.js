@@ -1,5 +1,17 @@
 import Path from "./../../util/Path";
 
+export function consoleEntityList(entities) {
+    for(let entity of entities) {
+        console.groupCollapsed(entity.id);
+        for(let key in entity) {
+            console.groupCollapsed(key)
+                console.table(Object.assign({}, entity[ key ]), [ "Value" ]);
+            console.groupEnd();
+        }
+        console.groupEnd();
+    }
+}
+
 export async function init(game) {
     game.render.__handler.$.subscribe((type, entry) => {
         const [ e ] = entry.data;
@@ -20,11 +32,8 @@ export async function init(game) {
                 // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
                 const occupants = game.world.current.node(pos.txi, pos.tyi).occupants;
 
-                console.info(pos.txi, pos.tyi, occupants);
-
-                for(let occupant of occupants) {
-                    console.log(Object.assign({}, occupant.meta), Object.assign({}, occupant.world))
-                }
+                console.info(`[${ pos.txi },${ pos.tyi }]`, `x${ occupants.size }`);
+                consoleEntityList(occupants);
             } else if(button === 2) {
                 const player = game.players.player;
 

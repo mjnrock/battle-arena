@@ -16,12 +16,12 @@ const Repository = {
                 entity.action.interact();
             }
 
-            // this.current = Repository.MOVE.Persist;
-            if(Agency.Util.Dice.coin()) {
-                this.current = Repository.MOVE.Persist;
-            } else {
-                this.current = Repository.MOVE.RandomPath;
-            }
+            this.current = Repository.MOVE.Persist;
+            // if(Agency.Util.Dice.coin()) {
+            //     this.current = Repository.MOVE.Persist;
+            // } else {
+            //     this.current = Repository.MOVE.RandomPath;
+            // }
         },
     },
     MOVE: {
@@ -75,7 +75,7 @@ export class Action extends Component {
         super(Action.Name, game, entity, {
             ...Action.DefaultProperties(),
             ...state,
-        });
+        }, { injectMiddleware: true });
     }
 
     async decide() {

@@ -33,6 +33,7 @@ export class Ability extends Agency.Event.Emitter  {
 
             argsObj.afflictions = afflictions;
             this.$.emit("ability", argsObj);
+            // this.__deconstructor();
 
             return true;
         }
