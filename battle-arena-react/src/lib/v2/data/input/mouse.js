@@ -41,7 +41,7 @@ export async function init(game) {
                 // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
                 const occupants = game.world.current.node(pos.txi, pos.tyi).occupants;
 
-                console.info(`[${ pos.txi },${ pos.tyi }]`, `x${ occupants.size }`);
+                console.info(`${ occupants.size } @ [${ pos.txi },${ pos.tyi }]`);
                 consoleEntityList(occupants, "world");
             } else if(button === 2) {
                 const player = game.players.player;
