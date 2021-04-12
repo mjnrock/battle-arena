@@ -18,6 +18,12 @@ export class Ability extends Agency.Event.Emitter  {
         this.priority = priority;
     }
 
+    /**
+     * This will probably be a STUB, but invoke ability (after cast timer) wherever the cursor is (at *that* point--NOT when first invoked)
+     */
+    invokeAtCursor(actor, { ...rest } = {}) {
+        this.invoke(actor, { atCursor: true, ...rest });
+    }
     invoke(actor, { ...rest } = {}) {
         const argsObj = {
             source: actor,
@@ -26,14 +32,10 @@ export class Ability extends Agency.Event.Emitter  {
             ...rest,
         };
 
-        if(this.requirement.every(fn => fn(actor)) && this.action.attempt(argsObj)) {
+        if(!actor.action.cooldown && this.requirement.every(fn => fn(actor)) && this.action.attempt(argsObj)) {
             argsObj.afflictions = Affliction.Flatten(this.action.afflictions, argsObj);
             
-            actor.$.emit("casting", actor, {
-                startTime: Date.now(),
-                duration: this.castTime,
-                ability: argsObj,
-            });
+            actor.$.emit("casting", actor, argsObj);
 
             this.__deconstructor();
 

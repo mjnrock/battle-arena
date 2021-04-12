@@ -1,4 +1,7 @@
+import Agency from "@lespantsfancy/agency";
+
 import Health from "../../entity/component/Health";
+import { EnumState } from "../../entity/component/State";
 import SpriteStack from "../../render/SpriteStack";
 import Action from "./../../entity/component/Action";
 
@@ -47,6 +50,15 @@ export async function drawAnimationFrameEntity(dt, now, entity) {
                 } else if(prog >= 0.55) {
                     color = `rgba(201, 199, 72, 0.75)`;
                 }
+
+                if(entity.state.current.type === EnumState.CASTING) {
+                    if(Agency.Util.Dice.coin()) {
+                        color = `rgba(50, 110, 190, 0.75)`;
+                    } else {
+                        color = `rgba(150, 110, 190, 0.75)`;
+                    }
+                }
+
                 this.save();
                     this.prop({ fillStyle: `rgba(0, 0, 0, 0.15)`, strokeStyle: "transparent" }).circle(
                         x * frameWidth + nudgeX + frameWidth / 2,

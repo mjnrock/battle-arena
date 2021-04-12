@@ -1,5 +1,6 @@
 import Ability from "../../action/Ability";
 import { EnumEntityType } from "../../entity/component/Meta";
+import { EnumState } from "../../entity/component/State";
 import Cooldown from "./../../util/Cooldown";
 
 export const handlers = [
@@ -11,22 +12,17 @@ export const handlers = [
 
         // entity.__destroy();
     }],
-    [ "casting", ([ entity, { startTime, duration, ability }], { game }) => {
-        //TODO  Create casting invocation sequence
-        //  1)  Change Entity state to CASTING, set @startTime and @duration << MAX(ability.castTime, game.config.GCD) >>
-        //  2a)  If now >= @startTime + @duration, invoke ability
-        //  2b)  If interrupted, remove CASTING state
-        
-        //FIXME  Invoke this from a state-transition system --> if casting conditions are met, emit
-        //STUB
-        entity.$.emit("ability", ability);
-    }],
-    [ "ability", ([ obj ]) => {
-        const { source, afflictions, cost, cooldown, priority, escape, affected, range, targeted, ...rest } = obj;
+    [ "casting", ([ entity, ability ], { game }) => {
+        //TODO  If interrupted, remove CASTING state
+        entity.action.cooldown = Cooldown.Generate(ability.castTime);
+        entity.state.alter(EnumState.CASTING, ability.castTime, { next: state => {
+            entity.$.emit("ability", ability);
 
-        if(source.action.cooldown) {
-            return;
-        }
+            return state.default;
+        }});
+    }],
+    [ "ability", ([ obj ], { game }) => {
+        const { source, afflictions, cost, cooldown, priority, escape, affected, range, targeted, ...rest } = obj;
 
         const world = source.world.getCurrentWorld();
 
@@ -35,7 +31,10 @@ export const handlers = [
         }
 
         let x, y;
-        if(typeof rest.x === "number" && typeof rest.y === "number") {
+        if(rest.atCursor) {
+            x = game.config.MOUSE_POSITION[ 0 ];
+            y = game.config.MOUSE_POSITION[ 1 ];
+        } else if(typeof rest.x === "number" && typeof rest.y === "number") {
             x = rest.x;
             y = rest.y;
         } else {
@@ -44,7 +43,14 @@ export const handlers = [
         }
         
         if(!Ability.RangeCheck(x, y, source.world.x, source.world.y, range)) {
-            return;
+            //STUB
+            //FIXME  General idea: if has "atCursor" flag and out of range, cast on self --> but obviously this is only useful for beneficial spells --> but how to know that prima facie?
+            if(rest.atCursor) {
+                x = source.world.x;
+                y = source.world.y;
+            } else {
+                return;
+            }
         }
 
         if(targeted && !(world.node(x, y) || {}).hasOccupants) {
@@ -52,7 +58,7 @@ export const handlers = [
         }
 
         cost.forEach(cost => cost(source));
-        source.action.cooldown = Cooldown.Generate(cooldown);
+        source.action.cooldown = Cooldown.Generate(Math.max(cooldown, game.config.time.GCD));
 
         const entityEffects = new Map();
         for(let afflictionGrid of afflictions) {
@@ -99,6 +105,7 @@ export const handlers = [
                 
                 world.create({
                     meta: { type: EnumEntityType.EFFECT, subtype: "fire", lifespan: Math.min(1000, cooldown) },
+                    state: {},
                     world: { x: ~~entity.world.x + 0.5, y: ~~entity.world.y + 0.5 },
                     effect: { target: entity }  // lock the effect's position to the @target entity
                     //FIXME While the effect is currently only graphical, the ComponentEffect could be turned into a ComponentAction to handle edge conditions (e.g. MaxAffected)  << create relationship: Child(ren) <--> Parent >>

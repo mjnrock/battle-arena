@@ -1,8 +1,6 @@
 import Agency from "@lespantsfancy/agency";
 import Health from "../entity/component/Health";
-import { EnumEntityCreatureType } from "../entity/component/Meta";
 
-// import { EnumEntityCreatureType } from "./../entity/component/Meta";
 import Ability from "./Ability";
 import Action from "./Action";
 import Affliction from "./Affliction";
@@ -23,6 +21,7 @@ export function init() {
                     [ Agency.Registry._.effect.heal, { amount: 2 } ],
                 ]),
             ]),
+            castTime: 0,
             cooldown: 750,
             cost: [],
             requirement: [],
@@ -40,8 +39,8 @@ export function init() {
                     [ Agency.Registry._.effect.heal, { amount: 8 } ],
                 ]),
             ]),
-            castTime: 1500,
-            cooldown: 2500,
+            castTime: 750,
+            cooldown: 1500,
             cost: [],
             requirement: [],
             range: 3,

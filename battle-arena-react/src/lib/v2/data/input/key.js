@@ -27,7 +27,9 @@ export async function init(game) {
                 py = ~~py;
                 
                 // ability.invoke(game.players.player, { x: px, y: py });
-                ability.invoke(game.players.player, { x: mx, y: my });
+                // ability.invoke(game.players.player, { x: mx, y: my });
+                // ability.invoke(game.players.player, { atCursor: true });
+                ability.invokeAtCursor(game.players.player);
             }
         } else if(e.code === "F5") {
             if(e.ctrlKey) {

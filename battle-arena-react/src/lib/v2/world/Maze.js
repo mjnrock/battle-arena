@@ -19,6 +19,7 @@ export class Maze extends World {
             for(let y = 0; y < this.height; y++) {
                 const terrain = Entity.FromSchema(this.game, {
                     meta: { type: EnumEntityCreatureType.TERRAIN },
+                    state: {},
                     terrain: this.maze.get(y, x) ? DictTerrain.GRASS : DictTerrain.VOID,
                     world: { x, y, facing: 0 },
                 });

@@ -1,5 +1,7 @@
 import Agency from "@lespantsfancy/agency";
 
+import { EnumState } from "./../entity/component/State";
+
 export const EnumEntity = {
     SQUIRREL: "squirrel",
     BUNNY: "bunny",
@@ -24,12 +26,6 @@ export const EnumTerrain = {
 
 export const EnumEffect = {
     FIRE: "fire",
-};
-
-export const EnumState = {
-    NORMAL: 0,
-    EDGE_LONG: 1,
-    EDGE_SHORT: 2,
 };
 
 export const EnumFacing = {

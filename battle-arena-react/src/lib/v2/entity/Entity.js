@@ -1,7 +1,7 @@
 import Agency from "@lespantsfancy/agency";
 
 import Component from "./component/Component";
-import { Accessor as ComponentRegistry} from "./component/_init";
+import { Accessor as ComponentRegistry } from "./component/_init";
 
 export class Entity extends Agency.Event.Emitter {
     constructor(game, opts = {}) {

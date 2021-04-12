@@ -6,6 +6,7 @@ import Health from "./Health";
 import Meta from "./Meta";
 import Terrain from "./Terrain";
 import Effect from "./Effect";
+import State from "./State";
 
 export const Name = "component";
 export const Accessor = (key) => Agency.Registry._[ Name ][ key ];
@@ -20,6 +21,7 @@ export function init() {
         meta: Meta,
         terrain: Terrain,
         effect: Effect,
+        state: State,
     };
 
     //  Begin data loading

@@ -19,6 +19,8 @@ export const repository = (root) => new Agency.Util.CrossMap([
                     seedFn: () => new SpriteSheet(),
                     lookupFns: [
                         ({ entity }) => entity.meta.subtype,
+                        //STUB
+                        // ({ entity }) => entity.state.current.type,
                         ({ entity }) => 0,
                         ({ entity }) => Math.floor(entity.world.facing / 90) * 90,
                     ]
@@ -28,15 +30,8 @@ export const repository = (root) => new Agency.Util.CrossMap([
                     seedFn: () => new SpriteSheet(),
                     lookupFns: [
                         ({ entity }) => TerrainLookup(entity.terrain.type),
-                        // ({ entity }) => {
-                        //     // if(entity.terrain.edges === 0) {
-                        //     //     return TerrainLookup(entity.terrain.type);
-                        //     // } else {
-                        //     //     return "water";
-                        //     // }
-
-                        //     return entity.terrain.edges === 0 ? TerrainLookup(entity.terrain.type) : "water";
-                        // },
+                        //STUB
+                        // ({ entity }) => entity.state.current.type,
                         ({ entity }) => 0,
                         ({ entity }) => Math.floor(entity.world.facing / 90) * 90,
                     ]
@@ -46,6 +41,8 @@ export const repository = (root) => new Agency.Util.CrossMap([
                     seedFn: () => new SpriteSheet(),
                     lookupFns: [
                         ({ entity }) => entity.meta.subtype,
+                        //STUB
+                        // ({ entity }) => entity.state.current.type,
                         ({ entity }) => 0,
                         ({ entity }) => Math.floor(entity.world.facing / 90) * 90,
                     ]
