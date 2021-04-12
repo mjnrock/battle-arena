@@ -2,38 +2,40 @@ import Agency from "@lespantsfancy/agency";
 import Affliction from "./Affliction";
 
 export class Ability extends Agency.Event.Emitter  {
-    constructor({ action, range = 0, cooldown = 0, cost = [], requirement = [], priority, escape, targeted = false } = {}) {
+    constructor({ action, range = 0, cooldown = 0, castTime = 0, cost = [], requirement = [], priority, escape, targeted = false } = {}) {
         super();
 
-        this.action = action;
-        this.cooldown = cooldown;
+        //  Remove these properties from enumeration
+        Reflect.defineProperty(this, "action", { value: action });
+        Reflect.defineProperty(this, "requirement", { value: requirement }); // actor => level >= 5...
+
         this.range = range;
+        this.cooldown = cooldown;
+        this.castTime = castTime;
         this.cost = cost;       // actor => mana - 50...
-        this.requirement = requirement;     // actor => level >= 5...
+        this.targeted = targeted;
         this.escape = escape || (() => false);
         this.priority = priority;
-        this.targeted = targeted;
     }
 
     invoke(actor, { ...rest } = {}) {
         const argsObj = {
             source: actor,
-            range: this.range,
-            cost: this.cost,
-            cooldown: this.cooldown,
             affected: new Set(),
-            escape: this.escape,
-            priority: this.priority,
-            targeted: this.targeted,
+            ...this,
             ...rest,
         };
 
         if(this.requirement.every(fn => fn(actor)) && this.action.attempt(argsObj)) {
-            const afflictions = Affliction.Flatten(this.action.afflictions, argsObj);
+            argsObj.afflictions = Affliction.Flatten(this.action.afflictions, argsObj);
+            
+            actor.$.emit("casting", actor, {
+                startTime: Date.now(),
+                duration: this.castTime,
+                ability: argsObj,
+            });
 
-            argsObj.afflictions = afflictions;
-            this.$.emit("ability", argsObj);
-            // this.__deconstructor();
+            this.__deconstructor();
 
             return true;
         }

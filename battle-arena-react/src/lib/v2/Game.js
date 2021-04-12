@@ -29,7 +29,7 @@ import AgencyLocal from "./util/agency/package";
 
 export default class Game extends AgencyLocal.Watcher {
     // constructor({ fps = 4, GCD = 1000 } = {}) {
-    constructor({ fps = 24, GCD = 1000 } = {}) {
+    constructor({ fps = 24 } = {}) {
         super([], { deep: false });
 
         this.loop = new GameLoop(fps);
@@ -37,7 +37,7 @@ export default class Game extends AgencyLocal.Watcher {
 
         this.config = {
             time: {
-                GCD,
+                GCD: 500,
                 interaction: 250,
             },
             render: {

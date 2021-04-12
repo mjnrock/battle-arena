@@ -11,6 +11,14 @@ export const handlers = [
 
         // entity.__destroy();
     }],
+    [ "casting", ([ actor, { startTime, duration, ability: abilityArgs }]) => {
+        //TODO  Create casting invocation sequence
+        //  1)  Change Entity state to CASTING, set @startTime and @duration << MAX(castTime, GCD) >>
+        //  2a)  If now >= @startTime + @duration, invoke ability
+        //  2b)  If interrupted, remove CASTING state
+        
+        actor.$.emit("ability", abilityArgs);
+    }],
     [ "ability", ([ obj ]) => {
         const { source, afflictions, cost, cooldown, priority, escape, affected, range, targeted, ...rest } = obj;
 
