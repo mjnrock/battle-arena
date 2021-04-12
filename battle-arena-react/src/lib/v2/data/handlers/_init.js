@@ -9,6 +9,7 @@ import nodeHandlers from "./node";
 import worldHandlers from "./world";
 import entityHandlers from "./entity";
 import Ability from "../../action/Ability";
+import NodeManager from "../../manager/NodeManager";
 
 export function init(game) {
     Agency.Event.Network.$.router.createContexts([
@@ -40,7 +41,7 @@ export function init(game) {
     
     Agency.Event.Network.$.router.createRoutes([
         payload => {
-            if(payload.emitter instanceof Node) {
+            if(payload.emitter instanceof NodeManager) {
                 return "node";
             } else if(payload.emitter instanceof World) {
                 return "world";

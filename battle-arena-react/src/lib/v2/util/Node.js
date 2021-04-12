@@ -1,9 +1,5 @@
-import Agency from "@lespantsfancy/agency";
-
-export class Node extends Agency.Event.Emitter {
-    constructor(coords = [], terrain, { portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity } = {}, opts = {}) {
-        super({}, opts);
-
+export class Node {
+    constructor(coords = [], { terrain, portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity, bubbler } = {}) {
         this._coords = coords;
         this._terrain = terrain;
         
@@ -13,6 +9,8 @@ export class Node extends Agency.Event.Emitter {
         this._frequency = frequency;
         this._value = value;
         this._clearance = clearance;
+
+        this._bubbler = bubbler;
     }
 
     __destroy(destroyTerrain = true) {
@@ -45,6 +43,10 @@ export class Node extends Agency.Event.Emitter {
         return this._coords[ 3 ];
     }
     
+    get bubbler() {
+        return this._bubbler;
+    }
+
     get terrain() {
         return this._terrain;
     }
@@ -95,7 +97,7 @@ export class Node extends Agency.Event.Emitter {
     portal(entity) {
         for(let portal of this.portals) {
             if(portal.activate(entity)) {
-                this.$.emit("portal", portal, entity);
+                this.bubbler("portal", portal, entity);
 
                 return true;
             }
@@ -114,7 +116,7 @@ export class Node extends Agency.Event.Emitter {
 
             this.portal(entity)
 
-            // this.$.emit("join", this, entity);
+            // this.bubbler("join", this, entity);
 
             return true;
         }
@@ -123,7 +125,7 @@ export class Node extends Agency.Event.Emitter {
     }
     leave(entity) {
         if(this._occupants.delete(entity)) {
-            // this.$.emit("leave", this, entity);
+            // this.bubbler("leave", this, entity);
 
             return true;
         }

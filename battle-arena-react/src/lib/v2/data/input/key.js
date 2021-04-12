@@ -43,7 +43,10 @@ export async function init(game) {
             }
             game.config.SHOW_UI = true;
         } else if(e.code === "F2") {
-            game.config.SHOW_HEATMAP = !game.config.SHOW_HEATMAP;
+            if(e.ctrlKey) {
+                game.config.SHOW_HEATMAP = !game.config.SHOW_HEATMAP;
+            }
+            game.config.SHOW_WEAR = !game.config.SHOW_WEAR;
         } else if(e.code === "KeyV") {
             game.config.SHOW_UI = !game.config.SHOW_UI;
         } else if(e.code === "Space") {

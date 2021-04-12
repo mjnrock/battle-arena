@@ -1,10 +1,9 @@
 import Agency from "@lespantsfancy/agency";
-import AgencyBase from "@lespantsfancy/agency/src/AgencyBase";
 
 import Node from "./../util/Node";
 import CrossMap from "./../util/agency/util/CrossMap";
 
-export class NodeManager extends AgencyBase {
+export class NodeManager extends Agency.Event.Emitter {
     //!GRID-NUDGE
     // static Extractor = function(entity) { return [ Agency.Util.Helper.round(entity.world.x, 1), Agency.Util.Helper.round(entity.world.y, 1) ] };
     static Extractor = function(entity) { return [ ~~entity.world.x, ~~entity.world.y ] };
@@ -15,10 +14,14 @@ export class NodeManager extends AgencyBase {
         this._cache = new WeakMap();
 
         this._nodes = CrossMap.CreateGrid(size, {
-            seedFn: (...coords) => new Node(coords),
+            seedFn: (...coords) => new Node(coords, { bubbler: this.bubbler.bind(this) }),
         });
 
         this.__extractor = extractor;
+    }
+
+    bubbler(event, ...args) {
+        this.$.emit(event, ...args);
     }
 
     get extractor() {
