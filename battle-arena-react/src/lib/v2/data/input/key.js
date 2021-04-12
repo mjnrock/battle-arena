@@ -37,6 +37,8 @@ export async function init(game) {
             }
         } else if(e.code === "F3") {
             game.config.SHOW_DEBUG = !game.config.SHOW_DEBUG;
+        } else if(e.code === "F2") {
+            game.config.SHOW_NODE_FREQUENCY = !game.config.SHOW_NODE_FREQUENCY;
         } else if(e.code === "KeyV") {
             game.config.SHOW_UI = !game.config.SHOW_UI;
         } else if(e.code === "Space") {

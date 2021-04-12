@@ -12,9 +12,38 @@ export async function drawAnimationFrame(dt, now) {
         } else {
             drawMovementPath.call(this, this.game.players.player);
         }
+
+        if(this.game.config.SHOW_NODE_FREQUENCY) {
+            drawNodeFrequency.call(this, dt, now)
+        }
     }
 
     return this;
+};
+
+export function drawNodeFrequency(dt, now) {
+    if(this.game.config.SHOW_NODE_FREQUENCY) {
+        const factor = 1000;
+        const world = this.game.world.current;
+
+        for(let node of world) {
+            if(node.terrain.terrain.cost < Infinity) {
+                const frequency = Math.min(node.frequency / factor, 1.0);
+                this.prop({ fillStyle: heatMapColorforValue(frequency) }).tRect(
+                    node.x,
+                    node.y,
+                    1,
+                    1,
+                    { isFilled: true },
+                );
+                this.text((node.frequency / factor).toFixed(3), node.x * this.tw + this.tw / 2, node.y * this.th + this.th / 2, { color: `#fff`, font: `8pt mono` });
+            }
+        }
+    }
+};
+function heatMapColorforValue(value){
+    var h = (1.0 - value) * 240
+    return "hsl(" + h + ", 100%, 50%)";
 };
 
 export function drawMouseHighlighter() {

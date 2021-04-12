@@ -48,6 +48,7 @@ export default class Game extends AgencyLocal.Watcher {
             },
             SHOW_UI: true,
             SHOW_DEBUG: true,
+            SHOW_WEAR: false,
             MOUSE_POSITION: [ 10, 10 ],
         };
 
