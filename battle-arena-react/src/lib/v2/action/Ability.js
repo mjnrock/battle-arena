@@ -5,9 +5,9 @@ export class Ability extends Agency.Event.Emitter  {
     constructor({ action, range = 0, cooldown = 0, castTime = 0, cost = [], requirement = [], priority, escape, targeted = false } = {}) {
         super();
 
-        //  Remove these properties from enumeration
-        Reflect.defineProperty(this, "action", { value: action });
-        Reflect.defineProperty(this, "requirement", { value: requirement }); // actor => level >= 5...
+        //  Explicitly remove these properties from enumeration
+        Reflect.defineProperty(this, "action", { value: action, enumerable: false });
+        Reflect.defineProperty(this, "requirement", { value: requirement, enumerable: false }); // actor => level >= 5...
 
         this.range = range;
         this.cooldown = cooldown;
