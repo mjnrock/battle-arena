@@ -17,10 +17,10 @@ export function init() {
         holyNova: () => new Ability({
             action: new Action([
                 Affliction.Current([ 
-                    [ Agency.Registry._.effect.heal, { amount: 1 } ],
+                    [ Agency.Registry._.effect.heal, { amount: 2 } ],
                 ]),
                 Affliction.Surround8([ 
-                    [ Agency.Registry._.effect.heal, { amount: 1 } ],
+                    [ Agency.Registry._.effect.heal, { amount: 2 } ],
                 ]),
             ]),
             cooldown: 750,
@@ -37,9 +37,10 @@ export function init() {
         holyLight: () => new Ability({
             action: new Action([
                 Affliction.Current([ 
-                    [ Agency.Registry._.effect.heal, { amount: 5 } ],
+                    [ Agency.Registry._.effect.heal, { amount: 8 } ],
                 ]),
             ]),
+            castTime: 1500,
             cooldown: 2500,
             cost: [],
             requirement: [],

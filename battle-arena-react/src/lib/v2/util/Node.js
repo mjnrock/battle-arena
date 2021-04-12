@@ -5,7 +5,7 @@
  *      and sees exponential reductions at increased sizes.
  */
 export class Node {
-    constructor(coords = [], { terrain, portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity, bubbler } = {}) {
+    constructor(coords = [], { terrain, portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity, escalate } = {}) {
         this._coords = coords;
         this._terrain = terrain;
         
@@ -16,7 +16,7 @@ export class Node {
         this._value = value;
         this._clearance = clearance;
 
-        this._bubbler = bubbler;
+        this._escalate = escalate;  // <NodeManager> will handle any "emitted" event
     }
 
     __destroy(destroyTerrain = true) {
@@ -49,8 +49,8 @@ export class Node {
         return this._coords[ 3 ];
     }
     
-    get bubbler() {
-        return this._bubbler;
+    get escalate() {
+        return this._escalate;
     }
 
     get terrain() {
@@ -103,7 +103,7 @@ export class Node {
     portal(entity) {
         for(let portal of this.portals) {
             if(portal.activate(entity)) {
-                this.bubbler("portal", portal, entity);
+                this.escalate(this, "portal", portal, entity);
 
                 return true;
             }
@@ -122,7 +122,7 @@ export class Node {
 
             this.portal(entity)
 
-            // this.bubbler("join", this, entity);
+            // this.escalate(this, "join", this, entity);
 
             return true;
         }
@@ -131,7 +131,7 @@ export class Node {
     }
     leave(entity) {
         if(this._occupants.delete(entity)) {
-            // this.bubbler("leave", this, entity);
+            // this.escalate(this, "leave", this, entity);
 
             return true;
         }

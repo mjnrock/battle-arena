@@ -3,6 +3,7 @@ import Agency from "@lespantsfancy/agency";
 import Component from "./component/Component";
 import { Accessor as ComponentRegistry} from "./component/_init";
 
+//TODO  Add a @escalate function to <Entity> via <EntityManager>, akin to <Node> setup
 export class Entity extends Agency.Event.Emitter {
     constructor(game, opts = {}) {
         super({}, opts);

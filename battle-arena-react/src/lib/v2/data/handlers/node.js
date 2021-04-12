@@ -1,7 +1,7 @@
 import Agency from "@lespantsfancy/agency";
 
 export const handlers = [
-    [ "portal", function(args) {
+    [ "portal", function([ node, ...args ]) {
         Agency.Event.Network.$.share("world", this, args);      // pass the event to the "world" <Context>
     }],
 ];

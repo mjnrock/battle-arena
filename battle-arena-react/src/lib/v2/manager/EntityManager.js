@@ -15,6 +15,10 @@ export class EntityManager extends Registry {
     get game() {
         return this.state.__game;
     }
+
+    escalator(entity, event, ...args) {
+        this.$.emit(event, entity, ...args);
+    }
     
     create(comps = {}, ...synonyms) {
         const entity = Entity.FromSchema(this.game, comps);
