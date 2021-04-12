@@ -45,14 +45,16 @@ export async function drawAnimationFrameEntity(dt, now, node) {
         );
     }
         
-    const wear = Math.min(node.frequency / 1000.0, 0.33);
-    this.prop({ fillStyle: `rgba(74, 46, 10, ${ wear }` }).tRect(
-        terrain.world.x,
-        terrain.world.y,
-        1,
-        1,
-        { isFilled: true },
-    );
+    if(this.game.config.SHOW_WEAR) {
+        const wear = Math.min(node.frequency / 1000.0, 0.33);
+        this.prop({ fillStyle: `rgba(74, 46, 10, ${ wear }` }).tRect(
+            terrain.world.x,
+            terrain.world.y,
+            1,
+            1,
+            { isFilled: true },
+        );
+    }
 };
 // export async function drawAnimationFrameEntity(dt, elapsed, node) {
 //     const terrain = node.terrain;

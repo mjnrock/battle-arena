@@ -12,17 +12,17 @@ export async function drawAnimationFrame(dt, now) {
         } else {
             drawMovementPath.call(this, this.game.players.player);
         }
+    }
 
-        if(this.game.config.SHOW_NODE_FREQUENCY) {
-            drawNodeFrequency.call(this, dt, now)
-        }
+    if(this.game.config.SHOW_HEATMAP) {
+        drawNodeFrequency.call(this, dt, now)
     }
 
     return this;
 };
 
 export function drawNodeFrequency(dt, now) {
-    if(this.game.config.SHOW_NODE_FREQUENCY) {
+    if(this.game.config.SHOW_HEATMAP) {
         const factor = 1000;
         const world = this.game.world.current;
 
@@ -43,7 +43,7 @@ export function drawNodeFrequency(dt, now) {
 };
 function heatMapColorforValue(value){
     var h = (1.0 - value) * 240
-    return "hsl(" + h + ", 100%, 50%)";
+    return `hsl(${ h }, 100%, 50%)`;
 };
 
 export function drawMouseHighlighter() {
