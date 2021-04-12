@@ -1,11 +1,11 @@
-import Agency from "@lespantsfancy/agency";
+import AgencyBase from "@lespantsfancy/agency/src/AgencyBase";
 
-export class Component extends Agency.Event.Emitter {
+export class Component extends AgencyBase {
     static Name = "component";
     static DefaultProperties = () => ({});
 
-    constructor(name, game, entity, state = {}, opts = {}) {
-        super({}, { injectMiddleware: false, ...opts });
+    constructor(name, game, entity, state = {}) {
+        super();
 
         this.__name = name;
         
@@ -13,6 +13,11 @@ export class Component extends Agency.Event.Emitter {
         this.__entity = entity;
 
         this.__merge(state);
+    }
+
+    // Receive @component for internal switching; if needed for the event, pass it as normal in @args
+    escalate(event, ...args) {
+        this.entity.escalation(this, event, ...args);
     }
 
     /**

@@ -14,13 +14,13 @@ export class NodeManager extends Agency.Event.Emitter {
         this._cache = new WeakMap();
 
         this._nodes = CrossMap.CreateGrid(size, {
-            seedFn: (...coords) => new Node(coords, { escalate: this.escalator.bind(this) }),
+            seedFn: (...coords) => new Node(coords, { escalate: this.escalation.bind(this) }),
         });
 
         this.__extractor = extractor;
     }
 
-    escalator(node, event, ...args) {
+    escalation(node, event, ...args) {
         this.$.emit(event, node, ...args);
     }
 

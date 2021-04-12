@@ -3,12 +3,16 @@ import Agency from "@lespantsfancy/agency";
 import Component from "./component/Component";
 import { Accessor as ComponentRegistry} from "./component/_init";
 
-//TODO  Add a @escalate function to <Entity> via <EntityManager>, akin to <Node> setup
 export class Entity extends Agency.Event.Emitter {
     constructor(game, opts = {}) {
         super({}, opts);
         
         this.__game = game;
+    }
+
+    // Receive @component for internal switching; if needed for the event, pass it as normal in @args
+    escalation(component, event, ...args) {
+        this.$.emit(event, ...args);
     }
 
     [ Symbol.iterator ]() {

@@ -44,7 +44,7 @@ export class Meta extends Component {
     onPreTick(spf, now) {
         if(this.lifespan < Infinity) {
             if(now >= this.born + this.lifespan) {
-                this.entity.$.emit("destroy", this.entity);
+                this.escalate("destroy", this.entity);
             }
         }
     }
