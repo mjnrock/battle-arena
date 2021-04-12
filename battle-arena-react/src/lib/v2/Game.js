@@ -113,8 +113,8 @@ export default class Game extends AgencyLocal.Watcher {
             initializeHandlers(game);
 
             game.world = new WorldManager(game);
-            game.world.register(World.CreateRandom(game, 25, 25, 0), "overworld");
-            game.world.register(World.CreateRandom(game, 25, 25, 0), "overworld2");
+            game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
+            game.world.register(World.CreateRandom(game, 25, 25, 10), "overworld2");
 
             game.world.overworld.openPortal(10, 10, new Portal(game.world.overworld2, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));
             game.world.overworld2.openPortal(10, 10, new Portal(game.world.overworld, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));          
