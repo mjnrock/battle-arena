@@ -1,7 +1,8 @@
 /**
  * @bubbler will send the event emission to the <NodeManager> instead of
  *      firing directly from here.  Because of the <Emitter> injection
- *      to <Agency..Network>, in a 25x25 map, this frees 624 subscriptions.
+ *      to <Agency..Network>, in a 25x25 map, this frees 624 subscriptions,
+ *      and sees exponential reductions at increased sizes.
  */
 export class Node {
     constructor(coords = [], { terrain, portals = [], occupants = [], frequency = 0, value = 0, clearance = Infinity, bubbler } = {}) {
