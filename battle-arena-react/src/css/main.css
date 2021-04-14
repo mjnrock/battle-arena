@@ -1,3 +1,7 @@
 html, body {
     background-color: #1b1c1d;
 }
+
+.unset-all {
+    all: unset;
+}

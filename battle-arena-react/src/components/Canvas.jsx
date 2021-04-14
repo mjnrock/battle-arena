@@ -1,7 +1,7 @@
 /* eslint-disable */
-import React, { Fragment, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
-export function Canvas({ master, ...rest }) {
+export function Canvas({ master }) {
     const container = useRef(null);
 
     useEffect(() => {
@@ -10,7 +10,10 @@ export function Canvas({ master, ...rest }) {
     }, [ container, master.canvas ]);
 
     return (
-        <Fragment ref={ container } />
+        <div
+            className="unset-all"
+            ref={ container }
+        />
     )
 }
 
