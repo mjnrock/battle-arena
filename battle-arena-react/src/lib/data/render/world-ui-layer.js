@@ -36,11 +36,15 @@ export function drawEntityData(entity) {
         row = 1,
         rowHeight = 8;
 
-    this.text(`${ x.toFixed(2) } ${ y.toFixed(2) }`, ...entityDataCoords.call(this, x, y, row, rowHeight), { color: `#fff`, font: `6pt monospace` });
-    ++row;
-    this.text(`${ vx.toFixed(2) } ${ vy.toFixed(2) }`, ...entityDataCoords.call(this, x, y, row, rowHeight), { color: `#ed0`, font: `6pt monospace` });
-    ++row;
-    this.text(`${ entity.world.facing.toFixed(0) }`, ...entityDataCoords.call(this, x, y, row, rowHeight), { color: `#ea0`, font: `6pt monospace` });
+    let rows = [
+        [ `${ x.toFixed(2) } ${ y.toFixed(2) }`, { color: `#fff`, font: `6pt monospace` } ],
+        [ `${ vx.toFixed(2) } ${ vy.toFixed(2) }`, { color: `#ed0`, font: `6pt monospace` } ],
+        [ `${ entity.world.facing.toFixed(0) }`, { color: `#ea0`, font: `6pt monospace` } ],
+    ];
+    for(let [ text, args ] of rows) {
+        this.text(text, ...entityDataCoords.call(this, x, y, row, rowHeight), args);
+        ++row;
+    }
 }
 
 export function drawNodeFrequency(dt, now) {
