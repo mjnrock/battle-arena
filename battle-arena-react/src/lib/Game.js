@@ -85,14 +85,9 @@ export default class Game {
         Agency.Event.Network.$.processAll();
     }
 
+    //TODO  Adjust cursor positions if <Camera> is not rendering entire map
     onDraw(dt, now) {
-        this.render.drawAnimationLayers(dt, now);
-
-        // for(let entity of this.world.current.entities) {
-        //     for(let comp of entity) {
-        //         comp.onDraw.call(comp, dt, now);
-        //     }
-        // }
+        this.render.drawAnimationLayers(dt, now, ...this.render.camera.drawArgs);
     }
 
     static CreateGame() {

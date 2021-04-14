@@ -72,7 +72,6 @@ export class Component extends AgencyBase {
     onPreTick(spf, now) {}
     onTick(dt, now) {}
     onTurn(dt, now) {}
-    onDraw(dt, now) {}
 
     static Has(entity) {
         return this.Name in entity;     // @this is the constructor in static methods and *does* appropriately descend to ancestors

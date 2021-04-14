@@ -7,6 +7,7 @@ import ImageRegistry from "../render/ImageRegistry";
 import RenderLayer from "./../render/RenderLayer";
 
 import initializeBindings from "./../input/_init";
+import { Camera } from "../render/Camera";
 
 export class RenderManager extends LayeredCanvas {
     constructor(game, { tw, th, width, height, repository } = {}) {
@@ -15,39 +16,22 @@ export class RenderManager extends LayeredCanvas {
         this.__id = uuidv4();
         this.__game = game;
 
+        // this.camera = new Camera(game, this);   //? Draw the entire map
+        this.camera = new Camera(game, this, {   //? Draw around the main player
+            subject: {
+                entity: game.players.player,
+                txr: 5.5,
+                tyr: 4.5,
+            },
+        });
+
         this.repository = repository;
-
-        this.__current = null;
-
         this.drawAnimationFrame = this.drawAnimationLayers;
         
         this.ctx.imageSmoothingEnabled = false;
 
-        this.handler = new Agency.Event.Emitter();
-        [
-            `onClick`,
-            `onContextMenu`,
-            `onDoubleClick`,
-            `onDrag`,
-            `onDragEnd`,
-            `onDragEnter`,
-            `onDragExit`,
-            `onDragLeave`,
-            `onDragOver`,
-            `onDragStart`,
-            `onDrop`,
-            `onMouseDown`,
-            `onMouseEnter`,
-            `onMouseLeave`,
-            `onMouseMove`,
-            `onMouseOut`,
-            `onMouseOver`,
-            `onMouseUp`,
-        ].forEach(key => {
-            this.canvas[ key.toLowerCase() ] = e => this.handler.$.emit(e.type, e);
-        });
-
         //? Key and Mouse Bindings
+        this.handler = new Agency.Event.Emitter();
         initializeBindings(this.game);
     }
 
@@ -56,17 +40,6 @@ export class RenderManager extends LayeredCanvas {
     }
     get game() {
         return this.__game;
-    }
-
-    //FIXME Determine if the RenderManager should have its own "current world" or if it should just use game.world.current
-    //STUB  This is a partial stub for "world-terrain-layer > .drawAnimationFrame"
-    get current() {
-        return this.__current;
-    }
-    set current(world) {
-        this.__current = world;
-
-        return this;
     }
 
     async loadImages(fn, ...args) {

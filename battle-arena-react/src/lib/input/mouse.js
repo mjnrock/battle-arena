@@ -22,6 +22,29 @@ export function consoleEntityList(entities, ...focus) {
 }
 
 export async function init(game) {
+    [
+        `onClick`,
+        `onContextMenu`,
+        `onDoubleClick`,
+        `onDrag`,
+        `onDragEnd`,
+        `onDragEnter`,
+        `onDragExit`,
+        `onDragLeave`,
+        `onDragOver`,
+        `onDragStart`,
+        `onDrop`,
+        `onMouseDown`,
+        `onMouseEnter`,
+        `onMouseLeave`,
+        `onMouseMove`,
+        `onMouseOut`,
+        `onMouseOver`,
+        `onMouseUp`,
+    ].forEach(key => {
+        game.render.canvas[ key.toLowerCase() ] = e => game.render.handler.$.emit(e.type, e);
+    });
+
     game.render.handler.addSubscriber(function(e) {
         const { target: canvas, button, clientX: x, clientY: y } = e;
 
