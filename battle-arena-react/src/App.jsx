@@ -9,7 +9,7 @@ import {
 import ScrollToTop from "./ScrollToTop";
 import Routes from "./routes/package";
 
-import Game from "./lib/v2/Game";
+import Game from "./lib/Game";
 
 export const GameObj = Game.CreateGame();
 export const Context = React.createContext();

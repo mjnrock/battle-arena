@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Segment } from "semantic-ui-react";
 
-import { Context } from "./../../App";
+import { Context } from "./../App";
 import Canvas from "./Canvas";
 // import VideoStream from "./VideoStream";
 

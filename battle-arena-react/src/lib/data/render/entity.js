@@ -1,6 +1,6 @@
 import Agency from "@lespantsfancy/agency";
 import { ToCanvasMap } from "../image/tessellator/grid";
-import { createEdgeMap } from "./../render/edges";
+import { createEdgeMap } from "./edges";
 
 export async function loadCreature(game) {
     //NOTE  If you want to add more files, they MUST have a corresponding "1st dimension" key in renderGroup (cf. ImageRegistry.EntityTemplate)

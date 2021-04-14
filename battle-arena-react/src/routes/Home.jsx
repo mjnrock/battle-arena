@@ -2,8 +2,8 @@
 import React from "react";
 import { Segment } from "semantic-ui-react";
 
-import GameView from "../components/v2/GameView";
-// import MetaView from "../components/v2/MetaView";
+import GameView from "../components/GameView";
+// import MetaView from "../components/MetaView";
 
 export default function Home() {
     return (
