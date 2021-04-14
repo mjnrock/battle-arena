@@ -22,6 +22,8 @@ export function consoleEntityList(entities, ...focus) {
 }
 
 export async function init(game) {
+    window.oncontextmenu = e => e.preventDefault();     // Disable right click menu globally
+
     [
         `onClick`,
         `onContextMenu`,
