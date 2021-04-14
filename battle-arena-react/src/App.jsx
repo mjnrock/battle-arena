@@ -16,25 +16,23 @@ export const Context = React.createContext();
 
 export function App() {
     const [ game, setGame ] = useState(GameObj);
-    const [ data, setData ] = useState({
-        game,
-        canvas: game.render.canvas,
-    });
+    const [ data, setData ] = useState({ game });
 
-    useEffect(() => {
-        function hook(...args) {
-            if(this.type === "start") {
-                setData({
-                    ...data,
-                    // stream: game.render.canvas.captureStream(24),
-                });
-            }
-        };
+    // useEffect(() => {
+    //     function hook(...args) {
+    //         if(this.type === "start") {
+    //             setData({
+    //                 ...data,
+    //                 // canvas: game.render.canvas,
+    //                 // stream: game.render.canvas.captureStream(24),
+    //             });
+    //         }
+    //     };
 
-        game.addSubscriber(hook);
+    //     game.addSubscriber(hook);
 
-        return () => game.removeSubscriber(hook);
-    }, [ data ]);
+    //     return () => game.removeSubscriber(hook);
+    // }, [ data ]);
 
     return (
         <Router>

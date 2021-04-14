@@ -22,6 +22,12 @@ export async function drawAnimationFrame(dt, now) {
     return this;
 };
 
+function entityDataCoords(x, y, row, rowHeight) {
+    return [
+        ~~(x * this.tw),
+        ~~(y * this.th + this.th / 2 + row * rowHeight),
+    ];
+}
 export function drawEntityData(entity) {
     let x = entity.world.x,
         y = entity.world.y,
@@ -30,9 +36,11 @@ export function drawEntityData(entity) {
         row = 1,
         rowHeight = 8;
 
-    this.text(`${ x.toFixed(2) } ${ y.toFixed(2) }`, ~~(x * this.tw), ~~(y * this.th + this.th / 2 + row * rowHeight), { color: `#fff`, font: `6pt monospace` });
+    this.text(`${ x.toFixed(2) } ${ y.toFixed(2) }`, ...entityDataCoords.call(this, x, y, row, rowHeight), { color: `#fff`, font: `6pt monospace` });
     ++row;
-    this.text(`${ vx.toFixed(2) } ${ vy.toFixed(2) }`, ~~(x * this.tw), ~~(y * this.th + this.th / 2 + row * rowHeight), { color: `#ed0`, font: `6pt monospace` });
+    this.text(`${ vx.toFixed(2) } ${ vy.toFixed(2) }`, ...entityDataCoords.call(this, x, y, row, rowHeight), { color: `#ed0`, font: `6pt monospace` });
+    ++row;
+    this.text(`${ entity.world.facing.toFixed(0) }`, ...entityDataCoords.call(this, x, y, row, rowHeight), { color: `#ea0`, font: `6pt monospace` });
 }
 
 export function drawNodeFrequency(dt, now) {

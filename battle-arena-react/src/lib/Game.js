@@ -29,10 +29,8 @@ import Agency from "@lespantsfancy/agency";
     import loadRenderables from "./data/render/_init";
 //STUB END "Imports"
 
-export default class Game extends Agency.Event.Emitter {
-    // constructor({ fps = 4, GCD = 1000 } = {}) {
+export default class Game {
     constructor({ fps = 24 } = {}) {
-        super();
 
         this.loop = new GameLoop(fps);
         this.players = new PlayerManager();
@@ -63,10 +61,6 @@ export default class Game extends Agency.Event.Emitter {
         //FIXME Probably should make this more robust
         window.onfocus = e => this.loop.start();
         window.onblur = e => this.loop.stop();
-
-        setTimeout(() => {
-            this.world.overworld.videoSource.stream();
-        }, 1000);
     }
 
     onPreTick(spf, now) {
@@ -156,13 +150,10 @@ export default class Game extends Agency.Event.Emitter {
 
             console.log(game.render.repository)
             game.loop.start();
-
-            game.$.emit("start", Date.now());
         })();
 
         Agency.Event.Network.$.router.useBatchProcess();    // Return to batch process before game loop starts
 
-        Game._ = game;
         return game;
     }
 }
