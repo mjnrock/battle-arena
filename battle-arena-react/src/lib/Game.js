@@ -86,7 +86,7 @@ export default class Game {
     }
 
     //TODO  Adjust cursor positions if <Camera> is not rendering entire map
-    //TODO  Break down ...drawImageArgs in each layer for render optimizations
+    //TODO  Break down ...drawImageArgs in each layer for render optimizations | maybe use a minecraft model where a <Creator> must be within X range of a <Node> to render/tick
     onDraw(dt, now) {
         this.render.drawAnimationLayers(dt, now, ...this.render.camera.drawArgs);
     }
