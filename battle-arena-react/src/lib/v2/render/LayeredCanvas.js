@@ -102,7 +102,7 @@ export default class LayeredCanvas extends TileCanvas {
         if(!drawImageArgs.length) {
             drawImageArgs = [ 0, 0 ];
         }
-
+        
         if(this.config.clearBeforeDraw) {
             this.clear();
         }

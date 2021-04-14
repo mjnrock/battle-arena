@@ -18,19 +18,23 @@ import AgencyLocal from "./util/agency/package";
     import Action from "./entity/component/Action";
 
     import Portal from "./util/Portal";
+    import RenderManager from "./manager/RenderManager";
+
+    import initImageRepository from "./data/render/repository";
 
     import initializeComponentRegistry from "./entity/component/_init";
     import initializeEffectRegistry from "./data/entity/effects/_init";
     import initializeActionRegistry from "./action/_init";
 
     import initializeHandlers from "./data/handlers/_init";
-    import initializeRenderers from "./data/render/_init";
+    import loadRenderables from "./data/render/_init";
 //STUB END "Imports"
 
-export default class Game extends AgencyLocal.Watcher {
+// export default class Game extends AgencyLocal.Watcher {
+export default class Game extends Agency.Event.Emitter {
     // constructor({ fps = 4, GCD = 1000 } = {}) {
     constructor({ fps = 24 } = {}) {
-        super([], { deep: false });
+        super();
 
         this.loop = new GameLoop(fps);
         this.players = new PlayerManager();
@@ -52,21 +56,6 @@ export default class Game extends AgencyLocal.Watcher {
             SHOW_WEAR: true,
             MOUSE_POSITION: [ 10, 10 ],
         };
-
-        // Create Singleton pattern
-        if(!Game.Instance) {
-            Game.Instance = this;
-        }
-
-        //! -========================-
-        //! -========================-
-        //! -========================-
-        //! -========================-
-        //TODO  Remove the <Watchable> completely and rebind to React
-        //! -========================-
-        //! -========================-
-        //! -========================-
-        //! -========================-
         
         this.loop.setTick(this.onTick.bind(this));
         this.loop.setPreTick(this.onPreTick.bind(this));
@@ -114,62 +103,68 @@ export default class Game extends AgencyLocal.Watcher {
         // }
     }
 
-    // Access Singleton pattern via Game._
-    static get _() {
-        if(!Game.Instance) {
-            Agency.Event.Network.$.router.useRealTimeProcess();     // Process all setup events as they fire
+    static CreateGame() {
+        Agency.Event.Network.$.router.useRealTimeProcess();     // Process all setup events as they fire
 
-            initializeComponentRegistry();
-            initializeEffectRegistry();
-            initializeActionRegistry();
+        initializeComponentRegistry();
+        initializeEffectRegistry();
+        initializeActionRegistry();
 
-            Game.Instance = new Game();
-            const game = Game.Instance;
+        const game = new Game();
 
-            initializeHandlers(game);
+        initializeHandlers(game);
 
-            game.world = new WorldManager(game);
-            game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
-            game.world.register(World.CreateRandom(game, 25, 25, 10), "overworld2");
+        game.world = new WorldManager(game);
+        game.world.register(World.CreateRandom(game, 25, 25, 15), "overworld");
+        game.world.register(World.CreateRandom(game, 25, 25, 10), "overworld2");
 
-            game.world.overworld.openPortal(10, 10, new Portal(game.world.overworld2, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));
-            game.world.overworld2.openPortal(10, 10, new Portal(game.world.overworld, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));          
-            
-            game.world.register(Maze.CreateRandom(game, 25, 25, game.world.overworld), "maze");
-            game.world.overworld.openPortal(2, 2, new Portal(game.world.maze, { activator: Action.IsInteracting }));
+        game.world.overworld.openPortal(10, 10, new Portal(game.world.overworld2, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));
+        game.world.overworld2.openPortal(10, 10, new Portal(game.world.overworld, { x: 15.5, y: 15.5, activator: Action.IsInteracting }));          
+        
+        game.world.register(Maze.CreateRandom(game, 25, 25, game.world.overworld), "maze");
+        game.world.overworld.openPortal(2, 2, new Portal(game.world.maze, { activator: Action.IsInteracting }));
 
-            const player = Entity.FromSchema(game, {
-                meta: { subtype: EnumEntityCreatureType.SQUIRREL },
-                state: {},
-                world: { x: 4.5, y: 7.5 },
-                health: { args: { current: 1, max: 10 } },
-                action: {
-                    abilities: {
-                        holyNova: Agency.Registry._.ability.holyNova,
-                        holyLight: Agency.Registry._.ability.holyLight,
-                    },
+        const player = Entity.FromSchema(game, {
+            meta: { subtype: EnumEntityCreatureType.SQUIRREL },
+            state: {},
+            world: { x: 4.5, y: 7.5 },
+            health: { args: { current: 1, max: 10 } },
+            action: {
+                abilities: {
+                    holyNova: Agency.Registry._.ability.holyNova,
+                    holyLight: Agency.Registry._.ability.holyLight,
                 },
-            }, (entity) => {
-                entity.world.wayfinder.entity = entity;
-            });
+            },
+        }, (entity) => {
+            entity.world.wayfinder.entity = entity;
+        });
 
-            game.world.overworld.joinWorld(player);
-            // game.world.maze.joinWorld(player);
+        game.world.overworld.joinWorld(player);
+        // game.world.maze.joinWorld(player);
 
-            game.players.register(player, "player");
-            
-            (async () => {
-                await initializeRenderers(game);
+        game.players.register(player, "player");
+        
+        game.render = new RenderManager(game, {
+            width: game.world.current.width * game.config.render.tile.width,
+            height: game.world.current.height * game.config.render.tile.height,
+            tw: game.config.render.tile.width,
+            th: game.config.render.tile.height,
+            repository: initImageRepository()
+        });
+        game.render.config.clearBeforeDraw = true;
+        
+        (async () => {
+            await loadRenderables(game);
 
-                console.log(game.render.repository)
-            })();
-
-            Agency.Event.Network.$.router.useBatchProcess();    // Return to batch process before game loop starts
+            console.log(game.render.repository)
             game.loop.start();
 
-            Game.Instance = game;
-        }
+            game.$.emit("start", Date.now());
+        })();
 
-        return Game.Instance;
+        Agency.Event.Network.$.router.useBatchProcess();    // Return to batch process before game loop starts
+
+        Game._ = game;
+        return game;
     }
 }

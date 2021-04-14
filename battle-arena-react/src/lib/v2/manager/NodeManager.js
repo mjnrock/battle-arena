@@ -9,7 +9,7 @@ export class NodeManager extends Agency.Event.Emitter {
     static Extractor = function(entity) { return [ ~~entity.world.x, ~~entity.world.y ] };
 
     constructor(size = [ 1, 1 ], { extractor } = {}) {
-        super();
+        super({}, { injectMiddleware: true });
 
         this._cache = new WeakMap();
 

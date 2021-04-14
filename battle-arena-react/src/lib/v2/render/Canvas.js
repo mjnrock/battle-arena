@@ -5,18 +5,19 @@ import Animator from "./Animator";
 export default class Canvas {
     constructor({ canvas, width = 300, height = 150, drawAnimationFrame, props = {} } = {}) {
         this.config = {
+            clearBeforeDraw: false,
             normalization: {
                 arc: -Math.PI / 4,
             }
         };
         
-        this._canvas = canvas || document.createElement("canvas");
+        this.canvas = canvas || document.createElement("canvas");
         if(canvas) {
-            width = canvas.width;
-            height = canvas.height;
+            this.canvas.width = canvas.width;
+            this.canvas.height = canvas.height;
         } else {
-            this._canvas.width = width;
-            this._canvas.height = height;
+            this.canvas.width = width;
+            this.canvas.height = height;
         }
 
         this.prop(props);
@@ -32,27 +33,27 @@ export default class Canvas {
         return Reflect.set(this, "_canvas", canvas);
     }
     get ctx() {
-        return this._canvas.getContext("2d");
+        return this.canvas.getContext("2d");
     }
     
     get width() {
-        return this._canvas.width;
+        return this.canvas.width;
     }
     set width(value) {
-        return Reflect.set(this._canvas, "width", value);
+        return Reflect.set(this.canvas, "width", value);
     }
     
     get height() {
-        return this._canvas.height;
+        return this.canvas.height;
     }
     set height(value) {
-        return Reflect.set(this._canvas, "height", value);
+        return Reflect.set(this.canvas, "height", value);
     }
     
     resize(width, height) {
         if(Number.isInteger(width) && Number.isInteger(height)) {
-            this._canvas.width = width;
-            this._canvas.height = height;
+            this.canvas.width = width;
+            this.canvas.height = height;
         }
 
         return this;

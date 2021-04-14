@@ -5,7 +5,7 @@ import { Accessor as ComponentRegistry } from "./component/_init";
 
 export class Entity extends Agency.Event.Emitter {
     constructor(game, opts = {}) {
-        super({}, opts);
+        super({}, { injectMiddleware: true, ...opts });
         
         this.__game = game;
     }

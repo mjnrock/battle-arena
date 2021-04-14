@@ -22,8 +22,7 @@ export function consoleEntityList(entities, ...focus) {
 }
 
 export async function init(game) {
-    game.render.__handler.$.subscribe((type, entry) => {
-        const [ e ] = entry.data;
+    game.render.handler.addSubscriber(function(e) {
         const { target: canvas, button, clientX: x, clientY: y } = e;
 
         const { left, top } = canvas.getBoundingClientRect();
@@ -36,7 +35,9 @@ export async function init(game) {
         pos.txi = Math.floor(pos.tx);
         pos.tyi = Math.floor(pos.ty);
 
-        if(type === "mouseup") {
+        if(this.type === "contextmenu") {
+            e.preventDefault();
+        } else if(this.type === "mouseup") {
             if(button === 0) {
                 // console.info(pos.txi, pos.tyi, JSON.stringify(game.world.current.getTerrain(pos.txi, pos.tyi).terrain.toData()));
                 const occupants = game.world.current.node(pos.txi, pos.tyi).occupants;
@@ -53,7 +54,7 @@ export async function init(game) {
                     player.world.wayfinder.set(path);
                 }
             }
-        } else if(type === "mousemove") {
+        } else if(this.type === "mousemove") {
             game.config.MOUSE_POSITION = [ pos.txi, pos.tyi ];
         }
     });

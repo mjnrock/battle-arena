@@ -14,11 +14,11 @@ export class VideoSource extends LayeredCanvas {
             // this.height = this.video.height;
             
             this.animator.start();
-            console.log(this)
-            console.log(this.canvas)
-            console.log(this.video.src)
-            console.log(this.video.srcObject)
-            console.log(this.stream)
+            // console.log(this)
+            // console.log(this.canvas)
+            // console.log(this.video.src)
+            // console.log(this.video.srcObject)
+            // console.log(this.stream)
         }
         
         this.game = game;
@@ -43,7 +43,7 @@ export class VideoSource extends LayeredCanvas {
         const fps = 60;
         this.stream = this.game.render._canvas.captureStream(fps);
 
-        console.log(this.game.render._canvas.toDataURL())
+        // console.log(this.game.render._canvas.toDataURL())
 
         return this.stream;
     }
@@ -52,7 +52,7 @@ export class VideoSource extends LayeredCanvas {
         this.getRenderStream();
 
         this.video.srcObject = this.stream;
-        console.log(this.stream);
+        // console.log(this.stream);
     }
 };
 

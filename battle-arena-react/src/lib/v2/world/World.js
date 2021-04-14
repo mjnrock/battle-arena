@@ -14,7 +14,7 @@ import VideoSource from "./lib/VideoSource";
 
 export class World extends Agency.Event.Emitter {
     constructor(size = [], { game, entities = [], portals = [], config = {} } = {}, opts = {}) {
-        super({}, opts);
+        super({}, { injectMiddleware: true, ...opts });
 
         this.__game = game;
         this.__config = {
