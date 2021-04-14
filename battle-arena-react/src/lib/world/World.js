@@ -9,6 +9,8 @@ import { EnumEntityCreatureType } from "./../entity/component/Meta";
 import Node from "./../util/Node";
 import Portal from "./../util/Portal";
 
+import { Repository as ActionRepository } from "./../entity/component/Action";
+
 import { CalculateEdgeMasks } from "./../data/render/edges";
 import VideoSource from "./lib/VideoSource";
 
@@ -324,7 +326,9 @@ export function CreateRandom(game, width, height, enemyCount = 5) {
         //!GRID-NUDGE
         world: { world, x: () => Agency.Util.Dice.random(0, world.width - 1) + 0.5, y: () => Agency.Util.Dice.random(0, world.height - 1) + 0.5, facing: () => Agency.Util.Dice.random(0, 3) * 90 },
         health: { args: { current: () => Agency.Util.Dice.d10(), max: 10 } },
-        action: {},
+        action: {
+            ai: () => ActionRepository.AI.Test
+        },
     }, (i) => `enemy-${ i }`);
 
     entities.forEach(entity => {

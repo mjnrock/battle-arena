@@ -13,6 +13,8 @@ export class World extends Component {
         y: 0,
         vx: 0,
         vy: 0,
+        ax: 0,
+        ay: 0,
         speed: 2.5,
         range: 10,
     });
@@ -74,6 +76,13 @@ export class World extends Component {
         return this;
     }
     
+    applyAcceleration(dt) {
+        this.vx += this.ax * dt;
+        this.vy += this.ay * dt;
+
+        return this;
+    }
+    
     onPreTick(spf, now) {
         const world = this.entity.world.getCurrentWorld();
         if(world instanceof MapWorld) {
@@ -115,17 +124,13 @@ export class World extends Component {
                 //FIXME @this.entity.world.speed >= 3 overshoots the tile, causing jitters.  Overcompensated movement must be discretized and applied sequentially to each progressive step in the Path.
                 if(Vx < 0) {
                     Vx = -1 * this.entity.world.speed;
-                    this.entity.world.facing = 270;
                 } else if(Vx > 0) {
                     Vx = 1 * this.entity.world.speed;
-                    this.entity.world.facing = 90;
                 }
                 if(Vy < 0) {
                     Vy = -1 * this.entity.world.speed;
-                    this.entity.world.facing = 0;
                 } else if(Vy > 0) {
                     Vy = 1 * this.entity.world.speed;
-                    this.entity.world.facing = 180;
                 }
             } else {
                 this.entity.world.wayfinder.drop();
@@ -137,6 +142,19 @@ export class World extends Component {
     }
     onTick(dt, now) {
         this.applyVelocity(dt);
+
+        if(this.vx > 0) {
+            this.facing = 90;
+        }
+        if(this.vx < 0) {
+            this.facing = 270;
+        }
+        if(this.vy > 0) {
+            this.facing = 180;
+        }
+        if(this.vy < 0) {
+            this.facing = 0;
+        }
     }
 };
 

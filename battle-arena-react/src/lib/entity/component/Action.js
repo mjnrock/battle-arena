@@ -7,7 +7,7 @@ import Task from "./lib/Task";
 import Path from "./../../util/Path";
 import Cooldown from "../../util/Cooldown";
 
-const Repository = {
+export const Repository = {
     AI: {
         Test: function(game, entity, data) {
             //? Attempt any portals at current node
@@ -59,8 +59,8 @@ export class Action extends Component {
 
     static Name = "action";
     static DefaultProperties = () => ({
-        current: null,
-        ai: () => Repository.AI.Test,
+        current: () => Repository.MOVE.Persist,
+        ai: () => () => {},
         data: {},
         abilities: {},
         queue: new Set(),
@@ -103,7 +103,7 @@ export class Action extends Component {
     }
     onTurn(dt, now) {
         if(!this.cooldown) {
-            this.decide();
+            this.decide.call(this);
 
             if(this.throttle(dt, now) === true) {
                 this.cooldown = Task.Perform(this.current, this.game, this.entity);

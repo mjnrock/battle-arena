@@ -27,6 +27,8 @@ import Agency from "@lespantsfancy/agency";
 
     import initializeHandlers from "./data/handlers/_init";
     import loadRenderables from "./data/render/_init";
+
+    import { Repository as ActionRepository } from "./entity/component/Action";
 //STUB END "Imports"
 
 export default class Game {
@@ -117,6 +119,7 @@ export default class Game {
             state: {},
             world: { x: 4.5, y: 7.5 },
             health: { args: { current: 1, max: 10 } },
+            player: {},
             action: {
                 abilities: {
                     holyNova: Agency.Registry._.ability.holyNova,
@@ -126,6 +129,7 @@ export default class Game {
         }, (entity) => {
             entity.world.wayfinder.entity = entity;
         });
+        console.log(player)
 
         game.world.overworld.joinWorld(player);
         // game.world.maze.joinWorld(player);

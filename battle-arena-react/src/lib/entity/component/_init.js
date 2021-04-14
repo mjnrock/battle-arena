@@ -7,6 +7,7 @@ import Meta from "./Meta";
 import Terrain from "./Terrain";
 import Effect from "./Effect";
 import State from "./State";
+import Player from "./Player";
 
 export const Name = "component";
 export const Accessor = (key) => Agency.Registry._[ Name ][ key ];
@@ -22,6 +23,7 @@ export function init() {
         terrain: Terrain,
         effect: Effect,
         state: State,
+        player: Player,
     };
 
     //  Begin data loading
