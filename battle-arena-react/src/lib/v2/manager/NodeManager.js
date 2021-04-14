@@ -1,7 +1,6 @@
 import Agency from "@lespantsfancy/agency";
 
 import Node from "./../util/Node";
-import CrossMap from "./../util/agency/util/CrossMap";
 
 export class NodeManager extends Agency.Event.Emitter {
     //!GRID-NUDGE
@@ -13,7 +12,7 @@ export class NodeManager extends Agency.Event.Emitter {
 
         this._cache = new WeakMap();
 
-        this._nodes = CrossMap.CreateGrid(size, {
+        this._nodes = Agency.Util.CrossMap.CreateGrid(size, {
             seedFn: (...coords) => new Node(coords, { escalate: this.escalation.bind(this) }),
         });
 

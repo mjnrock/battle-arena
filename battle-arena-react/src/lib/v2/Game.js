@@ -1,5 +1,4 @@
 import Agency from "@lespantsfancy/agency";
-import AgencyLocal from "./util/agency/package";
 
 /**
  * NOTE
@@ -30,7 +29,6 @@ import AgencyLocal from "./util/agency/package";
     import loadRenderables from "./data/render/_init";
 //STUB END "Imports"
 
-// export default class Game extends AgencyLocal.Watcher {
 export default class Game extends Agency.Event.Emitter {
     // constructor({ fps = 4, GCD = 1000 } = {}) {
     constructor({ fps = 24 } = {}) {
