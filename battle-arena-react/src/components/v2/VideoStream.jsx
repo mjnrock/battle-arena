@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
-function VideoStream({ stream, ...rest } = {}) {
+export function VideoStream({ stream, ...rest } = {}) {
     const videoRef = useRef();
 
     useEffect(() => {

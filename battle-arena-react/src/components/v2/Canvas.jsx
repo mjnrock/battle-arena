@@ -26,13 +26,12 @@ export const MouseHandlers = (renderManager) => {
     };
 };
 
-
 /**
  * Props
  * @canvas <Canvas>
  * @drawAnimationFrame fn | Will be given @canvas as its scope
  */
-function Canvas({ master: renderManager, ...rest } = {}) {
+export function Canvas({ master: renderManager, ...rest } = {}) {
     const canvasRef = useRef(renderManager.canvas);
     
     const draw = ctx => {

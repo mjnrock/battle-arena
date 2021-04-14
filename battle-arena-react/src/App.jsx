@@ -14,7 +14,7 @@ import Game from "./lib/v2/Game";
 export const GameObj = Game.CreateGame();
 export const Context = React.createContext();
 
-function App() {
+export function App() {
     const [ game, setGame ] = useState(GameObj);
     const [ data, setData ] = useState({
         game,
