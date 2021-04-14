@@ -16,14 +16,14 @@ export class RenderManager extends LayeredCanvas {
         this.__id = uuidv4();
         this.__game = game;
 
-        // this.camera = new Camera(game, this);   //? Draw the entire map
-        this.camera = new Camera(game, this, {   //? Draw around the main player
-            subject: {
-                entity: game.players.player,
-                txr: 5.5,
-                tyr: 4.5,
-            },
-        });
+        this.camera = new Camera(game, this);   //? Draw the entire map
+        // this.camera = new Camera(game, this, {   //? Draw around the main player
+        //     subject: {
+        //         entity: game.players.player,
+        //         txr: 5.5,
+        //         tyr: 4.5,
+        //     },
+        // });
 
         this.repository = repository;
         this.drawAnimationFrame = this.drawAnimationLayers;

@@ -1,3 +1,6 @@
+import Agency from "@lespantsfancy/agency";
+import Player, { EnumMovement } from "../../entity/component/Player";
+
 export async function drawAnimationFrame(dt, now, ...drawImageArgs) {
     //STUB  This should be performed at the <RenderManager> response to a <World> swap
     [ this.width, this.height ] = [ this.game.render.width, this.game.render.height ];
@@ -41,6 +44,35 @@ export function drawEntityData(entity) {
         [ `${ vx.toFixed(2) } ${ vy.toFixed(2) }`, { color: `#ed0`, font: `6pt monospace` } ],
         [ `${ entity.world.facing.toFixed(0) }`, { color: `#ea0`, font: `6pt monospace` } ],
     ];
+
+    if(Player.Has(entity)) {
+        let zero = `-`;
+        let mask = [ zero, zero, zero, zero ];
+
+        if(Agency.Util.Bitwise.has(entity.player.movement, EnumMovement.LEFT)) {
+            // mask[ 0 ] = 1;
+            // mask[ 0 ] = "←";
+            mask[ 0 ] = "◁";
+        }
+        if(Agency.Util.Bitwise.has(entity.player.movement, EnumMovement.UP)) {
+            // mask[ 1 ] = 1;
+            // mask[ 1 ] = "↑";
+            mask[ 1 ] = "△";
+        }
+        if(Agency.Util.Bitwise.has(entity.player.movement, EnumMovement.DOWN)) {
+            // mask[ 2 ] = 1;
+            // mask[ 2 ] = "↓";
+            mask[ 2 ] = "▽";
+        }
+        if(Agency.Util.Bitwise.has(entity.player.movement, EnumMovement.RIGHT)) {
+            // mask[ 3 ] = 1;
+            // mask[ 3 ] = "→";
+            mask[ 3 ] = "▷";
+        }
+
+        rows.push([ mask.join(""), { color: `#fff`, font: `6pt monospace` } ]);
+    }
+
     for(let [ text, args ] of rows) {
         this.text(text, ...entityDataCoords.call(this, x, y, row, rowHeight), args);
         ++row;

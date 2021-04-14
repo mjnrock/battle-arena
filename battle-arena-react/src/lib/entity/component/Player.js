@@ -21,10 +21,7 @@ export class Player extends Component {
         });
     }
 
-    onTick(dt, now) {
-        let dx = 0,
-            dy = 0;
-
+    onPreTick(spf, now) {
         if(Agency.Util.Bitwise.has(this.movement, EnumMovement.LEFT)) {
             this.entity.world.vx = -1;
         }
@@ -40,11 +37,6 @@ export class Player extends Component {
 
         if(this.movement) {
             if(!this.entity.world.wayfinder.hasPath) {
-                if(Math.abs(this.entity.world.vx) === 1 && Math.abs(this.entity.world.vy) === 1) {
-                    this.entity.world.vx = Math.sign(this.entity.world.vx) * 0.707;
-                    this.entity.world.vy = Math.sign(this.entity.world.vy) * 0.707;
-                }
-
                 this.entity.world.vx *= this.entity.world.speed;
                 this.entity.world.vy *= this.entity.world.speed;
             } else {
@@ -52,11 +44,13 @@ export class Player extends Component {
             }
         }
 
-        if(!(Agency.Util.Bitwise.has(this.movement, EnumMovement.LEFT) || Agency.Util.Bitwise.has(this.movement, EnumMovement.RIGHT))) {
-            this.entity.world.vx = 0;
-        }
-        if(!(Agency.Util.Bitwise.has(this.movement, EnumMovement.UP) || Agency.Util.Bitwise.has(this.movement, EnumMovement.DOWN))) {
-            this.entity.world.vy = 0;
+        if(!this.entity.world.wayfinder.hasPath) {
+            if(!(Agency.Util.Bitwise.has(this.movement, EnumMovement.LEFT) || Agency.Util.Bitwise.has(this.movement, EnumMovement.RIGHT))) {
+                this.entity.world.vx = 0;
+            }
+            if(!(Agency.Util.Bitwise.has(this.movement, EnumMovement.UP) || Agency.Util.Bitwise.has(this.movement, EnumMovement.DOWN))) {
+                this.entity.world.vy = 0;
+            }
         }
     }
 }

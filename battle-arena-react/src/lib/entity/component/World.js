@@ -141,6 +141,34 @@ export class World extends Component {
         }
     }
     onTick(dt, now) {
+        if(this.vx && this.vy) {    // Move in 1 direction only, favor Y
+            this.vx = 0;
+        }
+
+        let moe = 0.05;
+        let scalar = 20;
+        if(this.vx) {
+            let div = Agency.Util.Helper.floor(this.y, scalar) % 1;
+            
+            if(Agency.Util.Helper.near(div, 0.5, moe, scalar) || Agency.Util.Helper.near(div, -0.5, moe, scalar)) {
+                this.y = ~~this.y + 0.5;
+                this.vy = 0;
+            } else {
+                this.vx = 0;
+                this.vy = (this.facing === 0 || this.facing === 270 ? -1 : 1) * this.speed;
+            }
+        } else if(this.vy) {
+            let div = Agency.Util.Helper.floor(this.x, scalar) % 1;
+            if(Agency.Util.Helper.near(div, 0.5, moe, scalar) || Agency.Util.Helper.near(div, -0.5, moe, scalar)) {
+                this.x = ~~this.x + 0.5;
+                this.vx = 0;
+            } else {
+                this.vx = (this.facing === 180 || this.facing === 90 ? 1 : -1) * this.speed;
+                this.vy = 0;
+            }
+        }
+
+        this.applyAcceleration(dt);
         this.applyVelocity(dt);
 
         if(this.vx > 0) {
@@ -155,6 +183,9 @@ export class World extends Component {
         if(this.vy < 0) {
             this.facing = 0;
         }
+
+        // this.x = Agency.Util.Helper.floor(this.x, 20);
+        // this.y = Agency.Util.Helper.floor(this.y, 20);
     }
 };
 
