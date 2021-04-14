@@ -145,12 +145,12 @@ export class World extends Component {
             this.vx = 0;
         }
 
-        let moe = 0.05;
+        let margin = 0.05;
         let scalar = 20;
         if(this.vx) {
             let div = Agency.Util.Helper.floor(this.y, scalar) % 1;
             
-            if(Agency.Util.Helper.near(div, 0.5, moe, scalar) || Agency.Util.Helper.near(div, -0.5, moe, scalar)) {
+            if(Agency.Util.Helper.near(div, 0.5, margin, scalar) || Agency.Util.Helper.near(div, -0.5, margin, scalar)) {
                 this.y = ~~this.y + 0.5;
                 this.vy = 0;
             } else {
@@ -159,7 +159,7 @@ export class World extends Component {
             }
         } else if(this.vy) {
             let div = Agency.Util.Helper.floor(this.x, scalar) % 1;
-            if(Agency.Util.Helper.near(div, 0.5, moe, scalar) || Agency.Util.Helper.near(div, -0.5, moe, scalar)) {
+            if(Agency.Util.Helper.near(div, 0.5, margin, scalar) || Agency.Util.Helper.near(div, -0.5, margin, scalar)) {
                 this.x = ~~this.x + 0.5;
                 this.vx = 0;
             } else {
