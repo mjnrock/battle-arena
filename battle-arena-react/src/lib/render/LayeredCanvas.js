@@ -111,7 +111,7 @@ export default class LayeredCanvas extends TileCanvas {
             if(ccanvas instanceof LayeredCanvas) {
                 ccanvas.drawAnimationLayers(dt, elapsed, ...drawImageArgs);
             } else {
-                ccanvas.drawAnimationFrame(dt, elapsed);
+                ccanvas.drawAnimationFrame(dt, elapsed, ...drawImageArgs);
             }
 
             this.ctx.drawImage(ccanvas.canvas, ...drawImageArgs);

@@ -4,7 +4,7 @@ export function comparator(data = {}, oldData = {}) {
     return data.hash !== oldData.hash;
 }
 
-export async function drawAnimationFrame(dt, now) {
+export async function drawAnimationFrame(dt, now, ...drawImageArgs) {
     //FIXME  Don't bother updating terrain canvas (after initial draws) until this is substantially more optimized, as this is a very intense draw loop drawing every tile with edges every frame
     if(this.game.render.current !== this.game.world.current) {
         //STUB  This should be performed at the <RenderManager> response to a <World> swap
