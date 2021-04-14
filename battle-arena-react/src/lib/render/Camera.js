@@ -1,3 +1,6 @@
+// import LayeredCanvas from "./LayeredCanvas";
+
+// export class Camera extends LayeredCanvas {
 export class Camera {
     static EnumType = {
         PIXEL: 0,
