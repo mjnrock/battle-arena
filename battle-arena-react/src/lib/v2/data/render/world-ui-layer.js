@@ -8,6 +8,7 @@ export async function drawAnimationFrame(dt, now) {
         if(this.game.config.SHOW_DEBUG) {
             for(let entity of this.game.world.current.entities) {
                 drawMovementPath.call(this, entity);
+                drawEntityData.call(this, entity)
             }
         } else {
             drawMovementPath.call(this, this.game.players.player);
@@ -20,6 +21,19 @@ export async function drawAnimationFrame(dt, now) {
 
     return this;
 };
+
+export function drawEntityData(entity) {
+    let x = entity.world.x,
+        y = entity.world.y,
+        vx = entity.world.vx,
+        vy = entity.world.vy,
+        row = 1,
+        rowHeight = 8;
+
+    this.text(`${ x.toFixed(2) } ${ y.toFixed(2) }`, ~~(x * this.tw), ~~(y * this.th + this.th / 2 + row * rowHeight), { color: `#fff`, font: `6pt monospace` });
+    ++row;
+    this.text(`${ vx.toFixed(2) } ${ vy.toFixed(2) }`, ~~(x * this.tw), ~~(y * this.th + this.th / 2 + row * rowHeight), { color: `#ed0`, font: `6pt monospace` });
+}
 
 export function drawNodeFrequency(dt, now) {
     if(this.game.config.SHOW_HEATMAP) {

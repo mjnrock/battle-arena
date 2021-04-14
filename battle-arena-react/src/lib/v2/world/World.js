@@ -10,6 +10,7 @@ import Node from "./../util/Node";
 import Portal from "./../util/Portal";
 
 import { CalculateEdgeMasks } from "./../data/render/edges";
+import VideoSource from "./lib/VideoSource";
 
 export class World extends Agency.Event.Emitter {
     constructor(size = [], { game, entities = [], portals = [], config = {} } = {}, opts = {}) {
@@ -27,6 +28,8 @@ export class World extends Agency.Event.Emitter {
         this._nodes = new NodeManager(this.size);
 
         this._entities = new EntityManager(this.game, entities);
+
+        this.videoSource = new VideoSource(this.game, this);
 
         for(let [ x, y, portal ] of portals) {
             this.openPortal(x, y, portal);

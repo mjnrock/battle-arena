@@ -1,6 +1,6 @@
 // import Agency from "@lespantsfancy/agency";
 import Agency from "./../../lib/v2/util/agency/package";
-import React,{ useEffect } from "react";
+import React,{ useEffect, useRef, useState } from "react";
 
 /**
  * Props
@@ -9,8 +9,10 @@ import React,{ useEffect } from "react";
  */
 function Canvas(props) {
     const { canvas, mouseHandler, ...rest } = props;
+    const canvasRef = useRef(canvas.canvas);
 
-    const canvasRef = React.createRef();
+    console.log(canvasRef.current)
+
     useEffect(() => {
         const ref = canvasRef.current;
 

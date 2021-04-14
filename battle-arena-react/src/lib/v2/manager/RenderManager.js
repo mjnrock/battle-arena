@@ -19,7 +19,9 @@ export class RenderManager extends LayeredCanvas {
         this.__current = null;
 
         this.drawAnimationFrame = this.drawAnimationLayers;
-            
+        
+        this.ctx.imageSmoothingEnabled = false;
+
         // this.ctx.translate(this.game.config.render.tile.width / 2, this.game.config.render.tile.height / 2);
     }
 
@@ -31,7 +33,7 @@ export class RenderManager extends LayeredCanvas {
     }
     
     set canvas(canvas) {
-        console.warn(`[RenderManager]: The << set canvas >> trap has been called.`);
+        console.warn(`[RenderManager]: The << set canvas >> trap has been called.`, this.ctx.imageSmoothingEnabled);
 
         //? Key and Mouse Bindings
         initializeBindings(this.game);

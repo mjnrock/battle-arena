@@ -27,10 +27,40 @@ import AgencyLocal from "./util/agency/package";
     import initializeRenderers from "./data/render/_init";
 //STUB END "Imports"
 
+
+Agency.Event.Network.Instances.register(new Agency.Event.Network(), "agency");
+Agency.Event.Network.Instances.agency.router.createContexts([
+    [ "test", {
+        handlers: {
+            "*": function(args) {
+                console.log(this.emitter.id, args);
+            },
+        },
+    }],
+]);
+Agency.Event.Network.Instances.agency.router.createRoutes([
+    payload => {
+        return "test";
+    },
+]);
+Agency.Event.Network.Instances.agency.router.useRealTimeProcess();
+// tab 1
+var ch = new BroadcastChannel('test');
+ch.postMessage('some data');
+
+// tab 2
+var ch = new BroadcastChannel('test');
+ch.addEventListener('message', function (e) {
+    console.log('Message:', e.data);
+});
+
 export default class Game extends AgencyLocal.Watcher {
     // constructor({ fps = 4, GCD = 1000 } = {}) {
     constructor({ fps = 24 } = {}) {
         super([], { deep: false });
+
+        this.INTERCOM = new Agency.Event.Emitter({}, { injectMiddleware: false });
+        Agency.Event.Network.Instances.agency.join(this.INTERCOM);
 
         this.loop = new GameLoop(fps);
         this.players = new PlayerManager();
@@ -57,16 +87,6 @@ export default class Game extends AgencyLocal.Watcher {
         if(!Game.Instance) {
             Game.Instance = this;
         }
-
-        //! -========================-
-        //! -========================-
-        //! -========================-
-        //! -========================-
-        //TODO  Remove the <Watchable> completely and rebind to React
-        //! -========================-
-        //! -========================-
-        //! -========================-
-        //! -========================-
         
         this.loop.setTick(this.onTick.bind(this));
         this.loop.setPreTick(this.onPreTick.bind(this));
@@ -74,12 +94,8 @@ export default class Game extends AgencyLocal.Watcher {
         this.loop.setEnd(this.onPostTick.bind(this));
 
         //FIXME Probably should make this more robust
-        window.onfocus = e => this.loop.start();
-        window.onblur = e => this.loop.stop();
-
-        setTimeout(() => {
-            this.world.overworld.videoSource.stream();
-        }, 1000);
+        // window.onfocus = e => this.loop.start();
+        // window.onblur = e => this.loop.stop();
     }
 
     onPreTick(spf, now) {
@@ -89,6 +105,11 @@ export default class Game extends AgencyLocal.Watcher {
         // this.world.current.onPreTick(spf, now);
     }
     onTick(dt, now) {
+        //STUB
+        if(Math.random() > 0.9) {
+            this.INTERCOM.$.emit("msg", Math.random());
+        }
+
         for(let world of this.world) {
             world.onTick(dt, now);
         }
