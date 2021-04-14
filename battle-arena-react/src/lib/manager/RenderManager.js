@@ -6,7 +6,7 @@ import ImageRegistry from "../render/ImageRegistry";
 
 import RenderLayer from "./../render/RenderLayer";
 
-import initializeBindings from "./../data/input/_init";
+import initializeBindings from "./../input/_init";
 
 export class RenderManager extends LayeredCanvas {
     constructor(game, { tw, th, width, height, repository } = {}) {
@@ -24,6 +24,28 @@ export class RenderManager extends LayeredCanvas {
         this.ctx.imageSmoothingEnabled = false;
 
         this.handler = new Agency.Event.Emitter();
+        [
+            `onClick`,
+            `onContextMenu`,
+            `onDoubleClick`,
+            `onDrag`,
+            `onDragEnd`,
+            `onDragEnter`,
+            `onDragExit`,
+            `onDragLeave`,
+            `onDragOver`,
+            `onDragStart`,
+            `onDrop`,
+            `onMouseDown`,
+            `onMouseEnter`,
+            `onMouseLeave`,
+            `onMouseMove`,
+            `onMouseOut`,
+            `onMouseOver`,
+            `onMouseUp`,
+        ].forEach(key => {
+            this.canvas[ key.toLowerCase() ] = e => this.handler.$.emit(e.type, e);
+        });
 
         //? Key and Mouse Bindings
         initializeBindings(this.game);

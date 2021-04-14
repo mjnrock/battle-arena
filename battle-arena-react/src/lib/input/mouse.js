@@ -1,4 +1,4 @@
-import Path from "./../../util/Path";
+import Path from "./../util/Path";
 
 export function consoleEntityList(entities, ...focus) {
     let condition = (key, entity) => focus.includes(key);
