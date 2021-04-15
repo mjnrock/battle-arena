@@ -29,6 +29,7 @@ import Agency from "@lespantsfancy/agency";
     import loadRenderables from "./data/render/_init";
 
     import { Repository as ActionRepository } from "./entity/component/Action";
+    import { GameNode, TestNode } from "./story/Node";
 //STUB END "Imports"
 
 export default class Game {
@@ -55,43 +56,58 @@ export default class Game {
             MOUSE_POSITION: [ 10, 10 ],
         };
         
-        this.loop.setTick(this.onTick.bind(this));
-        this.loop.setPreTick(this.onPreTick.bind(this));
-        this.loop.setDraw(this.onDraw.bind(this));
-        this.loop.setEnd(this.onPostTick.bind(this));
+        // this.loop.setTick(this.onTick.bind(this));
+        // this.loop.setPreTick(this.onPreTick.bind(this));
+        // this.loop.setDraw(this.onDraw.bind(this));
+        // this.loop.setEnd(this.onPostTick.bind(this));
 
         //FIXME Probably should make this more robust
         window.onfocus = e => this.loop.start();
         window.onblur = e => this.loop.stop();
     }
 
-    onPreTick(spf, now) {
-        for(let world of this.world) {
-            world.onPreTick(spf, now);
-        }
-        // this.world.current.onPreTick(spf, now);
+    get current() {
+        return this._current;
     }
-    onTick(dt, now) {
-        for(let world of this.world) {
-            world.onTick(dt, now);
+    set current(node) {
+        if(this.loop.mainLoop.isRunning()) {
+            this.loop.stop();
+            
+            node.attach(this);
+    
+            this.loop.start();
+        } else {
+            node.attach(this);
         }
-        // this.world.current.onTick(dt, now);
-    }
-    onPostTick(fps, panic) {
-        if(panic) {
-            console.warn(`MainLoop has panicked, resulting in ${ fps }fps.  Dropping all queued events on 'default' <Network>.`)
-            Agency.Event.Network.$.emptyAll();
-            this.loop.mainLoop.resetFrameDelta();
-        }
-        
-        Agency.Event.Network.$.processAll();
     }
 
-    //TODO  Adjust cursor positions if <Camera> is not rendering entire map
-    //TODO  Break down ...drawImageArgs in each layer for render optimizations | maybe use a minecraft model where a <Creator> must be within X range of a <Node> to render/tick
-    onDraw(dt, now) {
-        this.render.drawAnimationLayers(dt, now, ...this.render.camera.drawArgs);
-    }
+    // onPreTick(spf, now) {
+    //     for(let world of this.world) {
+    //         world.onPreTick(spf, now);
+    //     }
+    //     // this.world.current.onPreTick(spf, now);
+    // }
+    // onTick(dt, now) {
+    //     for(let world of this.world) {
+    //         world.onTick(dt, now);
+    //     }
+    //     // this.world.current.onTick(dt, now);
+    // }
+    // onPostTick(fps, panic) {
+    //     if(panic) {
+    //         console.warn(`MainLoop has panicked, resulting in ${ fps }fps.  Dropping all queued events on 'default' <Network>.`)
+    //         Agency.Event.Network.$.emptyAll();
+    //         this.loop.mainLoop.resetFrameDelta();
+    //     }
+        
+    //     Agency.Event.Network.$.processAll();
+    // }
+
+    // //TODO  Adjust cursor positions if <Camera> is not rendering entire map
+    // //TODO  Break down ...drawImageArgs in each layer for render optimizations | maybe use a minecraft model where a <Creator> must be within X range of a <Node> to render/tick
+    // onDraw(dt, now) {
+    //     this.render.drawAnimationLayers(dt, now, ...this.render.camera.drawArgs);
+    // }
 
     static CreateGame() {
         Agency.Event.Network.$.router.useRealTimeProcess();     // Process all setup events as they fire
@@ -148,8 +164,26 @@ export default class Game {
         (async () => {
             await loadRenderables(game);
 
-            console.log(game.render.repository)
+            console.log(game.render.repository);
+
+            game.current = GameNode();
+
             game.loop.start();
+            
+            //STUB
+            // let bool = false;
+            // setInterval(() => {
+            //     console.log(game.current)
+            //     if(bool) {
+            //         game.current = GameNode();
+            //         // game.current.markComplete(GameNode());
+            //     } else {
+            //         game.current = TestNode();
+            //         // game.current.markComplete(TestNode());
+            //     }
+                
+            //     bool = !bool;
+            // }, 1000);
         })();
 
         Agency.Event.Network.$.router.useBatchProcess();    // Return to batch process before game loop starts

@@ -35,7 +35,7 @@ export default class LayeredCanvas extends TileCanvas {
             if(ccanvas instanceof LayeredCanvas) {
                 ccanvas.startAll();
             } else {
-                ccanvas.start();
+                ccanvas.animator.start();
             }
         });
 
@@ -47,7 +47,7 @@ export default class LayeredCanvas extends TileCanvas {
             if(ccanvas instanceof LayeredCanvas) {
                 ccanvas.stopAll();
             } else {
-                ccanvas.stop();
+                ccanvas.animator.stop();
             }
         });
 
