@@ -16,8 +16,8 @@ export const handlers = [
             entity.world.world = null;
         }
     }],
-    [ "portal", ([ portal, entity ]) => {
-        entity.world.getCurrentWorld().leaveWorld(entity);
+    [ "portal", ([ world, portal, entity ]) => {
+        world.leaveWorld(entity);
 
         entity.world.x = portal.x;
         entity.world.y = portal.y;

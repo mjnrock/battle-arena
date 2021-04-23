@@ -49,7 +49,18 @@ export class Node {
         this.loop = loop;
         this.layers = new Set(layers);
         this.next = next;
-        this.isComplete = false;
+        this._isComplete = false;
+    }
+
+    get isComplete() {
+        if(typeof this._isComplete === "function") {
+            return this._isComplete(this);
+        }
+
+        return this._isComplete;
+    }
+    set isComplete(boolOrFn) {
+        this._isComplete = boolOrFn;
     }
 
     markComplete(next) {
