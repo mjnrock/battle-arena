@@ -2,7 +2,7 @@ import Agency from "@lespantsfancy/agency";
 import Component from "./Component";
 
 import MapWorld from "./../../world/World";
-import Wayfinder from "./../../util/Wayfinder";
+import Wayfinder from "./../../world/lib/Wayfinder";
 
 export class World extends Component {
     static Name = "world";

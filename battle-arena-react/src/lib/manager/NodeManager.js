@@ -1,6 +1,6 @@
 import Agency from "@lespantsfancy/agency";
 
-import Node from "./../util/Node";
+import Node from "./../world/lib/Node";
 
 export class NodeManager extends Agency.Event.Emitter {
     //!GRID-NUDGE

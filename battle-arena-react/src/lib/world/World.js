@@ -6,8 +6,8 @@ import Entity from "./../entity/Entity";
 import { DictTerrain } from "./../entity/component/Terrain";
 import { EnumEntityCreatureType } from "./../entity/component/Meta";
 
-import Node from "./../util/Node";
-import Portal from "./../util/Portal";
+import Node from "./lib/Node";
+import Portal from "./lib/Portal";
 
 import { Repository as ActionRepository } from "./../entity/component/Action";
 

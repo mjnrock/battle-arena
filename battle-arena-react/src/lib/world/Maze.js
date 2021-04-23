@@ -1,8 +1,8 @@
 import maze from "amazejs";
 
 import World from "./World";
-import Portal from "./../util/Portal";
-import Node from "./../util/Node";
+import Portal from "./lib/Portal";
+import Node from "./lib/Node";
 import Action from "./../entity/component/Action";
 import Entity from "./../entity/Entity";
 import { EnumEntityCreatureType } from "./../entity/component/Meta";

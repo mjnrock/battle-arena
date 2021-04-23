@@ -4,7 +4,7 @@ import Component from "./Component";
 import World from "../../world/World";
 
 import Task from "./lib/Task";
-import Path from "./../../util/Path";
+import Path from "./../../world/lib/Path";
 import Cooldown from "../../util/Cooldown";
 
 export const Repository = {

@@ -16,7 +16,7 @@ import Agency from "@lespantsfancy/agency";
     import { EnumEntityCreatureType } from "./entity/component/Meta";
     import Action from "./entity/component/Action";
 
-    import Portal from "./util/Portal";
+    import Portal from "./world/lib/Portal";
     import RenderManager from "./manager/RenderManager";
 
     import initImageRepository from "./data/render/repository";

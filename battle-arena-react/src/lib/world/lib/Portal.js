@@ -1,4 +1,4 @@
-import World from "./../world/World";
+import World from "./../World";
 
 export class Portal {
     constructor(world, { x, y, activator } = {}) {
