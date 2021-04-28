@@ -9,9 +9,9 @@ import {
 import ScrollToTop from "./ScrollToTop";
 import Routes from "./routes/package";
 
-import Game from "./lib/Game";
+import { CreateGame } from "./lib/package";
 
-export const GameObj = Game.CreateGame();
+export const GameObj = CreateGame();
 export const Context = React.createContext();
 
 export function App() {
