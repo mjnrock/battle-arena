@@ -75,7 +75,7 @@ export class Action extends Component {
         super(Action.Name, game, entity, {
             ...Action.DefaultProperties(),
             ...state,
-        }, { injectMiddleware: true });
+        }, { network: Agency.Event.Network.$ });
     }
 
     async decide() {

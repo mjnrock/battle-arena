@@ -5,7 +5,7 @@ import { Accessor as ComponentRegistry } from "./component/_init";
 
 export class Entity extends Agency.Event.Emitter {
     constructor(game, opts = {}) {
-        super({}, { injectMiddleware: true, ...opts });
+        super({}, { network: Agency.Event.Network.$, ...opts });
         
         this.__game = game;
     }
@@ -52,7 +52,8 @@ export class Entity extends Agency.Event.Emitter {
  * @returns 
  */
 export function FromSchema(game, schemaWithArgs = {}, callback) {
-    let entity = new Entity(game, "terrain" in schemaWithArgs ? { injectMiddleware: false } : {});
+    // let entity = new Entity(game, "terrain" in schemaWithArgs ? { injectMiddleware: false } : {});
+    let entity = new Entity(game);
 
     for(let [ key, argObj ] of Object.entries(schemaWithArgs)) {
         const fn = ComponentRegistry(key);

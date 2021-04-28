@@ -3,7 +3,7 @@ import Affliction from "./Affliction";
 
 export class Ability extends Agency.Event.Emitter  {
     constructor({ action, range = 0, cooldown = 0, castTime = 0, cost = [], requirement = [], priority, escape, targeted = false } = {}) {
-        super({}, { injectMiddleware: true });
+        super({}, { network: Agency.Event.Network.$ });
 
         //  Explicitly remove these properties from enumeration
         Reflect.defineProperty(this, "action", { value: action, enumerable: false });

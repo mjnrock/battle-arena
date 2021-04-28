@@ -59,7 +59,7 @@ export default class Game extends AgencyLocal.Watcher {
     constructor({ fps = 24 } = {}) {
         super([], { deep: false });
 
-        this.INTERCOM = new Agency.Event.Emitter({}, { injectMiddleware: false });
+        this.INTERCOM = new Agency.Event.Emitter();
         Agency.Event.Network.Instances.agency.join(this.INTERCOM);
 
         this.loop = new GameLoop(fps);
