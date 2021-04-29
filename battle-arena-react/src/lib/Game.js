@@ -1,8 +1,19 @@
+import Agency from "@lespantsfancy/agency";
+
 import GameLoop from "./GameLoop";
 import PlayerManager from "./manager/PlayerManager";
 
 export default class Game {
     constructor({ fps = 24 } = {}) {
+        this.networks = {
+            input: new Agency.Event.Network(),
+            world: new Agency.Event.Network(),
+            render: new Agency.Event.Network(),
+            story: new Agency.Event.Network(),
+            server: new Agency.Event.Network(),
+            game: new Agency.Event.Network(),
+        };
+
         this.loop = new GameLoop(fps);
         this.players = new PlayerManager();
 
