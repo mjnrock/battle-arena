@@ -9,9 +9,9 @@ export default class GameLoop {
             .setEnd(this.onPostTick)
             .setSimulationTimestep(1000 / fps);
 
-        this.__start = null;
-        this.__lastUpdate = null;
-        this.__lastDraw = null;
+        this.start = null;
+        this.lastUpdate = null;
+        this.lastDraw = null;
     }
 
     get fps() {
@@ -22,13 +22,13 @@ export default class GameLoop {
     }
 
     start() {
-        this.__start = Date.now();
+        this.start = Date.now();
         this.mainLoop.start();
 
         return this;
     }
     stop() {
-        this.__start = null;
+        this.start = null;
         this.mainLoop.stop();
 
         return this;
@@ -48,7 +48,7 @@ export default class GameLoop {
                 dt /= 1000;
             let now = Date.now();
 
-            this.__lastUpdate = now;
+            this.lastUpdate = now;
             fn.call(this, dt, now);
         });
 
@@ -59,7 +59,7 @@ export default class GameLoop {
             let dt = this.spf * ip,  // @24fps --> (41.7 / 1000 * [0,1])
                 now = Date.now();
 
-            this.__lastDraw = now;
+            this.lastDraw = now;
             fn.call(this, dt, now);
         });
 
