@@ -1,10 +1,10 @@
 import GameLoop from "./GameLoop";
-import PlayerManager from "./manager/PlayerManager";
+// import PlayerManager from "./manager/PlayerManager";
 
 export default class Game {
     constructor({ fps = 24 } = {}) {
         this.loop = new GameLoop(fps);
-        this.players = new PlayerManager();
+        // this.players = new PlayerManager();
 
         this.config = {
             time: {

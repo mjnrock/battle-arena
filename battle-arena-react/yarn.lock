@@ -1504,16 +1504,15 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@lespantsfancy/agency@0.6.19":
-  version "0.6.19"
-  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.6.19.tgz#244900e2b49cbf48f8eb05bfa154f11ba15ebc4e"
-  integrity sha512-3gVoTJx34Q8q8x7jjSInflmvIl9+uUw+VEzV7nWlHsmHMqv2uXexEh5SmiDGWPHQ16JIFycUrd1dxLGVjz6+ng==
+"@lespantsfancy/agency@0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@lespantsfancy/agency/-/agency-0.9.0.tgz#c8f707f1b4a7eb497a33f319dc1c30792ea35dc2"
+  integrity sha512-2rgY67eoUsEB6t9qdCaSmCMndhlkldyo//0EkTZ/h9GjUrXZSYyz8g5Nvurx6/p96K7iMypx3VS3Vmgd4RHN/Q==
   dependencies:
     esm "^3.2.25"
     is-base64 "^1.1.0"
     mainloop.js "^1.0.4"
     node-fetch "^2.6.1"
-    object-hash "^2.1.1"
     uuid "^8.3.2"
 
 "@nodelib/fs.scandir@2.1.4":
@@ -7661,11 +7660,6 @@ object-copy@^0.1.0:
     copy-descriptor "^0.1.0"
     define-property "^0.2.5"
     kind-of "^3.0.3"
-
-object-hash@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-2.1.1.tgz#9447d0279b4fcf80cff3259bf66a1dc73afabe09"
-  integrity sha512-VOJmgmS+7wvXf8CjbQmimtCnEx3IAoLxI3fp2fbWehxrWBcAQFbk+vcwb6vzR0VZv/eNCJ/27j151ZTwqW/JeQ==
 
 object-inspect@^1.8.0, object-inspect@^1.9.0:
   version "1.9.0"
