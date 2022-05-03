@@ -123,9 +123,13 @@ export class Message {
         return "id" in obj
             && "tags" in obj
             && "data" in obj
-            && "config" in obj
+            && "info" in obj
             && "timestamp" in obj;
     }
+	
+	/**
+	 * Copy a Message instance of object.  If @clone = true, the @id will be copied, too.
+	 */
 	static Copy(msg, clone = false) {
 		if(clone === true) {
 			return Message.Factory(1, msg.data, msg.tags, { id: msg.id, config: msg.config });
@@ -133,10 +137,35 @@ export class Message {
 
 		return Message.Factory(1, msg.data, msg.tags, { config: msg.config });
 	}
-	static Factory(qty = 1, ...args) {
+	/**
+	 * A single-value convenience version of .Factory
+	 */
+	static Create(data, tags = [], { id, info = {} } = {}, isLocked = true) {
+		return Message.Factory(1, data, tags, { id, info }, isLocked);
+	}
+	/**
+	 * Create X number of Messages.
+	 * If @id is a function, it will be executed on each iteration.
+	 * If @data is a function, it will be executed on each iteration to generate the @args.  This overload will *ignore* all other passed args.  This can be used to dynamically generate a bunch of Messages.
+	 */
+	static Factory(qty = 1, data, tags = [], { id, info = {} } = {}, isLocked = true) {
 		let ret = [];
-		for(let i = 0; i <= qty; i++) {
-			ret.push(new Message(...args));
+		if(typeof qty === "function") {
+			qty = qty(data, tags, info, isLocked);
+		}
+
+		if(typeof data === "function") {
+			for(let i = 0; i <= qty; i++) {	
+				const args = data(i);
+
+				ret.push(new Message(...args));
+			}
+		} else {
+			for(let i = 0; i <= qty; i++) {
+				const newid =  typeof id === "function" ? id(i, data, tags, info, isLocked) : id;
+	
+				ret.push(new Message(data, tags, { id: newid, info }, isLocked));
+			}
 		}
 
 		if(qty === 1) {
@@ -145,8 +174,15 @@ export class Message {
 
 		return ret;
 	}
-	static Generate(...args) {
-		return Message.Factory(1, ...args);
+	/**
+	 * A convenience combination of .Copy and .Create, which will decide which to perform internally.  This allows the user to pass either a Message object or a Message instance, without pre-checking.
+	 */
+	static Generate(data, tags = [], { id, info = {} } = {}, isLocked = true) {
+		if(Message.Conforms(data)) {
+			return Message.Copy(data, false);
+		}
+
+		return Message.Create(data, tags, { id, info }, isLocked);
 	}
 };
 

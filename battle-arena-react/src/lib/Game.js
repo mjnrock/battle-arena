@@ -5,6 +5,7 @@ export default class Game {
     constructor({ fps = 24 } = {}) {
         this.loop = new GameLoop(fps);
         // this.players = new PlayerManager();
+		// this.loop.start();
 
         this.config = {
             time: {
@@ -25,8 +26,8 @@ export default class Game {
         };
 
         //FIXME Probably should make this more robust
-        window.onfocus = e => this.loop.start();
-        window.onblur = e => this.loop.stop();
+        // window.onfocus = e => this.loop.start();
+        // window.onblur = e => this.loop.stop();
     }
 
     get current() {

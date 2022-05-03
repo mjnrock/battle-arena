@@ -2,19 +2,17 @@ import { v4 as uuid } from "uuid";
 import Message from "./comm/Message";
 
 export class Agent {
-	//? Allow for universal values to invoke short-circuits in the proxy traps (e.g. prevent update, change accessor return value, etc.)
-	static Hooks = {
+	static Hooks = {		//? Allow for universal values to invoke short-circuits in the proxy traps (e.g. prevent update, change accessor return value, etc.)
 		Abort: "74c80a9c-46c5-49c3-9c9b-2946885ee733",		// If set hook returns this, prevent the update
 	};
 
 	constructor({ state = {}, triggers = [], config, namespace, id, globals = {}, hooks = {} } = {}) {
 		this.id = id || uuid();
 		this.state = state;
-		this.triggers = new Map(triggers);
+		this.triggers = new Map();
 		this.config = {
 			//* Agent config
-			//? These are proxy hooks that affect how the Agent behaves, in general (e.g. Accessor hook to return value from an API)
-			hooks: {
+			hooks: {					//? These are proxy hooks that affect how the Agent behaves, in general (e.g. Accessor hook to return value from an API)
 				get: new Set(),			// Accessor hook
 				pre: new Set(),			// Pre-set hook
 				post: new Set(),		// Post-set hook
@@ -23,28 +21,31 @@ export class Agent {
 				...hooks,				// Seed object
 			},
 
-			//*	Reducer config
-			isReducer: true,			// Make ALL triggers return a state -- to exclude a trigger from state, create a * handler that returns true on those triggers
-			allowRPC: true,				// If no trigger handlers exist AND an internal method is named equal to the trigger, pass ...args to that method
+			//*	Handler config
+			generatePayload: true,			// If true, handlers will receive ([ ...args ], payload) or ([ msg ], payload), if false, handlers will receive (...args).  This allows for greater customization of an Agent's behavior (e.g GameLoop never needs a payload, but a Router always would to know sender)
+			allowMultipleHandlers: true,	// Allow one (and only one -- overwrites will occur) handler per trigger (NOTE: This is intended to be set on and left alone after instantiation, and as such, this ONLY works on the .addTrigger/s functions (and seed triggers) -- .invoke contains no logic to check for this setting).  This is useful for creating Agent's where their intrinsic nature makes multiple handlers undesirable (e.g. GameLoop).
+			isReducer: true,				// Make ALL triggers return a state -- to exclude a trigger from state, create a * handler that returns true on those triggers
+			allowRPC: true,					// If no trigger handlers exist AND an internal method is named equal to the trigger, pass ...args to that method
 			
 			//* Batching config
-			queue: new Set(),
-			isBatchProcessing: false,
-			maxBatchSize: 1000,
+			queue: new Set(),				// The repository for triggers when set to process in batches
+			isBatchProcessing: false,		// The flag to determine if triggers should be batched or handled immediately
+			maxBatchSize: 1000,				// The maximum quantity of triggers a single batch process will handle before terminating
 
 			//* Trigger config
-			namespace,
-			notifyTrigger: "@update",
-			dispatchTrigger: "@dispatch",
+			namespace,						// An optional namespace for collisions and complex relationships
+			notifyTrigger: "@update",		// The trigger that will be fired when .state is modified
+			dispatchTrigger: "@dispatch",	// The trigger that will be fired when a trigger has been handled (and the Agent is NOT a reducer)
 			
 			//* Global context object
-			//? These will be added to all @payloads
-			globals: {
+			globals: {						//? These will be added to all @payloads, if enabled
 				...globals,
 			},
 
-			...config,					// Seed object
+			...config,						// Seed object
 		};
+
+		this.addTriggers(triggers);
 
 		return new Proxy(this, {
 			get: (target, prop) => {
@@ -118,28 +119,47 @@ export class Agent {
 		return this.config[ configAttribute ] === expectedValue;
 	}
 
+	getHandlers(trigger) {
+		if(this.assert("allowMultipleHandlers", true)) {
+			return this.triggers.get(trigger);
+		
+		}
+
+		return this.triggers.get(trigger).values().next().value;
+	}
 
 	/**
 	 * @trigger can be anything, not limited to strings
 	 */
 	addTrigger(trigger, ...handler) {
-		let handlers = this.triggers.get(trigger) || new Set();
-		
-		for(let fn of handler) {
-			if(typeof fn === "function") {
-				handlers.add(fn);
+		if(this.assert("allowMultipleHandlers", false)) {
+			const fn = [ ...handler, ...(this.triggers.get(trigger) || []) ].shift();
+			const handlerSet = new Set([ fn ]);
+	
+			this.triggers.set(trigger, handlerSet);
+		} else {
+			let handlers = this.triggers.get(trigger) || new Set();
+			
+			for(let fn of handler) {
+				if(typeof fn === "function") {
+					handlers.add(fn);
+				}
 			}
+	
+			this.triggers.set(trigger, handlers);
 		}
-
-		this.triggers.set(trigger, handlers);
 
 		return this;
 	}
 	addTriggers(addTriggerArgs = []) {
 		if(typeof addTriggerArgs === "object") {
 			if(Array.isArray(addTriggerArgs)) {
-				for(let args of addTriggerArgs) {
-					this.addTrigger(...args);
+				for(let [ trigger, handlers ] of addTriggerArgs) {
+					if(Array.isArray(handlers)) {
+						this.addTrigger(trigger, ...handlers);
+					} else {
+						this.addTrigger(trigger, handlers);
+					}
 				}
 			} else {
 				for(let [ key, fn ] of Object.entries(addTriggerArgs)) {
@@ -182,14 +202,16 @@ export class Agent {
 		return [
 			args,
 			{
-				namespace: this.config.namespace,
-				trigger: trigger,
-				target: this,
-				state: this.state,
-				invoke: this.invoke,
-				_id: id,
+				pid: id,							// Payload ID, exists mainly for custom provenance/idempotency checks
+				timestamp: Date.now(),				// Generation timestamp, for same reasons as pid
+
+				namespace: this.config.namespace,	// An optional namespace for the handler to optionally utilize (exists for complex/collision scenarios)
+				trigger: trigger,					// Pass a convenience reference of the trigger
+				target: this,						// Pass a convenience reference of "this"
+				state: this.state,					// Pass a convenience reference of state to handler
+				invoke: this.invoke,				// Pass a convenience reference to invoke to easily chain-invoke
 				
-				...this.config.globals,
+				...this.config.globals,				// Destructure Agent's globals into the payload
 			}
 		];
 	}
@@ -207,7 +229,7 @@ export class Agent {
 		}
 		
 		// Many contingent handlers receive the same payload, so abstract it here
-		let payload = this.__generatePayload({ id: uuid(), trigger, args });		
+		let payload = this.assert("generatePayload", true) ? this.__generatePayload({ id: uuid(), trigger, args }) : args;
 		/**
 		 * ? Params hooks
 		 * These will change the data/@arguments contained in the @payload.  Use these
@@ -296,14 +318,23 @@ export class Agent {
 		return true;
 	}
 	__handleMessage(msg) {
-		const [ trigger ] = [ ...msg.tags ];
-		const lockedMessage = msg.copy(true);
+		if(Message.Conforms(msg)) {
+			const lockedMessage = Message.Copy(msg, true);
+	
+			lockedMessage.info.isLocked = true;
+	
+			return this.__handleInvocation(lockedMessage.type, lockedMessage);
+		}
 
-		lockedMessage.config.isLocked = true;
-
-		return this.__handleInvocation(trigger, lockedMessage);
+		return false;
 	}
 
+	/**
+	 * Synonym for .invoke
+	 */
+	get trigger() {
+		return this.invoke;
+	}
 	/**
 	 * If in batch mode, add trigger to queue; else,
 	 * handle the invocation immediately.
@@ -315,6 +346,13 @@ export class Agent {
 	invoke(trigger, ...args) {
 		if(trigger instanceof Message) {
 			let msg = trigger;
+
+			/**
+			 * Short-circuit the invocation if the trigger has not been loaded
+			 */
+			if(!this.triggers.has(msg.type)) {
+				return false;
+			}
 	
 			if(this.config.isBatchProcessing === true) {
 				this.config.queue.add(msg);
