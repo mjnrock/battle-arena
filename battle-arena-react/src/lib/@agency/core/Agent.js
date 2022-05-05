@@ -3,7 +3,27 @@ import Message from "./comm/Message";
 
 export class Agent {
 	static Hooks = {		//? Allow for universal values to invoke short-circuits in the proxy traps (e.g. prevent update, change accessor return value, etc.)
-		Abort: "74c80a9c-46c5-49c3-9c9b-2946885ee733",		// If set hook returns this, prevent the update
+		Abort: "74c80a9c-46c5-49c3-9c9b-2946885ee733",			// If set hook returns this, prevent the update
+		
+		// These are standardized traps to modify Agent to more easily conform to some exogenous paradigm (e.g. extends EventEmitter)
+		Traps: {
+			/**
+			 * This is a standardized hook to allow an Agent to easily absorb Eventables (e.g. WebSocket) using familiar on___ syntax
+			 * This is a set-proxy trap to allow handlers to be added thus:	this.ontriggername = fn --> this.addTrigger(triggername, value)
+			 * e.g. onCat --> "Cat" trigger | ondogfish --> "dogfish" trigger
+			 */
+			OnTrigger: (target, prop, value) => {
+				if(prop.substr(0, 2) === "on") {
+					if(typeof value === "function") {
+						target.addTrigger(prop.slice(2), value);
+					} else if(Array.isArray(value)) {	// Assume the array is filled with handlers (.addTriggers checks)
+						target.addTrigger(prop.slice(2), ...value);
+					}
+
+					return Agent.Hooks.Abort;	// This causes the proxy short-circuit; without this, the set trap will inappropriately continue to Reflect.set()
+				}
+			}
+		},
 	};
 
 	constructor({ state = {}, triggers = [], config, namespace, id, globals = {}, hooks = {} } = {}) {
@@ -22,7 +42,8 @@ export class Agent {
 			},
 
 			//*	Handler config
-			generatePayload: true,			// If true, handlers will receive ([ ...args ], payload) or ([ msg ], payload), if false, handlers will receive (...args).  This allows for greater customization of an Agent's behavior (e.g GameLoop never needs a payload, but a Router always would to know sender)
+			// transients: new Map(),			//TODO:	If a trigger-handler(s) is added via .once/.fixed (not yet implemented), add the trigger-handler(s) here, too << Map.set(trigger, [ current, max, ...handlers ]) >>.  Increment current each invocation; once current === max, permanently remove the trigger-handler(s).
+			generatePayload: true,			// If true, handlers will receive ([ ...args ], payload) or ([ msg ], payload), if false, handlers will receive (...args) -- reducers will receive (...args, { previous, next }).  This allows for greater customization of an Agent's behavior (e.g GameLoop never needs a payload, but a Router always would to know sender)
 			allowMultipleHandlers: true,	// Allow one (and only one -- overwrites will occur) handler per trigger (NOTE: This is intended to be set on and left alone after instantiation, and as such, this ONLY works on the .addTrigger/s functions (and seed triggers) -- .invoke contains no logic to check for this setting).  This is useful for creating Agent's where their intrinsic nature makes multiple handlers undesirable (e.g. GameLoop).
 			isReducer: true,				// Make ALL triggers return a state -- to exclude a trigger from state, create a * handler that returns true on those triggers
 			allowRPC: true,					// If no trigger handlers exist AND an internal method is named equal to the trigger, pass ...args to that method
@@ -278,15 +299,23 @@ export class Agent {
 
 			let next = this.state;
 			for(let handler of handlers) {
-				const last = next;
+				const previous = next;
 
-				next = handler(payload[ 0 ], {
-					state: next,
-					...payload[ 1 ],
-				});
+				if(this.assert("generatePayload", true)) {
+					next = handler(payload[ 0 ], {
+						previous,
+						next,
+						...payload[ 1 ],
+					});
+				} else {
+					next = handler(...payload, {
+						previous,
+						next,
+					});
+				}
 
 				if(next === void 0) {
-					next = last;
+					next = previous;
 				}
 			}
 
@@ -294,8 +323,8 @@ export class Agent {
 			const oldState = this.state;
 			this.state = next;
 			
-			if(Object.keys(this.state).length && oldState !== this.state) {
-				this.invoke(invocationType, { current: next, previous: oldState });
+			if(oldState !== this.state) {
+				this.invoke(invocationType, trigger, { current: next, previous: oldState }, ...args);
 			}
 		} else {
 			invocationType = this.config.dispatchTrigger;
@@ -304,7 +333,7 @@ export class Agent {
 				handler(...payload);
 			}
 			
-			this.invoke(invocationType, { current: this.state });
+			this.invoke(invocationType, trigger, this.state, ...args);
 		}
 
 		/**
@@ -403,6 +432,14 @@ export class Agent {
 		return results;
 	}
 
+	terminate() {
+		for(let key of Object.keys(this)) {
+			delete this[ key ];
+		}
+
+		return true;
+	}
+
 	async asyncInvoke(trigger, ...args) {
 		return await Promise.resolve(this.invoke(trigger, ...args));
 	}
@@ -413,25 +450,29 @@ export class Agent {
 	static Create(obj = {}) {
 		return new this(obj);
 	}
-	static Factory(qty = 1, fnOrObj) {
+	static Factory(qty = 1, fnOrObj, each) {
 		// Single-parameter override for .Spawning one (1) this
 		if(typeof qty === "function" || typeof qty === "object") {
 			fnOrObj = qty;
 			qty = 1;
 		}
 
-		let hbases = [];
+		let agents = [];
 		for(let i = 0; i < qty; i++) {
-			let hbase = this.Create(typeof fnOrObj === "function" ? fnOrObj(i, qty) : fnOrObj);
+			let agent = this.Create(typeof fnOrObj === "function" ? fnOrObj(i, qty) : fnOrObj);
 
-			hbases.push(hbase);
+			agents.push(agent);
+
+			if(typeof each === "function") {
+				each(agent);
+			}
 		}
 
 		if(qty === 1) {
-			return hbases[ 0 ];
+			return agents[ 0 ];
 		}
 
-		return hbases;
+		return agents;
 	}
 };
 

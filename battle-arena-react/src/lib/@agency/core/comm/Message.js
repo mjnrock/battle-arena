@@ -115,6 +115,9 @@ export class Message {
 		return Message.FromObject(obj);
 	}
 
+	static Is(msg) {
+		return msg instanceof Message;
+	}
 	static Conforms(obj) {
         if(typeof obj !== "object") {
             return false;

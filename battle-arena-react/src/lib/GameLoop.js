@@ -5,8 +5,14 @@ import Agent from "./@agency/core/Agent";
 export default class GameLoop extends Agent {
     constructor(fps = 24) {
 		super({
+			hooks: {
+				pre: [
+					Agent.Hooks.Traps.OnTrigger,
+				]
+			},
 			state: {
 				mainLoop: null,		// Placeholder
+				ticks: 0,
 				start: null,
 				lastUpdate: null,
 				lastDraw: null,
@@ -16,21 +22,27 @@ export default class GameLoop extends Agent {
 				allowMultipleHandlers: false,
 				isReducer: false,
 				allowRPC: false,
-			}
-		});
-
-		this.addTriggers({
-			pre: this.onPreTick,
-			tick: this.onTick,
-			post: this.onPostTick,
-			draw: this.onDraw,
+			},
 		});
 
         this.state.mainLoop = MainLoop
             .setBegin(() => this.invoke("pre", this.spf, Date.now()))
-            .setUpdate((dt) => this.invoke("tick", dt, Date.now()))
-            .setDraw((ip) => this.invoke("post", this.spf * ip, Date.now()))
-            .setEnd((fps, panic) => this.invoke("draw", fps, panic))
+            .setUpdate((dt) => {
+				const now = Date.now();
+
+				this.state.lastUpdate = now;
+				++this.state.ticks;
+
+				this.invoke("tick", dt, now);
+			})
+            .setDraw((ip) => {
+				const now = Date.now();
+
+				this.state.lastDraw = now;
+
+				this.invoke("draw", this.spf * ip, now);
+			})
+            .setEnd((fps, panic) => this.invoke("post", fps, panic))
             .setSimulationTimestep(1000 / fps);
     }
 
@@ -42,7 +54,8 @@ export default class GameLoop extends Agent {
     }
 
     start() {
-        this.state.start = Date.now();
+		this.state.ticks = 0;
+        this.state.start = Date.now();		
         this.state.mainLoop.start();
 
         return this;
@@ -53,51 +66,30 @@ export default class GameLoop extends Agent {
 
         return this;
     }
+	
+	pause() {
+        if(this.loop.mainLoop.isRunning()) {
+			this.state.mainLoop.stop();
+		}
 
-    // setPreTick(fn) {
-    //     this.state.mainLoop.setBegin(() => {
-    //         let now = Date.now();
-
-    //         fn.call(this, this.spf, now);
-    //     });
-
-    //     return this;
-    // }
-    // setTick(fn) {
-    //     this.state.mainLoop.setUpdate((dt) => {
-    //             dt /= 1000;
-    //         let now = Date.now();
-
-    //         this.state.lastUpdate = now;
-    //         fn.call(this, dt, now);
-    //     });
-
-    //     return this;
-    // }
-    // setDraw(fn) {
-    //     this.state.mainLoop.setDraw((ip) => {
-    //         let dt = this.spf * ip,  // @24fps --> (41.7 / 1000 * [0,1])
-    //             now = Date.now();
-
-    //         this.state.lastDraw = now;
-    //         fn.call(this, dt, now);
-    //     });
-
-    //     return this;
-    // }
-    // setEnd(fn) {
-    //     this.state.mainLoop.setEnd((fps, panic) => {
-    //         fn.call(this, fps, panic);
-    //     });
-
-    //     return this;
-    // }
-
-    onPreTick(dt, now) {	}
-    onTick(dt, now) {
-		console.log("TICK", dt, now)
+        return this;
 	}
-    onPostTick(dt, now) {	}
+	resume() {
+        if(!this.loop.mainLoop.isRunning()) {
+			this.state.mainLoop.start();
+		}
 
-    onDraw(fps, panic) {}
+        return this;
+	}
+
+	restart() {		
+		this.stop();
+
+		this.state.lastUpdate = null;
+		this.state.lastDraw = null;
+
+		this.start();
+
+		return this;
+	}
 }

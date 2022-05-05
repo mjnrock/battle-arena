@@ -1,11 +1,19 @@
+import { v4 as uuid } from "uuid";
+
 import GameLoop from "./GameLoop";
 // import PlayerManager from "./manager/PlayerManager";
 
 export default class Game {
     constructor({ fps = 24 } = {}) {
+		this.id = uuid();
         this.loop = new GameLoop(fps);
         // this.players = new PlayerManager();
+		
 		// this.loop.start();
+		// this.loop.onpre = (...args) => console.log(this.loop.state, ...args)
+		// this.loop.ontick = (...args) => console.log(this.loop.state, ...args)
+		// this.loop.onpost = (...args) => console.log(this.loop.state, ...args)
+		// this.loop.ondraw = (...args) => console.log(this.loop.state, ...args)
 
         this.config = {
             time: {

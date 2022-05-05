@@ -12,15 +12,18 @@ Console.NewContext();
 const agent = new Agent({
 	triggers: [
 		["test", [
-			// ([ ...args ], payload) => console.log(...args),
-			([ ...args ], payload) => console.log(1111),
-			([ ...args ], payload) => console.log(2222),
-			([ ...args ], payload) => console.log(3333),
+			(...args) => console.log(...args),
+			// ([ ...args ], payload) => console.log(1111),
+			// ([ ...args ], payload) => console.log(2222),
+			// ([ ...args ], payload) => console.log(3333),
 		]],
 	],
+	config: {
+		generatePayload: false,
+	},
 });
-console.log(agent.id);
-console.log(agent);
+// console.log(agent.id);
+// console.log(agent);
 
 agent.invoke("test", Date.now());
 agent.invoke(Message.Create("catscatscats", "test"));
