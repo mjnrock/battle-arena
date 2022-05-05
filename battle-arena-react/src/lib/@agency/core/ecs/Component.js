@@ -1,38 +1,84 @@
 import { v4 as uuid } from "uuid";
 
 /**
- * In the current paradigm, a Component basically just has to be a Struct
- * in which values can be primitives or classes, thus allowing delegation
- * of processing scope, when appropriate.  Since this is essentially a
- * Record class, internal variables are prefixed as such: this.__internalVar (cf. __id)
+ * The Component is essentially a meta-wrapper around a Component that allows for a more
+ * useful paradigm, holding important references and having the ability to reseed whatever
+ * component it controls.
  * 
- * TODO In an ideal implementation, a Component has a 1:1 relationship with a DanfoJS DataFrome and is event-mediated through an Agent
+ * When @entity is passed, the Component will invoke the @entity's .register function
+ * In general, Entity will bypass Component and interact directly with the Component in .state,
+ * acting transparently.
  */
 export class Component {
-	constructor({ id } = {}) {
-		this.__id = id || uuid();
+	constructor(nomen, { entity, componentClass, system, args = [], tags = [] } = {}) {
+		this.id = uuid();
+		this.nomen = nomen;		// The unique name for a Component
+		this.tags = new Set(tags);		// Any tags for filtering/selection
+		
+		this.defaultArgs = args;	// Used as defaults when reseeding
+		this.classes = {
+			component: componentClass,		// Used to reseed
+		};
+
+		this.state = new this.classes.component(...this.defaultArgs);	// State *is* the component
+		this.system = system;	// Allow system ref to change, but have same nomen
+		
+		if(entity) {
+			this.register(entity);
+		}
 	}
 
-	/**
-	 * NOTE: This is a convenience abstraction ($ and this.__module) such that when using
-	 * the Entity Component short-hand, that an invocation can be made from the returned
-	 * Component object without having to then once again search through the Entity.modules
-	 * to invoke something.  Since a Component is intended to be (though not required) instantiated
-	 * through a Module, in normal use cases this.__module will always have a value.
-	 * 
-	 * ? Syntax Example:
-	 * const comp = entity[ name ];
-	 * comp.$("started", Date.now());
-	 * console.log(comp.key1);
-	 * console.log(comp.key2);
-	 * comp.$("finished", Date.now());
-	 *  */
-	$(trigger, ...args) {
-		if(this.__module) {
-			return this.__module.$(trigger, ...args);
+	trigger(trigger, ...args) {
+		return this.system.invoke(trigger, this, ...args);
+	}
+
+	reseed(...args) {
+		if(args.length === 0) {
+			this.state = new this.classes.component(...this.defaultArgs);
+		} else {
+			this.state = new this.classes.component(...args);
 		}
 
 		return this;
+	}
+
+	register(entity) {
+		entity.register(this.nomen, this);
+		this.entity = entity;
+
+		return this;
+	}
+	unregister(entity) {		
+		if(entity === this.entity) {
+			entity.unregister(this.nomen);
+			this.entity = null;
+		}
+
+		return this;
+	}
+
+	attach(system) {
+		this.system = system;
+
+		return this;
+	}
+	detach() {
+		this.system = null;
+
+		return this;
+	}
+
+	static Register(nomen, { entity, componentClass, system, args = [], tags = [] } = {}) {
+		const component = new this(nomen, { entity, componentClass, system, args, tags });
+		// component.register(entity);
+
+		return component;
+	}
+	static Unregister(entity, nomen) {
+		const component = entity[ nomen ];
+		component.unregister(entity);
+
+		return component;
 	}
 };
 

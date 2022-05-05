@@ -1,6 +1,6 @@
 import Console from "../util/Console";
 
-import Agency from "../core/Agency";
+import Context from "../core/Context";
 import Agent from "../core/Agent";
 import Message from "../core/comm/Message";
 
@@ -11,11 +11,25 @@ Console.NewContext();
 
 const agent = new Agent({
 	triggers: [
+		["cat", [
+			(...args) => console.log(1111),
+			(...args) => console.log(2222),
+			(...args) => console.log(3333),
+		]],
 		["test", [
 			(...args) => console.log(...args),
-			// ([ ...args ], payload) => console.log(1111),
-			// ([ ...args ], payload) => console.log(2222),
-			// ([ ...args ], payload) => console.log(3333),
+		]],
+		["*test", [
+			(...args) => false,
+		]],
+		["*cat", [
+			(...args) => false,
+		]],
+		["**test", [
+			(...args) => console.log("EFFECT: test"),
+		]],
+		["**cat", [
+			(...args) => console.log("EFFECT: cat"),
 		]],
 	],
 	config: {
@@ -26,4 +40,4 @@ const agent = new Agent({
 // console.log(agent);
 
 agent.invoke("test", Date.now());
-agent.invoke(Message.Create("catscatscats", "test"));
+// agent.invoke(Message.Create("catscatscats", "test"));

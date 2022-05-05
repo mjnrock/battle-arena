@@ -1,9 +1,9 @@
 import Agent from "./Agent";
-import Agency from "./Agency";
+import Context from "./Context";
 
 //TODO Convert the Nexus into a Node with a "Nexus" Component or with an Overlay
 
 export default {
 	Agent,
-	Agency,
+	Context: Agency,
 };

@@ -1,14 +1,12 @@
-// import Struct from "./Struct";
+import Struct from "./Struct";
 import Component from "./Component";
-// import System from "./System";
-// import Module from "./Module";
 import Entity from "./Entity";
+import System from "./System";
 
 //? The Entity in this paradigm is a Node
 export default {
-	// Struct,
+	Struct,
 	Component,
-	// System,
-	// Module,
 	Entity,
+	System,
 };
