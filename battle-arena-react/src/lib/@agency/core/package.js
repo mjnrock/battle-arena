@@ -5,5 +5,5 @@ import Context from "./Context";
 
 export default {
 	Agent,
-	Context: Agency,
+	Context,
 };
