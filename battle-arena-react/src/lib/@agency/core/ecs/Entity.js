@@ -1,4 +1,3 @@
-import Console from "../../util/Console";
 import Agent from "../Agent";
 import Component from "./Component";
 
@@ -14,7 +13,7 @@ export class Entity extends Agent {
 					(target, prop) => {
 						if(!(prop in target)) {
 							/**
-							 * NOTE: This is singularly used to access the Component.state (i.e. Component) directly,
+							 * NOTE: This is singularly used to access the Component.state (i.e. Struct) directly,
 							 * via a << Entity[ component.name ] >> syntax.  See note in Component.
 							 */
 							if(target.components.has(prop)) {
@@ -43,18 +42,21 @@ export class Entity extends Agent {
 	}
 
 	comp(keyOrComp) {
-		if(Array.isArray(keyOrComp)) {		// Assume tagged template
-			[ keyOrComp ] = keyOrComp;
-		}
 		if(keyOrComp instanceof Component) {
 			return this.components.get(keyOrComp.nomen);
+		} else if(Array.isArray(keyOrComp)) {		// Assume tagged template
+			[ keyOrComp ] = keyOrComp;
 		}
 
 		return this.components.get(keyOrComp);
 	}
 
-	register(key, value) {
-		if(Array.isArray(key)) {		// [ [nomen, Component], Component, ... ]
+	register(key, value) {		
+		if(value instanceof Component) {
+			this.components.set(key, value);
+		} else if(key instanceof Component) {
+			this.components.set(key.nomen, key);
+		} else if(Array.isArray(key)) {		// [ [nomen, Component], Component, ... ]
 			for(let entry of key) {
 				if(entry instanceof Component) {
 					this.register(entry);
@@ -62,13 +64,8 @@ export class Entity extends Agent {
 					this.register(...entry);
 				}
 			}
-		}
-		if(key instanceof Map) {
+		} else if(key instanceof Map) {
 			this.components = key;
-		} else if(key instanceof Component) {
-			this.components.set(key.nomen, key);
-		} else if(value instanceof Component) {
-			this.components.set(key, value);
 		}
 
 		return this;

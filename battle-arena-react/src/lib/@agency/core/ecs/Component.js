@@ -69,6 +69,13 @@ export class Component {
 		return this;
 	}
 
+	toObject(includeId = false) {
+		return this.state.toObject(includeId);
+	}
+	toJson(includeId = false) {
+		return this.state.toJson(includeId);
+	}
+
 	static Register(nomen, { entity, template, system, args = [], tags = [] } = {}) {
 		const component = new this(nomen, { entity, template, system, args, tags });
 		// component.register(entity);

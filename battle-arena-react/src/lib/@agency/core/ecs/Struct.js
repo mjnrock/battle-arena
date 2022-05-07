@@ -95,6 +95,34 @@ export class Struct {
 
 		return this;
 	}
+
+	toObject(includeId = true) {
+		const obj = {
+			...this,
+		};
+		
+		delete obj.$hooks;
+		if(includeId === false) {
+			delete obj.id;
+		}
+
+		return obj;
+	}
+	toJson(includeId = true) {
+		return JSON.stringify(this.toObject(includeId));
+	}
+
+	static FromObject(obj = {}, opts = {}) {
+		return new this(obj, opts);
+	}
+	static FromJson(json, opts = {}) {
+		let obj = json;
+		while(typeof obj === "string" || obj instanceof String) {
+			obj = JSON.parse(obj);
+		}
+
+		return this.FromObject(obj, opts);
+	}
 };
 
 export default Struct;

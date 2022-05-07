@@ -1,54 +1,73 @@
-/* eslint-disable */
 import Agency from "@lespantsfancy/agency";
+import { v4 as uuidv4 } from "uuid";
 
-import Game from "./../Game";
+import LayeredCanvas from "./../render/LayeredCanvas";
+import ImageRegistry from "../render/ImageRegistry";
 
-export default class RenderManager extends Agency.Context {
-    constructor(game) {
-        super({
-            game,
-        });
+import RenderLayer from "./../render/RenderLayer";
 
-        this.addGame(game);
+import initializeBindings from "./../input/_init";
+import { Camera } from "../render/Camera";
+
+export class RenderManager extends LayeredCanvas {
+    constructor(game, { tw, th, width, height, repository } = {}) {
+        super({ tw, th, width, height });
+
+        this.__id = uuidv4();
+        this.__game = game;
+
+        this.camera = new Camera(game, this);   //? Draw the entire map
+        // this.camera = new Camera(game, this, {   //? Draw around the main player
+        //     subject: {
+        //         entity: game.players.player,
+        //         txr: 5.5,
+        //         tyr: 4.5,
+        //     },
+        // });
+
+        this.repository = repository;
+        this.drawAnimationFrame = this.drawAnimationLayers;
+        
+        this.ctx.imageSmoothingEnabled = false;
+
+        //? Key and Mouse Bindings
+        this.handler = new Agency.Event.Emitter();
+        initializeBindings(this.game);
     }
 
-    addGame(game) {
-        if(game instanceof Game) {
-            this.game = game;
-            
-            this.game.canvas.onDraw = (cvs) => {
-                cvs.drawGrid({
-                    isFilled: true,
-                    fillStyle: `rgba(30, 100, 30, 0.3)`
-                });
-    
-                this.game.entities.values.forEach(entity => {
-                    const { x, y } = entity.components.position;
-                    const condition = entity.components.condition.current;
-    
-                    cvs.save();
-                    if(condition === "IDLE") {
-                        cvs.prop({ fillStyle: "rgba(0, 0, 255, 0.5)" });
-                    } else if(condition === "RUNNING") {
-                        cvs.prop({ fillStyle: "rgba(255, 0, 255, 0.5)" });
-                    } else if(condition === "ATTACKING") {
-                        cvs.prop({ fillStyle: "rgba(255, 0, 0, 0.5)" });
-                    }
+    get id() {
+        return this.__id;
+    }
+    get game() {
+        return this.__game;
+    }
 
-                    if(entity.components.type.current === "HOSTILE") {
-                        cvs.prop({ fillStyle: "rgba(0, 0, 0, 0.5)" });
-                    } else if(entity.components.type.current === "EFFECT") {
-                        if(condition === "ATTACKING") {
-                            cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(100, 200) }, ${ Agency.Util.Dice.random(0, 100) }, 0, 0.5)` });
-                        } else {
-                            cvs.prop({ fillStyle: `rgba(${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.random(0, 255) }, ${ Agency.Util.Dice.random(0, 255) }, 0.5)` });
-                        }
-                    }
+    async loadImages(fn, ...args) {
+        return await fn.call(this, this.game, ...args);
+    }
 
-                    cvs.gRect(x, y, 1, 1, { isFilled: true });
-                    cvs.restore();
-                });
-            };
+    /**
+     * A convenience method to auto-create a RenderLayer using only draw functions.
+     * @param  {...fn} layerDrawFns 
+     * @returns 
+     */
+    addAnimationLayers(...layerDrawFns) {
+        for(let fn of layerDrawFns) {
+            const layer = new RenderLayer(this.game, { drawAnimationFrame: fn });
+
+            this.addLayer(layer);
+        }
+
+        return this;
+    }
+    
+    sprite(root, ...coords) {
+        const repo = this.repository.get(root);
+
+        if(repo instanceof ImageRegistry) {
+            return repo.get(...coords);
         }
     }
 }
+
+export default RenderManager;
