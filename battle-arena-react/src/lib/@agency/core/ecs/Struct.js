@@ -5,7 +5,11 @@ export class Struct {
 		Abort: "74c80a9c-46c5-49c3-9c9b-2946885ee733",
 	};
 
-	constructor({ id, hooks = {} } = {}) {
+	/**
+	 * @evaluateState = true will execute the value of the key-value-pair as such: value(proxy, key)
+	 * This allows for state to be dynamically generated, both initially and on reseed
+	 */
+	constructor(state = {}, { evaluateState = false, id, hooks = {} } = {}) {
 		this.id = id || uuid();
 		this.$hooks = {					//? These are proxy hooks that affect how the Component behaves, in general (e.g. Accessor hook to return value from an API)
 			get: new Set(),			// Accessor hook
@@ -16,7 +20,7 @@ export class Struct {
 			...hooks,				// Seed object
 		};
 
-		return new Proxy(this, {
+		const proxy = new Proxy(this, {
 			get: (target, prop) => {
 				let value = Reflect.get(target, prop);
 				for(let fn of target.$hooks.get) {
@@ -43,7 +47,7 @@ export class Struct {
 				const returnVal = Reflect.set(target, prop, newValue);
 
 				for(let fn of target.$hooks.post) {
-					newValue = fn(target, prop, value);
+					fn(target, prop, newValue);
 				}
 
 				return returnVal;
@@ -65,6 +69,31 @@ export class Struct {
 				return false;
 			},
 		});
+
+		proxy._upsert(state, evaluateState);
+
+		return proxy;
+	}
+
+	_upsert(state = {}, evaluateState = true) {
+		for(let [ key, value ] of Object.entries(state)) {
+			if(evaluateState === true) {
+				if(typeof value === "function") {
+					this[ key ] = value(this, key);
+				}
+			} else {
+				this[ key ] = value;
+			}
+		}
+
+		return this;
+	}
+	_delete(keys = []) {
+		for(let key of keys) {
+			delete this[ key ];
+		}
+
+		return this;
 	}
 };
 

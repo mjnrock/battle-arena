@@ -1,8 +1,13 @@
+import Console from "../../util/Console";
 import Agent from "../Agent";
 import Component from "./Component";
 
+/**
+ * this.nomen will return the Component's .state
+ * this.comp`nomen` or this.comp(`nomen`) will both return the Component itself
+ */
 export class Entity extends Agent {
-	constructor() {
+	constructor(components = []) {
 		super({
 			hooks: {
 				get: [
@@ -34,10 +39,33 @@ export class Entity extends Agent {
 		});
 
 		this.components = new Map();
+		this.register(components);
+	}
+
+	comp(keyOrComp) {
+		if(Array.isArray(keyOrComp)) {		// Assume tagged template
+			[ keyOrComp ] = keyOrComp;
+		}
+		if(keyOrComp instanceof Component) {
+			return this.components.get(keyOrComp.nomen);
+		}
+
+		return this.components.get(keyOrComp);
 	}
 
 	register(key, value) {
-		if(key instanceof Component) {
+		if(Array.isArray(key)) {		// [ [nomen, Component], Component, ... ]
+			for(let entry of key) {
+				if(entry instanceof Component) {
+					this.register(entry);
+				} else {
+					this.register(...entry);
+				}
+			}
+		}
+		if(key instanceof Map) {
+			this.components = key;
+		} else if(key instanceof Component) {
 			this.components.set(key.nomen, key);
 		} else if(value instanceof Component) {
 			this.components.set(key, value);
@@ -45,9 +73,14 @@ export class Entity extends Agent {
 
 		return this;
 	}
+	
 	unregister(input) {
 		if(input instanceof Component) {
 			return this.components.delete(input.nomen);
+		} else if(Array.isArray(input)) {
+			for(let inp of input) {
+				this.unregister(inp);
+			}
 		}
 
 		return this.components.delete(input);

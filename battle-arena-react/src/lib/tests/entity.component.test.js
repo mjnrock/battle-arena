@@ -15,26 +15,23 @@ export function CreateGame() {
 
 	//? Context is the "Group Agent", @worldHandlers comes from /data
 	const world = new Entity([
-		Component.Create("space", {
-			// template: StructSpace,
+		Component.Create("physics", {
 			seed: [{
-				x: [ 0, 20 ],
-				y: [ 0, 20 ],
-				z: 0,
+				x: () => Math.random(),
+				y: () => Math.random(),
+				z: () => Math.random(),
 			}, { evaluateState: true }],	// TRUE evaluates state values as seed functions
 			tags: [
 				`world`,
 			],
 		}),
-		Component.Create("entity", {
-			// template: StructSpace,
+		Component.Create("fuzzums", {
 			seed: [{
-				x: [ 0, 20 ],
-				y: [ 0, 20 ],
-				z: 0,
-			}, { evaluateState: true }],	// TRUE evaluates state values as seed functions
+				cat: "Shey Poofs",
+				weasile: "Buddhies",
+			}, { evaluateState: false }],	// TRUE evaluates state values as seed functions
 			tags: [
-				`world`,
+				`creature`,
 			],
 		}),
 	]);
@@ -47,6 +44,11 @@ export function CreateGame() {
 	console.log(universe);
 	console.log(world);
 	console.log(world.physics.x);
+	world.comp`physics`.reseed();
+	console.log(world.physics.x);
+	world.comp(`physics`).reseed();
+	console.log(world.physics.x);
+	console.log(world.fuzzums);
 	universe.trigger("join", Date.now())
 
     return game;
