@@ -32,8 +32,8 @@ export function CreateGame() {
 
 	console.log(node.position.pos);
 	// console.log(node.position.posObj);
-	SystemPosition.$("move", node, 2, 2, 2, false);	
-	SystemPosition.Instances.get(`default`).trigger("move", node, 2, 2, 2, true);	
+	SystemPosition.$("move", 2, 2, 2, false)(node);		// === SystemPosition.Instances.get(`default`).trigger("move", node, 2, 2, 2, false);	
+	SystemPosition.$("move", 2, 2, 2, true)([ node ]);		// === SystemPosition.Instances.get(`default`).trigger("move", node, 2, 2, 2, false);	
 	console.log(node.position.pos);
 	// console.log(node.position.posObj);
 

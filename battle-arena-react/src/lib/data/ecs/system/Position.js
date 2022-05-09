@@ -10,7 +10,17 @@ export class Position extends System {
 	static get $() {
 		const instance = this.Instances.get("default");
 		
-		return instance.trigger.bind(instance);
+		return (trigger, ...args) => (...entities) => {
+			if(Array.isArray(entities[ 0 ])) {
+				[ entities ] = entities;
+			}
+			const results = [];
+			for(let entity of entities) {
+				results.push(instance.trigger.call(instance, trigger, entity, ...args));
+			}
+
+			return results;
+		}
 	}
 
 	constructor({} = {}) {
