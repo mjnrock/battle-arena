@@ -9,6 +9,7 @@ import Component from "./@agency/core/ecs/Component";
 import Struct from "./@agency/core/ecs/Struct";
 import Node from "./world/Node";
 import SystemPosition from "./data/ecs/system/Position";
+import ComponentPosition from "./data/ecs/component/Position";
 
 export function CreateGame() {
     const game = new Game({
@@ -35,6 +36,17 @@ export function CreateGame() {
 	SystemPosition.$("move", 2, 2, 2, false)(node);		// === SystemPosition.Instances.get(`default`).trigger("move", node, 2, 2, 2, false);	
 	SystemPosition.$("move", 2, 2, 2, true)([ node ]);		// === SystemPosition.Instances.get(`default`).trigger("move", node, 2, 2, 2, false);	
 	console.log(node.position.pos);
+
+	console.log(ComponentPosition.Create(world, {
+		x: () => Math.random(),
+		y: () => Math.random(),
+		z: () => Math.random(),
+	}, { evaluateState: true }));
+	console.log(ComponentPosition.Factory(1, [ world, {
+		x: () => Math.random(),
+		y: () => Math.random(),
+		z: () => Math.random(),
+	}, { evaluateState: true } ]));
 	// console.log(node.position.posObj);
 
 	// console.log(universe);

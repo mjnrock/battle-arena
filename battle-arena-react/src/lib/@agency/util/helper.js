@@ -260,7 +260,7 @@ export function extendJavascript() {
  * 
  * @mutator(@i, @args) will be executed at the end of each loop.
  */
-export function factory(fnOrClass, qty, args = [], mutator) {
+export function factory(qty = 1, fnOrClass, args = [], each) {
     let results = [];
     for (let i = 0; i < qty; i++) {
         if (typeof fnOrClass === "function") {
@@ -269,16 +269,16 @@ export function factory(fnOrClass, qty, args = [], mutator) {
             results.push(new fnOrClass(...args));
         }
 
-        if (typeof mutator === "function") {
-            args = mutator(i, args);
+        if (typeof each === "function") {
+            const results = each(i, args);
+
+			if(results !== void 0) {
+				args = results;
+			}
         }
     }
 
-    if (results.length) {
-        return results;
-    }
-
-    return results[ 0 ];
+    return results;
 };
 
 export default {

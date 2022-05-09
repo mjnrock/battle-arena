@@ -106,25 +106,31 @@ export class Component {
 		return component;
 	}
 
-	static Factory(qty = 1, ...fnOrArgs) {
-		const [ fn ] = fnOrArgs;
-		const components = [];
+	static Factory(qty = 1, fnOrArgs = [], each) {
+		// Single-parameter override for .Spawning one (1) this
+		if(!Array.isArray(fnOrArgs)) {
+			fnOrArgs = [ fnOrArgs ];
+		}
+		if(typeof qty === "function" || typeof qty === "object") {
+			fnOrArgs = qty;
+			qty = 1;
+		}
 
+		let components = [];
 		for(let i = 0; i < qty; i++) {
-			let component;
-			if(typeof fn === "function") {
-				component = this.Create(...fn(i));
-			} else if(Array.isArray(fnOrArgs)) {
-				component = this.Create(...fnOrArgs);
-			}
+			let component = typeof fnOrArgs === "function" ? this.Create(...fnOrArgs(i, qty)) : this.Create(...fnOrArgs);
 
 			components.push(component);
+
+			if(typeof each === "function") {
+				each(component);
+			}
 		}
 
 		return components;
 	}
-	static Create(nomen, obj = {}) {
-		return new this(nomen, obj);
+	static Create(...args) {
+		return new this(...args);
 	}
 };
 

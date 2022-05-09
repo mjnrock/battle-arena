@@ -2,9 +2,27 @@ import Agent from "../Agent";
 import Component from "./Component";
 
 export class System extends Agent {
-	static Instances = new Map();	
+	static DefaultKey = "default";
+	/**
+	 * This needs to be copied into the descendent's direct prototype to work properly
+	 */
+	static Instances = new Map([
+		[ this.DefaultKey, new this() ],
+	]);
 	static get $() {
-		return this;
+		const instance = this.Instances.get(this.DefaultKey);
+		
+		return (trigger, ...args) => (...entities) => {
+			if(Array.isArray(entities[ 0 ])) {
+				[ entities ] = entities;
+			}
+			const results = [];
+			for(let entity of entities) {
+				results.push(instance.trigger.call(instance, trigger, entity, ...args));
+			}
+
+			return results;
+		}
 	}
 
 	constructor(nomen, template, triggers = []) {
