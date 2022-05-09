@@ -88,9 +88,11 @@
 		"rules": {
 			"import/no-anonymous-default-export": "off",
 			"no-useless-constructor": "off",
+			"no-empty-pattern": "off",
 			"no-unused-vars": "off",
 			"no-extend-native": "off",
 			"react-hooks/exhaustive-deps": "off",
+			"react/no-direct-mutation-state": "off",
 			"no-loop-func": "off"
 		}
 	},

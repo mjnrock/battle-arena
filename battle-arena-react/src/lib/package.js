@@ -8,6 +8,7 @@ import worldHandlers from "./data/handlers/context/world";
 import Component from "./@agency/core/ecs/Component";
 import Struct from "./@agency/core/ecs/Struct";
 import Node from "./world/Node";
+import SystemPosition from "./data/ecs/system/Position";
 
 export function CreateGame() {
     const game = new Game({
@@ -19,14 +20,23 @@ export function CreateGame() {
 		
 	]);
 	const node = new Node();
-	const universe = new Context([
-		world,
-	], {
-		triggers: worldHandlers,
-	});
+	// const universe = new Context([
+	// 	world,
+	// ], {
+	// 	triggers: worldHandlers,
+	// });
 
+	
+	console.log(node.comp`position`);
 	console.log(node.position);
-	console.log(node.position.pos(true));
+
+	console.log(node.position.pos);
+	// console.log(node.position.posObj);
+	SystemPosition.$("move", node, 2, 2, 2, false);	
+	SystemPosition.Instances.get(`default`).trigger("move", node, 2, 2, 2, true);	
+	console.log(node.position.pos);
+	// console.log(node.position.posObj);
+
 	// console.log(universe);
 	// console.log(world);
 	// console.log(world.physics.x);

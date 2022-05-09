@@ -123,6 +123,30 @@ export class Struct {
 
 		return this.FromObject(obj, opts);
 	}
+
+	static Create(...args) {
+		return new this(...args);
+	}
+	static Factory(qty = 1, fnOrObj, each) {
+		// Single-parameter override for .Spawning one (1) this
+		if(typeof qty === "function" || typeof qty === "object") {
+			fnOrObj = qty;
+			qty = 1;
+		}
+
+		let structs = [];
+		for(let i = 0; i < qty; i++) {
+			let struct = this.Create(typeof fnOrObj === "function" ? fnOrObj(i, qty) : fnOrObj);
+
+			structs.push(struct);
+
+			if(typeof each === "function") {
+				each(struct);
+			}
+		}
+
+		return structs;
+	}
 };
 
 export default Struct;

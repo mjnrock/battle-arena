@@ -1,17 +1,48 @@
 import Component from "../../../@agency/core/ecs/Component";
-import Position from "../struct/Position";
+import StructPosition from "../struct/Position";
 
-export const Nomen = "position";
+export class Position extends Component {
+	static Nomen = "position";
 
-export default ({ nomen, seed = {}, ...opts }) => Component.Create(nomen || Nomen, {
-	template: Position,
-	seed: [{
-		x: 0,
-		y: 0,
-		z: 0,
+	constructor(entity, seed = {}, { evaluateState = true, ...opts } = {}) {
+		super(Position.Nomen, {
+			entity,
+			template: StructPosition,
+			seed: [{
+				x: 0,
+				y: 0,
+				z: 0,
+		
+				...seed,
+			}, { evaluateState }],
 
-		...seed,
-	}],
+			...opts,
+		});
+	}
 
-	...opts,
-});
+	static Create(entity, seed = {}, { evaluateState = true, ...opts } = {}) {
+		return new this(entity, seed, { evaluateState, ...opts });
+	}
+	static Factory(qty = 1, fnOrObj, each) {
+		// Single-parameter override for .Spawning one (1) this
+		if(typeof qty === "function" || typeof qty === "object") {
+			fnOrObj = qty;
+			qty = 1;
+		}
+
+		let components = [];
+		for(let i = 0; i < qty; i++) {
+			let component = this.Create(typeof fnOrObj === "function" ? fnOrObj(i, qty) : fnOrObj);
+
+			components.push(component);
+
+			if(typeof each === "function") {
+				each(component);
+			}
+		}
+
+		return components;
+	}
+};
+
+export default Position;

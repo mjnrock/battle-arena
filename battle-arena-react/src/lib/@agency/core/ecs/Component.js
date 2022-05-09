@@ -27,6 +27,23 @@ export class Component {
 		if(entity) {
 			this.register(entity);
 		}
+
+		return new Proxy(this, {
+			get: (target, prop) => {
+				if(prop in target) {
+					return Reflect.get(target, prop);
+				}
+				
+				return Reflect.get(target.state, prop);
+			},
+			set: (target, prop, value) => {
+				if(prop in target) {
+					return Reflect.set(target, prop, value);
+				}
+				
+				return Reflect.set(target.state, prop, value);
+			},
+		});
 	}
 
 	trigger(trigger, ...args) {

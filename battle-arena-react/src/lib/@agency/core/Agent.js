@@ -313,7 +313,6 @@ export class Agent {
 				payload = [ payload ];
 			}
 		}
-		
 
 		/**
 		 * ? Notifications/RPC check
@@ -325,7 +324,9 @@ export class Agent {
 			}
 			
 			return true;
-		} else if(handlers.size === 0) {
+		} else if(!handlers) {
+			
+		
 			// Verify that the RPC has a landing method
 			if(this.config.allowRPC === true && typeof trigger === "string" && typeof this[ trigger ] === "function") {
 				this[ trigger ](...args);
@@ -468,7 +469,7 @@ export class Agent {
 		/**
 		 * Short-circuit the invocation if the trigger has not been loaded
 		 */
-		if(!this.triggers.has(trigger)) {
+		if(this.config.allowRPC !== true && !this.triggers.has(trigger)) {
 			return false;
 		}
 

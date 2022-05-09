@@ -50,6 +50,25 @@ export class Entity extends Agent {
 
 		return this.components.get(keyOrComp);
 	}
+	at(keyOrComp, trigger, ...args) {
+		if(Array.isArray(trigger)) {
+			let results = [];
+			for(let [ trig, ...ags ] of trigger) {
+				results.push(this.at(keyOrComp, trig, ...ags));
+			}
+
+			return results;
+		}
+		
+		let comp;
+		if(keyOrComp instanceof Component) {
+			comp = this.components.get(keyOrComp.nomen);	// Pass a given Component and return that Entity's version of that Component, if it exists
+		} else {		// Assume tagged template
+			comp = this.components.get(keyOrComp);
+		}
+
+		return comp.trigger(trigger, ...args);
+	}
 
 	register(key, value) {		
 		if(value instanceof Component) {

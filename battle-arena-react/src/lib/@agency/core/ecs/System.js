@@ -2,7 +2,12 @@ import Agent from "../Agent";
 import Component from "./Component";
 
 export class System extends Agent {
-	constructor(nomen, triggers = []) {
+	static Instances = new Map();	
+	static get $() {
+		return this;
+	}
+
+	constructor(nomen, template, triggers = []) {
 		super({
 			triggers,
 			config: {
@@ -14,6 +19,7 @@ export class System extends Agent {
 		});
 
 		this.nomen = nomen;		// System expects this to match a Component.nomen exactly
+		this.template = template;	// The Component to be used as a template
 	}
 
 	check(entity) {
@@ -53,21 +59,6 @@ export class System extends Agent {
 		}
 
 		return (componentClass || Component).Register(this.nomen, { entity, componentClass: componentOrComponentClass, system: this, args, tags });
-	}
-	
-	trigger(trigger, entity, ...args) {
-		if(Array.isArray(entity)) {
-			for(let ent of entity) {
-				this.trigger(trigger, ent, ...args);
-			}
-
-			return this;
-		}
-		
-		return this.invoke(trigger, entity, ...args);
-	}
-	async asyncTrigger(trigger, entity, ...args) {
-		return await Promise.resolve(this.trigger(trigger, entity, ...args));
 	}
 };
 
