@@ -1,41 +1,41 @@
 import Entity from "../../../@agency/core/ecs/Entity";
 import System from "../../../@agency/core/ecs/System";
-import ComponentPosition from "./../component/Position";
+
 
 export class Position extends System {
-	static Instances = new Map([
-		[ this.DefaultKey, new this() ],
-	]);
-
+	static Nomen = "position";
+	
 	constructor() {
-		super(ComponentPosition.Nomen, ComponentPosition);
+		super(Position.Nomen);
 	}
 
-	move(input, x, y, z, asDelta = false) {
-		if(input instanceof this.template) {
-			const comp = input;
+	//TODO Add middleware that performs the Entity:Component extraction
+
+	move(comp, x, y, z, asDelta = false) {
+		if(comp instanceof Entity) {
+			const entity = comp;
 			
-			if(asDelta) {
-				comp.pos = [
-					comp.x + x,
-					comp.y + y,
-					comp.z + z,
-				];
-			} else {
-				comp.pos = [
-					x,
-					y,
-					z,
-				];
-			}
-		} else if(input instanceof Entity) {
-			const entity = input;
+			return this.move(entity.comp(this.nomen), x, y, z, asDelta);
+		}
 			
-			this.move(entity.comp(this.nomen), x, y, z, asDelta);
+		if(asDelta) {
+			comp.pos = [
+				comp.x + x,
+				comp.y + y,
+				comp.z + z,
+			];
+		} else {
+			comp.pos = [
+				x,
+				y,
+				z,
+			];
 		}
 
 		return this;
 	}
 };
+
+System.Registry.set(Position.Nomen, new Position());
 
 export default Position;

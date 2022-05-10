@@ -17,19 +17,7 @@ export class Position extends Struct {
 			this.y,
 			this.z,
 		];
-	}
-	set pos(value = []) {
-		if(Array.isArray(value)) {
-			const [ x, y, z ] = value;
-			
-			this.x = x;
-			this.y = y;
-			this.z = z;
-		}
-
-		return this;
-	}
-	
+	}	
 	get posObj() {
 		return {
 			x: this.x,
@@ -37,12 +25,20 @@ export class Position extends Struct {
 			z: this.z,
 		};
 	}
-	set posObj(obj = {}) {
-		const { x, y, z } = obj;
-		
-		this.x = x;
-		this.y = y;
-		this.z = z;
+	set pos(input = []) {
+		if(Array.isArray(input)) {
+			const [ x, y, z ] = input;
+			
+			this.x = x;
+			this.y = y;
+			this.z = z;
+		} else if(typeof input === "object") {
+			const { x, y, z } = input;
+			
+			this.x = x;
+			this.y = y;
+			this.z = z;
+		}
 
 		return this;
 	}
