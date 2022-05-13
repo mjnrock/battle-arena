@@ -1,15 +1,22 @@
 import Entity from "../../../@agency/core/ecs/Entity";
 import System from "../../../@agency/core/ecs/System";
 
+import StructPosition from "../struct/Position";
+
 
 export class Position extends System {
-	static Nomen = "position";
+	static Nomen = StructPosition.Nomen;
+	
+	static $(...entities) {
+		return super.$(StructPosition.Nomen, ...entities);
+	}
+	$(...entities) {
+		return super.$(StructPosition.Nomen, ...entities);
+	}
 	
 	constructor() {
-		super(Position.Nomen);
+		super(StructPosition.Nomen);
 	}
-
-	//TODO Add middleware that performs the Entity:Component extraction
 
 	move(comp, x, y, z, asDelta = false) {
 		if(comp instanceof Entity) {
@@ -36,6 +43,6 @@ export class Position extends System {
 	}
 };
 
-System.Registry.set(Position.Nomen, new Position());
+System.Registry.set(StructPosition.Nomen, new Position());
 
 export default Position;

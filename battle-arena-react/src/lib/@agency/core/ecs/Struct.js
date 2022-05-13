@@ -22,17 +22,17 @@ export class Struct {
 
 		const proxy = new Proxy(this, {
 			get: (target, prop) => {
-				let value = Reflect.get(target, prop);
-				for(let fn of target.$hooks.get) {
-					value = fn(target, prop, value);
+				let current = Reflect.get(target, prop);
+				for(let fn of target.$hooks.get.values()) {
+					const result = fn(target, prop, current);
 
 					// Short-circuit execution and return substitute value
-					if(value !== void 0) {
-						return value;
+					if(result !== void 0) {
+						return result;
 					}
 				}
 
-				return value;
+				return current;
 			},
 			set: (target, prop, value) => {
 				let newValue = value;
@@ -77,10 +77,8 @@ export class Struct {
 
 	_upsert(state = {}, evaluateState = true) {
 		for(let [ key, value ] of Object.entries(state)) {
-			if(evaluateState === true) {
-				if(typeof value === "function") {
-					this[ key ] = value(this, key);
-				}
+			if(evaluateState === true && typeof value === "function") {
+				this[ key ] = value(this, key);
 			} else {
 				this[ key ] = value;
 			}

@@ -1,6 +1,8 @@
 import Struct from "../../../@agency/core/ecs/Struct";
 
 export class Position extends Struct {
+	static Nomen = "position";
+	
 	constructor(state = {}, opts = {}) {
 		super({
 			x: 0,

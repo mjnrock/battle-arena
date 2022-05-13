@@ -1,17 +1,17 @@
-import Entity from "../@agency/core/ecs/Entity";
-import Position from "../data/ecs/component/Position";
+import Animus from "./Animus";
 
-export class Node extends Entity {
-    constructor() {
-        super();
-
-		this.register([
-			new Position(this, {
+export class Node extends Animus {
+    constructor({ terrain } = {}, agent = {}) {
+        super({
+			terrain: {
+				terrain,
+			},
+			position: {
 				x: () => Math.random(),
 				y: () => Math.random(),
 				z: () => Math.random(),
-			}),
-		], { evaluateState: true });
+			}
+		}, agent);
     }
 }
 

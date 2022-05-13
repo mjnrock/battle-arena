@@ -133,6 +133,20 @@ export class Agent {
 
 	deconstructor() {}
 
+	morph(fnOrObj) {
+		if(typeof fnOrObj === "function") {
+			fnOrObj = fnOrObj(this);
+		}
+
+		if(typeof fnOrObj === "object") {
+			for(let [ key, value ] of Object.entries(fnOrObj)) {
+				this[ key ] = value;
+			}
+		}
+
+		return this;
+	}
+
 
 	/**
 	 * Convenience function for toggling/altering configuration booleans -- must be a boolean
@@ -526,20 +540,39 @@ export class Agent {
 		return await Promise.resolve(this.process(qty));
 	}
 
-	static Create(obj = {}) {
-		return new this(obj);
+	toObject(includeId = true) {
+		const obj = {
+			...this,
+		};
+		
+		if(includeId === false) {
+			delete obj.id;
+		}
+
+		return obj;
 	}
-	static Factory(qty = 1, fnOrObj, each) {
+	toJson() {
+		return JSON.stringify(this.toObject());
+	}
+
+	static Create(...args) {
+		return new this(...args);
+	}
+	static Factory(qty = 1, fnOrArgs = [], each) {
 		// Single-parameter override for .Spawning one (1) this
 		if(typeof qty === "function" || typeof qty === "object") {
-			fnOrObj = qty;
+			fnOrArgs = qty;
 			qty = 1;
 		}
 
 		let agents = [];
 		for(let i = 0; i < qty; i++) {
-			let agent = this.Create(typeof fnOrObj === "function" ? fnOrObj(i, qty) : fnOrObj);
+			let args = fnOrArgs;
+			if(typeof fnOrArgs === "function") {
+				args = fnOrArgs();
+			}
 
+			const agent = this.Create(...args);
 			agents.push(agent);
 
 			if(typeof each === "function") {

@@ -6,7 +6,7 @@ import Component from "./Component";
  * this.comp`nomen` or this.comp(`nomen`) will both return the Component itself
  */
 export class Entity extends Agent {
-	constructor(components = []) {
+	constructor(components = [], agent = {}) {
 		super({
 			hooks: {
 				get: [
@@ -36,9 +36,22 @@ export class Entity extends Agent {
 				],
 			}
 		});
-
+		
 		this.components = new Map();
-		this.register(components);
+		if(typeof components === "function") {
+			console.log(2789346873)
+			this.register(components());
+		} else {
+			this.register(components);
+		}
+
+		this.morph(agent);
+	}
+
+	deconstructor() {
+		for(let [ nomen, comp ] of this.components.entries()) {
+			comp.deconstructor();
+		}
 	}
 
 	comp(keyOrComp) {
@@ -70,7 +83,7 @@ export class Entity extends Agent {
 		return comp.trigger(trigger, ...args);
 	}
 
-	register(key, value) {		
+	register(key, value) {
 		if(value instanceof Component) {
 			this.components.set(key, value);
 		} else if(key instanceof Component) {
