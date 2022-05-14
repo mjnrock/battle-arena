@@ -133,7 +133,7 @@ export class Agent {
 
 	deconstructor() {}
 
-	morph(fnOrObj) {
+	adapt(fnOrObj) {
 		if(typeof fnOrObj === "function") {
 			fnOrObj = fnOrObj(this);
 		}

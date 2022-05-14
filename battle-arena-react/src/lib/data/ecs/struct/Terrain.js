@@ -37,21 +37,21 @@ export class Terrain extends Struct {
 
 	constructor(state = {}, opts = {}) {
 		super({
-			terrain: Terrain.Enum.VOID,
+			...Terrain.Enum.VOID,
 
 			...state,
 		}, opts);
 
-		this.$hooks.get.add((target, prop, value) => {
-			const flags = [
-				"name",
-				"type",
-				"cost",
-			];
-			if(flags.includes(prop)) {
-				return target.terrain[ prop ];
-			}
-		});
+		// this.$hooks.get.add((target, prop, value) => {
+		// 	const flags = [
+		// 		"name",
+		// 		"type",
+		// 		"cost",
+		// 	];
+		// 	if(flags.includes(prop)) {
+		// 		return target.terrain[ prop ];
+		// 	}
+		// });
 	}
 };
 

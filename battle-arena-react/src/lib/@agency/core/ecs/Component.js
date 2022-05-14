@@ -9,6 +9,9 @@ import System from "./System";
  * component it controls.
  */
 export class Component {
+	static Nomen = null;	// This is a dictionary-level nomen, used if Component ancestry occurs
+	static Dictionary = new Map();	// Seeded dynamically and will hold Struct (sic) values
+
 	constructor(nomen, { template, seed = [], tags = [] } = {}) {
 		this.id = uuid();
 		this.nomen = nomen;		// The unique name for a Component
@@ -85,6 +88,26 @@ export class Component {
 	}
 	static Create(...args) {
 		return new this(...args);
+	}
+
+	static Seed(nomen, seed = {}, opts = {}) {
+		return this.Create(nomen, {
+			template: this.Dictionary.get(nomen),
+			seed: [ seed, { evaluateState: opts.evaluateState !== void 0 ? opts.evaluateState : true }],
+
+			...opts,
+		});
+	}
+	static SeedMap(...structs) {
+		if(Array.isArray(structs[ 0 ])) {
+			structs = structs[ 0 ];
+		}
+
+		for(let input of structs.values()) {
+			this.Dictionary.set(input.Nomen, input);
+		}
+
+		return this.Dictionary;
 	}
 };
 

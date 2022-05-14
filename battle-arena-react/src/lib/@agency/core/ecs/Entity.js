@@ -6,6 +6,9 @@ import Component from "./Component";
  * this.comp`nomen` or this.comp(`nomen`) will both return the Component itself
  */
 export class Entity extends Agent {
+	static Nomen = null;
+	static Dictionary = new Map();	// Seeded dynamically
+
 	constructor(components = [], agent = {}) {
 		super({
 			hooks: {
@@ -39,19 +42,90 @@ export class Entity extends Agent {
 		
 		this.components = new Map();
 		if(typeof components === "function") {
-			console.log(2789346873)
 			this.register(components());
 		} else {
 			this.register(components);
 		}
 
-		this.morph(agent);
+		this.adapt(agent);
 	}
 
 	deconstructor() {
 		for(let [ nomen, comp ] of this.components.entries()) {
 			comp.deconstructor();
 		}
+	}
+
+	register(key, value) {
+		if(value instanceof Component) {
+			this.components.set(key, value);
+		} else if(key instanceof Component) {
+			this.components.set(key.nomen, key);
+		} else if(Array.isArray(key)) {		// [ [nomen, Component], Component, ... ]
+			for(let entry of key) {
+				if(entry instanceof Component) {
+					this.register(entry);
+				} else {
+					this.register(...entry);
+				}
+			}
+		} else if(!Array.isArray(key) && typeof key === "object") {
+			const obj = key;
+
+			for(let [ nomen, args ] of Object.entries(obj)) {
+				if(!Array.isArray(args)) {
+					args = [ args ];
+				}
+	
+				const comp = Component.Seed(nomen, ...args);
+				this.register(comp);
+			}
+		} else if(typeof key === "function") {
+			this.register(...key(value));
+		} else if(key instanceof Map) {
+			this.components = key;
+		}
+
+		return this;
+	}
+	
+	unregister(input) {
+		if(input instanceof Component) {
+			return this.components.delete(input.nomen);
+		} else if(Array.isArray(input)) {
+			for(let inp of input) {
+				this.unregister(inp);
+			}
+		}
+
+		return this.components.delete(input);
+	}
+
+	/**
+	 * While .register loads instantiated components, .attach will utilize << Component.Dictionary >>
+	 * and dynamically instantiate the component and .register to << this >>.
+	 */
+	attach(nomen, seed, opts) {
+		if(typeof nomen === "object") {
+			for(let [ nom, args ] of Object.entries(nomen)) {
+				if(Array.isArray(args)) {
+					this.attach(nom, ...args);
+				} else {
+					this.attach(nom, args);
+				}
+			}
+		} else {
+			this.register(Component.Seed(nomen, seed, opts));
+		}
+
+
+		return this;
+	}
+	/**
+	 * Detach finds the registered component with .nomen = @nomen
+	 */
+	detach(nomen) {
+		return this.unregister(this.components.get(nomen));
 	}
 
 	comp(keyOrComp) {
@@ -83,38 +157,6 @@ export class Entity extends Agent {
 		return comp.trigger(trigger, ...args);
 	}
 
-	register(key, value) {
-		if(value instanceof Component) {
-			this.components.set(key, value);
-		} else if(key instanceof Component) {
-			this.components.set(key.nomen, key);
-		} else if(Array.isArray(key)) {		// [ [nomen, Component], Component, ... ]
-			for(let entry of key) {
-				if(entry instanceof Component) {
-					this.register(entry);
-				} else {
-					this.register(...entry);
-				}
-			}
-		} else if(key instanceof Map) {
-			this.components = key;
-		}
-
-		return this;
-	}
-	
-	unregister(input) {
-		if(input instanceof Component) {
-			return this.components.delete(input.nomen);
-		} else if(Array.isArray(input)) {
-			for(let inp of input) {
-				this.unregister(inp);
-			}
-		}
-
-		return this.components.delete(input);
-	}
-
 	find(...nameIdOrTags) {
 		const ret = new Set();
 		for(let input of nameIdOrTags) {
@@ -135,6 +177,38 @@ export class Entity extends Agent {
 		}
 
 		return Array.from(ret);
+	}
+
+	
+	toObject(includeId = true) {
+		const obj = super.toObject(includeId);
+
+		obj.components = {};
+		for(let comp of this.components.values()) {
+			obj.components[ comp.nomen ] = comp.toObject(includeId);
+		}
+
+		return obj;
+	}
+	toJson(includeId = true) {
+		return JSON.stringify(this.toObject(includeId));
+	}
+
+	static Seed(nomen, ...args) {
+		const entityClass = this.Dictionary.get(nomen);
+
+		return new entityClass(...args);
+	}
+	static SeedMap(...entityClasses) {
+		if(Array.isArray(entityClasses[ 0 ])) {
+			entityClasses = entityClasses[ 0 ];
+		}
+		
+		for(let clazz of entityClasses.values()) {
+			this.Dictionary.set(clazz.Nomen, clazz);
+		}
+
+		return this.Dictionary;
 	}
 };
 
