@@ -564,6 +564,10 @@ export class Agent {
 			fnOrArgs = qty;
 			qty = 1;
 		}
+		
+		if(!Array.isArray(fnOrArgs)) {
+			fnOrArgs = [ fnOrArgs ];	// Make sure @fnOrArgs is an Array (primarily a convenience overload for Entity Factory, but is useful elsewhere)
+		}
 
 		let agents = [];
 		for(let i = 0; i < qty; i++) {

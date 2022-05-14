@@ -17,29 +17,18 @@ export function CreateGame() {
 	
 	const node = new Node({
 		terrain: Terrain.Enum.WATER,
-	}, {
-		state: {
-			cats: Math.random() * 2,
-		},
 	});
 
-	const [ e1, e2, e3 ] = Animus.Factory(3, [{
+	const [ e1, e2, e3 ] = Animus.Factory(3, () => ({
 		position: {
-			x: () => Math.random(),
-			y: () => Math.random(),
-			z: () => Math.random(),
+			x: Math.random(),
+			y: Math.random(),
+			z: Math.random(),
 		}
-	}, () => ({
-		state: {
-			cats: Math.random() * 2,
-		},
-	})]);
-
+	}));
 	
-	// e1.attach("terrain", Terrain.Enum.GRASS)
 	e1.attach({
 		terrain: Terrain.Enum.GRASS,
-		// terrain: [ Terrain.Enum.GRASS, {} ],
 	});
 
 
