@@ -137,11 +137,11 @@ export class Entity extends Agent {
 
 		return this.components.get(keyOrComp);
 	}
-	at(keyOrComp, trigger, ...args) {
+	to(keyOrComp, trigger, ...args) {
 		if(Array.isArray(trigger)) {
 			let results = [];
 			for(let [ trig, ...ags ] of trigger) {
-				results.push(this.at(keyOrComp, trig, ...ags));
+				results.push(this.to(keyOrComp, trig, ...ags));
 			}
 
 			return results;

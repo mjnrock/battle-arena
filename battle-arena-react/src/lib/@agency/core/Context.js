@@ -1,3 +1,4 @@
+import { validate } from "uuid";
 import Agent from "./Agent";
 
 /**
@@ -7,9 +8,53 @@ export class Context extends Agent {
 	constructor(agents = [], agentObj = {}) {
 		super(agentObj);
 
+		this.hook("get", (target, prop, value) => {
+			const entry = target.registry.get(prop);
+
+			if(entry) {
+				if(validate(entry)) {
+					return target.registry.get(entry);
+				}
+
+				return entry;
+			}
+		});
+
 		this.registry = new Map();
 		this.receiver = (...args) => this.receive.call(this, ...args);	// Create concrete reference to function for cleanup on unregistration
-		this.register(...agents);	// Seed Context with an initial group of Agents
+		this.assign(...agents);	// Seed Context with an initial group of Agents
+	}
+
+	addAgent(agent, ...aliases) {
+		this.assign(agent);
+		this.addAlias(agent, ...aliases);
+
+		return this;
+	}
+	removeAgent(agent, ...aliases) {
+		this.unassign(agent);
+		this.removeAlias(agent, ...aliases);
+
+		return this;
+	}
+
+	_makeAlias(agent) {}
+
+	addAlias(agentOrId, ...aliases) {
+		const id = validate(agentOrId) ? agentOrId : agentOrId.id;
+
+		for(let alias of aliases) {
+			this.registry.set(alias, id);
+		}
+
+		return this;
+	}
+	removeAlias(...aliases) {
+		for(let alias of aliases) {
+			this.registry.delete(alias);
+		}
+
+		return this;
 	}
 
 	/**
@@ -55,7 +100,7 @@ export class Context extends Agent {
 	/**
 	 * Add @agents to the registry and attach the receiver fn as an effect handler
 	 */
-	register(...agents) {
+	assign(...agents) {
 		for(let agent of agents) {
 			this.registry.set(agent.id, agent);
 			agent.addTrigger("$post", this.receiver);
@@ -67,7 +112,7 @@ export class Context extends Agent {
 	/**
 	 * Undo .register
 	 */
-	unregister(...agents) {
+	unassign(...agents) {
 		for(let agent of agents) {
 			this.registry.delete(agent.id);
 			agent.removeTrigger("$post", this.receiver);
@@ -82,7 +127,7 @@ export class Context extends Agent {
 	 */
 	spawn(qty = 1, fnOrObj) {
 		const agents = Agent.Factory(qty, fnOrObj, (agent) => {
-			this.register(agent);
+			this.assign(agent);
 		});
 
 		return agents;
@@ -92,7 +137,7 @@ export class Context extends Agent {
 	 */
 	despawn(...agents) {
 		for(let agent of agents) {
-			this.unregister(agent);
+			this.unassign(agent);
 
 			agent.terminate();
 		}

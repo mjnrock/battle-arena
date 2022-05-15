@@ -1,6 +1,6 @@
-import Agency from "@lespantsfancy/agency";
+import Struct from "../../@agency/core/ecs/Struct";
 
-export class Point extends Agency.Watchable {
+export class Point extends Struct {
     constructor(x, y) {
         super({
             x,

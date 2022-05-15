@@ -1,21 +1,21 @@
 import Entity from "../../../@agency/core/ecs/Entity";
 import System from "../../../@agency/core/ecs/System";
 
-import StructLocamotive from "../struct/Locamotive";
+import StructPosition from "../struct/Position";
 
 
-export class Locamotive extends System {
-	static Nomen = StructLocamotive.Nomen;
+export class Position extends System {
+	static Nomen = StructPosition.Nomen;
 	
 	static $(...entities) {
-		return super.$(StructLocamotive.Nomen, ...entities);
+		return super.$(StructPosition.Nomen, ...entities);
 	}
 	$(...entities) {
-		return super.$(StructLocamotive.Nomen, ...entities);
+		return super.$(StructPosition.Nomen, ...entities);
 	}
 	
 	constructor() {
-		super(StructLocamotive.Nomen);
+		super(StructPosition.Nomen);
 	}
 
 	move(comp, x, y, z, asDelta = false) {
@@ -43,6 +43,6 @@ export class Locamotive extends System {
 	}
 };
 
-System.Registry.set(StructLocamotive.Nomen, new Locamotive());
+System.Registry.set(StructPosition.Nomen, new Position());
 
-export default Locamotive;
+export default Position;

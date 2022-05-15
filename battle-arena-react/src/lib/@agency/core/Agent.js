@@ -28,7 +28,7 @@ export class Agent {
 			SetCommandHandler: (target, prop, value) => {
 				if(prop[ 0 ] === "$") {
 					if(typeof value === "function") {
-						target.addTrigger(`$pre`, value);
+						target.addTrigger(`@pre`, value);
 					}
 				}
 			},
@@ -66,7 +66,7 @@ export class Agent {
 
 			//* Trigger config
 			namespace,						// An optional namespace for collisions and complex relationships
-			routeTrigger: "$route",		// The trigger that will be fired when .state is modified
+			routeTrigger: "@route",		// The trigger that will be fired when .state is modified
 			notifyTrigger: "@update",		// The trigger that will be fired when .state is modified
 			dispatchTrigger: "@dispatch",	// The trigger that will be fired when a trigger has been handled (and the Agent is NOT a reducer)
 			
@@ -84,11 +84,11 @@ export class Agent {
 			get: (target, prop) => {
 				let value = Reflect.get(target, prop);
 				for(let fn of target.config.hooks.get) {
-					value = fn(target, prop, value);
+					let newValue = fn(target, prop, value);
 
 					// Short-circuit execution and return substitute value
-					if(value !== void 0) {
-						return value;
+					if(newValue !== void 0) {
+						return newValue;
 					}
 				}
 
@@ -133,6 +133,29 @@ export class Agent {
 
 	deconstructor() {}
 
+	hook(hook, ...fns) {
+		if(Array.isArray(fns[ 0 ])) {
+			[ fns ] = fns;
+		}
+
+		for(let fn of fns) {
+			this.config.hooks[ hook ].add(fn);
+		}
+
+		return this;
+	}
+	dehook(hook, ...fns) {
+		if(Array.isArray(fns[ 0 ])) {
+			[ fns ] = fns;
+		}
+
+		for(let fn of fns) {
+			this.config.hooks[ hook ].delete(fn);
+		}
+
+		return this;
+	}
+
 	/**
 	 * An agent can be passed as argument to have this copy all kvps,
 	 * with an optional list of keys to ignore ("id" present by default)
@@ -163,10 +186,39 @@ export class Agent {
 		return this;
 	}
 
-	getState() {
-		return {
-			...this.state,
-		};
+	$(...input) {
+		const [ first, ...rest ] = input;
+
+		if(Array.isArray(first) && first.raw) {	// Back-tick function
+			return this.getState(first[ 0 ]);
+		}
+
+		return this.getState();
+	}
+
+	getState(nested = "") {
+		if(Array.isArray(nested) && nested.raw) {	// Back-tick function
+			nested = nested[ 0 ].split(".");
+		} else if(!Array.isArray(nested)) {
+			nested = nested.split(".");
+		}
+
+		const [ first, ...rest ] = nested;
+		if(nested.length === 1) {
+			const potAgent = this.state[ first ];
+			
+			if(potAgent instanceof Agent) {
+				return potAgent.getState();
+			}
+		} else if(nested.length > 1) {
+			const potAgent = this.state[ first ];
+
+			if(potAgent instanceof Agent) {
+				return potAgent.getState(rest);
+			}
+		}
+		
+		return this.state;
 	}
 	setState(state = {}) {
 		const oldState = this.getState();
@@ -194,6 +246,24 @@ export class Agent {
 
 		return this;
 	}
+	
+
+	/**
+	 * This function allows for an anonymous function or the internal method name of a function
+	 * to invoke @iter times, passing ...@args each iteration, results [ ...results ]
+	 */
+    repeat(fnName, iters = 1, ...args) {
+        const fn = typeof fnName === "function" ? fnName : this[ fnName ];
+		const results = [];
+
+        if(typeof fn === "function") {        
+            for(let i = 0; i < iters; i++) {
+                results.push(fn.call(this, ...args));
+            }
+        }
+
+        return results;
+    }
 
 
 	/**
@@ -320,7 +390,7 @@ export class Agent {
 	}
 
 	get $router() {
-		return this.triggers.get(`$router`).values().next().value;
+		return this.triggers.get(`@router`).values().next().value;
 	}
 	$route(...args) {
 		if(typeof this.$router === "function") {
@@ -334,8 +404,8 @@ export class Agent {
 	 * The purpose of this handling abstraction is to more easily deal with batching vs immediate invocations
 	 * This should NOT be used externally.  While triggers don't have to be string, there are several functionality and feature enhancements when they are.
 	 * 
-	 * Filters/Effects ($pre/$post) can be added specifically for a @trigger, by prepending *|** respectively (e.g *trigger, **trigger)
-	 * When used in conjunction with $pre/$post, filters/effects can be trigger-specific, or generalized to all triggers
+	 * Filters/Effects (@pre/@post) can be added specifically for a @trigger, by prepending *|** respectively (e.g *trigger, **trigger)
+	 * When used in conjunction with @pre/@post, filters/effects can be trigger-specific, or generalized to all triggers
 	 */
 	__handleInvocation(trigger, ...args) {
 		/**
@@ -350,7 +420,7 @@ export class Agent {
 		}
 
 		// Prevent the handling of triggers containg specialty flag-prefixes
-		if(typeof trigger === "string" && (trigger[ 0 ] === "$" || trigger[ 0 ] === "*")) {
+		if(typeof trigger === "string" && (trigger[ 0 ] === "@" || trigger[ 0 ] === "*")) {
 			return false;
 		}
 		
@@ -364,7 +434,7 @@ export class Agent {
 		 */
 		const params = [
 			// ...(this.triggers.get(`$params:${ trigger.toString() }`) || []),		// TBD on flag
-			...(this.triggers.get("$params") || []),
+			...(this.triggers.get("@params") || []),
 		];
 		if(params.length) {
 			for(let param of params) {
@@ -404,7 +474,7 @@ export class Agent {
 		 */
 		const filters = [
 			...(this.triggers.get(`*${ trigger.toString() }`) || []),
-			...(this.triggers.get("$pre") || []),
+			...(this.triggers.get("@pre") || []),
 		];
 		for(let filter of filters) {
 			let result = filter(trigger, ...payload);
@@ -472,7 +542,7 @@ export class Agent {
 		 */
 		const effects = [
 			...(this.triggers.get(`**${ trigger.toString() }`) || []),
-			...(this.triggers.get("$post") || []),
+			...(this.triggers.get("@post") || []),
 		];
 		for(let effect of effects) {
 			effect(trigger, ...payload);
@@ -496,6 +566,9 @@ export class Agent {
 	 * Synonym for .invoke
 	 */
 	get trigger() {
+		return this.invoke;
+	}
+	get fire() {
 		return this.invoke;
 	}
 	/**

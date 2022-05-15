@@ -111,6 +111,19 @@ export class Struct {
 		return this;
 	}
 
+    _repeat(fnName, iters = 1, ...args) {
+        const fn = typeof fnName === "function" ? fnName : this[ fnName ];
+		const results = [];
+
+        if(typeof fn === "function") {        
+            for(let i = 0; i < iters; i++) {
+                results.push(fn.call(this, ...args));
+            }
+        }
+
+        return results;
+    }
+
 	toObject(includeId = true) {
 		const obj = {
 			...this,

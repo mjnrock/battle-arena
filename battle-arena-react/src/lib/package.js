@@ -20,13 +20,14 @@ export function CreateGame() {
 
 	const { world } = game.state;
 	world.mergeState({
-		overworld: new World(game),
-		overworld2: new World(game),
-		maze: new World(game),
+		overworld: new World(game, [ 5, 5 ]),
 	});
 
-	console.log(game.state.world)
-	console.log(world)
+	console.log(game.$`world.overworld`.nodes);
+	console.log(game.$`world.overworld`.nodes[`3,2`]);
+	console.log(game.$`world.overworld`.nodes.at(3, 2));
+	console.log(game.$`world.overworld`.nodes.at(4, 1));
+
 
 
 	

@@ -2,11 +2,11 @@ import Component from "../../../@agency/core/ecs/Component";
 
 import Animus from "../../../world/Animus";
 
-import Locamotive from "../struct/Locamotive"
+import Position from "../struct/Position"
 import Terrain from "./../struct/Terrain";
 
 export const StructList = new Set([
-	Locamotive,
+	Position,
 	Terrain,
 ]);
 

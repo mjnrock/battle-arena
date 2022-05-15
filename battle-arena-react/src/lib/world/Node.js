@@ -1,14 +1,18 @@
 import Animus from "./Animus";
 
 export class Node extends Animus {
-    constructor({ terrain } = {}, agent = {}) {
+    constructor({ terrain, position = {} } = {}, agent = {}) {
         super({
 			terrain,
 			position: {
-				x: () => Math.random(),
-				y: () => Math.random(),
-				z: () => Math.random(),
-			}
+				x: 0,
+				y: 0,
+				z: 0,
+				...position,
+			},
+
+			//? entity: via Components or State?
+
 		}, agent);
     }
 }
