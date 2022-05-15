@@ -75,6 +75,23 @@ export class Struct {
 		return proxy;
 	}
 
+    // [ Symbol.iterator ]() {
+    //     var index = -1;
+    //     var entries = Object.entries(this);
+
+	// 	if(entries[ index + 1 ][ 0 ] === "$hooks") {
+	// 		index += 1;
+
+	// 		return {
+	// 			next: () => ({ value: entries[ ++index ], done: index === entries.length - 1 })
+	// 		};
+	// 	}
+
+    //     return {
+    //         next: () => ({ value: entries[ ++index ], done: index === entries.length - 1 })
+    //     };
+    // }
+
 	_upsert(state = {}, evaluateState = true) {
 		for(let [ key, value ] of Object.entries(state)) {
 			if(evaluateState === true && typeof value === "function") {

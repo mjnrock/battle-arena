@@ -133,16 +133,64 @@ export class Agent {
 
 	deconstructor() {}
 
-	adapt(fnOrObj) {
+	/**
+	 * An agent can be passed as argument to have this copy all kvps,
+	 * with an optional list of keys to ignore ("id" present by default)
+	 */
+	adapt(fnOrObj, { filter = [ "id" ], filterType = "exclude" } = {}) {
 		if(typeof fnOrObj === "function") {
 			fnOrObj = fnOrObj(this);
 		}
 
 		if(typeof fnOrObj === "object") {
 			for(let [ key, value ] of Object.entries(fnOrObj)) {
-				this[ key ] = value;
+				if(filterType === "exclude") {
+					if(filter.includes(key)) {
+						continue;
+					} else {
+						this[ key ] = value;
+					}
+				} else if(filterType === "include") {
+					if(filter.includes(key)) {
+						this[ key ] = value;
+					} else {
+						continue;
+					}
+				}				
 			}
 		}
+
+		return this;
+	}
+
+	getState() {
+		return {
+			...this.state,
+		};
+	}
+	setState(state = {}) {
+		const oldState = this.getState();
+		this.state = state;
+
+		this.invoke(this.config.notifyTrigger, true, { current: this.getState(), previous: oldState });
+
+		return this;
+	}
+	mergeState(state = {}, isDelete = false) {
+		const oldState = this.getState();
+
+		if(isDelete === true) {
+			for(let key of Object.keys(state)) {
+				delete this.state[ key ];
+			}
+		} else {
+			this.state = {
+				...this.state,
+				...state,
+			};
+		}
+
+		this.invoke(this.config.notifyTrigger, true, { current: this.getState(), previous: oldState });
 
 		return this;
 	}
@@ -331,16 +379,14 @@ export class Agent {
 		/**
 		 * ? Notifications/RPC check
 		 */
-		const handlers = this.triggers.get(trigger);
+		const handlers = this.triggers.get(trigger) || [];
 		if(trigger === this.config.notifyTrigger || trigger === this.config.dispatchTrigger) {
 			for(let handler of handlers) {
 				handler(...payload);
 			}
 			
 			return true;
-		} else if(!handlers) {
-			
-		
+		} else if(handlers.length === 0) {
 			// Verify that the RPC has a landing method
 			if(this.config.allowRPC === true && typeof trigger === "string" && typeof this[ trigger ] === "function") {
 				this[ trigger ](...args);

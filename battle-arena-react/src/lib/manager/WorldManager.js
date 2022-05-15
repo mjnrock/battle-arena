@@ -1,8 +1,8 @@
-import Context from "../../@agency/core/Context";
+import Manager from "./Manager";
 
-export class WorldManager extends Context {
-    constructor() {
-        super();
+export class WorldManager extends Manager {
+    constructor(game) {
+        super(game);
     }
 }
 

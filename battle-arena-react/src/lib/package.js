@@ -1,4 +1,6 @@
 import Game from "./Game";
+import WorldManager from "./manager/WorldManager";
+import World from "./world/World";
 import Node from "./world/Node";
 import Animus from "./world/Animus";
 
@@ -12,6 +14,19 @@ export function CreateGame() {
 		fps: 2,
 	});
 
+	game.mergeState({
+		world: new WorldManager(game),
+	});
+
+	const { world } = game.state;
+	world.mergeState({
+		overworld: new World(game),
+		overworld2: new World(game),
+		maze: new World(game),
+	});
+
+	console.log(game.state.world)
+	console.log(world)
 
 
 	

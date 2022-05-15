@@ -1,10 +1,37 @@
 import { v4 as uuid } from "uuid";
+import Agent from "./@agency/core/Agent";
 
 import GameLoop from "./GameLoop";
 // import PlayerManager from "./manager/PlayerManager";
 
-export default class Game {
-    constructor({ fps = 24 } = {}) {
+export default class Game extends Agent {
+    constructor({ fps = 24 } = {}, agentObj = {}) {
+		super({
+			...agentObj,
+			
+			state: {
+				id: uuid(),
+				loop: new GameLoop(fps),
+				config: {
+					time: {
+						GCD: 500,
+						interaction: 250,
+					},
+					render: {
+						tile: {
+							width: 32,
+							height: 32,
+						},
+					},
+					SHOW_UI: true,
+					SHOW_DEBUG: false,
+					SHOW_HEATMAP: false,
+					SHOW_WEAR: true,
+					MOUSE_POSITION: [ 10, 10 ],
+				},
+			},
+		});
+
 		this.id = uuid();
         this.loop = new GameLoop(fps);
         // this.players = new PlayerManager();
@@ -15,7 +42,7 @@ export default class Game {
 		// this.loop.onpost = (...args) => console.log(this.loop.state, ...args)
 		// this.loop.ondraw = (...args) => console.log(this.loop.state, ...args)
 
-        this.config = {
+        this.meta = {
             time: {
                 GCD: 500,
                 interaction: 250,
