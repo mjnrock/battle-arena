@@ -1,4 +1,5 @@
 import { validate } from "uuid";
+
 import Agent from "./Agent";
 
 /**
@@ -25,38 +26,6 @@ export class Context extends Agent {
 		this.assign(...agents);	// Seed Context with an initial group of Agents
 	}
 
-	addAgent(agent, ...aliases) {
-		this.assign(agent);
-		this.addAlias(agent, ...aliases);
-
-		return this;
-	}
-	removeAgent(agent, ...aliases) {
-		this.unassign(agent);
-		this.removeAlias(agent, ...aliases);
-
-		return this;
-	}
-
-	_makeAlias(agent) {}
-
-	addAlias(agentOrId, ...aliases) {
-		const id = validate(agentOrId) ? agentOrId : agentOrId.id;
-
-		for(let alias of aliases) {
-			this.registry.set(alias, id);
-		}
-
-		return this;
-	}
-	removeAlias(...aliases) {
-		for(let alias of aliases) {
-			this.registry.delete(alias);
-		}
-
-		return this;
-	}
-
 	/**
 	 * This is a default receiver that can be used directly to act as an "invocation consolidator" or "repeater".
 	 * As such, the explicit use of << this.receiver >> is to make << .receive >> overwritable externally, and if necessary, on demand.
@@ -69,8 +38,10 @@ export class Context extends Agent {
 	 * Call << .invoke >> on all Agents in the .registry
 	 */
 	send(trigger, ...args) {
-		for(let agent of this.registry.values()) {
-			agent.invoke(trigger, ...args);
+		for(let agent of Object.values(this.registry)) {
+			if(agent instanceof Agent) {
+				agent.invoke(trigger, ...args);
+			}
 		}
 
 		return this;
@@ -103,21 +74,56 @@ export class Context extends Agent {
 	assign(...agents) {
 		for(let agent of agents) {
 			this.registry.set(agent.id, agent);
-			agent.addTrigger("$post", this.receiver);
+			agent.addTrigger(agent.config.triggers.effect, this.receiver);
 		}
 
 
 		return this;
 	}
 	/**
-	 * Undo .register
+	 * Undo .assign
 	 */
 	unassign(...agents) {
 		for(let agent of agents) {
 			this.registry.delete(agent.id);
-			agent.removeTrigger("$post", this.receiver);
+			agent.removeTrigger(agent.config.triggers.effect, this.receiver);
 		}
 
+
+		return this;
+	}
+
+	addAgent(agent, ...aliases) {
+		this.assign(agent);
+		this.addAlias(agent, ...aliases);
+
+		return this;
+	}
+	removeAgent(agent) {
+		this.unassign(agent);
+		for(let [ key, value ] of Object.entries(this.registry)) {
+			if(key === agent.id || value === agent.id) {	// Remove id and aliases
+				this.registry.delete(key);
+			}
+		}
+
+		return this;
+	}
+
+	_makeAlias(agent) {}
+	addAlias(agentOrId, ...aliases) {
+		const id = validate(agentOrId) ? agentOrId : agentOrId.id;
+
+		for(let alias of aliases) {
+			this.registry.set(alias, id);
+		}
+
+		return this;
+	}
+	removeAlias(...aliases) {
+		for(let alias of aliases) {
+			this.registry.delete(alias);
+		}
 
 		return this;
 	}

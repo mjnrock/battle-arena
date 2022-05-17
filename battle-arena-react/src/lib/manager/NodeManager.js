@@ -1,5 +1,6 @@
 import Manager from "./Manager";
 import Node from "../world/Node";
+import { validate } from "uuid";
 
 export class NodeManager extends Manager {
     constructor(game, nodes = []) {
@@ -27,6 +28,13 @@ export class NodeManager extends Manager {
 	addNode(node) {
 		if(node instanceof Node) {
 			this.addAgent(node, this._makeAlias(node));
+		}
+
+		return this;
+	}
+	removeNode(node) {
+		if(node instanceof Node) {
+			this.removeAgent(node);
 		}
 
 		return this;

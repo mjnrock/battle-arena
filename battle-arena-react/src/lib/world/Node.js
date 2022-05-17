@@ -11,7 +11,7 @@ export class Node extends Animus {
 				...position,
 			},
 
-			//? entity: via Components or State?
+			//? entity: via Components or State?  (cf. EntityManager, Collection)
 
 		}, agent);
     }

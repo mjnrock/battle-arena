@@ -66,9 +66,15 @@ export class Agent {
 
 			//* Trigger config
 			namespace,						// An optional namespace for collisions and complex relationships
-			routeTrigger: "@route",		// The trigger that will be fired when .state is modified
-			notifyTrigger: "@update",		// The trigger that will be fired when .state is modified
-			dispatchTrigger: "@dispatch",	// The trigger that will be fired when a trigger has been handled (and the Agent is NOT a reducer)
+			triggers: {
+				filter: "@filter",			// The trigger to potentially short-circuit an invocation
+				effect: "@effect",			// The trigger to fire after all invocation internals are complete
+				params: "@params",			// The trigger used to reassign .invoke parameter(s)
+				route: "@route",			// The trigger that will invoke << .$router >>
+				router: "@router",			// The trigger that will be used to receive a .route invocation
+				notify: "@update",			// The trigger that will be fired when .state is modified
+				dispatch: "@dispatch",		// The trigger that will be fired when a trigger has been handled (and the Agent is NOT a reducer)
+			},
 			
 			//* Global context object
 			globals: {						//? These will be added to all @payloads, if enabled
@@ -224,7 +230,7 @@ export class Agent {
 		const oldState = this.getState();
 		this.state = state;
 
-		this.invoke(this.config.notifyTrigger, true, { current: this.getState(), previous: oldState });
+		this.invoke(this.config.triggers.notify, true, { current: this.getState(), previous: oldState });
 
 		return this;
 	}
@@ -242,7 +248,7 @@ export class Agent {
 			};
 		}
 
-		this.invoke(this.config.notifyTrigger, true, { current: this.getState(), previous: oldState });
+		this.invoke(this.config.triggers.notify, true, { current: this.getState(), previous: oldState });
 
 		return this;
 	}
@@ -390,7 +396,7 @@ export class Agent {
 	}
 
 	get $router() {
-		return this.triggers.get(`@router`).values().next().value;
+		return this.triggers.get(this.config.triggers.router).values().next().value;
 	}
 	$route(...args) {
 		if(typeof this.$router === "function") {
@@ -405,7 +411,7 @@ export class Agent {
 	 * This should NOT be used externally.  While triggers don't have to be string, there are several functionality and feature enhancements when they are.
 	 * 
 	 * Filters/Effects (@pre/@post) can be added specifically for a @trigger, by prepending *|** respectively (e.g *trigger, **trigger)
-	 * When used in conjunction with @pre/@post, filters/effects can be trigger-specific, or generalized to all triggers
+	 * When used in conjunction with @/@post, filters/effects can be trigger-specific, or generalized to all triggers
 	 */
 	__handleInvocation(trigger, ...args) {
 		/**
@@ -413,7 +419,7 @@ export class Agent {
 		 * the Agent will generate new arguments for .invoke, received as the result
 		 * of executing the primary $router handler.
 		 */
-		if(trigger === this.config.routeTrigger) {
+		if(trigger === this.config.trigger.route) {
 			if(typeof this.$router === "function") {
 				return this.invoke(...this.$router(...args));
 			}
@@ -434,7 +440,7 @@ export class Agent {
 		 */
 		const params = [
 			// ...(this.triggers.get(`$params:${ trigger.toString() }`) || []),		// TBD on flag
-			...(this.triggers.get("@params") || []),
+			...(this.triggers.get(this.config.triggers.params) || []),
 		];
 		if(params.length) {
 			for(let param of params) {
@@ -450,7 +456,7 @@ export class Agent {
 		 * ? Notifications/RPC check
 		 */
 		const handlers = this.triggers.get(trigger) || [];
-		if(trigger === this.config.notifyTrigger || trigger === this.config.dispatchTrigger) {
+		if(trigger === this.config.triggers.notify || trigger === this.config.triggers.dispatch) {
 			for(let handler of handlers) {
 				handler(...payload);
 			}
@@ -474,7 +480,7 @@ export class Agent {
 		 */
 		const filters = [
 			...(this.triggers.get(`*${ trigger.toString() }`) || []),
-			...(this.triggers.get("@pre") || []),
+			...(this.triggers.get(this.config.triggers.filter) || []),
 		];
 		for(let filter of filters) {
 			let result = filter(trigger, ...payload);
@@ -518,7 +524,7 @@ export class Agent {
 			
 			// Broadcast that a reducer-update has happened, if enabled
 			if(this.config.broadcastUpdate === true && oldState !== this.state) {
-				invocationType = this.config.notifyTrigger;
+				invocationType = this.config.triggers.notify;
 
 				this.invoke(invocationType, trigger, { current: next, previous: oldState }, ...args);
 			}
@@ -529,7 +535,7 @@ export class Agent {
 			
 			// Broadcast that a dispatch has happened, if enabled
 			if(this.config.broadcastDispatch === true) {
-				invocationType = this.config.dispatchTrigger;
+				invocationType = this.config.triggers.dispatch;
 
 				this.invoke(invocationType, trigger, this.state, ...args);
 			}
@@ -542,7 +548,7 @@ export class Agent {
 		 */
 		const effects = [
 			...(this.triggers.get(`**${ trigger.toString() }`) || []),
-			...(this.triggers.get("@post") || []),
+			...(this.triggers.get(this.config.triggers.effect) || []),
 		];
 		for(let effect of effects) {
 			effect(trigger, ...payload);
