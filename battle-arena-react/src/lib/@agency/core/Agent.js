@@ -32,6 +32,11 @@ export class Agent {
 					}
 				}
 			},
+			SetStateHandler: (target, prop, value) => {
+				if(prop[ 0 ] === "$") {
+					return target.state[ prop.slice(1) ];
+				}
+			},
 		},
 	};
 
@@ -192,16 +197,24 @@ export class Agent {
 		return this;
 	}
 
+	/**
+	 * This is largely a convenience method for .getState, but may expand its functionality in the future.
+	 */
 	$(...input) {
-		const [ first, ...rest ] = input;
+		const [ first, second, ...rest ] = input;
 
-		if(Array.isArray(first) && first.raw) {	// Back-tick function
-			return this.getState(first[ 0 ]);
+		if(typeof first === "string") {						//* Dot-notation key	(e.g. $(`1root.n1.n2`))
+			return this.getState(first);
+		} else if(Array.isArray(first) && first.raw) {		//* Tagged template	(e.g. $`root.n1.n2`), used in a diminshed capacity (first string only)
+			return this.getState(first[ 0 ]);				//	Only grab the first template string (ignore rest for now)
 		}
 
 		return this.getState();
 	}
-
+	/**
+	 * This will run through the dot-notation @nested, and pull out the .state
+	 * from the returned value.
+	 */
 	getState(nested = "") {
 		if(Array.isArray(nested) && nested.raw) {	// Back-tick function
 			nested = nested[ 0 ].split(".");
@@ -252,8 +265,33 @@ export class Agent {
 
 		return this;
 	}
-	
 
+
+	/**
+	 * Convenience function for toggling/altering configuration booleans -- must be a boolean
+	 */
+	toggle(configAttribute, newValue) {
+		if(typeof configAttribute === "object") {
+			for(let [ key, value ] of Object.entries(configAttribute)) {
+				this.toggle(key, value);
+			}
+
+			return this;
+		}
+
+		if(typeof this.config[ configAttribute ] === "boolean") {
+			if(typeof newValue === "boolean") {	
+				this.config[ configAttribute ] = newValue;
+			} else {
+				this.config[ configAttribute ] = !this.config[ configAttribute ];
+			}
+		}
+
+		return this;
+	}
+	assert(configAttribute, expectedValue) {
+		return this.config[ configAttribute ] === expectedValue;
+	}
 	/**
 	 * This function allows for an anonymous function or the internal method name of a function
 	 * to invoke @iter times, passing ...@args each iteration, results [ ...results ]
@@ -270,34 +308,6 @@ export class Agent {
 
         return results;
     }
-
-
-	/**
-	 * Convenience function for toggling/altering configuration booleans -- must be a boolean
-	 */
-	toggle(configAttribute, newValue) {
-		//TODO Account for nested keys
-		// if(typeof configAttribute === "object") {
-		// 	for(let [ key, value ] of Object.entries(configAttribute)) {
-		// 		this.toggle(key, value);
-		// 	}
-
-		// 	return this;
-		// }
-
-		if(typeof this.config[ configAttribute ] === "boolean") {
-			if(typeof newValue === "boolean") {	
-				this.config[ configAttribute ] = newValue;
-			} else {
-				this.config[ configAttribute ] = !this.config[ configAttribute ];
-			}
-		}
-
-		return this;
-	}
-	assert(configAttribute, expectedValue) {
-		return this.config[ configAttribute ] === expectedValue;
-	}
 
 	getHandlers(trigger) {
 		if(this.assert("allowMultipleHandlers", true)) {
@@ -419,7 +429,7 @@ export class Agent {
 		 * the Agent will generate new arguments for .invoke, received as the result
 		 * of executing the primary $router handler.
 		 */
-		if(trigger === this.config.trigger.route) {
+		if(trigger === this.config.triggers.route) {
 			if(typeof this.$router === "function") {
 				return this.invoke(...this.$router(...args));
 			}

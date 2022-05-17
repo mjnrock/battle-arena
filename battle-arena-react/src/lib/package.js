@@ -13,20 +13,23 @@ export function CreateGame() {
     const game = new Game({
 		fps: 2,
 	});
-
+	
 	game.mergeState({
 		world: new WorldManager(game),
 	});
-
+	
 	const { world } = game.state;
 	world.mergeState({
 		overworld: new World(game, [ 5, 5 ]),
 	});
-
-	console.log(game.$`world.overworld`.nodes);
-	console.log(game.$`world.overworld`.nodes[`3,2`]);
-	console.log(game.$`world.overworld`.nodes.at(3, 2));
-	console.log(game.$`world.overworld`.nodes.at(4, 1));
+	
+	const $game = game.$.bind(game);
+	console.log($game(`world.overworld`));
+	console.log($game`world.overworld`);
+	console.log($game`world.overworld`.nodes);
+	console.log($game`world.overworld`.nodes[`3,2`]);
+	console.log($game`world.overworld`.nodes.at(3, 2));
+	console.log($game`world.overworld`.nodes.at(4, 1));
 
 
 
