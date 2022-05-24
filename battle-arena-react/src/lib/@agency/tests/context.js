@@ -21,9 +21,9 @@ const context = new Context([
 	agent2,
 ], {
 	triggers: [
-		["$router", [
-			(...args) => {
-				console.log(3333);
+		["@router", [
+			(agent, ...args) => {
+				console.log(agent.id, ...args);
 
 				return [
 					"cat"
@@ -31,7 +31,7 @@ const context = new Context([
 			},
 		]],
 		["cat", [
-			(...args) => console.log(2222),
+			(agent, ...args) => console.log(agent.id, ...args),
 		]],
 	],
 });

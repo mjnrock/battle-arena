@@ -4,12 +4,17 @@ import Agent from "./Agent";
 
 /**
  * A centralized Agent factory and messaging center.
+ * A Context handler should *always* respond to the target as the second parameter [ e.g. (trigger, target, ...payload) ]
  */
 export class Context extends Agent {
 	constructor(agents = [], agentObj = {}) {
 		super(agentObj);
 
-		this.hook("get", (target, prop, value) => {
+		this.registry = new Map();
+		this.receiver = agent => (...args) => this.$route.call(this, agent, ...args);
+		this.assign(...agents);	// Seed Context with an initial group of Agents
+
+		this.hook(Agent.Hooks.GET, (target, prop, value) => {
 			const entry = target.registry.get(prop);
 
 			if(entry) {
@@ -20,18 +25,13 @@ export class Context extends Agent {
 				return entry;
 			}
 		});
-
-		this.registry = new Map();
-		this.receiver = (...args) => this.receive.call(this, ...args);	// Create concrete reference to function for cleanup on unregistration
-		this.assign(...agents);	// Seed Context with an initial group of Agents
 	}
 
 	/**
-	 * This is a default receiver that can be used directly to act as an "invocation consolidator" or "repeater".
-	 * As such, the explicit use of << this.receiver >> is to make << .receive >> overwritable externally, and if necessary, on demand.
+	 * Overload self for differentiation in handlers
 	 */
-	receive(...args) {
-		return this.$route(...args);
+	invoke(trigger, ...args) {
+		return super.invoke(trigger, this, ...args);
 	}
 
 	/**
@@ -74,7 +74,7 @@ export class Context extends Agent {
 	assign(...agents) {
 		for(let agent of agents) {
 			this.registry.set(agent.id, agent);
-			agent.addTrigger(agent.config.triggers.effect, this.receiver);
+			agent.addTrigger(agent.config.triggers.effect, this.receiver(agent));
 		}
 
 
@@ -86,7 +86,7 @@ export class Context extends Agent {
 	unassign(...agents) {
 		for(let agent of agents) {
 			this.registry.delete(agent.id);
-			agent.removeTrigger(agent.config.triggers.effect, this.receiver);
+			agent.removeTrigger(agent.config.triggers.effect, this.receiver(agent));	//TODO This isn't going to unassign correctly
 		}
 
 

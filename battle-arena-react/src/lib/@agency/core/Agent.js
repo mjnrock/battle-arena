@@ -5,7 +5,11 @@ import Message from "./comm/Message";
 
 export class Agent {
 	static Hooks = {		//? Allow for universal values to invoke short-circuits in the proxy traps (e.g. prevent update, change accessor return value, etc.)
-		Abort: Struct.Hooks.Abort,			// If set hook returns this, prevent the update
+		ABORT: Struct.Hooks.Abort,			// If set hook returns this, prevent the update
+		GET: `get`,
+		PRE: `pre`,
+		POST: `post`,
+		DELETE: `delete`,
 		
 		// These are standardized traps to modify Agent to more easily conform to some exogenous paradigm (e.g. extends EventEmitter)
 		Traps: {
@@ -22,7 +26,7 @@ export class Agent {
 						target.addTrigger(prop.slice(2), ...value);
 					}
 
-					return Agent.Hooks.Abort;	// This causes the proxy short-circuit; without this, the set trap will inappropriately continue to Reflect.set()
+					return Agent.Hooks.ABORT;	// This causes the proxy short-circuit; without this, the set trap will inappropriately continue to Reflect.set()
 				}
 			},
 			SetCommandHandler: (target, prop, value) => {
@@ -47,10 +51,10 @@ export class Agent {
 		this.config = {
 			//* Agent config
 			hooks: {					//? These are proxy hooks that affect how the Agent behaves, in general (e.g. Accessor hook to return value from an API)
-				get: new Set(),			// Accessor hook
-				pre: new Set(),			// Pre-set hook
-				post: new Set(),		// Post-set hook
-				delete: new Set(),		// Post-delete hook
+				[ Agent.Hooks.GET ]: new Set(),			// Accessor hook
+				[ Agent.Hooks.PRE ]: new Set(),			// Pre-set hook
+				[ Agent.Hooks.POST ]: new Set(),		// Post-set hook
+				[ Agent.Hooks.DELETE ]: new Set(),		// Post-delete hook
 
 				...hooks,				// Seed object
 			},
@@ -110,8 +114,8 @@ export class Agent {
 				for(let fn of target.config.hooks.pre) {
 					newValue = fn(target, prop, value);
 
-					if(newValue === Agent.Hooks.Abort) {
-						return Agent.Hooks.Abort;
+					if(newValue === Agent.Hooks.ABORT) {
+						return Agent.Hooks.ABORT;
 					}
 				}
 				
@@ -128,8 +132,8 @@ export class Agent {
 				for(let fn of target.config.hooks.delete) {
 					shouldDelete = fn(target, prop, shouldDelete);
 
-					if(shouldDelete === Agent.Hooks.Abort) {
-						return Agent.Hooks.Abort;
+					if(shouldDelete === Agent.Hooks.ABORT) {
+						return Agent.Hooks.ABORT;
 					}
 				}
 
@@ -332,6 +336,8 @@ export class Agent {
 			for(let fn of handler) {
 				if(typeof fn === "function") {
 					handlers.add(fn);
+				} else if(fn instanceof Agent) {
+					handlers.add(fn);
 				}
 			}
 	
@@ -406,7 +412,13 @@ export class Agent {
 	}
 
 	get $router() {
-		return this.triggers.get(this.config.triggers.router).values().next().value;
+		const router = this.triggers.get(this.config.triggers.router);
+
+		if(!router) {
+			return (...args) => args;
+		}
+
+		return router.values().next().value;
 	}
 	$route(...args) {
 		if(typeof this.$router === "function") {
@@ -416,6 +428,38 @@ export class Agent {
 		}
 	}
 
+
+	__invokeHandlers(trigger, ...args) {
+		let results = [];
+		if(Array.isArray(trigger)) {
+			for(let t of trigger) {
+				results = [
+					...results,
+					...this.__invokeHandlers(t, ...args),
+				];
+			}
+
+			return results;
+		}
+		
+		const triggers = this.triggers.get(trigger);
+		if(!triggers) {
+			return [];
+		}
+
+		for(let fnOrAgent of triggers) {
+			let result;
+			if(fnOrAgent instanceof Agent) {
+				result = fnOrAgent.$route(trigger, ...args);
+			} else {
+				result = fnOrAgent(trigger, ...args);
+			}
+
+			results.push(result);
+		}
+
+		return results;
+	}
 	/**
 	 * The purpose of this handling abstraction is to more easily deal with batching vs immediate invocations
 	 * This should NOT be used externally.  While triggers don't have to be string, there are several functionality and feature enhancements when they are.
@@ -554,15 +598,8 @@ export class Agent {
 
 		/**
 		 * ? Effect/Post hooks
-		 * Treat these like Effects
 		 */
-		const effects = [
-			...(this.triggers.get(`**${ trigger.toString() }`) || []),
-			...(this.triggers.get(this.config.triggers.effect) || []),
-		];
-		for(let effect of effects) {
-			effect(trigger, ...payload);
-		}
+		this.__invokeHandlers([ this.config.triggers.effect, `**${ trigger.toString() }` ], ...payload);
 
 		return true;
 	}
