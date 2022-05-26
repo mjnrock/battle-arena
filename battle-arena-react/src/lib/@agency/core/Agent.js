@@ -293,7 +293,11 @@ export class Agent {
 
 		return this;
 	}
-	assert(configAttribute, expectedValue) {
+	assert(configAttribute, expectedValue = true) {
+		if(typeof expectedValue === "function") {
+			return this.config[ configAttribute ] = expectedValue(this);
+		}
+
 		return this.config[ configAttribute ] === expectedValue;
 	}
 	/**
@@ -421,11 +425,18 @@ export class Agent {
 		return router.values().next().value;
 	}
 	$route(...args) {
+		let newArgs = false;
 		if(typeof this.$router === "function") {
-			return this.invoke(...this.$router(...args));
+			newArgs = this.$router(...args);
 		} else if(this.$router instanceof Agent) {
-			return this.invoke(...this.$router.$route(...args));
+			newArgs = this.$router.$route(...args);
 		}
+
+		if(!!newArgs) {
+			return this.invoke(...newArgs);
+		}
+
+		return false;
 	}
 
 
@@ -548,23 +559,24 @@ export class Agent {
 		/**
 		 * ? Reducer/Dispatcher test
 		 */
-		let invocationType;
-		if(this.config.isReducer === true) {			
+		let invocationType,
+			stateObj = {};
+		if(this.assert("isReducer")) {
 			let next = this.state;
 			for(let handler of handlers) {
 				const previous = next;
 				
-				if(this.assert("generatePayload", true)) {
-					next = handler(payload[ 0 ], {
+				if(this.assert("generatePayload")) {
+					next = handler({
 						previous,
-						next,
+						current: next,
 						...payload[ 1 ],
-					});
+					}, payload[ 0 ], );
 				} else {
-					next = handler(...payload, {
+					next = handler({
 						previous,
-						next,
-					});
+						current: next,
+					}, ...payload);
 				}
 				
 				if(next === void 0) {
@@ -577,29 +589,31 @@ export class Agent {
 			this.state = next;
 			
 			// Broadcast that a reducer-update has happened, if enabled
-			if(this.config.broadcastUpdate === true && oldState !== this.state) {
+			if(this.assert("broadcastUpdate") && oldState !== this.state) {
 				invocationType = this.config.triggers.notify;
-
-				this.invoke(invocationType, trigger, { current: next, previous: oldState }, ...args);
+				stateObj = { current: next, previous: oldState };
 			}
 		} else {			
-			for(let handler of handlers) {
-				handler(...payload);
+			// Broadcast that a dispatch has happened, if enabled
+			if(this.assert("broadcastDispatch")) {
+				invocationType = this.config.triggers.dispatch;				
+				stateObj = { current: this.state, previous: this.state };
 			}
 			
-			// Broadcast that a dispatch has happened, if enabled
-			if(this.config.broadcastDispatch === true) {
-				invocationType = this.config.triggers.dispatch;
-
-				this.invoke(invocationType, trigger, this.state, ...args);
+			for(let handler of handlers) {
+				handler(stateObj,  ...payload);
 			}
+		}
+		
+		if(!!invocationType) {
+			this.invoke(invocationType, trigger, stateObj, ...args);
 		}
 
 
 		/**
 		 * ? Effect/Post hooks
 		 */
-		this.__invokeHandlers([ this.config.triggers.effect, `**${ trigger.toString() }` ], ...payload);
+		this.__invokeHandlers([ this.config.triggers.effect, `**${ trigger.toString() }` ], trigger, ...payload);
 
 		return true;
 	}

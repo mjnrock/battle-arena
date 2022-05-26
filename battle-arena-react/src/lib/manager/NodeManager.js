@@ -1,6 +1,5 @@
 import Manager from "./Manager";
 import Node from "../world/Node";
-import { validate } from "uuid";
 
 export class NodeManager extends Manager {
     constructor(game, nodes = []) {

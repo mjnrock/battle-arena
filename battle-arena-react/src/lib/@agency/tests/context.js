@@ -2,7 +2,6 @@ import Console from "../util/Console";
 
 import Agent from "../core/Agent";
 import Context from "../core/Context";
-import Message from "../core/comm/Message";
 
 Console.NewContext();
 
@@ -11,30 +10,51 @@ Console.NewContext();
 
 const [ agent, agent2 ] = Agent.Factory(2, {
 	triggers: [
-		["cat", [
-			(...args) => console.log(1111),
-		]],
+		[ "cat", [
+			(state, ...args) => {
+				console.log(1111, state, ...args);
+			},
+		] ],
 	],
 });
+//? "cat" was fired, @context's "@effect" hook should capture [ "cat", Date.now() ]
 const context = new Context([
 	agent,
 	agent2,
 ], {
 	triggers: [
-		["@router", [
-			(agent, ...args) => {
-				console.log(agent.id, ...args);
+		[ "@router", [
+			function(agent, trigger, ...args) {
+				console.log(2222, this.id, this.state, agent.id, trigger, ...args);
 
-				return [
-					"cat"
-				];
+				//TODO Create a basic router system for Entity, Node, World (Managers)
+
+				if(trigger === "cat") {
+					return [
+						trigger,
+						...args,
+					];
+				}
+
+				return false;	//? Return false to prevent further invocation
 			},
-		]],
-		["cat", [
-			(agent, ...args) => console.log(agent.id, ...args),
-		]],
+		] ],
+		[ "cat", [
+			(state, ...args) => {
+				console.log(3333, state, ...args);
+			},
+		] ],
 	],
 });
+
+console.log(`[Agent 1]:`, agent.id);
+console.log(`[Agent 2]:`, agent2.id);
+console.log(`[Context]:`, context.id);
+
+agent.trigger("cat", Date.now())
+agent2.trigger("cat", Date.now())
+agent.trigger("catzz", Date.now())
+
 
 //?	Agent.triggers.$post should be present, then be removed
 // console.log(agent);
@@ -43,5 +63,5 @@ const context = new Context([
 
 //? All Agents should fire and Context should repeat each
 // console.log(context);
-agent.trigger("cat", Date.now())
-agent2.trigger("cat", Date.now())
+// agent.trigger("cat", Date.now())
+// agent2.trigger("cat", Date.now())

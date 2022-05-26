@@ -8,10 +8,15 @@ import Agent from "./Agent";
  */
 export class Context extends Agent {
 	constructor(agents = [], agentObj = {}) {
-		super(agentObj);
+		super({
+			config: {
+				isReducer: false,
+			},
+			...agentObj,
+		});
 
 		this.registry = new Map();
-		this.receiver = agent => (...args) => this.$route.call(this, agent, ...args);
+		this.receiver = agent => (effectKey, ...args) => this.$route.call(this, agent, ...args);
 		this.assign(...agents);	// Seed Context with an initial group of Agents
 
 		this.hook(Agent.Hooks.GET, (target, prop, value) => {
@@ -31,7 +36,7 @@ export class Context extends Agent {
 	 * Overload self for differentiation in handlers
 	 */
 	invoke(trigger, ...args) {
-		return super.invoke(trigger, this, ...args);
+		return super.invoke(trigger, { id: this.id, state: this.state }, ...args);
 	}
 
 	/**

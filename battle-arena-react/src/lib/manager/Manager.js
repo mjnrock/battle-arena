@@ -1,8 +1,12 @@
-import Context from "./../@agency/core/Context";
+import System from "../@agency/core/ecs/System";
 
-export class Manager extends Context {
-    constructor(game) {
-        super([], {
+/**
+ ** The Manager is similar to a System, except that it keeps explicit track of Entities and Components that it is allowed to act on
+ ** This concept is the starting point for EntityManager
+ **/
+export class Manager extends System {
+    constructor(game, nomen) {
+        super(nomen, [], {
 			state: {
 				game,
 			},
