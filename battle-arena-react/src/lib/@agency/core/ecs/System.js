@@ -1,6 +1,6 @@
-import Agent from "../Agent";
+import Context from "../Context";
 
-export class System extends Agent {
+export class System extends Context {
 	static Registry = new Map();
 	
 	/**
@@ -35,8 +35,8 @@ export class System extends Agent {
 		return System.$(nomen, ...entities);
 	}
 
-	constructor(nomen, triggers = [], opts = {}) {
-		super({
+	constructor(nomen, triggers = [], opts = {}, agents) {
+		super(agents, {
 			triggers,
 			config: {
 				allowRPC: true,		//TODO Should pass invocations directly to methods, but verify it works

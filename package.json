@@ -11,6 +11,7 @@
         "express-ws": "^4.0.0"
     },
     "scripts": {
-        "start": "node esm-index.js"
+        "start": "node esm-index.js",
+		"test": "cls && node -r esm battle-arena-react/src/lib/tests/index.js"
     }
 }

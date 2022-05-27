@@ -10,35 +10,7 @@ export class Entity extends Agent {
 	static Dictionary = new Map();	// Seeded dynamically
 
 	constructor(components = [], agent = {}) {
-		super({
-			hooks: {
-				get: [
-					(target, prop) => {
-						if(!(prop in target)) {
-							/**
-							 * NOTE: This is singularly used to access the Component.state (i.e. Struct) directly,
-							 * via a << Entity[ component.name ] >> syntax.  See note in Component.
-							 */
-							if(target.components.has(prop)) {
-								return target.components.get(prop).state;
-							}
-		
-						}
-		
-						return Reflect.get(target, prop);
-					},
-				],
-				set: [
-					(target, prop, value) => {
-						if(value instanceof Component) {
-							return target.register(prop, value);
-						}
-		
-						return Reflect.set(target, prop, value);
-					},
-				],
-			}
-		});
+		super();
 		
 		this.components = new Map();
 		if(typeof components === "function") {
@@ -47,7 +19,36 @@ export class Entity extends Agent {
 			this.register(components);
 		}
 
+		console.log(77, agent);
 		this.adapt(agent);
+
+		// this.hook({
+		// 	get: [
+		// 		(target, prop) => {
+		// 			if(!(prop in target)) {
+		// 				/**
+		// 				 * NOTE: This is singularly used to access the Component.state (i.e. Struct) directly,
+		// 				 * via a << Entity[ component.name ] >> syntax.  See note in Component.
+		// 				 */
+		// 				if(target.components.has(prop)) {
+		// 					return target.components.get(prop).state;
+		// 				}
+	
+		// 			}
+	
+		// 			return Reflect.get(target, prop);
+		// 		},
+		// 	],
+		// 	pre: [
+		// 		(target, prop, value) => {
+		// 			if(value instanceof Component) {
+		// 				return target.register(prop, value);
+		// 			}
+	
+		// 			return Reflect.set(target, prop, value);
+		// 		},
+		// 	],
+		// });
 	}
 
 	deconstructor() {
@@ -137,6 +138,10 @@ export class Entity extends Agent {
 
 		return this.components.get(keyOrComp);
 	}
+	get getComponent() {
+		return this.comp;
+	}
+
 	to(keyOrComp, trigger, ...args) {
 		if(Array.isArray(trigger)) {
 			let results = [];

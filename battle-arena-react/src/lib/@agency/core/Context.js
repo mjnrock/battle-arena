@@ -98,6 +98,20 @@ export class Context extends Agent {
 		return this;
 	}
 
+	getAgent(id) {
+		const agent = this.registry.get(id);
+
+		if(agent instanceof Agent) {
+			return agent;
+		}
+
+		return false;
+	}
+	hasAgent(agentOrId) {
+		const id = validate(agentOrId) ? agentOrId : agentOrId.id;
+
+		return this.registry.has(id);
+	}
 	addAgent(agent, ...aliases) {
 		this.assign(agent);
 		this.addAlias(agent, ...aliases);
@@ -116,6 +130,9 @@ export class Context extends Agent {
 	}
 
 	_makeAlias(agent) {}
+	hasAlias(alias) {
+		return this.registry.has(alias);
+	}
 	addAlias(agentOrId, ...aliases) {
 		const id = validate(agentOrId) ? agentOrId : agentOrId.id;
 

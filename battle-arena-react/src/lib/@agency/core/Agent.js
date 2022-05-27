@@ -55,8 +55,6 @@ export class Agent {
 				[ Agent.Hooks.PRE ]: new Set(),			// Pre-set hook
 				[ Agent.Hooks.POST ]: new Set(),		// Post-set hook
 				[ Agent.Hooks.DELETE ]: new Set(),		// Post-delete hook
-
-				...hooks,				// Seed object
 			},
 
 			//*	Handler config
@@ -93,6 +91,7 @@ export class Agent {
 			...config,						// Seed object
 		};
 
+		this.hook(hooks);
 		this.addTriggers(triggers);
 
 		return new Proxy(this, {
@@ -149,6 +148,14 @@ export class Agent {
 	deconstructor() {}
 
 	hook(hook, ...fns) {
+		if(typeof hook === "object") {
+			for(let [ key, value ] of Object.entries(hook)) {
+				this.hook(key, value);
+			}
+
+			return this;
+		}
+		
 		if(Array.isArray(fns[ 0 ])) {
 			[ fns ] = fns;
 		}
@@ -186,10 +193,16 @@ export class Agent {
 					if(filter.includes(key)) {
 						continue;
 					} else {
-						this[ key ] = value;
+						if(key === "triggers") {
+							this.addTriggers(value);
+						} else {
+							this[ key ] = value;
+						}
 					}
 				} else if(filterType === "include") {
-					if(filter.includes(key)) {
+					if(key === "triggers") {
+						this.addTriggers(value);
+					} else if(filter.includes(key)) {
 						this[ key ] = value;
 					} else {
 						continue;
@@ -761,6 +774,8 @@ export class Agent {
 			if(typeof fnOrArgs === "function") {
 				args = fnOrArgs();
 			}
+
+			console.log(111, ...args)
 
 			const agent = this.Create(...args);
 			agents.push(agent);
