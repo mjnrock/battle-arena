@@ -775,8 +775,6 @@ export class Agent {
 				args = fnOrArgs();
 			}
 
-			console.log(111, ...args)
-
 			const agent = this.Create(...args);
 			agents.push(agent);
 

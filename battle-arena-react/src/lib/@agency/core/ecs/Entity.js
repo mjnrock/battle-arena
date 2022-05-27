@@ -19,36 +19,35 @@ export class Entity extends Agent {
 			this.register(components);
 		}
 
-		console.log(77, agent);
 		this.adapt(agent);
 
-		// this.hook({
-		// 	get: [
-		// 		(target, prop) => {
-		// 			if(!(prop in target)) {
-		// 				/**
-		// 				 * NOTE: This is singularly used to access the Component.state (i.e. Struct) directly,
-		// 				 * via a << Entity[ component.name ] >> syntax.  See note in Component.
-		// 				 */
-		// 				if(target.components.has(prop)) {
-		// 					return target.components.get(prop).state;
-		// 				}
+		this.hook({
+			get: [
+				(target, prop) => {
+					if(!(prop in target)) {
+						/**
+						 * NOTE: This is singularly used to access the Component.state (i.e. Struct) directly,
+						 * via a << Entity[ component.name ] >> syntax.  See note in Component.
+						 */
+						if(target.components.has(prop)) {
+							return target.components.get(prop).state;
+						}
 	
-		// 			}
+					}
 	
-		// 			return Reflect.get(target, prop);
-		// 		},
-		// 	],
-		// 	pre: [
-		// 		(target, prop, value) => {
-		// 			if(value instanceof Component) {
-		// 				return target.register(prop, value);
-		// 			}
+					return Reflect.get(target, prop);
+				},
+			],
+			pre: [
+				(target, prop, value) => {
+					if(value instanceof Component) {
+						return target.register(prop, value);
+					}
 	
-		// 			return Reflect.set(target, prop, value);
-		// 		},
-		// 	],
-		// });
+					return Reflect.set(target, prop, value);
+				},
+			],
+		});
 	}
 
 	deconstructor() {

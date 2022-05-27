@@ -35,10 +35,10 @@ export class Struct {
 		});
 
 		const proxy = new Proxy(this, {
-			get: async (target, prop) => {
+			get: (target, prop) => {
 				let current = Reflect.get(target, prop);
 				for(let fn of target.$hooks.view) {
-					const result = await fn(target, prop, current);
+					const result = fn(target, prop, current);
 
 					// Short-circuit execution and return substitute value
 					if(result !== void 0) {
@@ -48,10 +48,10 @@ export class Struct {
 
 				return current;
 			},
-			set: async (target, prop, value) => {
+			set: (target, prop, value) => {
 				let newValue = value;
 				for(let fn of target.$hooks.reducer) {
-					newValue = await fn(target, prop, value);
+					newValue = fn(target, prop, value);
 
 					if(newValue === Struct.Hooks.Abort) {
 						return Struct.Hooks.Abort;
@@ -66,10 +66,10 @@ export class Struct {
 
 				return returnVal;
 			},
-			deleteProperty: async (target, prop) => {
+			deleteProperty: (target, prop) => {
 				let shouldDelete = true;
 				for(let fn of target.$hooks.delete) {
-					shouldDelete = await fn(target, prop, shouldDelete);
+					shouldDelete = fn(target, prop, shouldDelete);
 
 					if(shouldDelete === Struct.Hooks.Abort) {
 						return Struct.Hooks.Abort;

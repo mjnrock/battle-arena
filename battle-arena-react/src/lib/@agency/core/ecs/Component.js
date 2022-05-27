@@ -22,7 +22,9 @@ export class Component {
 			struct: template || Struct,		// Used to reseed
 		};
 
+		// console.log(333, nomen, template, seed, tags, this);
 		this.state = new this.classes.struct(...this.defaultArgs);	// State *is* the component
+
 
 		return new Proxy(this, {
 			get: (target, prop) => {
@@ -99,11 +101,14 @@ export class Component {
 		});
 	}
 	static SeedMap(...structs) {
-		if(Array.isArray(structs[ 0 ])) {
-			structs = structs[ 0 ];
+		const [ first ] = structs;
+		if(Array.isArray(first)) {
+			structs = first;
+		} else if(first instanceof Set) {
+			structs = first.values();
 		}
-
-		for(let input of structs.values()) {
+		
+		for(let input of structs) {
 			this.Dictionary.set(input.Nomen, input);
 		}
 

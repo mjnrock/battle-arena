@@ -8,3 +8,7 @@ export const EntityList = new Set([
  * Seed Entity Dictionary
  */
 Entity.SeedMap(EntityList);
+
+export default () => {
+	Entity.SeedMap(EntityList);
+};

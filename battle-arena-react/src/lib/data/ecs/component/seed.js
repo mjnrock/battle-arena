@@ -9,10 +9,14 @@ export const StructList = new Set([
 	Position,
 	Terrain,
 ]);
-
 /**
  * Seed Component Dictionary
  */
 Component.SeedMap(StructList);
 
 Animus.Components = Component.Dictionary;
+
+export default () => {
+	Component.SeedMap(StructList);
+	Animus.Components = Component.Dictionary;
+};

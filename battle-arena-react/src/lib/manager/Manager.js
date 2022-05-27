@@ -1,5 +1,10 @@
 import System from "../@agency/core/ecs/System";
 
+
+//TODO Convert this into << extends Context >> and refactor accordingly
+
+
+
 /**
  ** The Manager is similar to a System, except that it keeps explicit track of Entities and Components that it is allowed to act on
  ** This concept is the starting point for EntityManager

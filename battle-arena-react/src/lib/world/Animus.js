@@ -1,5 +1,7 @@
 import Entity from "../@agency/core/ecs/Entity";
 
+import Position from "../data/ecs/struct/Position";
+
 /**
  * In this game, "Entity" is relabeled "Animus" to distinguish a "Game Entity" from an "Agency.ECS.Entity"
  */
@@ -8,6 +10,8 @@ export class Animus extends Entity {
 	
     constructor(components = [], agent = {}) {
         super(components, agent);
+
+		this.attach(Position.Nomen);
     }
 }
 
