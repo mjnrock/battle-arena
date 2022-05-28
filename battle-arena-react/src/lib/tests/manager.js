@@ -23,12 +23,18 @@ const [ a1, a2 ] = Animus.Factory(2, [[], {
 		] ],
 	],
 }]);
+console.log(`[Animus 1:]`, a1.id);
+console.log(`[Animus 2:]`, a2.id);
 
-const manager = new Manager({}, `physics`, [ a1, a2 ]);
-// const manager = new Manager({}, Position.Nomen, [ a1, a2 ]);
+const manager = new Manager({}, [ a1, a2 ]);
+console.log(`[Manager:]`, manager.id);
+// console.log(manager)
 
-// console.log(a1.position)
-// console.log(a2.position)
-// a1.trigger("cat", Date.now())
+// a1.trigger("cat", Date.now());
+// a2.trigger("cat", Date.now());
 
-console.log(manager)
+manager.trigger("cat", Date.now());	// Should fire for a1 and a2
+
+for(let a of manager) {
+	console.log(a.id);
+}

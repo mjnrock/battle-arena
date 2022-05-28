@@ -16,7 +16,7 @@ export class Context extends Agent {
 		});
 
 		this.registry = new Map();
-		this.receiver = agent => (effectKey, ...args) => this.$route.call(this, agent, ...args);
+		this.receiver = agent => (effect, ...args) => this.$route.call(this, agent, ...args);
 		this.assign(...agents);	// Seed Context with an initial group of Agents
 
 		this.hook(Agent.Hooks.GET, (target, prop, value) => {
@@ -33,10 +33,57 @@ export class Context extends Agent {
 	}
 
 	/**
+	 * Allow a Context to iterate over all Agents in the .registry
+	 */
+    [ Symbol.iterator ]() {
+        var index = -1;
+        var data = Array.from(this.registry.values());
+
+        return {
+            next: () => ({ value: data[ ++index ], done: !(index in data) })
+        };
+    }
+	forEach(fn) {
+		const results = new Map();
+
+		if(typeof fn === "function") {
+			for(let agent of this.registry.values()) {
+				results.set(agent.id, fn(agent, this));
+			}
+		}
+
+		return results;
+	}
+	get map() {
+		return this.forEach;
+	}
+	filter(fn) {
+		const results = new Map();
+		for(let agent of this.registry.values()) {
+			if(fn(agent) === true) {
+				results.set(agent.id, agent);
+			}
+		}
+
+		return results;
+	}
+	reduce(fn, initialValue) {
+		let result = initialValue;
+
+		if(typeof fn === "function") {
+			for(let agent of this.registry.values()) {
+				result = fn(agent, result);
+			}
+		}
+
+		return result;
+	}
+
+	/**
 	 * Overload self for differentiation in handlers
 	 */
-	invoke(trigger, ...args) {
-		return super.invoke(trigger, { id: this.id, state: this.state }, ...args);
+	trigger(trigger, ...args) {
+		return this.invoke(trigger, this, ...args);
 	}
 
 	/**

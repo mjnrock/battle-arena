@@ -1,43 +1,24 @@
-import System from "../@agency/core/ecs/System";
+import Context from "../@agency/core/Context";
+import Entity from "../@agency/core/ecs/Entity";
 
-
-//TODO Convert this into << extends Context >> and refactor accordingly
-
-
-
-/**
- ** The Manager is similar to a System, except that it keeps explicit track of Entities and Components that it is allowed to act on
- ** This concept is the starting point for EntityManager
- **/
-export class Manager extends System {
-    constructor(game, nomen, entities = []) {
-        super(nomen, [], {
+export class Manager extends Context {
+    constructor(game, entities = []) {
+        super(entities, {
 			state: {
 				game,
 			},
-		}, entities);
+		});
     }
 
-	comp(id) {
-		const entity = this.registry.get(id);
-
-		if(entity) {
-			return entity.comp(this.nomen);
-		}
-	}
-	get getComponent() {
-		return this.comp;
-	}
-
-	to(trigger, ...args) {
-		return this.forEach(entity => entity.to(this.nomen, trigger, ...args));
-	}
 	/**
 	 * .trigger is the custom override for the .invoke method
 	 * Use this prefernetially over .invoke
 	 */
 	trigger(trigger, ...args) {
 		return this.forEach(entity => entity.trigger(trigger, ...args));
+	}
+	to(nomen, trigger, ...args) {
+		return this.forEach(entity => entity.to(nomen, trigger, ...args));
 	}
 
 	getGame() {
@@ -47,8 +28,21 @@ export class Manager extends System {
 	getEntity(id) {
 		return this.registry.get(id);
 	}
-	getEntities() {
-		return this.registry.values();
+	getEntities(ids = []) {
+		if(!ids.length) {
+			return this.registry.values();
+		}
+
+		const results = new Set();
+		for(let id of ids) {
+			const entity = this.getEntity(id);
+
+			if(entity) {
+				results.add(entity);
+			}
+		}
+
+		return results.values();
 	}
 
 	hasEntity(id) {
@@ -73,14 +67,14 @@ export class Manager extends System {
 		return this;
 	}
 
-	removeEntity(entity) {
-		this.registry.delete(entity.id);
+	removeEntity(entityOrId) {
+		this.registry.delete(entityOrId instanceof Entity ? entityOrId.id : entityOrId);
 
 		return this;
 	}
 
-	removeEntities(entities) {
-		for(let entity of entities) {
+	removeEntities(removeEntityArgs = []) {
+		for(let entity of removeEntityArgs) {
 			this.removeEntity(entity);
 		}
 		
@@ -95,17 +89,6 @@ export class Manager extends System {
 
 	getEntityCount() {
 		return this.registry.size;
-	}
-
-	forEach(fn) {
-		const results = new Map();
-		for(let entity of this.registry.values()) {
-			if(typeof fn === "function") {
-				results.set(entity.id, fn(entity, this));
-			}
-		}
-
-		return results;
 	}
 }
 
