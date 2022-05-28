@@ -39,7 +39,7 @@ export function CreateGame() {
 	});
 
 	const [ e1, e2, e3 ] = Animus.Factory(3, () => ({
-		position: {
+		physics: {
 			x: Math.random(),
 			y: Math.random(),
 			z: Math.random(),
@@ -57,7 +57,7 @@ export function CreateGame() {
 	console.log(e3.toObject(includeId));
 	console.log(node.toObject(includeId));
 
-	// System.$(`position`, node)(`move`, 2, 2, 2, false);
+	// System.$(`physics`, node)(`move`, 2, 2, 2, false);
 	// SystemPosition.$(node)(`move`, 3, 3, 3, false);
 
     return game;

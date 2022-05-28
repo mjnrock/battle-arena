@@ -7,7 +7,7 @@ import Manager from "./../manager/Manager";
 
 import seedComponents from "./../data/ecs/component/seed";
 import seedEntities from "./../data/ecs/entity/seed";
-import Position from "../data/ecs/struct/Position";
+import Physics from "../data/ecs/struct/Physics";
 
 Console.NewContext();
 
@@ -35,6 +35,7 @@ console.log(`[Manager:]`, manager.id);
 
 manager.trigger("cat", Date.now());	// Should fire for a1 and a2
 
-for(let a of manager) {
-	console.log(a.id);
+// Iteration of manager produces a list of registered agents
+for(let animus of manager) {
+	console.log(animus.physics);
 }

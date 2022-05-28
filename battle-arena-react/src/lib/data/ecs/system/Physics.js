@@ -1,10 +1,10 @@
 import Entity from "../../../@agency/core/ecs/Entity";
 import System from "../../../@agency/core/ecs/System";
 
-import StructPosition from "../struct/Position";
+import StructPosition from "../struct/Physics";
 
 
-export class Position extends System {
+export class Physics extends System {
 	static Nomen = StructPosition.Nomen;
 	
 	static $(...entities) {
@@ -43,6 +43,6 @@ export class Position extends System {
 	}
 };
 
-System.Registry.set(StructPosition.Nomen, new Position());
+System.Registry.set(StructPosition.Nomen, new Physics());
 
-export default Position;
+export default Physics;

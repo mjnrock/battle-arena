@@ -1,15 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
+import ThreeCanvas from "./ThreeCanvas";
+import PixiCanvas from "./PixiCanvas";
 
-import "./css/tachyons.min.css";
+import "./assets/css/tachyons.min.css";
 import "semantic-ui-css/semantic.min.css";
-import "./css/main.css";
+import "./assets/css/main.css";
 // import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
     <React.StrictMode>
-        <App />
+        {/* <ThreeCanvas /> */}
+        <PixiCanvas />
     </React.StrictMode>,
     document.getElementById("root")
 );

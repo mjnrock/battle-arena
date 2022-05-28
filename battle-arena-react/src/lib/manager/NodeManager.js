@@ -17,7 +17,7 @@ export class NodeManager extends Manager {
 			return fn(...node);
 		}
 
-		return fn(node.position.x, node.position.y);
+		return fn(node.physics.x, node.physics.y);
 	}
 
 	at(x, y) {
@@ -47,8 +47,8 @@ export class NodeManager extends Manager {
 			for(let y = 0; y < height; y++) {
 				const node = new Node(...nodeArgs);
 
-				node.position.x = x;
-				node.position.y = y;
+				node.physics.x = x;
+				node.physics.y = y;
 
 				nodeMgr.addNode(node);
 			}

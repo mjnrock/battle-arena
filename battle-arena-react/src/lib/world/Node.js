@@ -1,14 +1,14 @@
 import Animus from "./Animus";
 
 export class Node extends Animus {
-    constructor({ terrain, position = {} } = {}, agent = {}) {
+    constructor({ terrain, physics = {} } = {}, agent = {}) {
         super({
 			terrain,
-			position: {
+			physics: {
 				x: 0,
 				y: 0,
 				z: 0,
-				...position,
+				...physics,
 			},
 
 			//? entity: via Components or State?  (cf. EntityManager, Collection)

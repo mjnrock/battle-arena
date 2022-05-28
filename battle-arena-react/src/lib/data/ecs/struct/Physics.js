@@ -1,7 +1,7 @@
 import Struct from "../../../@agency/core/ecs/Struct";
 
-export class Position extends Struct {
-	static Nomen = "position";
+export class Physics extends Struct {
+	static Nomen = "physics";
 	
 	constructor(state = {}, opts = {}) {
 		super({
@@ -62,4 +62,4 @@ export class Position extends Struct {
 	}
 };
 
-export default Position;
+export default Physics;
