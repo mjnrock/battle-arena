@@ -12,6 +12,6 @@
     },
     "scripts": {
         "start": "node esm-index.js",
-		"test": "cls && node -r esm battle-arena-react/src/lib/tests/index.js"
+        "test": "cls && node -r esm battle-arena-react/src/lib/tests/index.js"
     }
 }

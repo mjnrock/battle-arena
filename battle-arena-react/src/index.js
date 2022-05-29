@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
-import ThreeCanvas from "./ThreeCanvas";
+// import ThreeCanvas from "./ThreeCanvas";
 import PixiCanvas from "./PixiCanvas";
 
 import "./assets/css/tachyons.min.css";

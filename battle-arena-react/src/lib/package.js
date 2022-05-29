@@ -9,6 +9,12 @@ import "./data/ecs/entity/seed";
 
 import Terrain from "./data/ecs/struct/Terrain";
 
+/**
+ ** Use "Mainloop.js" for the game loop
+ ** Use "Matter.js" for the physics engine
+ ** Use "Pixi.js" for the graphics engine (DOM only)
+ */
+
 export function CreateGame() {
     const game = new Game({
 		fps: 2,

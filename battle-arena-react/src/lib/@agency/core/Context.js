@@ -43,11 +43,18 @@ export class Context extends Agent {
             next: () => ({ value: data[ ++index ], done: !(index in data) })
         };
     }
-	forEach(fn) {
+	forEach(fn, selector) {
 		const results = new Map();
 
 		if(typeof fn === "function") {
-			for(let agent of this.registry.values()) {
+			let entries;
+			if(typeof selector === "function") {
+				entries = this.filter(selector);
+			} else {
+				entries = this.registry.values();
+			}
+
+			for(let agent of entries) {
 				results.set(agent.id, fn(agent, this));
 			}
 		}
@@ -115,6 +122,21 @@ export class Context extends Agent {
 
 		if(agent instanceof Agent) {
 			return agent.invoke(trigger, ...args);
+		}
+
+		return this;
+	}
+
+	exchange(context, ...agents) {
+		const [ selector ] = agents;
+
+		if(typeof selector === "function") {
+			agents = selector(context, this);
+		}
+
+		for(let agent of agents) {
+			context.assign(agent);
+			this.unassign(agent);
 		}
 
 		return this;
