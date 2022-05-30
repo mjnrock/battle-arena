@@ -249,7 +249,7 @@ export class Agent {
 			}
 			
 			this.setState(result);
-			const updateResult = this.hook(Agent.Hooks.UPDATE, Agent.Hooks.BATCH, [ this.getState() ]);
+			const updateResult = this.hook(Agent.Hooks.UPDATE, Agent.ControlCharacter(Agent.Hooks.BATCH), [ this.getState() ]);
 			
 			this.config.queue = new Set(queue);
 		}

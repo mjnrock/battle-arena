@@ -88,6 +88,7 @@ agent.addHooks({
 // agent.emit("cat", Date.now());
 // console.log(agent.state)
 
+//? Test the batch processing of events
 agent.config.batchSize = 10;
 agent.config.isBatchProcessing = true;
 agent.emit("cat", Date.now(), 1);
@@ -95,5 +96,6 @@ agent.emit("cat", Date.now(), 2);
 agent.emit("cat", Date.now(), 3);
 console.log(agent)
 console.log(agent.state)
+// agent.process(false);	// Emit UPDATE after each iteration
 agent.process();
 console.log(agent.state)
