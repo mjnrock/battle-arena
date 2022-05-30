@@ -17,21 +17,25 @@ export class Agent {
 		FILTER: `filter`,
 		UPDATE: `update`,
 		EFFECT: `effect`,
+		BATCH: `batch`,
 		DESTROY: `destroy`,
 	};
 
-	constructor ({ id, state = {}, events = {}, hooks = {} } = {}) {
+	constructor ({ id, state = {}, events = {}, hooks = {}, config = {} } = {}) {
 		this.id = id || uuid();
 		this.state = {};
 		this.events = new Map();
 
 		this.config = {
 			allowRPC: false,
+			allowMultipleHandlers: true,
 
 			queue: new Set(),
 			batchSize: 1000,
 			isBatchProcessing: false,
-		}
+
+			...config,
+		};
 
 		this.setState(state);
 		
@@ -81,6 +85,18 @@ export class Agent {
 		}
 
 		const set = this.events.get(trigger);
+		if(!this.config.allowMultipleHandlers) {
+			
+			const [ handler ] = handlers;
+			if(typeof handler === "function" || handler instanceof Agent) {
+				this.clearHandlers(trigger);
+				
+				set.add(handler);
+			}
+
+			return this;
+		}
+
 		for(let handler of handlers) {
 			if(typeof handler === "function" || handler instanceof Agent) {
 				set.add(handler);
@@ -223,20 +239,28 @@ export class Agent {
 		return this;
 	}
 	process() {
+		let result = this.getState();
 		if(this.config.isBatchProcessing) {
+			this.hook(Agent.Hooks.BATCH, "start", result);
+			
 			const queue = Array.from(this.config.queue);
 			const batch = queue.splice(0, this.config.batchSize);
-
-			let result = this.getState();
+			
 			for(let [ trigger, args ] of batch) {
-				result = this.trigger(trigger, args, result);
+				this.hook(Agent.Hooks.BATCH, "before", result);
+				
+				result = this.__handleEmission(trigger, ...args);
+				
+				this.hook(Agent.Hooks.BATCH, "after", result);
 			}
-
+			
 			this.setState(result);
 			this.config.queue = new Set(queue);
-
-			return result;
+			
+			this.hook(Agent.Hooks.BATCH, "end", result);
 		}
+
+		return result;
 	}
 
 	clearQueue() {
@@ -250,21 +274,33 @@ export class Agent {
 	/**
 	 * A function that iterates and executes all handler for a given @trigger.
 	 */
-	hook(hook, trigger, args, result) {
+	hook(hook, trigger, args = [], result) {
 		hook = Agent.ControlCharacter(hook);
 
 		if(this.events.has(hook)) {
-			const set = this.events.get(hook);
+			if(!Array.isArray(args)) {
+				args = [ args ];
+			}
 
+			const set = this.events.get(hook);
 			for(let handler of set) {
-				if(typeof handler === "function") {
-					result = handler(result, ...args);
-				} else if(handler instanceof Agent) {
-					result = handler.hook(hook, trigger, args, result);
-				}
-				
-				if(hook === Agent.ControlCharacter(Agent.Hooks.FILTER)) {
-					return result;
+				if(hook === Agent.ControlCharacter(Agent.Hooks.BATCH)) {
+					const stage = trigger;
+					if(typeof handler === "function") {
+						result = handler(result, stage, ...args);
+					} else if(handler instanceof Agent) {
+						result = handler.hook(hook, stage, args, result);
+					}
+				} else {
+					if(typeof handler === "function") {
+						result = handler(result, ...args);
+					} else if(handler instanceof Agent) {
+						result = handler.hook(hook, trigger, args, result);
+					}
+					
+					if(hook === Agent.ControlCharacter(Agent.Hooks.FILTER)) {
+						return result;
+					}
 				}
 			}
 		}
@@ -274,6 +310,10 @@ export class Agent {
 	
 	rpc(name, ...args) {
 		if(this.config.allowRPC === true) {
+			if(!Array.isArray(args)) {
+				args = [ args ];
+			}
+
 			if(name in this) {
 				return this[ name ](...args);
 			}
@@ -281,6 +321,10 @@ export class Agent {
 	}
 	trigger(trigger, args = [], result = this.getState()) {
 		if(this.events.has(trigger)) {
+			if(!Array.isArray(args)) {
+				args = [ args ];
+			}
+
 			const set = this.events.get(trigger);
 
 			for(let handler of set) {
@@ -315,6 +359,10 @@ export class Agent {
 		if(this.config.isBatchProcessing) {
 			return this.queue(trigger, args);
 		}
+
+		return this.__handleEmission(trigger, ...args);
+	}
+	__handleEmission(trigger, ...args) {
 
 		//?	Optionally mutate the passed @args
 		const mutatorResult = this.hook(Agent.Hooks.MUTATOR, trigger, args);
