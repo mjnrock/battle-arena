@@ -403,6 +403,56 @@ export class Agent {
 		return this.getState();
 	}
 	//#endregion Emission
+
+	toObject(includeId = true) {
+		const obj = {
+			...this,
+		};
+
+		if(includeId === false) {
+			delete obj.id;
+		}
+
+		return obj;
+	}
+	toString() {
+		return JSON.stringify(this.toObject());
+	}
+	toJson() {
+		return JSON.stringify(this.toString());
+	}
+
+	static Create({ id, state = {}, events = {}, hooks = {}, config = {} } = {}) {
+		return new this({ id, state, events, hooks, config });
+	}
+	static Factory(qty = 1, fnOrArgs = [], each) {
+		// Single-parameter override for .Spawning one (1) this
+		if(typeof qty === "function" || typeof qty === "object") {
+			fnOrArgs = qty;
+			qty = 1;
+		}
+
+		if(!Array.isArray(fnOrArgs)) {
+			fnOrArgs = [ fnOrArgs ];	// Make sure @fnOrArgs is an Array (primarily a convenience overload for Entity Factory, but is useful elsewhere)
+		}
+
+		let agents = [];
+		for(let i = 0; i < qty; i++) {
+			let args = fnOrArgs;
+			if(typeof fnOrArgs === "function") {
+				args = fnOrArgs();
+			}
+
+			const agent = this.Create(...args);
+			agents.push(agent);
+
+			if(typeof each === "function") {
+				each(agent);
+			}
+		}
+
+		return agents;
+	}
 };
 
 export default Agent;
