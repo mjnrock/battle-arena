@@ -58,6 +58,7 @@ export class Component {
 		return this;
 	}
 
+
 	toObject(includeId = false) {
 		return this.state.toObject(includeId);
 	}

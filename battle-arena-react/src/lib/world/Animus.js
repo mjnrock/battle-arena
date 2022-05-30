@@ -11,7 +11,7 @@ export class Animus extends Entity {
     constructor(components = [], agent = {}) {
         super(components, agent);
 
-		this.attach(Physics.Nomen);
+		this.addComponent(Physics.Nomen);
     }
 }
 

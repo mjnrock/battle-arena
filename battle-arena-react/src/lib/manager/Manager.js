@@ -2,13 +2,13 @@ import Context from "../@agency/core/Context";
 import Entity from "../@agency/core/ecs/Entity";
 
 export class Manager extends Context {
-    constructor(game, entities = []) {
-        super(entities, {
+	constructor (game, entities = []) {
+		super(entities, {
 			state: {
 				game,
 			},
 		});
-    }
+	}
 
 	/**
 	 * .trigger is the custom override for the .invoke method
@@ -67,6 +67,29 @@ export class Manager extends Context {
 		return this;
 	}
 
+	findEntity(selector) {
+		let entity;
+
+		for(let [ id, entity ] of this.registry) {
+			if(selector(entity)) {
+				return entity;
+			}
+		}
+
+		return entity;
+	}
+	findEntities(selector) {
+		const results = new Set();
+
+		for(let [ id, entity ] of this.registry) {
+			if(selector(entity)) {
+				results.add(entity);
+			}
+		}
+
+		return results.values();
+	}
+
 	removeEntity(entityOrId) {
 		this.registry.delete(entityOrId instanceof Entity ? entityOrId.id : entityOrId);
 
@@ -77,7 +100,7 @@ export class Manager extends Context {
 		for(let entity of removeEntityArgs) {
 			this.removeEntity(entity);
 		}
-		
+
 		return this;
 	}
 

@@ -17,7 +17,7 @@ export class Context extends Agent {
 
 		this.registry = new Map();
 		this.receiver = agent => (effect, ...args) => this.$route.call(this, agent, ...args);
-		this.assign(...agents);	// Seed Context with an initial group of Agents
+		this.registerAgent(...agents);	// Seed Context with an initial group of Agents
 
 		this.hook(Agent.Hooks.GET, (target, prop, value) => {
 			const entry = target.registry.get(prop);
@@ -43,6 +43,108 @@ export class Context extends Agent {
             next: () => ({ value: data[ ++index ], done: !(index in data) })
         };
     }
+
+	/**
+	 * Add @agents to the registry and attach the receiver fn as an effect handler
+	 */
+	registerAgent(...agents) {
+		for(let agent of agents) {
+			this.registry.set(agent.id, agent);
+			agent.addTrigger(agent.config.triggers.effect, this.receiver(agent));
+		}
+
+
+		return this;
+	}
+	/**
+	 * Undo .register
+	 */
+	unregisterAgent(...agents) {
+		for(let agent of agents) {
+			this.registry.delete(agent.id);
+			agent.removeTrigger(agent.config.triggers.effect, this.receiver(agent));	//TODO This isn't going to unassign correctly
+		}
+
+
+		return this;
+	}
+
+	getAgent(id) {
+		const agent = this.registry.get(id);
+
+		if(agent instanceof Agent) {
+			return agent;
+		}
+
+		return false;
+	}
+	hasAgent(agentOrId) {
+		const id = validate(agentOrId) ? agentOrId : agentOrId.id;
+
+		return this.registry.has(id);
+	}
+	addAgent(agent, ...aliases) {
+		this.registerAgent(agent);
+		this.addAlias(agent, ...aliases);
+
+		return this;
+	}
+	removeAgent(agent) {
+		this.unregisterAgent(agent);
+		for(let [ key, value ] of Object.entries(this.registry)) {
+			if(key === agent.id || value === agent.id) {	// Remove id and aliases
+				this.registry.delete(key);
+			}
+		}
+
+		return this;
+	}
+
+	_makeAlias(agent) {}
+	hasAlias(alias) {
+		return this.registry.has(alias);
+	}
+	addAlias(agentOrId, ...aliases) {
+		const id = validate(agentOrId) ? agentOrId : agentOrId.id;
+
+		for(let alias of aliases) {
+			this.registry.set(alias, id);
+		}
+
+		return this;
+	}
+	removeAlias(...aliases) {
+		for(let alias of aliases) {
+			this.registry.delete(alias);
+		}
+
+		return this;
+	}
+
+	/**
+	 * Instantiate @qty Agents and immediately .register them
+	 */
+	spawn(qty = 1, fnOrObj) {
+		const agents = Agent.Factory(qty, fnOrObj, (agent) => {
+			this.registerAgent(agent);
+		});
+
+		return agents;
+	}
+	/**
+	 * Undo .spawn and terminate the Agent
+	 */
+	despawn(...agents) {
+		for(let agent of agents) {
+			this.unregisterAgent(agent);
+
+			agent.terminate();
+		}
+
+		return this;
+	}
+
+	
 	forEach(fn, selector) {
 		const results = new Map();
 
@@ -86,6 +188,21 @@ export class Context extends Agent {
 		return result;
 	}
 
+	exchange(context, ...agents) {
+		const [ selector ] = agents;
+
+		if(typeof selector === "function") {
+			agents = selector(context, this);
+		}
+
+		for(let agent of agents) {
+			context.register(agent);
+			this.unregisterAgent(agent);
+		}
+
+		return this;
+	}
+
 	/**
 	 * Overload self for differentiation in handlers
 	 */
@@ -122,121 +239,6 @@ export class Context extends Agent {
 
 		if(agent instanceof Agent) {
 			return agent.invoke(trigger, ...args);
-		}
-
-		return this;
-	}
-
-	exchange(context, ...agents) {
-		const [ selector ] = agents;
-
-		if(typeof selector === "function") {
-			agents = selector(context, this);
-		}
-
-		for(let agent of agents) {
-			context.assign(agent);
-			this.unassign(agent);
-		}
-
-		return this;
-	}
-
-	/**
-	 * Add @agents to the registry and attach the receiver fn as an effect handler
-	 */
-	assign(...agents) {
-		for(let agent of agents) {
-			this.registry.set(agent.id, agent);
-			agent.addTrigger(agent.config.triggers.effect, this.receiver(agent));
-		}
-
-
-		return this;
-	}
-	/**
-	 * Undo .assign
-	 */
-	unassign(...agents) {
-		for(let agent of agents) {
-			this.registry.delete(agent.id);
-			agent.removeTrigger(agent.config.triggers.effect, this.receiver(agent));	//TODO This isn't going to unassign correctly
-		}
-
-
-		return this;
-	}
-
-	getAgent(id) {
-		const agent = this.registry.get(id);
-
-		if(agent instanceof Agent) {
-			return agent;
-		}
-
-		return false;
-	}
-	hasAgent(agentOrId) {
-		const id = validate(agentOrId) ? agentOrId : agentOrId.id;
-
-		return this.registry.has(id);
-	}
-	addAgent(agent, ...aliases) {
-		this.assign(agent);
-		this.addAlias(agent, ...aliases);
-
-		return this;
-	}
-	removeAgent(agent) {
-		this.unassign(agent);
-		for(let [ key, value ] of Object.entries(this.registry)) {
-			if(key === agent.id || value === agent.id) {	// Remove id and aliases
-				this.registry.delete(key);
-			}
-		}
-
-		return this;
-	}
-
-	_makeAlias(agent) {}
-	hasAlias(alias) {
-		return this.registry.has(alias);
-	}
-	addAlias(agentOrId, ...aliases) {
-		const id = validate(agentOrId) ? agentOrId : agentOrId.id;
-
-		for(let alias of aliases) {
-			this.registry.set(alias, id);
-		}
-
-		return this;
-	}
-	removeAlias(...aliases) {
-		for(let alias of aliases) {
-			this.registry.delete(alias);
-		}
-
-		return this;
-	}
-
-	/**
-	 * Instantiate @qty Agents and immediately .register them
-	 */
-	spawn(qty = 1, fnOrObj) {
-		const agents = Agent.Factory(qty, fnOrObj, (agent) => {
-			this.assign(agent);
-		});
-
-		return agents;
-	}
-	/**
-	 * Undo .spawn and terminate the Agent
-	 */
-	despawn(...agents) {
-		for(let agent of agents) {
-			this.unassign(agent);
-
-			agent.terminate();
 		}
 
 		return this;

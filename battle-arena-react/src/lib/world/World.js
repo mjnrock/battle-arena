@@ -15,7 +15,7 @@ export class World extends Animus {
 
 		// this.state.nodes
 
-		this.register({
+		this.registerComponent({
 
 		});
     }

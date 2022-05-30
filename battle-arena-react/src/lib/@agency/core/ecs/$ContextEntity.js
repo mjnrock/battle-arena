@@ -1,15 +1,15 @@
-import Agent from "../Agent";
+import Context from "../Context";
 import Component from "./Component";
 
 /**
  * this.nomen will return the Component's .state
  * this.comp`nomen` or this.comp(`nomen`) will both return the Component itself
  */
-export class Entity extends Agent {
+export class $ContextEntity extends Context {
 	static Nomen = null;
 	static Dictionary = new Map();	// Seeded dynamically
 
-	constructor(components = [], agent = {}) {
+	constructor(components = [], entities = [], agent = {}) {
 		super();
 		
 		this.components = new Map();
@@ -20,6 +20,7 @@ export class Entity extends Agent {
 		}
 
 		this.adapt(agent);
+		this.registerComponent(entities);
 
 		this.hook({
 			get: [
@@ -54,48 +55,64 @@ export class Entity extends Agent {
 		for(let [ nomen, comp ] of this.components.entries()) {
 			comp.deconstructor();
 		}
-
-		this.components.clear();
-
-		super.deconstructor();
-		
-		return this;
 	}
 
-	registerComponent(component) {
-		if(component instanceof Component) {
-			this.components.set(component.nomen, component);
-		} else if(Array.isArray(component)) {
-			for(let comp of component) {
+	registerComponent(key, value) {
+		if(value instanceof Component) {
+			this.components.set(key, value);
+		} else if(key instanceof Component) {
+			this.components.set(key.nomen, key);
+		} else if(Array.isArray(key)) {		// [ [nomen, Component], Component, ... ]
+			for(let entry of key) {
+				if(entry instanceof Component) {
+					this.registerComponent(entry);
+				} else {
+					this.registerComponent(...entry);
+				}
+			}
+		} else if(!Array.isArray(key) && typeof key === "object") {
+			const obj = key;
+
+			for(let [ nomen, args ] of Object.entries(obj)) {
+				if(!Array.isArray(args)) {
+					args = [ args ];
+				}
+	
+				const comp = Component.Seed(nomen, ...args);
 				this.registerComponent(comp);
 			}
+		} else if(typeof key === "function") {
+			this.registerComponent(...key(value));
+		} else if(key instanceof Map) {
+			this.components = key;
 		}
 
 		return this;
 	}
-	unregisterComponent(component) {
-		if(component instanceof Component) {
-			this.components.delete(component.nomen);
-		} else if(Array.isArray(component)) {
-			for(let comp of component) {
-				this.unregisterComponent(comp);
+	
+	unregisterComponent(input) {
+		if(input instanceof Component) {
+			return this.components.delete(input.nomen);
+		} else if(Array.isArray(input)) {
+			for(let inp of input) {
+				this.unregisterComponent(inp);
 			}
 		}
 
-		return this;
+		return this.components.delete(input);
 	}
 
 	/**
 	 * While .register loads instantiated components, .attach will utilize << Component.Dictionary >>
 	 * and dynamically instantiate the component and .register to << this >>.
 	 */
-	addComponent(nomen, seed, opts) {
+	attach(nomen, seed, opts) {
 		if(typeof nomen === "object") {
 			for(let [ nom, args ] of Object.entries(nomen)) {
 				if(Array.isArray(args)) {
-					this.addComponent(nom, ...args);
+					this.attach(nom, ...args);
 				} else {
-					this.addComponent(nom, args);
+					this.attach(nom, args);
 				}
 			}
 		} else {
@@ -108,7 +125,7 @@ export class Entity extends Agent {
 	/**
 	 * Detach finds the registered component with .nomen = @nomen
 	 */
-	removeComponent(nomen) {
+	detach(nomen) {
 		return this.unregisterComponent(this.components.get(nomen));
 	}
 
@@ -121,81 +138,15 @@ export class Entity extends Agent {
 
 		return this.components.get(keyOrComp);
 	}
-	/**
-	 * A tagged template convenience method for .getComponent
-	 */
 	get comp() {
 		return this.getComponent;
 	}
-	
-	find(input, { id = true, nomen = true, tags = true } = {}) {
-		const results = new Set();
 
-		if(Array.isArray(input)) {
-			for(let inp of input) {
-				const res = this.find(inp, { id, nomen, tags });
-				
-				if(res) {
-					results.add(res);
-				}
-			}
-
-			return results;
-		}
-
-		for(let component of this.components.values()) {
-			if(input instanceof RegExp) {
-				if(id && input.test(component.id)) {
-					results.add(component);
-				}
-
-				if(nomen && input.test(component.nomen)) {
-					results.add(component);
-				}
-				
-				if(tags && input.test(component.tags.join(" "))) {
-					results.add(component);
-				}
-			} else if(typeof input === "function") {
-				if(input(component) === true) {
-					results.add(component);
-				}
-			} else {
-				if(id && component.id === input) {
-					results.add(component);
-				}
-
-				if(nomen && component.nomen === input) {
-					results.add(component);
-				}
-
-				if(tags && component.tags.has(input)) {
-					results.add(component);
-				}
-			}
-		}
-
-		if(results.size) {
-			return results;
-		}
-
-		return false;
-	}
-	findById(id) {
-		return this.find(id, { id: true, nomen: false, tags: false });
-	}
-	findByNomen(nomen) {
-		return this.find(nomen, { id: false, nomen: true, tags: false });
-	}
-	findByTags(...tags) {
-		return this.find(tags, { id: false, nomen: false, tags: true });
-	}
-
-	triggerComponent(keyOrComp, trigger, ...args) {
+	triggerComp(keyOrComp, trigger, ...args) {
 		if(Array.isArray(trigger)) {
 			let results = [];
 			for(let [ trig, ...ags ] of trigger) {
-				results.push(this.triggerComponent(keyOrComp, trig, ...ags));
+				results.push(this.triggerComp(keyOrComp, trig, ...ags));
 			}
 
 			return results;
@@ -203,23 +154,38 @@ export class Entity extends Agent {
 		
 		let comp;
 		if(keyOrComp instanceof Component) {
-			//* Here to allow an Entity to give its version of the passed Component (e.g. for comparisons)
-			comp = this.components.get(keyOrComp.nomen);
-		} else {
+			comp = this.components.get(keyOrComp.nomen);	// Pass a given Component and return that Entity's version of that Component, if it exists
+		} else {		// Assume tagged template
 			comp = this.components.get(keyOrComp);
 		}
 
 		return comp.trigger(trigger, ...args);
 	}
-	triggerComponents(keyOrComp, trigger, ...args) {
-		const results = [];
-		for(let comp of this.findAll(keyOrComp)) {
-			results.push(comp.trigger(trigger, ...args));
-		}
-
-		return results;
+	get to() {
+		return this.triggerComp;
 	}
 
+	find(...nameIdOrTags) {
+		const ret = new Set();
+		for(let input of nameIdOrTags) {
+			if(this.components.has(input)) {
+				// @input is a name
+				ret.add(this.components.get(input));
+			} else {
+				for(let component of this.components.values()) {
+					if(component.id === input) {
+						// @input is an id
+						ret.add(component);
+					} else if(component.tags.has(input)) {
+						// @input is a tag
+						ret.add(component);
+					}
+				}
+			}
+		}
+
+		return Array.from(ret);
+	}
 
 	
 	toObject(includeId = true) {
@@ -254,4 +220,4 @@ export class Entity extends Agent {
 	}
 };
 
-export default Entity;
+export default $ContextEntity;
