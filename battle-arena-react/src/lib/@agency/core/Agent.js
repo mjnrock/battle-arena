@@ -11,12 +11,25 @@ export class Agent {
 		}
 
 		return char;
-	}
+	};
+	static Hooks = {
+		MUTATOR: `mutator`,
+		FILTER: `filter`,
+		UPDATE: `update`,
+		EFFECT: `effect`,
+		DESTROY: `destroy`,
+	};
 
 	constructor ({ id, state = {}, events = {}, hooks = {} } = {}) {
 		this.id = id || uuid();
 		this.state = {};
 		this.events = new Map();
+
+		this.config = {
+			queue: new Set(),
+			batchSize: 1000,
+			isBatchProcessing: false,
+		}
 
 		this.setState(state);
 		
@@ -24,6 +37,15 @@ export class Agent {
 		this.addEvents(events);
 	}
 
+	deconstructor() {
+		this.hook(Agent.Hooks.DESTROY);
+
+		for(let key of Reflect.ownKeys(this)) {
+			delete this[ key ];
+		}
+	}
+
+	//#region State
 	getState() {
 		return this.state;
 	}
@@ -44,7 +66,9 @@ export class Agent {
 
 		return this.getState();
 	}
+	//#endregion State
 
+	//#region Events
 	addEvent(trigger, ...handlers) {
 		if(!this.events.has(trigger)) {
 			this.events.set(trigger, new Set());
@@ -144,7 +168,9 @@ export class Agent {
 
 		return this;
 	}
+	//#endregion Events
 
+	//#region Hooks
 	addHook(hook, handler) {
 		return this.addEvent(Agent.ControlCharacter(hook), handler);
 	}
@@ -171,12 +197,61 @@ export class Agent {
 
 		return this;
 	}
+	removeHook(hook) {
+		return this.removeEvent(Agent.ControlCharacter(hook));
+	}
+	removeHooks(...hooks) {
+		for(let hook of hooks) {
+			this.removeHook(hook);
+		}
 
+		return this;
+	}
+	//#endregion Hooks
+
+	//#region Events - Batch Processing
+	/**
+	 * Queueing does not support hooks, only triggers.
+	 */
+	queue(trigger, args) {
+		if(this.config.isBatchProcessing) {
+			this.config.queue.add([ trigger, args ]);
+		}
+
+		return this;
+	}
+	process() {
+		if(this.config.isBatchProcessing) {
+			const queue = Array.from(this.config.queue);
+			const batch = queue.splice(0, this.config.batchSize);
+
+			let result = this.getState();
+			for(let [ trigger, args ] of batch) {
+				result = this.trigger(trigger, args, result);
+			}
+
+			this.setState(result);
+			this.config.queue = new Set(queue);
+
+			return result;
+		}
+	}
+
+	clearQueue() {
+		this.config.queue.clear();
+
+		return this;
+	}
+	//#endregion Events - Batch Processing
+
+	//#region Emission
 	/**
 	 * A function that iterates and executes all handler for a given @trigger.
 	 */
 	hook(hook, trigger, args, result) {
-		if(this.events.has(Agent.ControlCharacter(hook))) {
+		hook = Agent.ControlCharacter(hook);
+
+		if(this.events.has(hook)) {
 			const set = this.events.get(hook);
 
 			for(let handler of set) {
@@ -186,7 +261,7 @@ export class Agent {
 					result = handler.hook(hook, trigger, args, result);
 				}
 				
-				if(hook === Agent.ControlCharacter(`filter`)) {
+				if(hook === Agent.ControlCharacter(Agent.Hooks.FILTER)) {
 					return result;
 				}
 			}
@@ -220,19 +295,23 @@ export class Agent {
 	 *  - Update listening (`update`)
 	 *  - Effect listening (`effect`)
 	 */
-	emit(trigger, ...args) {
+	emit(trigger, ...args) {		
 		if(typeof trigger === "string" && trigger[ 0 ] === Agent.ControlCharacter()) {
 			return;
 		}
 
+		if(this.config.isBatchProcessing) {
+			return this.queue(trigger, args);
+		}
+
 		//?	Optionally mutate the passed @args
-		const mutatorResult = this.hook(Agent.ControlCharacter(`mutator`), trigger, args);
+		const mutatorResult = this.hook(Agent.Hooks.MUTATOR, trigger, args);
 		if(mutatorResult !== void 0) {
 			args = mutatorResult;
 		}
 
 		//? Optionally short-circuit the event, if a filter hook returns << true >>
-		const filterResult = this.hook(Agent.ControlCharacter(`filter`), trigger, args);
+		const filterResult = this.hook(Agent.Hooks.FILTER, trigger, args);
 		if(filterResult === true) {
 			return;
 		}
@@ -255,14 +334,15 @@ export class Agent {
 			};
 
 			//? Optionally broadcast the state change, passing the state object
-			const updateResult = this.hook(Agent.ControlCharacter(`update`), trigger, [ payload ]);
+			const updateResult = this.hook(Agent.Hooks.UPDATE, trigger, [ payload ]);
 		}
 
 		//? Optionally emit effect hooks, passing the state object
-		const effectResult = this.hook(Agent.ControlCharacter(`effect`), trigger, [ this.getState(), ...args ]);
+		const effectResult = this.hook(Agent.Hooks.EFFECT, trigger, [ this.getState(), ...args ]);
 
 		return this.getState();
 	}
+	//#endregion Emission
 };
 
 export default Agent;

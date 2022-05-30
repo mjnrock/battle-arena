@@ -73,6 +73,15 @@ agent.addHooks({
 // console.log(agent.state)
 
 //?	Test trigger "cat" handlers and middleware execution of .emit
+// console.log(agent.state)
+// agent.emit("cat", Date.now());
+// console.log(agent.state)
+
+agent.config.batchSize = 2
+agent.config.isBatchProcessing = true;
+agent.emit("cat", Date.now(), 1);
+agent.emit("cat", Date.now(), 2);
+agent.emit("cat", Date.now(), 3);
 console.log(agent.state)
-agent.emit("cat", Date.now());
+agent.process();
 console.log(agent.state)
