@@ -1,20 +1,27 @@
 import { v4 as uuid } from "uuid";
 
 export class Agent {
-	static ControlCharacter = (command = ``) => command.length ? `#${ command }` : `#`;
+	static ControlCharacter = (command = ``) => {
+		const cmdChar = `#`;
 
-	constructor ({ id, state = {}, triggers = {} } = {}) {
+		if(command[ 0 ] === cmdChar) {
+			return command;
+		} else if(command.length) {
+			return `${ cmdChar }${ command }`;
+		}
+
+		return cmdChar;
+	}
+
+	constructor ({ id, state = {}, events = {}, hooks = {} } = {}) {
 		this.id = id || uuid();
 		this.state = {};
-		this.triggers = new Map();
+		this.events = new Map();
 
 		this.setState(state);
-
-		if(Array.isArray(triggers)) {
-			this.addTriggerArray(triggers);
-		} else if(typeof triggers === "object") {
-			this.addTriggerObject(triggers);
-		}
+		
+		this.addHooks(hooks);
+		this.addEvents(events);
 	}
 
 	getState() {
@@ -38,14 +45,16 @@ export class Agent {
 		return this.getState();
 	}
 
-	//NOTE: These trigger/handler helper functions are all over the place
-
-	addTrigger(trigger, ...handlers) {
-		if(!this.triggers.has(trigger)) {
-			this.triggers.set(trigger, new Set());
+	addEvent(trigger, ...handlers) {
+		if(!this.events.has(trigger)) {
+			this.events.set(trigger, new Set());
 		}
 
-		const set = this.triggers.get(trigger);
+		if(Array.isArray(handlers[ 0 ])) {
+			[ handlers ] = handlers;
+		}
+
+		const set = this.events.get(trigger);
 		for(let handler of handlers) {
 			if(typeof handler === "function" || handler instanceof Agent) {
 				set.add(handler);
@@ -54,69 +63,58 @@ export class Agent {
 
 		return this;
 	}
-	addTriggerArray(array = []) {
-		for(let [ trigger, ...handlers ] of array) {
-			if(Array.isArray(handlers[ 0 ])) {
-				this.addTrigger(trigger, ...handlers[ 0 ]);
-			} else {
-				this.addTrigger(trigger, ...handlers);
-			}
+	addEvents(object) {
+		if(Array.isArray(object)) {
+			return this.addEventsByEntries(object);
+		} else if(typeof object === "object") {
+			return this.addEventsByObject(object);
 		}
 
 		return this;
 	}
-	addTriggerObject(object = {}) {
-		for(let [ trigger, ...handlers ] of Object.entries(object)) {
-			if(Array.isArray(handlers[ 0 ])) {
-				this.addTrigger(trigger, ...handlers[ 0 ]);
-			} else {
-				this.addTrigger(trigger, ...handlers);
-			}
+	addEventsByEntries(triggers) {
+		for(let [ trigger, handlers ] of triggers) {
+			this.addEvent(trigger, handlers);
 		}
 
 		return this;
 	}
-	addHookObject(hooks = {}) {
-		for(let [ hook, handler ] of Object.entries(hooks)) {
-			if(typeof handler === "function") {
-				handler = [ handler() ];
-			} else if(Array.isArray(handler)) {
-				// NOOP
-			} else {
-				handler = [ handler ];
-			}
-
-			if(hook[ 0 ] === Agent.ControlCharacter()) {
-				this.addTrigger(hook, ...handler);
-			} else {
-				this.addTrigger(hook, ...handler);
-			}
-		}
-	}
-
-	removeTrigger(trigger) {
-		if(this.triggers.has(trigger)) {
-			this.triggers.delete(trigger);
+	addEventsByObject(triggers) {
+		for(let [ trigger, handlers ] of Object.entries(triggers)) {
+			this.addEvent(trigger, handlers);
 		}
 
 		return this;
 	}
-	removeTriggers(...triggers) {
+	removeEvent(trigger) {
+		if(this.events.has(trigger)) {
+			this.events.delete(trigger);
+		}
+
+		return this;
+	}
+	removeEvents(...triggers) {
 		for(let trigger of triggers) {
-			this.removeTrigger(trigger);
+			this.removeEvent(trigger);
 		}
 
 		return this;
 	}
-	clearTriggers() {
-		this.triggers.clear();
+	clearEvents() {
+		this.events.clear();
 
 		return this;
 	}
 
+	addHandler(trigger, handler) {
+		return this.addEvent(trigger, handler);
+	}
+	addHandlers(trigger, ...handlers) {
+		return this.addEvent(trigger, ...handlers);
+	}
 	removeHandler(trigger, handler) {
-		if(this.triggers.has(trigger)) {
-			const set = this.triggers.get(trigger);
+		if(this.events.has(trigger)) {
+			const set = this.events.get(trigger);
 
 			if(set.has(handler)) {
 				set.delete(handler);
@@ -126,11 +124,11 @@ export class Agent {
 		return this;
 	}
 	removeHandlers(trigger, ...handlers) {
-		if(!this.triggers.has(trigger)) {
+		if(!this.events.has(trigger)) {
 			return this;
 		}
 
-		const set = this.triggers.get(trigger);
+		const set = this.events.get(trigger);
 		for(let handler of handlers) {
 			if(set.has(handler)) {
 				set.delete(handler);
@@ -140,8 +138,35 @@ export class Agent {
 		return this;
 	}
 	clearHandlers(trigger) {
-		if(this.triggers.has(trigger)) {
-			this.triggers.get(trigger).clear();
+		if(this.events.has(trigger)) {
+			this.events.get(trigger).clear();
+		}
+
+		return this;
+	}
+
+	addHook(hook, handler) {
+		return this.addEvent(Agent.ControlCharacter(hook), handler);
+	}
+	addHooks(hook, ...handlers) {
+		if(Array.isArray(hook)) {
+			return this.addHooksByEntries(hook);
+		} else if(typeof hook === "object") {
+			return this.addHooksByObject(hook);
+		}
+
+		return this.addEvent(Agent.ControlCharacter(hook), ...handlers);
+	}
+	addHooksByEntries(hooks = []) {
+		for(let [ hook, handlers ] of hooks) {
+			this.addEvent(Agent.ControlCharacter(hook), handlers);
+		}
+
+		return this;
+	}
+	addHooksByObject(hooks = {}) {
+		for(let [ hook, handlers ] of Object.entries(hooks)) {
+			this.addEvent(Agent.ControlCharacter(hook), handlers);
 		}
 
 		return this;
@@ -150,78 +175,40 @@ export class Agent {
 	/**
 	 * A function that iterates and executes all handler for a given @trigger.
 	 */
-	trigger(trigger, ...args) {
-		let result;
-
-		if(Array.isArray(trigger)) {
-			for(let [ trig, ...args ] of trigger) {
-				result = this.trigger(trig, ...args);
-			}
-
-			return result;
-		}
-
-		if(this.triggers.has(trigger)) {
-			const set = this.triggers.get(trigger);
-			let nextResult = result;
-
-			if(typeof trigger === "string" && trigger.startsWith(Agent.ControlCharacter())) {
-				const [ invokingTrigger, ...newArgs ] = args;	// Command invocations should always pass the invoking trigger as the first argument in @args, thus remove it.
-
-				for(let handler of set) {
-					if(typeof handler === "function") {
-						nextResult = handler(...newArgs);
-					} else if(handler instanceof Agent) {
-						nextResult = handler.trigger(trigger, ...newArgs);
-					}
-
-					if(nextResult !== void 0) {
-						result = nextResult;
-					}
-				}
-
-			} else {
-				result = this.state;
-
-				for(let handler of set) {
-					if(typeof handler === "function") {
-						nextResult = handler(result, ...args);
-					} else if(handler instanceof Agent) {
-						nextResult = handler.trigger(trigger, ...args);
-					}
-					
-					if(nextResult !== void 0) {
-						result = nextResult;
-					}
-				}
-			}
-		}
-		
-		return result;
-	}
-	/**
-	 * An explicitly-defined async version of << .trigger >>, that is otherwise identical.
-	 * 
-	 * A function that iterates and executes all handler for a given @trigger.
-	 */
-	async asyncTrigger(trigger, ...args) {
-		let result;
-
-		if(this.triggers.has(trigger)) {
-			const set = this.triggers.get(trigger);
+	hook(hook, trigger, args, result) {
+		if(this.events.has(Agent.ControlCharacter(hook))) {
+			const set = this.events.get(hook);
 
 			for(let handler of set) {
 				if(typeof handler === "function") {
-					result = await handler(...args);
+					result = handler(result, ...args);
 				} else if(handler instanceof Agent) {
-					result = await handler.asyncTrigger(trigger, ...args);
+					result = handler.hook(hook, trigger, args, result);
+				}
+				
+				if(hook === Agent.ControlCharacter(`filter`)) {
+					return result;
 				}
 			}
 		}
 
-		return await Promise.resolve(result);
+		return result;
 	}
+	trigger(trigger, args, result = this.getState()) {
+		if(this.events.has(trigger)) {
+			const set = this.events.get(trigger);
 
+			for(let handler of set) {
+				if(typeof handler === "function") {
+					result = handler(result, ...args);
+				} else if(handler instanceof Agent) {
+					result = handler.trigger(trigger, args, result);
+				}
+			}
+		}
+
+		return result;
+	}
 	/**
 	 * This method is a wrapper around << .trigger >> that will process several layers of
 	 * middlerware before and after the actual invocation of the @trigger.  This method
@@ -239,81 +226,42 @@ export class Agent {
 		}
 
 		//?	Optionally mutate the passed @args
-		const mutatorResult = this.trigger(Agent.ControlCharacter(`mutator`), trigger, ...args);
+		const mutatorResult = this.hook(Agent.ControlCharacter(`mutator`), trigger, args);
 		if(mutatorResult !== void 0) {
 			args = mutatorResult;
 		}
 
 		//? Optionally short-circuit the event, if a filter hook returns << true >>
-		const filterResult = this.trigger(Agent.ControlCharacter(`filter`), trigger, ...args);
+		const filterResult = this.hook(Agent.ControlCharacter(`filter`), trigger, args);
 		if(filterResult === true) {
 			return;
 		}
 
 		//? Process the hooks, acting as a state reducer
-		const oldState = this.state;
-		let newState = this.trigger(trigger, ...args);
-		if(newState === void 0) {
-			newState = oldState;
-		}
-		const stateObj = { current: newState, previous: oldState, timestamp: Date.now() };
-		if(oldState !== newState) {
-			this.state = newState;
+		const previous = this.getState();
+		const next = this.trigger(trigger, args);
+
+		if(next !== previous) {
+			this.state = next;
+
+			const payload = {
+				id: uuid(),
+				state: this.getState(),
+				previous,
+				emitter: this.id,
+				trigger,
+				args,
+				timestamp: Date.now(),
+			};
 
 			//? Optionally broadcast the state change, passing the state object
-			const updateResult = this.trigger(Agent.ControlCharacter(`update`), trigger, stateObj);
+			const updateResult = this.hook(Agent.ControlCharacter(`update`), trigger, [ payload ]);
 		}
 
 		//? Optionally emit effect hooks, passing the state object
-		const effectResult = this.trigger(Agent.ControlCharacter(`effect`), trigger, stateObj);
+		const effectResult = this.hook(Agent.ControlCharacter(`effect`), trigger, [ this.getState(), ...args ]);
 
-		return stateObj;
-	}
-	/**
-	 * An explicitly-defined async version of << .emit >>, that is otherwise identical.
-	 * 
-	 * This method is a wrapper around << .asyncTrigger >> that will process several layers of
-	 * middlerware before and after the actual invocation of the @trigger.  This method
-	 * also prevents direct invocations of command triggers, whereas << .asyncTrigger >> does not.
-	 * 
-	 * This construction allows for:
-	 * 	- Argument mutation (`mutator`)
-	 *  - Short-circuit evaluation (`filter`)
-	 *  - Update listening (`update`)
-	 *  - Effect listening (`effect`)
-	 */
-	async asyncEmit(trigger, ...args) {
-		if(typeof trigger === "string" && trigger[ 0 ] === Agent.ControlCharacter()) {
-			return;
-		}
-
-		//?	Optionally mutate the passed @args
-		const mutatorResult = await this.asyncTrigger(Agent.ControlCharacter(`mutator`), trigger, ...args);
-		if(mutatorResult !== void 0) {
-			args = mutatorResult;
-		}
-
-		//? Optionally short-circuit the event, if a filter hook returns << true >>
-		const filterResult = await this.asyncTrigger(Agent.ControlCharacter(`filter`), trigger, ...args);
-		if(filterResult === true) {
-			return;
-		}
-
-		//? Process the hooks, acting as a state reducer
-		const oldState = this.state;
-		const newState = await this.asyncTrigger(trigger, ...args);
-		const stateObj = { current: newState, previous: oldState, timestamp: Date.now() };
-		if(oldState !== newState) {
-			this.state = newState;
-
-			//? Optionally broadcast the state change, passing the state object
-			const updateResult = await this.asyncTrigger(Agent.ControlCharacter(`update`), trigger, stateObj);
-		}
-
-		//? Optionally emit effect hooks, passing the state object
-		const effectResult = await this.asyncTrigger(Agent.ControlCharacter(`effect`), trigger, stateObj);
-
-		return stateObj;
+		return this.getState();
 	}
 };
 

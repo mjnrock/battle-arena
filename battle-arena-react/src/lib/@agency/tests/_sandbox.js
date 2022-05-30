@@ -7,34 +7,70 @@ Console.NewContext();
 const agent = new Agent({
 	id: "catscatscats",
 	state: {
-		test: "test",
+		cats: 2,
 	},
-	triggers: {
-		//*	Command Handlers
-		[ `#mutator` ]: (...args) => args,
-		[ `#filter` ]: (...args) => false,
-		[ `#update` ]: (...args) => console.log(`UPDATE`, ...args),
-		[ `#effect` ]: (...args) => console.log(`EFFECT`),
-
-		//*	Reducers
+	events: {
 		cat: [
 			(state, ...args) => {
-				console.log(1111, state, ...args)
-
-				return { cats: 5 };
+				return { cats: state.cats + 5 };
 			},
 			(state, ...args) => {
-				console.log(2222, state, ...args)
-
-				return { cats: (state.cats || 3) + 15 };
+				return { cats: state.cats + 5 };
 			},
 		],
 	},
+	// hooks: {
+	// 	filter: (trigger, ...args) => {
+	// 		console.log(`FILTER`, ...args);
+	
+	// 		return false;
+	// 	},
+	// },
 });
 
+agent.addEvents({
+	cat: [
+		(state, ...args) => {
+			return { cats: state.cats + 5 };
+		},
+		(state, ...args) => {
+			return { cats: state.cats + 5 };
+		},
+	],
+});
+agent.addHooks({
+	// mutator: (trigger, ...args) => {
+	// 	console.log(`MUTATOR`, ...args);
+
+	// 	return [ 4, 5, 6 ];
+	// },
+	// filter: (trigger, ...args) => {
+	// 	console.log(`FILTER`, ...args);
+
+	// 	return false;
+	// },
+	update: (trigger, { previous, state }, ...args) => console.log(`UPDATE`, previous, state),
+	// effect: (trigger, ...args) => console.log(`EFFECT`, ...args),
+});
+// agent.addHooks([
+// 	[ `mutator`, [ (trigger, ...args) => {
+// 		console.log(`MUTATOR`, ...args);
+
+// 		return args;
+// 	} ] ],
+// 	[ `filter`, [ (trigger, ...args) => {
+// 		console.log(`FILTER`, ...args);
+
+// 		return false;
+// 	} ] ],
+// 	[ `update`, (trigger, ...args) => console.log(`UPDATE`, ...args), ],
+// 	[ `effect`, (trigger, ...args) => console.log(`EFFECT`, ...args), ],
+// ]);
+
 //?	Test instantiation of Agent and trigger "cat" handlers
-// console.log(agent)
+// console.log(agent.state)
 // agent.trigger("cat", Date.now());
+// console.log(agent.state)
 
 //?	Test trigger "cat" handlers and middleware execution of .emit
 console.log(agent.state)
