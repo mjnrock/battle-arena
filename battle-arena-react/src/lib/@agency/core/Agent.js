@@ -26,6 +26,8 @@ export class Agent {
 		this.events = new Map();
 
 		this.config = {
+			allowRPC: false,
+
 			queue: new Set(),
 			batchSize: 1000,
 			isBatchProcessing: false,
@@ -269,7 +271,15 @@ export class Agent {
 
 		return result;
 	}
-	trigger(trigger, args, result = this.getState()) {
+	
+	rpc(name, ...args) {
+		if(this.config.allowRPC === true) {
+			if(name in this) {
+				return this[ name ](...args);
+			}
+		}
+	}
+	trigger(trigger, args = [], result = this.getState()) {
 		if(this.events.has(trigger)) {
 			const set = this.events.get(trigger);
 
@@ -280,6 +290,8 @@ export class Agent {
 					result = handler.trigger(trigger, args, result);
 				}
 			}
+		} else {
+			return this.rpc(trigger, ...args);
 		}
 
 		return result;
@@ -295,7 +307,7 @@ export class Agent {
 	 *  - Update listening (`update`)
 	 *  - Effect listening (`effect`)
 	 */
-	emit(trigger, ...args) {		
+	emit(trigger, ...args) {
 		if(typeof trigger === "string" && trigger[ 0 ] === Agent.ControlCharacter()) {
 			return;
 		}
