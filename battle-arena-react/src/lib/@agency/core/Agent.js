@@ -238,26 +238,20 @@ export class Agent {
 
 		return this;
 	}
-	process() {
+	process(supressUpdates = true) {
 		let result = this.getState();
 		if(this.config.isBatchProcessing) {
-			this.hook(Agent.Hooks.BATCH, "start", result);
-			
 			const queue = Array.from(this.config.queue);
 			const batch = queue.splice(0, this.config.batchSize);
 			
-			for(let [ trigger, args ] of batch) {
-				this.hook(Agent.Hooks.BATCH, "before", result);
-				
-				result = this.__handleEmission(trigger, ...args);
-				
-				this.hook(Agent.Hooks.BATCH, "after", result);
+			for(let [ trigger, args ] of batch) {				
+				result = this.__handleEmission(trigger, args, supressUpdates);
 			}
 			
 			this.setState(result);
-			this.config.queue = new Set(queue);
+			const updateResult = this.hook(Agent.Hooks.UPDATE, Agent.Hooks.BATCH, [ this.getState() ]);
 			
-			this.hook(Agent.Hooks.BATCH, "end", result);
+			this.config.queue = new Set(queue);
 		}
 
 		return result;
@@ -284,12 +278,12 @@ export class Agent {
 
 			const set = this.events.get(hook);
 			for(let handler of set) {
-				if(hook === Agent.ControlCharacter(Agent.Hooks.BATCH)) {
+				if(hook === Agent.ControlCharacter(Agent.Hooks.UPDATE)) {
 					const stage = trigger;
 					if(typeof handler === "function") {
-						result = handler(result, stage, ...args);
+						handler(trigger, ...args);
 					} else if(handler instanceof Agent) {
-						result = handler.hook(hook, stage, args, result);
+						handler.hook(hook, trigger, args, result);
 					}
 				} else {
 					if(typeof handler === "function") {
@@ -360,10 +354,9 @@ export class Agent {
 			return this.queue(trigger, args);
 		}
 
-		return this.__handleEmission(trigger, ...args);
+		return this.__handleEmission(trigger, args);
 	}
-	__handleEmission(trigger, ...args) {
-
+	__handleEmission(trigger, args, suppress = false) {
 		//?	Optionally mutate the passed @args
 		const mutatorResult = this.hook(Agent.Hooks.MUTATOR, trigger, args);
 		if(mutatorResult !== void 0) {
@@ -380,21 +373,24 @@ export class Agent {
 		const previous = this.getState();
 		const next = this.trigger(trigger, args);
 
+		const payload = {
+			id: uuid(),
+			state: next,
+			previous,
+			emitter: this.id,
+			trigger,
+			args,
+			timestamp: Date.now(),
+		};
+
 		if(next !== previous) {
 			this.state = next;
 
-			const payload = {
-				id: uuid(),
-				state: this.getState(),
-				previous,
-				emitter: this.id,
-				trigger,
-				args,
-				timestamp: Date.now(),
-			};
-
-			//? Optionally broadcast the state change, passing the state object
-			const updateResult = this.hook(Agent.Hooks.UPDATE, trigger, [ payload ]);
+			// Suppress the update if this is invoked by a batch process
+			if(!suppress) {
+				//? Optionally broadcast the state change, passing the state object
+				const updateResult = this.hook(Agent.Hooks.UPDATE, trigger, [ payload ]);
+			}
 		}
 
 		//? Optionally emit effect hooks, passing the state object

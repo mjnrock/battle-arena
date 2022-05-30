@@ -15,7 +15,6 @@ const agent = new Agent({
 	events: {
 		cat: [
 			(state, ...args) => {
-				console.log(696969, "CAT CALL")
 				return { cats: state.cats + 5 };
 			},
 			// (state, ...args) => {
@@ -59,8 +58,9 @@ agent.addHooks({
 
 		return false;
 	},
-	update: (trigger, { previous, state }, ...args) => console.log(`UPDATE`, previous, state),
-	// batch: (result, stage, ...args) => console.log(`BATCH`, stage, ...args),
+	update: (...args) => console.log(`UPDATE`, ...args),
+	batch_start: (result, stage, ...args) => console.log(`BATCH START`, ...args),
+	batch_end: (result, stage, ...args) => console.log(`BATCH END`, ...args),
 	// effect: (trigger, ...args) => console.log(`EFFECT`, ...args),
 });
 // agent.addHooks([
@@ -88,14 +88,12 @@ agent.addHooks({
 // agent.emit("cat", Date.now());
 // console.log(agent.state)
 
-agent.config.batchSize = 1;
+agent.config.batchSize = 10;
 agent.config.isBatchProcessing = true;
 agent.emit("cat", Date.now(), 1);
 agent.emit("cat", Date.now(), 2);
 agent.emit("cat", Date.now(), 3);
 console.log(agent)
-console.log(agent.state)
-agent.process();
 console.log(agent.state)
 agent.process();
 console.log(agent.state)
