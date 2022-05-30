@@ -404,6 +404,7 @@ export class Agent {
 	}
 	//#endregion Emission
 
+	//#region Serialization
 	toObject(includeId = true) {
 		const obj = {
 			...this,
@@ -421,7 +422,9 @@ export class Agent {
 	toJson() {
 		return JSON.stringify(this.toString());
 	}
+	//#endregion Serialization
 
+	//#region Instantiation
 	static Create({ id, state = {}, events = {}, hooks = {}, config = {} } = {}) {
 		return new this({ id, state, events, hooks, config });
 	}
@@ -453,6 +456,7 @@ export class Agent {
 
 		return agents;
 	}
+	//#endregion Instantiation
 };
 
 export default Agent;
