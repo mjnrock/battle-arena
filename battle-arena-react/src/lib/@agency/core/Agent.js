@@ -1,16 +1,16 @@
 import { v4 as uuid } from "uuid";
 
 export class Agent {
-	static ControlCharacter = (command = ``) => {
-		const cmdChar = `#`;
+	static ControlCharacter = (hook = ``) => {
+		const char = `#`;
 
-		if(command[ 0 ] === cmdChar) {
-			return command;
-		} else if(command.length) {
-			return `${ cmdChar }${ command }`;
+		if(hook[ 0 ] === char) {
+			return hook;
+		} else if(hook.length) {
+			return `${ char }${ hook }`;
 		}
 
-		return cmdChar;
+		return char;
 	}
 
 	constructor ({ id, state = {}, events = {}, hooks = {} } = {}) {
