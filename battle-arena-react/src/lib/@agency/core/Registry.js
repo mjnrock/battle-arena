@@ -1,23 +1,28 @@
 import { validate } from "uuid";
 import { v4 as uuid } from "uuid";
 
-export class Registry {
+import AgencyBase from "./AgencyBase";
+import { RegistryEntry } from "./RegistryEntry";
+
+export class Registry extends AgencyBase {
 	static Constants = {
 		NoResults: Symbol("NoResults"),
 	};
 
-	constructor (entries = []) {
+	constructor (entries = [], agencyBaseObj = {}) {
+		super(agencyBaseObj);
+
 		this.registry = new Map();
 		this.registerMany(...entries);
 
 		return new Proxy(this, {
 			get: (target, key) => {
 				const result = Reflect.get(target, key);
-				
-				if(validate(key)) {
-					return target.registry.get(key);
-				} else if(validate(result)) {
-					return target.registry.get(result);
+
+				if(typeof target[ key ] === "function") {
+					return result;
+				} else if(target.has(key)) {
+					return target.decoder(key);
 				}
 
 				return result;
@@ -25,17 +30,44 @@ export class Registry {
 		});
 	}
 
+	encoder(id, entry, type = RegistryEntry.Type.VALUE) {
+		this.registry.set(id, new RegistryEntry(id, entry, type));
+	}
+	decoder(input) {
+		if(validate(input)) {								//* @input is a valid UUID
+			const result = this.registry.get(input);
+
+			if(result instanceof RegistryEntry) {
+				return result.value;
+			}
+		} else if(this.registry.has(input)) {				//* @input is an alias
+			const result = this.registry.get(input);
+			
+			if(result instanceof RegistryEntry) {
+				if(result.type === RegistryEntry.Type.POOL) {
+					return result.value.map(id => this.decoder(id));
+				}
+
+				return this.decoder(result.value);
+			}
+		} else if(typeof input === "function") {			//* @input is a function
+			return this.decoder(input(this));
+		}
+
+		return Registry.Constants.NoResults;
+	}
+
 	has(id) {
 		return this.registry.has(id);
 	}
 	get(id) {
-		return this.registry.get(id);
+		return this.decoder(id);
 	}
 	find(input) {
 		if(validate(input)) {
-			return this.registry.get(input);			//* @input is a valid UUID
+			return this.decoder(input);			//* @input is a valid UUID
 		} else if(this.registry.has(input)) {
-			return this.get(this.registry.get(input));	//* @input is an alias
+			return this.get(this.decoder(input));	//* @input is an alias
 		} else if(typeof input === "function") {
 			const results = [];
 			for(let [ id, entry ] of this.registry) {
@@ -51,7 +83,7 @@ export class Registry {
 	}
 	set(id, entry) {
 		if(validate(id)) {
-			this.registry.set(id, entry);
+			this.encoder(id, entry, RegistryEntry.Type.VALUE);
 
 			return true;
 		}
@@ -77,13 +109,13 @@ export class Registry {
 
 	register(entry) {
 		if(typeof entry === "object" && "id" in entry) {
-			this.registry.set(entry.id, entry);
+			this.encoder(entry.id, entry, RegistryEntry.Type.VALUE);
 
 			return entry.id;
 		}
 
 		const id = uuid();
-		this.registry.set(id, entry);
+		this.encoder(id, entry, RegistryEntry.Type.VALUE);
 
 		return id;
 	}
@@ -98,7 +130,7 @@ export class Registry {
 	addAlias(id, ...aliases) {
 		if(this.has(id)) {
 			for(let alias of aliases) {
-				this.registry.set(alias, id);
+				this.encoder(alias, id, RegistryEntry.Type.ALIAS);
 			}
 
 			return true;
@@ -118,7 +150,7 @@ export class Registry {
 		return false;
 	}
 	getIdFromAlias(alias) {
-		return this.registry.get(alias);
+		return this.decoder(alias);
 	}
 	getAliasFromId(id, firstMatchOnly = true) {
 		const results = [];
@@ -149,7 +181,27 @@ export class Registry {
 		return results;
 	}
 
-	filter(selector) {		
+	setPool(tag, ...ids) {
+		if(Array.isArray(ids[ 0 ])) {
+			[ ids ] = ids;
+		}
+
+		this.encoder(tag, ids, RegistryEntry.Type.POOL);
+
+		return this;
+	}
+	getPool(tag) {
+		const pool = this.registry.get(tag);
+
+		if(pool instanceof RegistryEntry && pool.type === RegistryEntry.Type.POOL) {
+			return pool.value.map(id => this.decoder(id));
+		}
+
+		return [];
+	}
+
+
+	filter(selector) {
 		if(typeof selector === "function") {
 			const results = [];
 			for(let [ id, entry ] of this.registry) {
@@ -207,7 +259,7 @@ export class Registry {
 			} else {
 				entries = this.registry.values();
 			}
-			
+
 			let result = initialValue;
 			for(let i = 0; i < entries.length; i++) {
 				result = fn(result, entries[ i ], i);
@@ -218,4 +270,41 @@ export class Registry {
 
 		return Registry.Constants.NoResults;
 	}
-}
+
+	union(...tags) {
+		const results = new Set();
+		for(let tag of tags) {
+			const pool = this.getPool(tag);
+			
+			for(let entry of pool) {
+				results.add(entry);
+			}
+		}
+		
+		return results.values();
+	}
+	intersection(...tags) {
+		const results = new Map();
+		for(let tag of tags) {
+			const pool = this.getPool(tag);
+			
+			for(let entry of pool) {
+				if(results.has(entry)) {
+					results.set(entry, results.get(entry) + 1);
+				} else {
+					results.set(entry, 1);
+				}
+			}
+		}
+
+		for(let [ entry, count ] of results) {
+			if(count < tags.length) {
+				results.delete(entry);
+			}
+		}
+
+		return results.keys();
+	}
+};
+
+export default Registry;

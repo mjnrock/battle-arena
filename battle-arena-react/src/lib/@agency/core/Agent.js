@@ -1,6 +1,7 @@
 import { v4 as uuid } from "uuid";
+import AgencyBase from "./AgencyBase";
 
-export class Agent {
+export class Agent extends AgencyBase {
 	static ControlCharacter = (hook = ``) => {
 		const char = `#`;
 
@@ -21,8 +22,9 @@ export class Agent {
 		DESTROY: `destroy`,
 	};
 
-	constructor ({ id, state = {}, events = {}, hooks = {}, config = {} } = {}) {
-		this.id = id || uuid();
+	constructor ({ id, state = {}, events = {}, hooks = {}, config = {}, tags = [] } = {}) {
+		super({ id, tags });
+		
 		this.state = {};
 		this.events = new Map();
 
