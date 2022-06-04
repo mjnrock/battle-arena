@@ -1,35 +1,82 @@
-import { validate } from "uuid";
-
 import Agent from "./Agent";
+import { Registry } from "./Registry";
 
-/**
- * A centralized Agent factory and messaging center.
- * A Context handler should *always* respond to the target as the second parameter [ e.g. (trigger, target, ...payload) ]
- */
 export class Context extends Agent {
+	static Hooks = {
+		...Agent.Hooks,
+
+		RECEIVE: "receive",
+	};
+
 	constructor(agents = [], agentObj = {}) {
-		super({
-			config: {
-				isReducer: false,
-			},
-			...agentObj,
-		});
+		super(agentObj);
 
+		//*	this.registry = new Registry();
 		this.registry = new Map();
-		this.receiver = agent => (effect, ...args) => this.$route.call(this, agent, ...args);
-		this.registerAgent(...agents);	// Seed Context with an initial group of Agents
+		
+		//?	Verify that you can u/register this function as expected, or if this creates a variable reference
+		this.receiver = (agent) => (...args) => this.trigger(Context.Hooks.RECEIVE, [ agent, args ]);
+		this.registerAgent(...agents);
+	}
 
-		this.hook(Agent.Hooks.GET, (target, prop, value) => {
-			const entry = target.registry.get(prop);
+	getAgent(aid) {
+		return this.registry.get(aid);
+	}
+	getAgents(...aids) {
+		const results = new Map();
 
-			if(entry) {
-				if(validate(entry)) {
-					return target.registry.get(entry);
-				}
+		for(let aid of aids) {
+			const agent = this.getAgent(aid);
 
-				return entry;
+			if(agent) {
+				results.set(aid, agent);
+			} else {
+				results.set(aid, false);
 			}
-		});
+		}
+
+		return results;
+	}
+	hasAgent(aid) {
+		return this.registry.has(aid);
+	}
+	hasAgents(...aids) {
+		const results = new Map();
+
+		for(let aid of aids) {
+			results.set(aid, this.hasAgent(aid));
+		}
+
+		return results;
+	}
+	
+	attachReceiver(agent) {
+		agent.addEvent(Agent.Hooks.EFFECT, this.receiver(agent));
+
+		return this;
+	}
+	registerAgent(...agents) {
+		for(let agent of agents) {
+			if(agent instanceof Agent) {
+				this.registry.set(agent.id, agent);
+				this.attachReceiver(agent);
+			}
+		}
+		
+		return this;
+	}
+	detachReceiver(agent) {
+		agent.removeEvent(Agent.Hooks.EFFECT, this.receiver(agent));
+
+		return this;
+	}
+	unregisterAgent(...agents) {
+		for(let agent of agents) {
+			this.registry.delete(agent.id);
+			this.detachReceiver(agent);
+		}
+
+		return this;
 	}
 
 	/**
@@ -43,205 +90,71 @@ export class Context extends Agent {
             next: () => ({ value: data[ ++index ], done: !(index in data) })
         };
     }
-
-	/**
-	 * Add @agents to the registry and attach the receiver fn as an effect handler
-	 */
-	registerAgent(...agents) {
-		for(let agent of agents) {
-			this.registry.set(agent.id, agent);
-			agent.addTrigger(agent.config.triggers.effect, this.receiver(agent));
-		}
-
-
-		return this;
-	}
-	/**
-	 * Undo .register
-	 */
-	unregisterAgent(...agents) {
-		for(let agent of agents) {
-			this.registry.delete(agent.id);
-			agent.removeTrigger(agent.config.triggers.effect, this.receiver(agent));	//TODO This isn't going to unassign correctly
-		}
-
-
-		return this;
-	}
-
-	getAgent(id) {
-		const agent = this.registry.get(id);
-
-		if(agent instanceof Agent) {
-			return agent;
-		}
-
-		return false;
-	}
-	hasAgent(agentOrId) {
-		const id = validate(agentOrId) ? agentOrId : agentOrId.id;
-
-		return this.registry.has(id);
-	}
-	addAgent(agent, ...aliases) {
-		this.registerAgent(agent);
-		this.addAlias(agent, ...aliases);
-
-		return this;
-	}
-	removeAgent(agent) {
-		this.unregisterAgent(agent);
-		for(let [ key, value ] of Object.entries(this.registry)) {
-			if(key === agent.id || value === agent.id) {	// Remove id and aliases
-				this.registry.delete(key);
-			}
-		}
-
-		return this;
-	}
-
-	_makeAlias(agent) {}
-	hasAlias(alias) {
-		return this.registry.has(alias);
-	}
-	addAlias(agentOrId, ...aliases) {
-		const id = validate(agentOrId) ? agentOrId : agentOrId.id;
-
-		for(let alias of aliases) {
-			this.registry.set(alias, id);
-		}
-
-		return this;
-	}
-	removeAlias(...aliases) {
-		for(let alias of aliases) {
-			this.registry.delete(alias);
-		}
-
-		return this;
-	}
-
-	/**
-	 * Instantiate @qty Agents and immediately .register them
-	 */
-	spawn(qty = 1, fnOrObj) {
-		const agents = Agent.Factory(qty, fnOrObj, (agent) => {
-			this.registerAgent(agent);
-		});
-
-		return agents;
-	}
-	/**
-	 * Undo .spawn and terminate the Agent
-	 */
-	despawn(...agents) {
-		for(let agent of agents) {
-			this.unregisterAgent(agent);
-
-			agent.terminate();
-		}
-
-		return this;
-	}
-
 	
-	forEach(fn, selector) {
-		const results = new Map();
+	triggerAt(aid, trigger, ...args) {
+		const agent = this.registry.get(aid);
 
-		if(typeof fn === "function") {
-			let entries;
-			if(typeof selector === "function") {
-				entries = this.filter(selector);
-			} else {
-				entries = this.registry.values();
-			}
-
-			for(let agent of entries) {
-				results.set(agent.id, fn(agent, this));
-			}
+		if(agent) {
+			return agent.trigger(trigger, ...args);
 		}
-
-		return results;
 	}
-	get map() {
-		return this.forEach;
-	}
-	filter(fn) {
-		const results = new Map();
+	triggerAll(trigger, ...args) {
+		const results = [];
 		for(let agent of this.registry.values()) {
-			if(fn(agent) === true) {
-				results.set(agent.id, agent);
+			results.push(agent.trigger(trigger, ...args));
+		}
+
+		return results;
+	}
+	triggerSome(aid = [], trigger, ...args) {
+		const results = [];
+		
+		if(!Array.isArray(aid)) {
+			aid = [ aid ];
+		}
+		
+		for(let agent of this.registry.values()) {
+			if(typeof aid === "function" && aid(agent) === true) {
+				results.push(agent.trigger(trigger, ...args));
+			} else if(aid.includes(agent.id)) {
+				results.push(agent.trigger(trigger, ...args));
 			}
 		}
 
 		return results;
 	}
-	reduce(fn, initialValue) {
-		let result = initialValue;
 
-		if(typeof fn === "function") {
-			for(let agent of this.registry.values()) {
-				result = fn(agent, result);
+	emitAt(aid, trigger, ...args) {
+		const agent = this.registry.get(aid);
+
+		if(agent) {
+			return agent.emit(trigger, ...args);
+		}
+	}
+	emitAll(trigger, ...args) {
+		const results = [];
+		for(let agent of this.registry.values()) {
+			results.push(agent.emit(trigger, ...args));
+		}
+
+		return results;
+	}
+	emitSome(aid = [], trigger, ...args) {
+		const results = [];
+		
+		if(!Array.isArray(aid)) {
+			aid = [ aid ];
+		}
+
+		for(let agent of this.registry.values()) {
+			if(typeof aid === "function" && aid(agent) === true) {
+				results.push(agent.emit(trigger, ...args));
+			} else if(aid.includes(agent.id)) {
+				results.push(agent.emit(trigger, ...args));
 			}
 		}
-
-		return result;
-	}
-
-	exchange(context, ...agents) {
-		const [ selector ] = agents;
-
-		if(typeof selector === "function") {
-			agents = selector(context, this);
-		}
-
-		for(let agent of agents) {
-			context.register(agent);
-			this.unregisterAgent(agent);
-		}
-
-		return this;
-	}
-
-	/**
-	 * Overload self for differentiation in handlers
-	 */
-	trigger(trigger, ...args) {
-		return this.invoke(trigger, this, ...args);
-	}
-
-	/**
-	 * Call << .invoke >> on all Agents in the .registry
-	 */
-	send(trigger, ...args) {
-		for(let agent of Object.values(this.registry)) {
-			if(agent instanceof Agent) {
-				agent.invoke(trigger, ...args);
-			}
-		}
-
-		return this;
-	}
-	/**
-	 * Easily send to an Agent by passing that Agent's .id
-	 * Optionally, id can be (nested) id[], to pass the same data to multiple Agents
-	 */
-	sendTo(id, trigger, ...args) {
-		if(Array.isArray(id)) {
-			for(let i of id) {
-				this.sendTo(i, trigger, id);
-			}
-
-			return this;
-		}
-
-		const agent = this.registry.get(id);
-
-		if(agent instanceof Agent) {
-			return agent.invoke(trigger, ...args);
-		}
-
-		return this;
+		
+		return results;
 	}
 };
 

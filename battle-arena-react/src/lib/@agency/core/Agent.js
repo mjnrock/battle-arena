@@ -105,6 +105,9 @@ export class Agent {
 
 		return this;
 	}
+	get on() {
+		return this.addEvent;
+	}
 	addEvents(object) {
 		if(Array.isArray(object)) {
 			return this.addEventsByEntries(object);
@@ -134,6 +137,9 @@ export class Agent {
 		}
 
 		return this;
+	}
+	get off() {
+		return this.removeEvent;
 	}
 	removeEvents(...triggers) {
 		for(let trigger of triggers) {
@@ -384,7 +390,7 @@ export class Agent {
 		};
 
 		if(next !== previous) {
-			this.state = next;
+			this.setState(next);
 
 			// Suppress the update if this is invoked by a batch process
 			if(!suppress) {

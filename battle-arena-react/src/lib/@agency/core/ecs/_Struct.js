@@ -13,7 +13,7 @@ export class Struct {
 	constructor (state = {}, { evaluateState = false, id, hooks = {} } = {}) {
 		this.id = id || uuid();
 		
-		Reflect.defineProperty(this, "$hooks", {
+		Reflect.defineProperty(this, "_hooks", {
 			configurable: false,
 			enumerable: false,
 			writable: false,
@@ -27,7 +27,7 @@ export class Struct {
 				...hooks, // Seed object
 			},
 		});
-		Reflect.defineProperty(this, "$meta", {	//? Allow a space for metadata/config information
+		Reflect.defineProperty(this, "_meta", {	//? Allow a space for metadata/config information
 			configurable: false,
 			enumerable: false,
 			writable: true,
@@ -37,7 +37,7 @@ export class Struct {
 		const proxy = new Proxy(this, {
 			get: (target, prop) => {
 				let current = Reflect.get(target, prop);
-				for(let fn of target.$hooks.view) {
+				for(let fn of target._hooks.view) {
 					const result = fn(target, prop, current);
 
 					// Short-circuit execution and return substitute value
@@ -50,7 +50,7 @@ export class Struct {
 			},
 			set: (target, prop, value) => {
 				let newValue = value;
-				for(let fn of target.$hooks.reducer) {
+				for(let fn of target._hooks.reducer) {
 					newValue = fn(target, prop, value);
 
 					if(newValue === Struct.Hooks.Abort) {
@@ -60,7 +60,7 @@ export class Struct {
 
 				const returnVal = Reflect.set(target, prop, newValue);
 
-				for(let fn of target.$hooks.effect) {
+				for(let fn of target._hooks.effect) {
 					fn(target, prop, newValue);
 				}
 
@@ -68,7 +68,7 @@ export class Struct {
 			},
 			deleteProperty: (target, prop) => {
 				let shouldDelete = true;
-				for(let fn of target.$hooks.delete) {
+				for(let fn of target._hooks.delete) {
 					shouldDelete = fn(target, prop, shouldDelete);
 
 					if(shouldDelete === Struct.Hooks.Abort) {
@@ -123,26 +123,12 @@ export class Struct {
 		return this;
 	}
 
-
-	async repeat(fnName, iters = 1, ...args) {
-		const fn = typeof fnName === "function" ? fnName : this[ fnName ];
-		const results = [];
-
-		if(typeof fn === "function") {
-			for(let i = 0; i < iters; i++) {
-				results.push(await fn.call(this, ...args));
-			}
-		}
-
-		return results;
-	}
-
 	toArray(includeId = true) {
 		const obj = {
 			...this,
 		};
 
-		delete obj.$hooks;
+		delete obj._hooks;
 		if(includeId === false) {
 			delete obj.id;
 		}
@@ -160,7 +146,7 @@ export class Struct {
 			...this,
 		};
 
-		delete obj.$hooks;
+		delete obj._hooks;
 		if(includeId === false) {
 			delete obj.id;
 		}
