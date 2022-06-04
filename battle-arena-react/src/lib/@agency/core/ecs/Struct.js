@@ -98,6 +98,38 @@ export class Struct {
 		
 		return this;
 	}
+	find(input, { firstMatchOnly = false, regexKey = true, regexValue = false } = {}) {
+		const results = [];
+		if(typeof input === "function") {
+			for(let [ key, value ] of this) {
+				if(input(key, value, this) === true) {					
+					if(firstMatchOnly) {
+						return value;
+					}
+
+					results.push(value);
+				}
+			}
+		} else if(input instanceof RegExp) {
+			for(let [ key, value ] of this) {
+				if(regexKey && input.test(key)) {
+					if(firstMatchOnly) {
+						return value;
+					}
+
+					results.push(value);
+				} else if(regexValue && (typeof value === "string" || typeof value === "number") && input.test(value.toString())) {
+					if(firstMatchOnly) {
+						return value;
+					}
+
+					results.push(value);
+				}
+			}
+		}
+
+		return results;
+	}
 	remove(prop) {
 		if(typeof prop === "object") {
 			for(let key of Object.keys(prop)) {
