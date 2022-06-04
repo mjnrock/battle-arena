@@ -20,14 +20,14 @@ registry.setPool("test", a1.id, a2.id);
 registry.setPool("test2", a1.id, a2.id);
 registry.setPool("test3", a1.id);
 
-console.log(registry.size);
-console.log(registry.sizeAlias);
-console.log(registry.sizePools);
-console.log(registry.r2.AONE.id);
-console.log(registry.num);
-console.log(registry.ids);
-console.log(registry.aliases);
-console.log(registry.pools);
+// console.log(registry.size);
+// console.log(registry.sizeAlias);
+// console.log(registry.sizePools);
+// console.log(registry.r2.AONE.id);
+// console.log(registry.num);
+// console.log(registry.ids);
+// console.log(registry.aliases);
+// console.log(registry.pools);
 
 // console.log(registry.get("a1").id);
 // console.log(registry.a1.id);
@@ -44,3 +44,20 @@ console.log(registry.pools);
 // registry.addToPool("test", a3.id);
 // registry.addToPool("test", a3.id);
 // console.log(registry.getEntryValue("test").length);
+
+// console.log(registry.size);
+// registry.remove("a1");
+// registry.remove(a1.id);
+// console.log(registry.size);
+
+// console.log(registry2.size);
+// console.log(registry2.keys);
+// registry2.merge(registry);
+// console.log(registry2.size);
+// console.log(registry2.keys);
+
+// for(let entry of registry) {
+// 	console.log(entry);
+// }
+
+console.log(registry.toString())

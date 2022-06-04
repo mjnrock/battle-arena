@@ -30,6 +30,17 @@ export class Registry extends AgencyBase {
 		});
 	}
 
+	[ Symbol.iterator ]() {
+		const data = this.ids.map(id => this.get(id));
+		let index = 0;
+
+		return {
+			next: function () {
+				return { value: data[ ++index ], done: !(index in data) }
+			}
+		};
+	}
+
 	encoder(id, entry, type = RegistryEntry.Type.VALUE) {
 		this.registry.set(id, new RegistryEntry(id, entry, type));
 	}
@@ -80,7 +91,11 @@ export class Registry extends AgencyBase {
 		return Registry.Constants.NoResults;
 	}
 	set(id, entry) {
-		if(validate(id)) {
+		if(id instanceof RegistryEntry) {
+			this.registry.set(id.id, id);
+
+			return true;
+		} else if(validate(id)) {
 			this.encoder(id, entry, RegistryEntry.Type.VALUE);
 
 			return true;
@@ -89,7 +104,23 @@ export class Registry extends AgencyBase {
 		return false;
 	}
 	remove(id) {
-		return this.registry.delete(id);
+		for(let [ key, entry ] of this.entries) {
+			const value = entry.value;
+
+			if(key === id) {					//* @key is the UUID
+				this.registry.delete(key);
+			} else if(entry.isAliasType) {
+				if(value === id) {
+					this.registry.delete(key);
+				}
+			} else if(entry.isPoolType) {
+				if(value.has(id)) {
+					entry.value.delete(id);
+				}
+			}
+		}
+
+		return this;
 	}
 
 	get keys() {
@@ -318,19 +349,19 @@ export class Registry extends AgencyBase {
 		const results = new Set();
 		for(let tag of tags) {
 			const pool = this.getPool(tag);
-			
+
 			for(let entry of pool) {
 				results.add(entry);
 			}
 		}
-		
+
 		return results.values();
 	}
 	intersection(...tags) {
 		const results = new Map();
 		for(let tag of tags) {
 			const pool = this.getPool(tag);
-			
+
 			for(let entry of pool) {
 				if(results.has(entry)) {
 					results.set(entry, results.get(entry) + 1);
@@ -347,6 +378,31 @@ export class Registry extends AgencyBase {
 		}
 
 		return results.keys();
+	}
+
+	copy() {
+		const registry = new Registry();
+		for(let [ id, entry ] of this.registry) {
+			registry.register(entry);
+		}
+
+		return registry;
+	}
+	merge(...registries) {
+		for(let registry of registries) {
+			for(let [ id, entry ] of registry.registry) {
+				this.set(entry);
+			}
+		}
+
+		return this;
+	}
+	mergeInto(...registries) {
+		for(let registry of registries) {
+			registry.merge(this);
+		}
+
+		return this;
 	}
 };
 

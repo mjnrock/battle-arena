@@ -7,6 +7,18 @@ export class AgencyBase {
 
 		return this;
 	}
+
+	toString() {
+		return JSON.stringify(this);
+	}
+	toJson() {
+		return JSON.stringify(this.toString());
+	}
+	toObject() {
+		return {
+			...this,
+		};
+	}
 };
 
 export default AgencyBase;

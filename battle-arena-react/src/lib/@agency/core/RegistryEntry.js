@@ -30,6 +30,19 @@ export class RegistryEntry {
 			return Array.from(this.value).map(id => registry.get(id));
 		}
 	}
+
+	get isValueType() {
+		return this.type === RegistryEntry.Type.VALUE;
+	}
+	get isAliasType() {
+		return this.type === RegistryEntry.Type.ALIAS;
+	}
+	get isFunctionType() {
+		return this.type === RegistryEntry.Type.FUNCTION;
+	}
+	get isPoolType() {
+		return this.type === RegistryEntry.Type.POOL;
+	}
 }
 
 export default RegistryEntry;
