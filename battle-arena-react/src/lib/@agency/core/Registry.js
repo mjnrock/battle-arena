@@ -34,22 +34,10 @@ export class Registry extends AgencyBase {
 		this.registry.set(id, new RegistryEntry(id, entry, type));
 	}
 	decoder(input) {
-		if(validate(input)) {								//* @input is a valid UUID
-			const result = this.registry.get(input);
-
-			if(result instanceof RegistryEntry) {
-				return result.value;
-			}
-		} else if(this.registry.has(input)) {				//* @input is an alias
-			const result = this.registry.get(input);
-			
-			if(result instanceof RegistryEntry) {
-				if(result.type === RegistryEntry.Type.POOL) {
-					return result.value.map(id => this.decoder(id));
-				}
-
-				return this.decoder(result.value);
-			}
+		if(this.has(input)) {
+			return this.registry.get(input).getValue(this);
+		} else if(input instanceof RegistryEntry) {
+			return input.getValue(this);
 		} else if(typeof input === "function") {			//* @input is a function
 			return this.decoder(input(this));
 		}
@@ -63,11 +51,21 @@ export class Registry extends AgencyBase {
 	get(id) {
 		return this.decoder(id);
 	}
+	getEntry(input) {
+		return this.registry.get(input);
+	}
+	getEntryValue(input) {
+		const entry = this.registry.get(input);
+
+		if(entry instanceof RegistryEntry) {
+			return entry.getValue(this);
+		}
+
+		return Registry.Constants.NoResults;
+	}
 	find(input) {
-		if(validate(input)) {
-			return this.decoder(input);			//* @input is a valid UUID
-		} else if(this.registry.has(input)) {
-			return this.get(this.decoder(input));	//* @input is an alias
+		if(this.has(input)) {
+			return this.get(input);
 		} else if(typeof input === "function") {
 			const results = [];
 			for(let [ id, entry ] of this.registry) {
@@ -181,6 +179,15 @@ export class Registry extends AgencyBase {
 		return results;
 	}
 
+	getPool(tag) {
+		const pool = this.registry.get(tag);
+
+		if(pool instanceof RegistryEntry && pool.type === RegistryEntry.Type.POOL) {
+			return pool.getValue(this);
+		}
+
+		return [];
+	}
 	setPool(tag, ...ids) {
 		if(Array.isArray(ids[ 0 ])) {
 			[ ids ] = ids;
@@ -190,14 +197,21 @@ export class Registry extends AgencyBase {
 
 		return this;
 	}
-	getPool(tag) {
-		const pool = this.registry.get(tag);
-
-		if(pool instanceof RegistryEntry && pool.type === RegistryEntry.Type.POOL) {
-			return pool.value.map(id => this.decoder(id));
+	addToPool(tag, ...ids) {
+		if(Array.isArray(ids[ 0 ])) {
+			[ ids ] = ids;
 		}
 
-		return [];
+		const pool = this.getEntry(tag);
+		if(pool instanceof RegistryEntry && pool.type === RegistryEntry.Type.POOL) {
+			const values = pool.value;
+
+			this.setPool(tag, [ ...values, ...ids ]);
+
+			return true;
+		}
+
+		return false;
 	}
 
 
