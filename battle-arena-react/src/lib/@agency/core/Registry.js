@@ -101,8 +101,37 @@ export class Registry extends AgencyBase {
 	get entries() {
 		return this.registry.entries();
 	}
+
+	get ids() {
+		return Array.from(this.keys).filter(key => validate(key));
+	}
+	get aliases() {
+		return Array.from(this.entries).reduce((arr, [ key, value ]) => {
+			if(value.type === RegistryEntry.Type.ALIAS) {
+				return [ ...arr, key ]
+			}
+
+			return arr;
+		}, []);
+	}
+	get pools() {
+		return Array.from(this.entries).reduce((arr, [ key, value ]) => {
+			if(value.type === RegistryEntry.Type.POOL) {
+				return [ ...arr, key ]
+			}
+
+			return arr;
+		}, []);
+	}
+
 	get size() {
 		return this.registry.size;
+	}
+	get sizeAlias() {
+		return this.aliases.length;
+	}
+	get sizePools() {
+		return this.pools.length;
 	}
 
 	register(entry) {
