@@ -2,6 +2,7 @@ import Console from "../util/Console";
 
 import Registry from "./../core/Registry";
 import Agent from "./../core/Agent";
+import RegistryEntry from "../core/RegistryEntry";
 
 Console.NewContext();
 
@@ -59,5 +60,3 @@ registry.setPool("test3", a1.id);
 // for(let entry of registry) {
 // 	console.log(entry);
 // }
-
-console.log(registry.toString())

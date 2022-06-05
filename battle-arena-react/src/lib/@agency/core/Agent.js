@@ -14,12 +14,12 @@ export class Agent extends AgencyBase {
 		return char;
 	};
 	static Hooks = {
-		MUTATOR: `mutator`,
-		FILTER: `filter`,
-		UPDATE: `update`,
-		EFFECT: `effect`,
-		BATCH: `batch`,
-		DESTROY: `destroy`,
+		MUTATOR: `mutator`,		//* Receives [ trigger, result, ...args ]
+		FILTER: `filter`,		//* Receives [ trigger, result, ...args ]
+		UPDATE: `update`,		//* Receives [ trigger, payload ]
+		EFFECT: `effect`,		//* Receives [ trigger, agent, payload ]
+		BATCH: `batch`,			//* Invokes UPDATE with [ BATCH, payload ] (payload.args = [], payload.trigger = BATCH)
+		DESTROY: `destroy`,		//* Receives []
 	};
 
 	constructor ({ id, state = {}, events = {}, hooks = {}, config = {}, tags = [] } = {}) {
@@ -256,8 +256,19 @@ export class Agent extends AgencyBase {
 				result = this.__handleEmission(trigger, args, supressUpdates);
 			}
 			
+			const previous = this.getState();
 			this.setState(result);
-			const updateResult = this.hook(Agent.Hooks.UPDATE, Agent.ControlCharacter(Agent.Hooks.BATCH), [ this.getState() ]);
+			
+			const payload = {
+				id: uuid(),
+				state: result,
+				previous,
+				emitter: this.id,
+				trigger: Agent.Hooks.BATCH,
+				args: [],
+				timestamp: Date.now(),
+			};
+			const updateResult = this.hook(Agent.Hooks.UPDATE, Agent.ControlCharacter(Agent.Hooks.BATCH), [ payload ]);
 			
 			this.config.queue = new Set(queue);
 		}
@@ -286,22 +297,21 @@ export class Agent extends AgencyBase {
 
 			const set = this.events.get(hook);
 			for(let handler of set) {
-				if(hook === Agent.ControlCharacter(Agent.Hooks.UPDATE)) {
-					const stage = trigger;
+				if(hook === Agent.ControlCharacter(Agent.Hooks.MUTATOR) || hook === Agent.ControlCharacter(Agent.Hooks.FILTER)) {
 					if(typeof handler === "function") {
-						handler(trigger, ...args);
-					} else if(handler instanceof Agent) {
-						handler.hook(hook, trigger, args, result);
-					}
-				} else {
-					if(typeof handler === "function") {
-						result = handler(result, ...args);
+						result = handler(trigger, result, ...args);
 					} else if(handler instanceof Agent) {
 						result = handler.hook(hook, trigger, args, result);
 					}
 					
 					if(hook === Agent.ControlCharacter(Agent.Hooks.FILTER)) {
 						return result;
+					}
+				} else {
+					if(typeof handler === "function") {
+						handler(trigger, ...args);
+					} else if(handler instanceof Agent) {
+						handler.hook(hook, trigger, args, result);
 					}
 				}
 			}
@@ -321,7 +331,7 @@ export class Agent extends AgencyBase {
 			}
 		}
 	}
-	trigger(trigger, args = [], result = this.getState()) {
+	trigger(trigger, args = [], state = this.getState()) {
 		if(this.events.has(trigger)) {
 			if(!Array.isArray(args)) {
 				args = [ args ];
@@ -331,16 +341,16 @@ export class Agent extends AgencyBase {
 
 			for(let handler of set) {
 				if(typeof handler === "function") {
-					result = handler(result, ...args);
+					state = handler(state, ...args);
 				} else if(handler instanceof Agent) {
-					result = handler.trigger(trigger, args, result);
+					state = handler.trigger(trigger, args, state);
 				}
 			}
 		} else {
 			return this.rpc(trigger, ...args);
 		}
 
-		return result;
+		return state;
 	}
 	/**
 	 * This method is a wrapper around << .trigger >> that will process several layers of
@@ -402,7 +412,7 @@ export class Agent extends AgencyBase {
 		}
 
 		//? Optionally emit effect hooks, passing the state object
-		const effectResult = this.hook(Agent.Hooks.EFFECT, trigger, [ this.getState(), ...args ]);
+		const effectResult = this.hook(Agent.Hooks.EFFECT, trigger, [ payload ]);
 
 		return this.getState();
 	}

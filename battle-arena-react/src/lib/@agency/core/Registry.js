@@ -2,7 +2,53 @@ import { validate } from "uuid";
 import { v4 as uuid } from "uuid";
 
 import AgencyBase from "./AgencyBase";
-import { RegistryEntry } from "./RegistryEntry";
+
+export class RegistryEntry {
+	static Type = {
+		VALUE: Symbol("VALUE"),
+		ALIAS: Symbol("ALIAS"),
+		FUNCTION: Symbol("FUNCTION"),
+		POOL: Symbol("POOL"),
+	};
+
+	constructor (id, value, type = RegistryEntry.Type.VALUE) {
+		this.id = id;
+		this.type = type;
+
+		if(type === RegistryEntry.Type.POOL) {
+			this.value = new Set(value || []);
+		} else {
+			this.value = value;
+		}
+
+		return this;
+	}
+
+	getValue(registry) {
+		if(this.type === RegistryEntry.Type.VALUE) {
+			return this.value;
+		} else if(this.type === RegistryEntry.Type.ALIAS) {
+			return registry.get(this.value);
+		} else if(this.type === RegistryEntry.Type.FUNCTION) {
+			return this.value(registry);
+		} else if(this.type === RegistryEntry.Type.POOL) {
+			return Array.from(this.value).map(id => registry.get(id));
+		}
+	}
+
+	get isValueType() {
+		return this.type === RegistryEntry.Type.VALUE;
+	}
+	get isAliasType() {
+		return this.type === RegistryEntry.Type.ALIAS;
+	}
+	get isFunctionType() {
+		return this.type === RegistryEntry.Type.FUNCTION;
+	}
+	get isPoolType() {
+		return this.type === RegistryEntry.Type.POOL;
+	}
+};
 
 export class Registry extends AgencyBase {
 	static Constants = {
@@ -41,8 +87,14 @@ export class Registry extends AgencyBase {
 		};
 	}
 
+	/**
+	 * This is a middleware encoder that will determine the actual value that will be stored in the registry.
+	 * If overriden, ensure that the value returned is a << RegistryEntry >>.
+	 */
 	encoder(id, entry, type = RegistryEntry.Type.VALUE) {
 		this.registry.set(id, new RegistryEntry(id, entry, type));
+
+		return this.registry.has(id);
 	}
 	decoder(input) {
 		if(this.has(input)) {
@@ -134,7 +186,13 @@ export class Registry extends AgencyBase {
 	}
 
 	get ids() {
-		return Array.from(this.keys).filter(key => validate(key));
+		return Array.from(this.entries).reduce((arr, [ key, value ]) => {
+			if(value.type === RegistryEntry.Type.VALUE) {
+				return [ ...arr, key ]
+			}
+
+			return arr;
+		}, []);
 	}
 	get aliases() {
 		return Array.from(this.entries).reduce((arr, [ key, value ]) => {
@@ -154,6 +212,13 @@ export class Registry extends AgencyBase {
 			return arr;
 		}, []);
 	}
+	
+	/**
+	 * 
+	 */
+	get iterator() {
+		return this.ids.map(id => this.get(id)).entries;
+	}
 
 	get size() {
 		return this.registry.size;
@@ -167,15 +232,19 @@ export class Registry extends AgencyBase {
 
 	register(entry) {
 		if(typeof entry === "object" && "id" in entry) {
-			this.encoder(entry.id, entry, RegistryEntry.Type.VALUE);
+			if(this.encoder(entry.id, entry, RegistryEntry.Type.VALUE)) {
+				return entry.id;
+			}
 
-			return entry.id;
+			return false;
 		}
-
+		
 		const id = uuid();
-		this.encoder(id, entry, RegistryEntry.Type.VALUE);
-
-		return id;
+		if(this.encoder(id, entry, RegistryEntry.Type.VALUE)) {
+			return id;
+		}
+		
+		return false;
 	}
 	registerMany(...entries) {
 		for(let entry of entries) {
