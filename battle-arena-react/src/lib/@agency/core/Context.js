@@ -2,6 +2,13 @@ import { singleOrArrayArgs } from "../util/helper";
 import Agent from "./Agent";
 import { Registry, RegistryEntry } from "./Registry";
 
+/**
+ * The Context has two (2) main methods for capturing event-firing on registered Agents:
+ * 		1. Receiver: This method fires from the Agent's EFFECT hook, passing the event name and arguments.
+ * 			e.g. Any event is fired from the Agent, and the Context captures the event in a RECEIVE hook.
+ * 		2. Router: This method fires from a specific Agent event, optionally halting propagation via a config setting, and redirecting the event to a Context .emit of the same
+ * 			e.g With a "test"::"test2" map, if an Agent fires a "test" event, it may stop at the FILTER, and the Context emit "test2" event with the same ...args.
+ */
 export class Context extends Agent {
 	static Hooks = {
 		...Agent.Hooks,
@@ -26,6 +33,7 @@ export class Context extends Agent {
 
 		this.mergeConfig({
 			attachReceiver: false,
+			preventPropagation: false,
 			routers: new Map(),
 		}, true);
 
@@ -57,7 +65,9 @@ export class Context extends Agent {
 			if(agentEvents.includes(event)) {
 				this.emit(trigger, ...args);
 
-				return true;
+				if(this.assert(`preventPropagation`)) {
+					return true;
+				}
 			}
 
 			return false;
