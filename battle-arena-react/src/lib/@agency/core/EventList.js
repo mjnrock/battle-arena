@@ -5,9 +5,13 @@ import { spreadFirstElementOrArray } from "../util/helper";
  * Additionally, aliases may be used to map pre-defined events 
  * to the alias in the attaching Agent.  This allows the same handler
  * to be used under a different name, if needed.
+ * 
+ * The primary purpose of this class is to exist as an instantiable
+ * compilation of event handlers (and aliases) that can be .attach-ed
+ * to Agents.
  */
 export class EventList extends AgencyBase {
-	constructor(events, aliases = [], agencyBaseObj = {}) {
+	constructor (events, aliases = [], agencyBaseObj = {}) {
 		super(agencyBaseObj);
 
 		/**
@@ -38,7 +42,7 @@ export class EventList extends AgencyBase {
 				if(!this.events.has(event)) {
 					this.events.set(event, new Set());
 				}
-		
+
 				this.events.get(event).add(handler);
 			}
 		}
@@ -101,7 +105,7 @@ export class EventList extends AgencyBase {
 	 * 
 	 * NOTE: @event must exist within this.events
 	 */
-	attachEvent(agent, event) {		
+	attachEvent(agent, event) {
 		const alias = this.aliases.get(event) || event;
 		const handlers = this.events.get(event);
 
@@ -133,7 +137,7 @@ export class EventList extends AgencyBase {
 
 		return this;
 	}
-	
+
 	detachEvent(agent, event) {
 		const handlers = this.events.get(event) || [];
 
@@ -162,6 +166,38 @@ export class EventList extends AgencyBase {
 		return this;
 	}
 	//#endregion Agent Attachment
+
+	/**
+	 * Using the .toEventObject method, the class can creates { event: this.toEventObject() }
+	 * that can be used the seed argument on Agents to preload the event handlers.
+	 *  
+	 * NOTE that because .toEventObject() collapses the aliases into an object,
+	 * it is not suitable for creating a true-copy persistence object.
+	 */
+	toEventObject() {
+		const obj = {};
+		for(const [ event, handlers ] of this.events) {
+			const alias = this.aliases.get(event) || event;
+
+			obj[ alias ] = Array.from(handlers);
+		}
+
+		return obj;
+	}
+
+	/**
+	 * This method is used to create a new EventList from a
+	 * previously-created .toEventObject() object.
+	 */
+	static FromEventObject(obj) {
+		const eventList = new EventList();
+
+		for(const [ event, handlers ] of Object.entries(obj)) {
+			eventList.addEvent(event, ...handlers);
+		}
+
+		return eventList;
+	}
 };
 
 export default EventList;
