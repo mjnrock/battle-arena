@@ -29,10 +29,13 @@ console.log(ctx.size)	// Assert: 2, not 3
 
 console.log(a2);
 
+//? Test Context RECEIVE hook
 ctx.addHook(Context.Hooks.RECEIVE, (trigger, agent, payload) => {
 	console.log(987, agent.id, payload.args);
 });
 // a2.emit(`test`, Date.now());	// Should see this one
+
+//? Test Agent MUTATOR hook
 // a2.addHook(Agent.Hooks.MUTATOR, (trigger, result, ...args) => {
 // 	console.log(8888888, trigger, result, ...args)
 
@@ -53,7 +56,7 @@ ctx.addHook(Context.Hooks.RECEIVE, (trigger, agent, payload) => {
 // ctx.emitSome([ a2.id ], `test`, Date.now());	// Should see this one once (a2)
 // ctx.emitSome(() => true, `test`, Date.now());	// Should see this one twice (a1 and a2)
 
-//? Test Context FILTER hook
+//? Test Agent FILTER hook
 // a2.addHook(Agent.Hooks.FILTER, (trigger, result, ...args) => {
 // 	console.log(7777777, trigger, result, ...args)
 // 	return true;
