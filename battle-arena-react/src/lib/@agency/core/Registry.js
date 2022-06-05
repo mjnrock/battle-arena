@@ -217,7 +217,7 @@ export class Registry extends AgencyBase {
 	 * 
 	 */
 	get iterator() {
-		return this.ids.map(id => this.get(id)).entries;
+		return this.ids.map(id => this.get(id)).values();
 	}
 
 	get size() {

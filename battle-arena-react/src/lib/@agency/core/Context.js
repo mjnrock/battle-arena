@@ -110,18 +110,24 @@ export class Context extends Agent {
 	triggerSome(aid = [], trigger, ...args) {
 		const results = [];
 		
-		if(!Array.isArray(aid)) {
-			aid = [ aid ];
-		}
-		
-		for(let agent of this.registry.iterator) {
-			if(typeof aid === "function" && aid(agent) === true) {
-				results.push(agent.trigger(trigger, ...args));
-			} else if(aid.includes(agent.id)) {
-				results.push(agent.trigger(trigger, ...args));
+		if(typeof aid === "function") {
+			for(let agent of this.registry.iterator) {
+				if(aid(agent) === true) {
+					results.push(agent.trigger(trigger, ...args));
+				}
+			}
+		} else {
+			if(!Array.isArray(aid)) {
+				aid = [ aid ];
+			}
+	
+			for(let agent of this.registry.iterator) {
+				if(aid.includes(agent.id)) {
+					results.push(agent.trigger(trigger, ...args));
+				}
 			}
 		}
-
+		
 		return results;
 	}
 
@@ -143,15 +149,21 @@ export class Context extends Agent {
 	emitSome(aid = [], trigger, ...args) {
 		const results = [];
 		
-		if(!Array.isArray(aid)) {
-			aid = [ aid ];
-		}
-
-		for(let agent of this.registry.iterator) {
-			if(typeof aid === "function" && aid(agent) === true) {
-				results.push(agent.emit(trigger, ...args));
-			} else if(aid.includes(agent.id)) {
-				results.push(agent.emit(trigger, ...args));
+		if(typeof aid === "function") {
+			for(let agent of this.registry.iterator) {
+				if(aid(agent) === true) {
+					results.push(agent.emit(trigger, ...args));
+				}
+			}
+		} else {
+			if(!Array.isArray(aid)) {
+				aid = [ aid ];
+			}
+	
+			for(let agent of this.registry.iterator) {
+				if(aid.includes(agent.id)) {
+					results.push(agent.emit(trigger, ...args));
+				}
 			}
 		}
 		
