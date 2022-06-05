@@ -281,6 +281,14 @@ export function factory(qty = 1, fnOrClass, args = [], each) {
     return results;
 };
 
+export function singleOrArrayArgs(args) {
+	if(!Array.isArray(args)) {
+		args = [ args ];
+	}
+
+	return args;
+};
+
 export default {
     pipe,
     compose,
@@ -302,4 +310,6 @@ export default {
 
     extendJavascript,
     factory,
+
+	singleOrArrayArgs,
 };

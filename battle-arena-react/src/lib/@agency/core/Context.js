@@ -1,3 +1,4 @@
+import { singleOrArrayArgs } from "../util/helper";
 import Agent from "./Agent";
 import { Registry, RegistryEntry } from "./Registry";
 
@@ -23,19 +24,78 @@ export class Context extends Agent {
 			return false;
 		};
 
+		this.mergeConfig({
+			attachReceiver: false,
+			routers: new Map(),
+		}, true);
+
 		//?	Verify that you can un/register this function as expected, or if this creates a variable reference
 		this.receiver = (agent) => (trigger, payload) => this.hook(Context.Hooks.RECEIVE, trigger, [ agent, payload ]);
 		this.addAgent(...agents);
 	}
 
 	//#region Agent Membership
-	__attachReceiver(agent) {
+	attachReceiver(agent) {
 		agent.addHook(Agent.Hooks.EFFECT, this.receiver(agent));
 
 		return this;
 	}
-	__detachReceiver(agent) {
+	detachReceiver(agent) {
 		agent.removeHook(Agent.Hooks.EFFECT, this.receiver(agent));
+
+		return this;
+	}
+
+	/**
+	 * Cleanup of the handler (i.e. .removeRouter) must be done manually and as such,
+	 * this function returns the handler created.
+	 */
+	addRouter(trigger, agentEvents = [], ...agents) {
+		agentEvents = singleOrArrayArgs(agentEvents);
+
+		const router = (event, result, ...args) => {
+			if(agentEvents.includes(event)) {
+				this.emit(trigger, ...args);
+
+				return true;
+			}
+
+			return false;
+		};
+		for(let agent of agents) {
+			agent.addHook(Agent.Hooks.FILTER, router);
+		}
+
+		return router;
+	}
+	addRouterAll(trigger, ...agentEvents) {
+		const handler = this.addRouter(trigger, agentEvents, ...this.registry.iterator);
+
+		for(let event of agentEvents) {
+			this.config.routers.set(event, [ [ ...this.registry.iterator ], handler ]);
+		}
+
+		return this;
+	}
+	removeRouter(handler, agentEvents = [], ...agents) {
+		agentEvents = singleOrArrayArgs(agentEvents);
+
+		for(let agent of agents) {
+			agent.removeHook(Agent.Hooks.FILTER, handler);
+		}
+
+		return this;
+	}
+	removeRouterAll(...agentEvents) {
+		for(let event of agentEvents) {
+			const [ agents, handler ] = this.config.routers.get(event);
+
+			if(Array.isArray(agents)) {
+				this.removeRouter(handler, event, ...agents);
+				this.config.routers.delete(event);
+			}
+		}
+
 
 		return this;
 	}
@@ -75,7 +135,10 @@ export class Context extends Agent {
 		for(let agent of agents) {
 			if(agent instanceof Agent) {
 				this.registry.set(agent.id, agent);
-				this.__attachReceiver(agent);
+
+				if(this.assert(`attachReceiver`)) {
+					this.attachReceiver(agent);
+				}
 			}
 		}
 		
@@ -84,7 +147,7 @@ export class Context extends Agent {
 	removeAgent(...agents) {
 		for(let agent of agents) {
 			this.registry.delete(agent.id);
-			this.__detachReceiver(agent);
+			this.detachReceiver(agent);
 		}
 
 		return this;

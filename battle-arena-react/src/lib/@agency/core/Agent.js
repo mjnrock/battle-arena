@@ -74,6 +74,29 @@ export class Agent extends AgencyBase {
 
 		return this.getState();
 	}
+
+	mergeConfig(config = {}, keyMustNotExist = false) {
+		if(typeof config === "object") {
+			for(let [ key, value ] of Object.entries(config)) {
+				if(keyMustNotExist) {
+					if(this.config[ key ] === undefined) {
+						this.config[ key ] = value;
+					}
+				} else if(this.config.hasOwnProperty(key)) {
+					this.config[ key ] = value;
+				}
+			}
+		}
+
+		return this.config;
+	}
+	assert(config, value = true) {
+		if(this.config[ config ] === value) {
+			return true;
+		}
+
+		return false;
+	}
 	//#endregion State
 
 	//#region Events
@@ -304,7 +327,7 @@ export class Agent extends AgencyBase {
 						result = handler.hook(hook, trigger, args, result);
 					}
 					
-					if(hook === Agent.ControlCharacter(Agent.Hooks.FILTER)) {
+					if(hook === Agent.ControlCharacter(Agent.Hooks.FILTER) && result === true) {
 						return result;
 					}
 				} else {
