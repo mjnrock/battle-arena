@@ -1,7 +1,7 @@
-import Console from "../util/Console";
+import Console from "./../../util/Console";
 
-import Context from "../core/Context";
-import Agent from "../core/Agent";
+import Context from "./../../core/Context";
+import Agent from "./../../core/Agent";
 
 Console.NewContext("This test suite is designed to the basic event and hook functionality of the Context class.");
 

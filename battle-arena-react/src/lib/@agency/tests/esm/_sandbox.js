@@ -1,6 +1,6 @@
-import Console from "../util/Console";
+import Console from "../../util/Console";
 
-import Agent from "../core/Agent";
+import Agent from "../../core/Agent";
 
 Console.NewContext();
 

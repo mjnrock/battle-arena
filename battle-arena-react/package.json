@@ -36,8 +36,8 @@
 		"html-webpack-plugin": "4.5.0",
 		"identity-obj-proxy": "3.0.0",
 		"is-base64": "^1.1.0",
-		"jest": "26.6.0",
-		"jest-circus": "26.6.0",
+		"jest": "^28.1.0",
+		"jest-circus": "^28.1.0",
 		"jest-resolve": "26.6.0",
 		"jest-watch-typeahead": "0.6.1",
 		"mainloop.js": "^1.0.4",
@@ -80,7 +80,7 @@
 	"scripts": {
 		"start": "node scripts/start.js",
 		"build": "node scripts/build.js",
-		"test": "cls && node -r esm src/lib/@agency/tests/index.js"
+		"test": "cls && node -r esm src/lib/@agency/tests/esm/index.js"
 	},
 	"eslintConfig": {
 		"extends": [
@@ -136,7 +136,7 @@
 	},
 	"jest": {
 		"roots": [
-			"<rootDir>/src"
+			"<rootDir>/src/lib/@agency/tests/jest"
 		],
 		"collectCoverageFrom": [
 			"src/**/*.{js,jsx,ts,tsx}",
