@@ -344,6 +344,9 @@ export class Registry extends AgencyBase {
 	}
 
 
+	static FilterValuesOnly = (id, entry) => entry.type === RegistryEntry.Type.VALUE;
+	static FilterAliasOnly = (id, entry) => entry.type === RegistryEntry.Type.ALIAS;
+	static FilterPoolOnly = (id, entry) => entry.type === RegistryEntry.Type.POOL;
 	filter(selector) {
 		if(typeof selector === "function") {
 			const results = [];

@@ -281,6 +281,13 @@ export function factory(qty = 1, fnOrClass, args = [], each) {
     return results;
 };
 
+export function spreadFirstElementOrArray(array) {
+	if(Array.isArray(array[ 0 ])) {
+		return array[ 0 ];
+	}
+
+	return array;
+};
 export function singleOrArrayArgs(args) {
 	if(!Array.isArray(args)) {
 		args = [ args ];
