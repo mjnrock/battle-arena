@@ -38,3 +38,5 @@ const ctx = new Context([ a1, a2, a3 ], {
 	}),
 });
 console.log(ctx.events);
+
+console.log(EventList.FromEventObject(el.toEventObject()));

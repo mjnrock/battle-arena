@@ -174,7 +174,10 @@ export class EventList extends AgencyBase {
 	 * that can be used the seed argument on Agents to preload the event handlers.
 	 *  
 	 * NOTE that because .toEventObject() collapses the aliases into an object,
-	 * it is not suitable for creating a true-copy persistence object.
+	 * it is not suitable for creating a true-copy persistence object.  That being said,
+	 * you may be able to retrieve the original name of the function from the function itself,
+	 * if it was a named function, as the alias only applies to the Map, but this is
+	 * not without its caveats.
 	 */
 	toEventObject(aliases = {}, extraEvents = {}) {
 		const obj = {};
