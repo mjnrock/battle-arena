@@ -2,7 +2,7 @@ import Console from "../../util/Console";
 
 import Struct from "./../../core/ecs/Struct";
 
-Console.NewContext("This test suite is designed to test the Struct class and its behavior.");
+Console.NewContext("This test suite is designed to test the Struct class and its serialization and CRUD.");
 
 const struct = new Struct({
 	cats: 2,
