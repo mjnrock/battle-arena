@@ -1,4 +1,4 @@
-import { coerceToArray } from "../util/helper";
+import { singleOrArrayArgs } from "../util/helper";
 import Agent from "./Agent";
 import { Registry, RegistryEntry } from "./Registry";
 
@@ -134,7 +134,7 @@ export class Context extends Agent {
 	 * adding this handler, and potentially maintain a record of changes.
 	 */
 	addRouter(trigger, agentEvents = [], ...agents) {
-		agentEvents = coerceToArray(agentEvents);
+		agentEvents = singleOrArrayArgs(agentEvents);
 
 		const router = (event, result, ...args) => {
 			if(agentEvents.includes(event)) {
@@ -154,7 +154,7 @@ export class Context extends Agent {
 		return router;
 	}
 	removeRouter(handler, agentEvents = [], ...agents) {
-		agentEvents = coerceToArray(agentEvents);
+		agentEvents = singleOrArrayArgs(agentEvents);
 
 		for(let agent of agents) {
 			agent.removeHook(Agent.Hooks.FILTER, handler);
