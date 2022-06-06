@@ -32,7 +32,9 @@ const [ a1, a2, a3 ] = Agent.Factory(3);
 
 const ctx = new Context([ a1, a2, a3 ], {
 	events: el.toEventObject({
-		test2: "skwrlz",		// Overwrite the default alias with a custom one
+		fish: "skwrlz",		// Overwrite the default alias with a custom one
+	}, {
+		fish: () => 1,
 	}),
 });
 console.log(ctx.events);

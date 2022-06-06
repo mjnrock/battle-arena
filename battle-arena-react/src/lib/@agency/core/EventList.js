@@ -1,5 +1,5 @@
 import AgencyBase from "./AgencyBase";
-import { spreadFirstElementOrArray } from "../util/helper";
+import { coerceToIterable, spreadFirstElementOrArray } from "../util/helper";
 
 /**
  * This class is a container for pre-defined events and handlers.
@@ -176,12 +176,18 @@ export class EventList extends AgencyBase {
 	 * NOTE that because .toEventObject() collapses the aliases into an object,
 	 * it is not suitable for creating a true-copy persistence object.
 	 */
-	toEventObject(aliases = {}) {
+	toEventObject(aliases = {}, extraEvents = {}) {
 		const obj = {};
 		for(const [ event, handlers ] of this.events) {
 			const alias = aliases[ event ] || this.aliases.get(event) || event;
 
 			obj[ alias ] = Array.from(handlers);
+		}
+
+		for(const [ event, handlers ] of Object.entries(extraEvents)) {
+			const alias = aliases[ event ] || event;
+
+			obj[ alias ] = Array.from(coerceToIterable(handlers));	// NOOP if is already an iterable, else coerce to array
 		}
 
 		return obj;

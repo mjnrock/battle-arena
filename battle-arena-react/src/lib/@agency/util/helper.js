@@ -281,6 +281,18 @@ export function factory(qty = 1, fnOrClass, args = [], each) {
     return results;
 };
 
+/**
+ * This is functionally an overload for spread arguments.  Accordingly,
+ * (...handlers) could thus receive:
+ * 		1) handler			Single argument, first position
+ *  	2) handlers[]		Multiple arguments, first position
+ * 		3) ...handlers		Multiple arguments, spread
+ * 
+ * When an argument is a spread argument (e.g. ...handlers), this function
+ * allows you to optionally pass an array as the first argument, instead of spreading
+ * it.  If you do this, the array's first element will be returned, instead
+ * of the original array.  If the array is single-depth, it will be returned.
+ */
 export function spreadFirstElementOrArray(array) {
 	if(Array.isArray(array[ 0 ])) {
 		return array[ 0 ];
@@ -288,12 +300,29 @@ export function spreadFirstElementOrArray(array) {
 
 	return array;
 };
+/**
+ * This is wrapper to be used when a function doesn't care whether
+ * or not the input is a single value or an array, but is syntactically
+ * simpler to just iterate over the input, regardless.  As such, this
+ * function ensures that the input is iterable.
+ */
 export function singleOrArrayArgs(args) {
 	if(!Array.isArray(args)) {
 		args = [ args ];
 	}
 
 	return args;
+};
+/**
+ * Check if @arg is an Iterable, and if not, wrap it in an Array. 
+ * This is useful for ensuring that an argument can be iterated over.
+ */
+export function coerceToIterable(arg) {
+	if(typeof arg[ Symbol.iterator ] === "function") {
+		return arg;
+	}
+
+	return [ arg ];
 };
 
 export default {
@@ -318,5 +347,7 @@ export default {
     extendJavascript,
     factory,
 
+	spreadFirstElementOrArray,
 	singleOrArrayArgs,
+	coerceToIterable,
 };
