@@ -4,7 +4,7 @@ export class Console {
 		console.warn(`*************************************************`);
 		console.warn(`************* NEW EXECUTION CONTEXT *************`);
 		console.warn(`*************************************************`);
-		
+
 		if(description) {
 			Console.info(description);
 			console.warn(`-------------------------------------------------`);
@@ -30,6 +30,12 @@ export class Console {
 	static error(...args) {
 		console.error(...args);
 	}
+	static label(text, ...args) {
+		console.log(`[${ text.toUpperCase().replace(/[^\w\d]+/gi, `_`) }]:`, ...args);
+	}
+	static labelTime(text, ...args) {
+		console.log(`[${ Date.now().toString() }][${ text.toUpperCase().replace(/[^\w\d]+/gi, `_`) }]:`, ...args);
+	}
 
 	static br(times = 1) {
 		for(let i = 0; i < times; i++) {
@@ -40,12 +46,12 @@ export class Console {
 	}
 
 	static line(count, symbol) {
-        console.log(Array.apply(null, Array(count)).map(() => symbol).join(""));
+		console.log(Array.apply(null, Array(count)).map(() => symbol).join(""));
 
 		return this;
 	}
-	static hr(count = 5, symbol = "-") {
-        this.line(count, symbol);
+	static hr(count = 20, symbol = "-") {
+		this.line(count, symbol);
 
 		return this;
 	}
@@ -86,7 +92,7 @@ export class Console {
 
 	static open(text) {
 		let l1 = `****************** < ${ text } > ******************`;
-		
+
 		Console.br(1);
 		this.line(l1.length, "*");
 		Console.log(l1);
@@ -94,7 +100,7 @@ export class Console {
 	}
 	static close(text) {
 		let l1 = `****************** </ ${ text } > ******************`;
-		
+
 		Console.br(1);
 		Console.log(l1);
 		this.line(l1.length, "*");

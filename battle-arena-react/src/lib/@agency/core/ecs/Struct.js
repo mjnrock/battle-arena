@@ -24,7 +24,7 @@ export class Struct extends AgencyBase {
 		 * in general (e.g. Accessor hook to return value from an API)
 		 */
 		Reflect.defineProperty(this, "_hooks", {
-			configurable: false,
+			configurable: true,
 			enumerable: false,
 			writable: false,
 			value: {
@@ -50,39 +50,53 @@ export class Struct extends AgencyBase {
 		 */
 		const proxy = new Proxy(this, {
 			get: (target, prop) => {
-				let current = Reflect.get(target, prop);
-				for(let fn of target._hooks[ Struct.Hooks.VIEW ]) {
-					const result = fn(target, prop, current);
-
-					// Short-circuit execution and return substitute value
-					if(result !== void 0) {
-						return result;
+				if(prop === "_hooks" || prop === "_meta") {
+					return Reflect.get(target, prop);
+				} else if(Reflect.ownKeys(target).includes(prop)) {
+					let current = Reflect.get(target, prop);
+					for(let fn of target._hooks[ Struct.Hooks.VIEW ]) {
+						const result = fn(target, prop, current);
+	
+						// Short-circuit execution and return substitute value
+						if(result !== void 0) {
+							return result;
+						}
 					}
+	
+					return current;
 				}
-
-				return current;
+				
+				return Reflect.get(target, prop);
 			},
 			set: (target, prop, value) => {
-				let next = Reflect.get(target, prop);
-				for(let fn of target._hooks[ Struct.Hooks.REDUCER ]) {
-					next = fn(target, prop, next, value);
-				}
-
-				if(next !== void 0) {
-					const result = Reflect.set(target, prop, next);
-
-					for(let fn of target._hooks[ Struct.Hooks.EFFECT ]) {
-						fn(target, prop, next);
+				if(prop === "_hooks" || prop === "_meta") {
+					return Reflect.set(target, prop, value);
+				} else if(Reflect.ownKeys(target).includes(prop)) {
+					let next = target[ prop ];
+					for(let fn of target._hooks[ Struct.Hooks.REDUCER ]) {
+						next = fn(target, prop, next, value);
 					}
 
-					return result;
+					if(next !== void 0) {
+						const result = Reflect.set(target, prop, next);
+
+						for(let fn of target._hooks[ Struct.Hooks.EFFECT ]) {
+							fn(target, prop, next);
+						}
+
+						return result;
+					}
 				}
 
 				return Reflect.set(target, prop, value);
 			},
 			deleteProperty: (target, prop) => {
-				for(let fn of target._hooks[ Struct.Hooks.DELETE ]) {
-					fn(target, prop, current);
+				if(prop === "_hooks" || prop === "_meta") {
+					return Reflect.deleteProperty(target, prop);
+				} else if(Reflect.ownKeys(target).includes(prop)) {
+					for(let fn of target._hooks[ Struct.Hooks.DELETE ]) {
+						fn(target, prop);
+					}
 				}
 
 				return Reflect.deleteProperty(target, prop);
@@ -96,7 +110,12 @@ export class Struct extends AgencyBase {
 
     [ Symbol.iterator ]() {
         var index = -1;
-        var data = Object.entries(this);
+        var data = Object.entries(Object.entries(this).reduce((acc, [ key, value ]) => {
+			if(key !== "_hooks" && key !== "_meta") {
+				acc[ key ] = value;
+			}
+			return acc;
+		}, {}));
 
         return {
             next: () => ({ value: data[ ++index ], done: !(index in data) })
