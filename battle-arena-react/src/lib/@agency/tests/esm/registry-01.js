@@ -1,8 +1,7 @@
-import Console from "../util/Console";
+import Console from "../../util/Console";
 
-import Registry from "./../core/Registry";
-import Agent from "./../core/Agent";
-import RegistryEntry from "../core/RegistryEntry";
+import Registry from "../../core/Registry";
+import Agent from "../../core/Agent";
 
 Console.NewContext();
 
@@ -37,7 +36,7 @@ registry.setPool("test3", a1.id);
 // console.log(registry.getPool("test").map(a => a.id));
 
 // console.log(Array.from(registry.union("test", "test2", "test3")).length);			// Assert:	2
-// console.log(Array.from(registry.intersection("test", "test2", "test3")).length);	// Assert:	1
+// console.log(Array.from(registry.intersection("test", "test2", "test3")).length);		// Assert:	1
 // console.log(registry.test3)
 
 // console.log(registry.getEntryValue("test").length);

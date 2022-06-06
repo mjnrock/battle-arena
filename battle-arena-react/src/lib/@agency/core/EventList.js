@@ -1,3 +1,4 @@
+import AgencyBase from "./AgencyBase";
 import { spreadFirstElementOrArray } from "../util/helper";
 
 /**
@@ -40,6 +41,9 @@ export class EventList extends AgencyBase {
 		} else {
 			for(const handler of handlers) {
 				if(!this.events.has(event)) {
+
+					//FIXME Ensure that Agent can consume a Set (cf. Array)
+
 					this.events.set(event, new Set());
 				}
 
@@ -68,13 +72,11 @@ export class EventList extends AgencyBase {
 		return this;
 	}
 
-	addAlias(event, aliases) {
+	addAlias(event, alias) {
 		if(typeof event === "object") {
 			this.addAliasObject(event);
 		} else {
-			for(const alias of aliases) {
-				this.aliases.set(event, alias);
-			}
+			this.aliases.set(event, alias);
 		}
 
 		return this;
@@ -174,10 +176,10 @@ export class EventList extends AgencyBase {
 	 * NOTE that because .toEventObject() collapses the aliases into an object,
 	 * it is not suitable for creating a true-copy persistence object.
 	 */
-	toEventObject() {
+	toEventObject(aliases = {}) {
 		const obj = {};
 		for(const [ event, handlers ] of this.events) {
-			const alias = this.aliases.get(event) || event;
+			const alias = aliases[ event ] || this.aliases.get(event) || event;
 
 			obj[ alias ] = Array.from(handlers);
 		}

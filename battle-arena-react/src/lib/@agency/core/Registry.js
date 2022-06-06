@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 
 import AgencyBase from "./AgencyBase";
 
-export class RegistryEntry {
+export class RegistryEntry extends AgencyBase {
 	static Type = {
 		VALUE: Symbol("VALUE"),
 		ALIAS: Symbol("ALIAS"),
@@ -11,8 +11,9 @@ export class RegistryEntry {
 		POOL: Symbol("POOL"),
 	};
 
-	constructor (id, value, type = RegistryEntry.Type.VALUE) {
-		this.id = id;
+	constructor (id, value, type = RegistryEntry.Type.VALUE, tags = []) {
+		super({ id, tags });
+
 		this.type = type;
 
 		if(type === RegistryEntry.Type.POOL) {
@@ -128,11 +129,29 @@ export class Registry extends AgencyBase {
 	}
 	find(input) {
 		if(this.has(input)) {
+			/**
+			 * @input is either an Id, Alias, or Pool name
+			 */
 			return this.get(input);
 		} else if(typeof input === "function") {
+			/**
+			 * Execute a testing function on each entry and include results that return true.
+			 */
 			const results = [];
-			for(let [ id, entry ] of this.registry) {
+			for(let [ id, entry ] of this.registry.entries()) {
 				if(input(id, entry) === true) {
+					results.push(entry);
+				}
+			}
+
+			return results;
+		} else if(typeof input === "string") {
+			/**
+			 * By this point, assume that the input is a string and it is a tag.
+			 */
+			const results = [];
+			for(let [ id, entry ] of this.registry.entries()) {
+				if(entry.tags.includes(input)) {
 					results.push(entry);
 				}
 			}
@@ -142,6 +161,11 @@ export class Registry extends AgencyBase {
 
 		return Registry.Constants.NoResults;
 	}
+	/**
+	 * This is a restricted setter that only allows for the addition of:
+	 * 		1) RegistryEntry
+* 			2) A valid UUID and entry that will become a VALUE type
+	 */
 	set(id, entry) {
 		if(id instanceof RegistryEntry) {
 			this.registry.set(id.id, id);
@@ -159,7 +183,7 @@ export class Registry extends AgencyBase {
 		for(let [ key, entry ] of this.entries) {
 			const value = entry.value;
 
-			if(key === id) {					//* @key is the UUID
+			if(key === id) {
 				this.registry.delete(key);
 			} else if(entry.isAliasType) {
 				if(value === id) {
@@ -212,9 +236,8 @@ export class Registry extends AgencyBase {
 			return arr;
 		}, []);
 	}
-	
 	/**
-	 * 
+	 * The "values" equivalent of .ids
 	 */
 	get iterator() {
 		return this.ids.map(id => this.get(id)).values();
