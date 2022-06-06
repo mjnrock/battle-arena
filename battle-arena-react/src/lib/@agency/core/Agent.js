@@ -434,7 +434,7 @@ export class Agent extends AgencyBase {
 			timestamp: Date.now(),
 		};
 
-		if(next !== previous) {
+		if(next !== void 0 && next !== previous) {
 			this.setState(next);
 
 			// Suppress the update if this is invoked by a batch process

@@ -1,4 +1,4 @@
-const filename = `eventList-01`;
+const filename = `struct-01`;
 
 require("dotenv").config();
 require = require("esm")(module/*, options*/)
