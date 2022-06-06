@@ -103,3 +103,23 @@ After registration, an entry can optionally be given *alias(es)* and also an ent
 |`POOL`|A collection of VALUES|
 
 ### EventList
+**extends [AgencyBase](#agencybase)**
+
+This is a wrapper class for an attachable set of event handlers, with optionally-pre-defined aliases.  This is meant as a slightly abstract wrapper than just a POJO, so that there is more Agency-specific behavior and reusability.
+
+|Property|Type|Optional|
+|-|-|-|
+|`events`|`Map`|✅|
+|`aliases`|`Map`|✅|
+
+	const registry = new Registry(
+		events = {
+			// Event handler object
+		},
+		aliases: {
+			// Key-value string-pair object
+		}
+		agencyBaseObj = {
+			// All AgencyBase args are valid here
+		},
+	);

@@ -173,6 +173,11 @@ export class Agent extends AgencyBase {
 
 		return this;
 	}
+	hasEvent(trigger) {
+		const handlers = this.events.get(trigger);
+
+		return !!handlers;
+	}
 	clearEvents() {
 		this.events.clear();
 
@@ -209,6 +214,11 @@ export class Agent extends AgencyBase {
 		}
 
 		return this;
+	}
+	hasHandlers(event) {
+		const handlers = this.events.get(event);
+
+		return handlers && handlers.size > 0;
 	}
 	clearHandlers(trigger) {
 		if(this.events.has(trigger)) {

@@ -26,9 +26,18 @@ const el = new EventList({
 
 const [ a1, a2, a3 ] = Agent.Factory(3);
 
-// console.log(a1.events);
-// el.attach(a1);
-// console.log(a1.events);
+console.log(a1.events);
+el.attach(a1, {
+	test2: "fish",
+});
+// el.attachSome(a1, "test2", {
+// 	test2: "fish",
+// });
+console.log(a1.events);
+el.detach(a1, {
+	test2: "fish",
+});
+console.log(a1.events);
 
 const ctx = new Context([ a1, a2, a3 ], {
 	events: el.toEventObject({
@@ -37,6 +46,6 @@ const ctx = new Context([ a1, a2, a3 ], {
 		fish: () => 1,
 	}),
 });
-console.log(ctx.events);
+// console.log(ctx.events);
 
-console.log(EventList.FromEventObject(el.toEventObject()));
+// console.log(EventList.FromEventObject(el.toEventObject()));

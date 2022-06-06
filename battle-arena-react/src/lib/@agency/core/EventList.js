@@ -1,5 +1,5 @@
 import AgencyBase from "./AgencyBase";
-import { coerceToIterable, spreadFirstElementOrArray } from "../util/helper";
+import { coerceToIterable, singleOrArrayArgs, spreadFirstElementOrArray } from "../util/helper";
 
 /**
  * This class is a container for pre-defined events and handlers.
@@ -107,9 +107,10 @@ export class EventList extends AgencyBase {
 	 * 
 	 * NOTE: @event must exist within this.events
 	 */
-	attachEvent(agent, event) {
-		const alias = this.aliases.get(event) || event;
+	attachEvent(agent, event, alias) {
 		const handlers = this.events.get(event);
+		
+		alias = alias ? alias : (this.aliases.get(event) || event);
 
 		if(handlers) {
 			agent.addHandlers(alias, ...handlers);
@@ -119,50 +120,62 @@ export class EventList extends AgencyBase {
 
 		return false;
 	}
-	attach(agent) {
+	attach(agent, aliases = {}) {
 		for(const event of this.events.keys()) {
-			this.attachEvent(agent, event);
+			const alias = aliases[ event ];
+
+			this.attachEvent(agent, event, alias);
 		}
 
 		return this;
 	}
-	attachSome(agent, ...events) {
-		events = spreadFirstElementOrArray(events);
+	attachSome(agent, events = [], aliases = {}) {
+		events = singleOrArrayArgs(events);
 
 		for(const event of events) {
+			const alias = aliases[ event ];
 			/**
 			 * Because .attachEvent() checks the existence of an event,
 			 * we can just call it without checking if it exists.
 			 */
-			this.attachEvent(agent, event);
+			this.attachEvent(agent, event, alias);
 		}
 
 		return this;
 	}
 
-	detachEvent(agent, event) {
+	detachEvent(agent, event, alias) {
 		const handlers = this.events.get(event) || [];
 
-		agent.removeHandlers(event, ...handlers);
+		alias = alias ? alias : (this.aliases.get(event) || event);
 
-		return this;
-	}
-	detach(agent) {
-		for(const event of this.events.keys()) {
-			this.detachEvent(agent, event);
+		agent.removeHandlers(alias, ...handlers);
+
+		if(!agent.hasHandlers(alias)) {
+			agent.removeEvent(alias);
 		}
 
 		return this;
 	}
-	detachSome(agent, ...events) {
-		events = spreadFirstElementOrArray(events);
+	detach(agent, aliases = {}) {
+		for(const event of this.events.keys()) {
+			const alias = aliases[ event ];
+
+			this.detachEvent(agent, event, alias);
+		}
+
+		return this;
+	}
+	detachSome(agent, events = [], aliases = {}) {
+		events = singleOrArrayArgs(events);
 
 		for(const event of events) {
+			const alias = aliases[ event ];
 			/**
-			 * Because .detachEvent() checks the existence of an event,
+			 * Because .attachEvent() checks the existence of an event,
 			 * we can just call it without checking if it exists.
 			 */
-			this.detachEvent(agent, event);
+			this.detachEvent(agent, event, alias);
 		}
 
 		return this;
