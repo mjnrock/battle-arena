@@ -1,7 +1,7 @@
 import Agency from "../core/Agency";
 import Agent from "../core/Agent";
 
-import Message from "../core/comm/Message";
+import Message from "../core/relay/Message";
 
 const agency = new Agency();
 const agent = new Agent();

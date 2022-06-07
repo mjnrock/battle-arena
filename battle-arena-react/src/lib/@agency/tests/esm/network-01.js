@@ -2,9 +2,9 @@ import Console from "../../util/Console";
 
 import Agent from "../../core/Agent";
 
-import Message from "../../core/comm/Message";
-import Channel from "../../core/comm/Channel";
-import Network from "../../core/comm/Network";
+import Message from "../../core/relay/Message";
+import Channel from "../../core/relay/Channel";
+import Network from "../../core/relay/Network";
 
 Console.NewContext("This test suite validates the usage of Network and Channel working together.");
 

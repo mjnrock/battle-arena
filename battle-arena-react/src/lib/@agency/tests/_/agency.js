@@ -2,7 +2,7 @@ import Console from "../../util/Console";
 
 import Context from "../../core/Context";
 import Agent from "../../core/Agent";
-import Message from "../../core/comm/Message";
+import Message from "../../core/relay/Message";
 
 Console.NewContext();
 
