@@ -1,9 +1,12 @@
 import { v4 as uuid } from "uuid";
 
+import { singleOrArrayArgs } from "../util/helper";
+
 export class AgencyBase {
 	constructor ({ id, tags = [], parent, children = [] } = {}) {
 		this.id = id || uuid();
-		this.tags = new Set(tags);
+
+		this.tags = new Set(singleOrArrayArgs(tags));
 
 		this.parent = parent;
 		this.children = new Set(children);

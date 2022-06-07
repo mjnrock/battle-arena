@@ -1,15 +1,20 @@
 import { validate } from "uuid";
+
 import AgencyBase from "../AgencyBase";
+import Agent from "../Agent";
 import Registry from "../Registry";
 import Message from "./Message";
 import MessageCollection from "./MessageCollection";
 import Subscription from "./Subscription";
+import { singleOrArrayArgs } from "../../util/helper";
 
 export class Channel extends AgencyBase {
+	static MessageTrigger = `@channel`;
+
 	constructor ({ config = {}, id, tags } = {}) {
 		super({ id, tags });
 
-		this.messages = new MessageCollection();
+		this.messages = new MessageCollection();		//FIXME This allows sending the same message multiple times, though it doesn't retain
 		this.subscriptions = new Registry();
 
 		this.config = {
@@ -40,10 +45,10 @@ export class Channel extends AgencyBase {
 		return this.subscriptions.registerWithAlias(subscription, subscribor);
 	}
 	removeSubscriber(subscriber) {
-		for(let subscription of this.subscriptions.values()) {
+		for(let subscription of this.subscriptions.iterator) {
 			if(subscription.subscribor === subscriber) {
 				this.subscriptions.unregister(subscription);
-
+				
 				return true;
 			} else if(typeof subscriber === "object" && subscriber.id && subscription.subscribor === subscriber.id) {
 				this.subscriptions.unregister(subscription);
@@ -105,7 +110,7 @@ export class Channel extends AgencyBase {
 	 * opinionated message handling.
 	 */
 	broadcast(...args) {
-		for(let subscription of this.subscriptions.values()) {
+		for(let subscription of this.subscriptions.iterator) {
 			subscription.send(...args);
 		}
 
@@ -137,7 +142,7 @@ export class Channel extends AgencyBase {
 			/**
 			 * Actually invoke the subscription callbacks, with optional mutators
 			 */
-			this.broadcast(message.type, message.data, message);
+			this.broadcast(Channel.MessageTrigger, message);
 		}
 
 		return this;

@@ -38,7 +38,12 @@ export class Agent extends AgencyBase {
 
 			...config,
 		};
-
+		
+		/**
+		 * Set @state.$eval = true to evaluate the state object, instead
+		 * of assigning it directly.  You may also pass a function that
+		 * returns the state object dynamically.
+		 */
 		this.setState(state);
 		
 		this.addHooks(hooks);
@@ -58,7 +63,40 @@ export class Agent extends AgencyBase {
 		return this.state;
 	}
 	setState(state) {
-		if(typeof state === "object") {
+		if(typeof state === "function") {
+			/**
+			 * Allow for the entire state to be dynamically generated
+			 */
+			state = state(this);
+		}
+		
+		if(typeof state !== "object") {
+			/**
+			 * Only allow generic objects to be set as state
+			 */
+			throw new Error(`Agent.setState: state must be an object.`);
+		}
+
+		if(state.$eval === true) {
+			/**
+			 * Perform a single-depth evaluation of the state object
+			 * 
+			 * As such, when a root key is a function, it should return
+			 * a new object and calculate its entire ancestry.
+			 */
+			for(let key of Reflect.ownKeys(state)) {
+				if(key === `$eval`) {
+					continue;
+				}
+
+				const value = state[ key ];
+
+				/**
+				 * If the particular entry is a function, evaluate it
+				 */
+				this.state[ key ] = typeof value === "function" ? value(this) : value;
+			}
+		} else {
 			this.state = state;
 		}
 
@@ -478,8 +516,8 @@ export class Agent extends AgencyBase {
 	//#endregion Serialization
 
 	//#region Instantiation
-	static Create({ id, state = {}, events = {}, hooks = {}, config = {} } = {}) {
-		return new this({ id, state, events, hooks, config });
+	static Create(...args) {
+		return new this(...args);
 	}
 	static Factory(qty = 1, fnOrArgs = [], each) {
 		// Single-parameter override for .Spawning one (1) this

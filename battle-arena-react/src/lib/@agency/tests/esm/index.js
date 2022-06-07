@@ -1,4 +1,4 @@
-const filename = `struct-02`;
+const filename = `channel-01`;
 
 require("dotenv").config();
 require = require("esm")(module/*, options*/)

@@ -199,6 +199,12 @@ export class Registry extends AgencyBase {
 		return this.register(input);
 	}
 	remove(id) {
+		if(id instanceof RegistryEntry) {
+			return this.remove(id.id);
+		} else if(typeof id === "object" && id.id) {
+			return this.remove(id.id);
+		}
+
 		for(let [ key, entry ] of this.entries) {
 			const value = entry.value;
 
@@ -266,7 +272,7 @@ export class Registry extends AgencyBase {
 		return this.registry.size;
 	}
 	get sizeValues() {
-		return Array.from(this.registry.iterator).length;
+		return Array.from(this.iterator).length;
 	}
 	get sizeAlias() {
 		return this.aliases.length;
