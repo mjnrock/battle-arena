@@ -28,15 +28,7 @@ export class Context extends Agent {
 		 * Override the Registry default encoder to maintain that only Agents
 		 * be added to the .registry
 		 */
-		this.registry.encoder = function(id, entry, type = RegistryEntry.Type.VALUE) {
-			if(entry instanceof Agent) {
-				this.registry.set(id, new RegistryEntry(id, entry, type));
-
-				return true;
-			}
-
-			return false;
-		};
+		this.registry.encoder = Registry.Encoders.InstanceOf(this, Agent);
 
 		this.mergeConfig({
 			/**

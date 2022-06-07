@@ -52,8 +52,17 @@ export class RegistryEntry extends AgencyBase {
 };
 
 export class Registry extends AgencyBase {
-	static Constants = {
-		NoResults: Symbol("NoResults"),
+	static Encoders = {
+		InstanceOf: (self, ...classes) => (id, entry, type = RegistryEntry.Type.VALUE) => {
+			const isInstanceOf = classes.some(cls => entry instanceof cls);
+			if(isInstanceOf) {
+				self.registry.set(id, new RegistryEntry(id, entry, type));
+
+				return true;
+			}
+
+			return false;
+		},
 	};
 
 	constructor (entries = [], agencyBaseObj = {}) {
@@ -106,7 +115,7 @@ export class Registry extends AgencyBase {
 			return this.decoder(input(this));
 		}
 
-		return Registry.Constants.NoResults;
+		return void 0;
 	}
 
 	has(id) {
@@ -125,7 +134,7 @@ export class Registry extends AgencyBase {
 			return entry.getValue(this);
 		}
 
-		return Registry.Constants.NoResults;
+		return void 0;
 	}
 	find(input) {
 		if(this.has(input)) {
@@ -159,7 +168,16 @@ export class Registry extends AgencyBase {
 			return results;
 		}
 
-		return Registry.Constants.NoResults;
+		return void 0;
+	}
+	findId(input) {
+		for(let [ id, entry ] of this.registry.entries()) {
+			if(entry.value === input) {
+				return id;
+			}
+		}
+
+		return false;
 	}
 	/**
 	 * This is a restricted setter that only allows for the addition of:
@@ -172,12 +190,13 @@ export class Registry extends AgencyBase {
 
 			return true;
 		} else if(validate(id)) {
-			this.encoder(id, entry, RegistryEntry.Type.VALUE);
-
-			return true;
+			return this.encoder(id, entry, RegistryEntry.Type.VALUE);
 		}
 
 		return false;
+	}
+	add(input) {
+		return this.register(input);
 	}
 	remove(id) {
 		for(let [ key, entry ] of this.entries) {
@@ -272,6 +291,18 @@ export class Registry extends AgencyBase {
 	registerMany(...entries) {
 		for(let entry of entries) {
 			this.register(entry);
+		}
+
+		return this;
+	}
+	unregister(id) {
+		this.remove(id);
+
+		return this;
+	}
+	unregisterMany(...ids) {
+		for(let id of ids) {
+			this.remove(id);
 		}
 
 		return this;
@@ -382,7 +413,7 @@ export class Registry extends AgencyBase {
 			return results;
 		}
 
-		return Registry.Constants.NoResults;
+		return void 0;
 	}
 
 	forEach(fn, selector) {
@@ -418,7 +449,7 @@ export class Registry extends AgencyBase {
 			return results;
 		}
 
-		return Registry.Constants.NoResults;
+		return void 0;
 	}
 	reduce(fn, initialValue, selector) {
 		if(typeof fn === "function") {
@@ -437,7 +468,7 @@ export class Registry extends AgencyBase {
 			return result;
 		}
 
-		return Registry.Constants.NoResults;
+		return void 0;
 	}
 
 	union(...tags) {
@@ -498,6 +529,15 @@ export class Registry extends AgencyBase {
 		}
 
 		return this;
+	}
+
+	getInsertionIndex(id) {
+		const entry = this.registry.get(id);
+		if(entry instanceof RegistryEntry) {
+			return this.registry.values().indexOf(entry);
+		}
+
+		return -1;
 	}
 };
 

@@ -359,7 +359,7 @@ export class Agent extends AgencyBase {
 				args = [ args ];
 			}
 
-			if(name in this) {
+			if(name in this && typeof this[name] === "function") {
 				return this[ name ](...args);
 			}
 		}
@@ -397,7 +397,13 @@ export class Agent extends AgencyBase {
 	 *  - Effect listening (`effect`)
 	 */
 	emit(trigger, ...args) {
-		if(typeof trigger === "string" && trigger[ 0 ] === Agent.ControlCharacter()) {
+		if(!this.events.has(trigger)) {
+			if(this.config.allowRPC === true) {
+				return this.rpc(trigger, ...args);
+			}
+
+			return;
+		} else if(typeof trigger === "string" && trigger[ 0 ] === Agent.ControlCharacter()) {
 			return;
 		}
 
