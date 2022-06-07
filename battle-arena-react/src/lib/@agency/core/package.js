@@ -7,8 +7,6 @@ import Context from "./Context";
 import ECS from "./ecs/package";
 import Relay from "./relay/package";
 
-//TODO Convert the Nexus into a Node with a "Nexus" Component or with an Overlay
-
 export default {
 	AgencyBase,
 	Registry,
