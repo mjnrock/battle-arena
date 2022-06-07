@@ -320,7 +320,9 @@ export class Registry extends AgencyBase {
 	addAlias(id, ...aliases) {
 		if(this.has(id)) {
 			for(let alias of aliases) {
-				this.encoder(alias, id, RegistryEntry.Type.ALIAS);
+				if(!!alias) {
+					this.encoder(alias, id, RegistryEntry.Type.ALIAS);
+				}
 			}
 
 			return true;

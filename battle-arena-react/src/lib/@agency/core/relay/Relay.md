@@ -1,5 +1,5 @@
 # **`Relay`**
-Below is an index of of the **Relay** [ `@agency/relay` ] assets.
+Below is an index of of the **Relay** [ `@agency/core/relay` ] assets.
 |Object|Type|
 |-|-|
 |[Message](#message)|`Class`|
@@ -34,7 +34,11 @@ extends **AgencyBase**
 
 A **Subscription** is a wrapper-class that holds a *subscribor* (the object that is subscribing) and a *subscribee* (the object to which the subscribor is subscribing) and a *callback* function that can be executed on-demand via `.send`.
 
-Optionally, a `mutator` function be passed that can alter the arguments being send to the `callback` function when invoking `.send`.
+> Note that `subscribor` and `subscribee` are `UUID` values, _not_ `Objects`.  If an `Object` is passed for either, the subscription will attempt to find `.id` on the object -- if it _does_, then `.id` will be used (but it still must be a valid `UUID`); if it _does not_, then the instantiation will fail with an error.  As such, `null` values are not allowed.
+
+> For cases where this causes issues, or where the `Subscription` is being used purely as a callback wrapper, use the static method `Subscription.CreateAnonymous` method to seed randomly-generated `UUIDs`.
+
+Optionally, a `mutator` function be passed that can alter the arguments that will be sent to the `callback` function when invoking `.send`.
 
 |Property|Type|Optional|
 |-|-|-|
@@ -48,7 +52,7 @@ Optionally, a `mutator` function be passed that can alter the arguments being se
 ## Channel [^](#relay)
 extends **AgencyBase**
 
-A **Channel** maintains a list of `Subscriptions` to itself, and accordingly creates *aliases* to each `subscribor` (the `UUID`) -- this allows for a subscription to be retrieved more easily.
+A **Channel** maintains a list of `Subscriptions` to itself as the `subscribee`, and accordingly creates *aliases* to each `subscribor` (the `UUID`) -- this allows for a subscription to be retrieved more easily.
 
 |Property|Type|Optional|
 |-|-|-|

@@ -26,7 +26,7 @@ export class Channel extends AgencyBase {
 		};
 	}
 
-	addSubscriber(subscriber, callback) {
+	addSubscriber(subscriber, callback, alias) {
 		let subscribor,
 			subscribee = this.id;
 
@@ -42,7 +42,7 @@ export class Channel extends AgencyBase {
 
 		const subscription = new Subscription(subscribor, subscribee, callback);
 
-		return this.subscriptions.registerWithAlias(subscription, subscribor);
+		return this.subscriptions.registerWithAlias(subscription, subscribor, alias);
 	}
 	removeSubscriber(subscriber) {
 		for(let subscription of this.subscriptions.iterator) {

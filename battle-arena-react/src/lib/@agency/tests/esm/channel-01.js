@@ -41,18 +41,18 @@ Console.label("a1", a1.id);
 Console.label("a2", a2.id);
 Console.label("a3", a3.id);
 
-Console.hr();
-const message = new Message({ data: Date.now(), tags: `date` });
-Console.label("message1", message);
-channel.sendMessage(message);
-console.log(channel.messages);
-setTimeout(() => {
-	Console.hr();
-	const message2 = new Message({ data: Date.now(), tags: `date` });
-	Console.label("message2", message2);
-	channel.sendMessage(message2);
-	console.log(channel.messages);
-}, 100)	;
+// Console.hr();
+// const message = new Message({ data: Date.now(), tags: `date` });
+// Console.label("message1", message);
+// channel.sendMessage(message);
+// console.log(channel.messages);
+// setTimeout(() => {
+// 	Console.hr();
+// 	const message2 = new Message({ data: Date.now(), tags: `date` });
+// 	Console.label("message2", message2);
+// 	channel.sendMessage(message2);
+// 	console.log(channel.messages);
+// }, 100)	;
 
 
 // console.log(channel.subscriptions.values);

@@ -1,5 +1,5 @@
 # **`ECS`**
-Below is an index of of the **Entity Component System (ECS)** [ `@agency/ecs` ] assets.
+Below is an index of of the **Entity Component System (ECS)** [ `@agency/core/ecs` ] assets.
 |Object|Type|
 |-|-|
 |[Struct](#struct)|`Class`|
