@@ -6,11 +6,19 @@ import MessageCollection from "./MessageCollection";
 import Subscription from "./Subscription";
 
 export class Channel extends AgencyBase {
-	constructor({ id, tags } = {}) {
+	constructor ({ config = {}, id, tags } = {}) {
 		super({ id, tags });
 
 		this.messages = new MessageCollection();
 		this.subscriptions = new Registry();
+
+		this.config = {
+			retainHistory: false,
+			maxHistory: 100,
+			atMaxReplace: true,
+
+			...config,
+		};
 	}
 
 	addSubscriber(subscriber, callback) {
@@ -29,7 +37,7 @@ export class Channel extends AgencyBase {
 
 		const subscription = new Subscription(subscribor, subscribee, callback);
 
-		return this.subscriptions.register(subscription);
+		return this.subscriptions.registerWithAlias(subscription, subscribor);
 	}
 	removeSubscriber(subscriber) {
 		for(let subscription of this.subscriptions.values()) {
@@ -47,6 +55,48 @@ export class Channel extends AgencyBase {
 		return false;
 	}
 
+	setMessages(messages) {
+		this.messages = new MessageCollection(messages);
+
+		return this;
+	}
+	addMessage(message) {
+		if(this.config.retainHistory) {
+			if(this.messages.sizeValues < this.config.maxHistory) {
+				this.messages.addMessage(message);
+
+				return true;
+			} else {
+				if(this.config.atMaxReplace) {
+					const array = [
+						...this.messages.iterator,
+						message,
+					];
+
+					this.setMessages(array.slice(1));
+
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+	addMessages(...messages) {
+		messages = singleOrArrayArgs(messages);
+
+		for(let message of messages) {
+			this.addMessage(message);
+		}
+
+		return this;
+	}
+	clearMessages() {
+		this.messages = new MessageCollection();
+
+		return this;
+	}
+
 	/**
 	 * This will invoke the callback for each subscription directly,
 	 * sending the ...args verbatim.  As such, it is not recommended to
@@ -61,12 +111,34 @@ export class Channel extends AgencyBase {
 
 		return this;
 	}
-	sendMessage(message) {
-		if(message instanceof Message) {
-			this.messages.addMessage(message);
-			this.broadcast(message.type, message.data, message);
+	sendTo(subscriber, ...args) {
+		if(validate(subscriber)) {
+			const subscription = this.subscriptions.get(subscriber);
+
+			if(subscription) {
+				subscription.send(...args);
+
+				return true;
+			}
+		} else if(typeof subscriber === "object" && subscriber.id) {
+			return this.sendTo(subscriber.id, ...args);
 		}
 
+		return false;
+	}
+	
+	sendMessage(message) {
+		if(message instanceof Message) {
+			/**
+			 * Undergoes validation and checking against the configuration
+			 */
+			this.addMessage(message);
+
+			/**
+			 * Actually invoke the subscription callbacks, with optional mutators
+			 */
+			this.broadcast(message.type, message.data, message);
+		}
 
 		return this;
 	}
@@ -90,6 +162,7 @@ export class Channel extends AgencyBase {
 
 		return this.sendData(...args);
 	}
+
 };
 
 export default Channel;

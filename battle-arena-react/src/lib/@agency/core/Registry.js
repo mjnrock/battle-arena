@@ -265,6 +265,9 @@ export class Registry extends AgencyBase {
 	get size() {
 		return this.registry.size;
 	}
+	get sizeValues() {
+		return Array.from(this.registry.iterator).length;
+	}
 	get sizeAlias() {
 		return this.aliases.length;
 	}
