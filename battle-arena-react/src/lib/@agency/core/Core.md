@@ -21,7 +21,7 @@ Every class that is meaningfully trackable extends the `AgencyBase` class.
 ---
 
 ## Agent [^](#core)
-**extends [AgencyBase](#agencybase)**
+extends **[AgencyBase](#agencybase)**
 
 The main **eventable** class within the Agency framework.  
 
@@ -62,7 +62,7 @@ Hooks are also stored in the event handlers, but executed under specific circums
 ---
 
 ## Context [^](#core)
-**extends [Agent](#agent)**
+extends **[Agent](#agent)**
 
 The main **grouping** class within the Agency framework, the `Context` maintains a list of registered `Agents`, upon which further event actions may be taken.
 
@@ -84,7 +84,7 @@ Through the use of *routers*, the `Context` can add a `FILTER` hook to an `Agent
 ---
 
 ## Registry [^](#core)
-**extends [AgencyBase](#agencybase)**
+extends **[AgencyBase](#agencybase)**
 
 The `Registry` creates a `UUID` for any provided input, but will use `.id` instead if the registration entry has it already.  Under the hood, a wrapper-class called `RegistryEntry` is used to facilitate many of the helper functions present within the `Registry`.
 
@@ -116,7 +116,7 @@ After registration, an entry can optionally be given *alias(es)* and also an ent
 ---
 
 ## EventList [^](#core)
-**extends [AgencyBase](#agencybase)**
+extends **[AgencyBase](#agencybase)**
 
 This is a wrapper class for an attachable set of event handlers, with optionally-pre-defined aliases.  This is meant as an abstract wrapper to a POJO, so that there is more Agency-specific behavior and reusability.  A major use for this class is in the `ECS` space.
 

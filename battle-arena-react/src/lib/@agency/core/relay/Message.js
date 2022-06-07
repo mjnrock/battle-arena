@@ -7,9 +7,9 @@ export class Message extends AgencyBase {
 
 		this.data = data;
 		this.meta = {
-			...meta,
-
 			timestamp: Date.now(),
+
+			...meta,
 		};
 
 		if(validate(emitter)) {
