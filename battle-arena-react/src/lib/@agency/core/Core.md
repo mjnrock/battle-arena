@@ -33,7 +33,7 @@ The main **eventable** class within the Agency framework.
 |`events`|`Map`|✅|
 |`config`|`Object`|✅|
 
-### `.config` Options
+#### `.config` Options
 |Option|Default|Description|
 |-|-|-|
 |`allowRPC`|`false`|When `true`, absent triggers will instead attempt to execute an internal function `this[ trigger ](...args)`|
@@ -42,7 +42,7 @@ The main **eventable** class within the Agency framework.
 |`batchSize`|`1000`|The default maximum size that a batch can get to|
 |`isBatchProcessing`|`false`|A flag to either process emissions in real-time (`false`) or on-demand (`true`) via `.process`|
 
-### Example
+#### Example
 	const agent = new Agent({
 		id,
 		state = {},
@@ -84,7 +84,7 @@ The main **grouping** class within the Agency framework, the `Context` maintains
 |-|-|-|
 |`registry`|`Registry`|✅|
 
-### `.config` Options
+#### `.config` Options
 |Option|Default|Description|
 |-|-|-|
 |`preventPropagation`|`false`|If a router is present, should the router prevent further propagation (`true`) or allow the agent to process the event, as well (`false`)|
@@ -92,7 +92,7 @@ The main **grouping** class within the Agency framework, the `Context` maintains
 
 > When using routers, the router will be loaded as a `FILTER` hook, and is thus able to prevent further propagation.  The router function itself _cannot dictate this_, and only the `.preventPropagation` configuration setting will determine whether the filter halts propagation or not.
 
-### Example
+#### Example
 	const context = new Context(
 		agents = [
 			// instanceof Agent
@@ -116,7 +116,7 @@ The `Registry` creates a `UUID` for any provided input, but will use `.id` inste
 |-|-|-|
 |`registry`|`Map`|✅|
 
-### Example
+#### Example
 	const registry = new Registry(
 		entries = [
 			// any
@@ -152,7 +152,7 @@ This is a wrapper class for an attachable set of event handlers, with optionally
 |`events`|`Map`|✅|
 |`aliases`|`Map`|✅|
 
-### Example
+#### Example
 	const registry = new Registry(
 		events = {
 			// Event handler object

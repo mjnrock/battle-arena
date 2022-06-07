@@ -11,28 +11,44 @@ Below is an index of of the **Entity Component System (ECS)** [ `@agency/core/ec
 
 ## Struct [^](#ecs)
 
+### Class Properties
 |Property|Type|Optional|
 |-|-|-|
+
+#### Example
+	// code
 
 ---
 
 ## Component [^](#ecs)
 
+### Class Properties
 |Property|Type|Optional|
 |-|-|-|
+
+#### Example
+	// code
 
 ---
 
 ## Entity [^](#ecs)
 
+### Class Properties
 |Property|Type|Optional|
 |-|-|-|
+
+#### Example
+	// code
 
 ---
 
 ## System [^](#ecs)
 
+### Class Properties
 |Property|Type|Optional|
 |-|-|-|
+
+#### Example
+	// code
 
 ---
