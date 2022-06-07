@@ -14,7 +14,7 @@ export class Channel extends AgencyBase {
 	constructor ({ config = {}, id, tags } = {}) {
 		super({ id, tags });
 
-		this.messages = new MessageCollection();		//FIXME This allows sending the same message multiple times, though it doesn't retain
+		this.messages = new MessageCollection();		//FIXME This allows sending the same message multiple times
 		this.subscriptions = new Registry();
 
 		this.config = {

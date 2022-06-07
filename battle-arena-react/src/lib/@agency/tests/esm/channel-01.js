@@ -5,7 +5,7 @@ import Agent from "./../../core/Agent";
 import Message from "../../core/comm/Message";
 import Channel from "../../core/comm/Channel";
 
-Console.NewContext("This test suite is designed to test the templatization of handlers via the EventList class.");
+Console.NewContext("This test suite validates the usage of Channel by leveraging Message, MessageCollection, and Subscription.");
 
 const [ a1, a2, a3 ] = Agent.Factory(3, {
 	// state: (agent) => ({ fish: Math.random() * 100 }),	// State can be dynamically evaluated each time an Agent is constructed

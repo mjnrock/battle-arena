@@ -19,10 +19,40 @@ export class Network extends Registry {
 			return this.remove(channel.id);
 		}
 	}
+	addSubscriberTo(channelIdOrAlias, subscriber, callback) {
+		let id;
+		if(channelIdOrAlias instanceof Channel) {
+			id = channelIdOrAlias.id;
+		} else {
+			id = channelIdOrAlias;
+		}
+		const value = this.getEntryValue(id);
+
+		if(value instanceof Channel) {
+			return value.addSubscriber(subscriber, callback);
+		}
+
+		return false;
+	}
+	removeSubscriberFrom(channelIdOrAlias, subscriber) {
+		let id;
+		if(channelIdOrAlias instanceof Channel) {
+			id = channelIdOrAlias.id;
+		} else {
+			id = channelIdOrAlias;
+		}
+		const value = this.getEntryValue(id);
+
+		if(value instanceof Channel) {
+			return value.removeSubscriber(subscriber);
+		}
+
+		return false;
+	}
 
 	sendTo(input, ...args) {
 		if(this.has(input)) {
-			const entry = this.get(input);
+			const entry = this.getEntry(input);
 			const value = entry.getValue(this);
 
 			if(validate(input)) {
@@ -38,8 +68,15 @@ export class Network extends Registry {
 				}
 			}
 		} else if(input instanceof Channel) {
-			return this.sendTo(input.id);
+			return this.sendTo(input.id, ...args);
 		}
+	}
+	broadcast(...args) {
+		for(let channel of this.iterator) {
+			this.sendTo(channel, ...args);
+		}
+
+		return this;
 	}
 };
 

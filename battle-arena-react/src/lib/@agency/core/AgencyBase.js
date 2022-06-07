@@ -8,36 +8,36 @@ export class AgencyBase {
 
 		this.tags = new Set(singleOrArrayArgs(tags));
 
-		this.parent = parent;
-		this.children = new Set(children);
+		// this.parent = parent;
+		// this.children = new Set(children);
 
 		return this;
 	}
 
-	addChild(child) {
-		this.children.add(child);
-		child.parent = this;
+	// addChild(child) {
+	// 	this.children.add(child);
+	// 	child.parent = this;
 
-		return this;
-	}
-	removeChild(child) {
-		this.children.delete(child);
-		child.parent = null;
+	// 	return this;
+	// }
+	// removeChild(child) {
+	// 	this.children.delete(child);
+	// 	child.parent = null;
 
-		return this;
-	}
-	addParent(parent) {
-		this.parent = parent;
-		parent.children.add(this);
+	// 	return this;
+	// }
+	// addParent(parent) {
+	// 	this.parent = parent;
+	// 	parent.children.add(this);
 
-		return this;
-	}
-	removeParent(parent) {
-		this.parent = null;
-		parent.children.delete(this);
+	// 	return this;
+	// }
+	// removeParent(parent) {
+	// 	this.parent = null;
+	// 	parent.children.delete(this);
 
-		return this;
-	}
+	// 	return this;
+	// }
 
 
 	toString() {
