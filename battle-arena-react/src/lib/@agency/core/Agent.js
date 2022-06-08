@@ -29,6 +29,7 @@ export class Agent extends AgencyBase {
 		this.events = new Map();
 
 		this.config = {
+			isReducer: true,
 			allowRPC: false,
 			allowMultipleHandlers: true,
 
@@ -464,28 +465,41 @@ export class Agent extends AgencyBase {
 			return;
 		}
 
-		//? Process the hooks, acting as a state reducer
 		const previous = this.getState();
 		const next = this.trigger(trigger, args);
-
 		const payload = {
 			id: uuid(),
-			state: next,
-			previous,
+			type: this.config.isReducer ? `reducer` : `handler`,
 			emitter: this.id,
 			trigger,
 			args,
 			timestamp: Date.now(),
 		};
+		
+		if(this.config.isReducer) {
+			/**
+			 * Because this is a reducer, add _both_ the next and previous state to the payload.
+			 */
+			payload.state = next;
+			payload.previous = previous;
 
-		if(next !== void 0 && next !== previous) {
-			this.setState(next);
-
-			// Suppress the update if this is invoked by a batch process
-			if(!suppress) {
-				//? Optionally broadcast the state change, passing the state object
-				const updateResult = this.hook(Agent.Hooks.UPDATE, trigger, [ payload ]);
+			//? Process the hooks, acting as a state reducer	
+			if(next !== void 0 && next !== previous) {
+				this.setState(next);
+	
+				/**
+				 * Suppress the update if this is invoked by a batch process
+				 */
+				if(!suppress) {
+					//? Optionally broadcast the state change, passing the state object
+					const updateResult = this.hook(Agent.Hooks.UPDATE, trigger, [ payload ]);
+				}
 			}
+		} else {
+			/**
+			 * Since this is not a reducer, only add the result to the payload.
+			 */
+			payload.result = next;
 		}
 
 		//? Optionally emit effect hooks, passing the state object

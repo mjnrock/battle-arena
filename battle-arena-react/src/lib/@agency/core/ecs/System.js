@@ -1,11 +1,15 @@
-import Registry from "../Registry";
 import Context from "../Context";
 import { singleOrArrayArgs } from "../../util/helper";
 import Entity from "./Entity";
 
+/**
+ * The System is basically a Component-reducer for Entities.  When dispatched, the System will
+ * iterate over all Entities and call the handlers associated with that dispatch event.  Those
+ * handlers are expected to perform *all* of the work required and assign the new Component state.
+ */
 export class System extends Context {
-	constructor(entities = [], { agent = {} } = {}) {
-		super(entities, agent);
+	constructor(entities = [], agentObj = {} = {}) {
+		super(entities, agentObj);
 	}
 
 	dispatch(event, entities = [], ...args) {
@@ -34,6 +38,10 @@ export class System extends Context {
 		return results;
 	}
 	dispatchAt(eid, event, ...args) {
+		if(eid instanceof Entity) {
+			eid = eid.id;
+		}
+
 		const agent = this.registry.get(eid);
 
 		if(agent) {
@@ -50,9 +58,7 @@ export class System extends Context {
 				}
 			}
 		} else {
-			if(!Array.isArray(eid)) {
-				eid = [ eid ];
-			}
+			eid = singleOrArrayArgs(eid).map(e => e instanceof Entity ? e.id : e);
 
 			for(let entity of this.registry.iterator) {
 				if(eid.includes(entity.id)) {

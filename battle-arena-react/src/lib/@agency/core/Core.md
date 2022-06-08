@@ -33,9 +33,12 @@ The main **eventable** class within the Agency framework.
 |`events`|`Map`|✅|
 |`config`|`Object`|✅|
 
+> `{ $eval: true, ...state }` can be added to `state` initialization (in general, any time `setState` is used) to evaluate: 1) `state` if it is a function, or 2) evaluate all _first (1st)_ level `{ key: fn }` in the `state` object.  This allows for the entire state to be dynamic, or in cases where `.Factory` is used, each iteration will receive the newly-created agent (`fn(this)`), allowing for dynamic state generation over factories.
+
 #### `.config` Options
 |Option|Default|Description|
 |-|-|-|
+|`isReducer`|`true`|This determines whether or not `.state` will be updated when an event is handled|
 |`allowRPC`|`false`|When `true`, absent triggers will instead attempt to execute an internal function `this[ trigger ](...args)`|
 |`allowMultipleHandlers`|`true`|When `false`, only the most recent addition to the handler `Set` is used|
 |`queue`|`Set`|The collection of emission arguments when `isBatchProcessing` is enabled|

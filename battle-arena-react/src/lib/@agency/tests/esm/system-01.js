@@ -22,9 +22,22 @@ const system = new System([
 	e1,
 	e2,
 	e3,
-]);
+], {
+	state: {
+		$eval: true,
+		cats: () => Math.random() * 100,
+	},
+	events: {
+		test: (state, entity, ...args) => Console.label("test", state, entity.id, ...args),
+	}
+});
 
 Console.label("system", system.id);
 Console.label("system.registry", system.registry.id);
 
-console.log(system);
+// console.log(system);
+
+// system.dispatch("test", [ e1, e2 ], Date.now());
+system.dispatchAll("test", Date.now());
+// system.dispatchAt(e1, "test", Date.now());
+// system.dispatchSome([ e1.id, e2 ], "test", Date.now());
