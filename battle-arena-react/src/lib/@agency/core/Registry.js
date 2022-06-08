@@ -55,6 +55,7 @@ export class Registry extends AgencyBase {
 	static Encoders = {
 		InstanceOf: (self, ...classes) => (id, entry, type = RegistryEntry.Type.VALUE) => {
 			const isInstanceOf = classes.some(cls => entry instanceof cls);
+			
 			if(isInstanceOf) {
 				self.registry.set(id, new RegistryEntry(id, entry, type));
 

@@ -31,7 +31,7 @@ export class Console {
 		console.error(...args);
 	}
 	static label(text, ...args) {
-		console.log(`[${ text.toUpperCase().replace(/[^\w\d]+/gi, `_`) }]:`, ...args);
+		console.log(`[${ text.toUpperCase().replace(/[^\w\d\.]+/gi, `_`) }]:`, ...args);
 	}
 	static labelTime(text, ...args) {
 		console.log(`[${ Date.now().toString() }][${ text.toUpperCase().replace(/[^\w\d]+/gi, `_`) }]:`, ...args);

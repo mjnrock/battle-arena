@@ -26,9 +26,9 @@ export class Context extends Agent {
 
 		/**
 		 * Override the Registry default encoder to maintain that only Agents
-		 * be added to the .registry
+		 * be added to the .agentRegistry
 		 */
-		this.registry.encoder = Registry.Encoders.InstanceOf(this, Agent);
+		this.registry.encoder = Registry.Encoders.InstanceOf(this.registry, Agent);
 
 		this.mergeConfig({
 			/**
@@ -44,6 +44,7 @@ export class Context extends Agent {
 			 * NOTE that while the Agents may change over time, this maintains a record
 			 * of the attached Agents, and thus has implications for garbage collection.
 			 */
+			//TODO Rewrite routers using Subscriptions
 			routers: new Map(),
 		}, true);
 
@@ -269,7 +270,7 @@ export class Context extends Agent {
 
 	//#region Registry Convenience Methods
 	/**
-	 * Allow a Context to iterate over all Agents in the .registry
+	 * Allow a Context to iterate over all Agents in the .agentRegistry
 	 */
     [ Symbol.iterator ]() {
         var index = -1;
