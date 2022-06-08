@@ -24,12 +24,11 @@ export class Agent extends AgencyBase {
 
 	constructor ({ id, state = {}, events = {}, hooks = {}, config = {}, tags = [] } = {}) {
 		super({ id, tags });
-		
+
 		this.state = {};
 		this.events = new Map();
 
 		this.config = {
-			isReducer: true,
 			allowRPC: false,
 			allowMultipleHandlers: true,
 
@@ -39,14 +38,14 @@ export class Agent extends AgencyBase {
 
 			...config,
 		};
-		
+
 		/**
 		 * Set @state.$eval = true to evaluate the state object, instead
 		 * of assigning it directly.  You may also pass a function that
 		 * returns the state object dynamically.
 		 */
 		this.setState(state);
-		
+
 		this.addHooks(hooks);
 		this.addEvents(events);
 	}
@@ -70,7 +69,7 @@ export class Agent extends AgencyBase {
 			 */
 			state = state(this);
 		}
-		
+
 		if(typeof state !== "object") {
 			/**
 			 * Only allow generic objects to be set as state
@@ -150,11 +149,11 @@ export class Agent extends AgencyBase {
 
 		const set = this.events.get(trigger);
 		if(!this.config.allowMultipleHandlers) {
-			
+
 			const [ handler ] = handlers;
 			if(typeof handler === "function" || handler instanceof Agent) {
 				this.clearHandlers(trigger);
-				
+
 				set.add(handler);
 			}
 
@@ -323,14 +322,14 @@ export class Agent extends AgencyBase {
 		if(this.config.isBatchProcessing) {
 			const queue = Array.from(this.config.queue);
 			const batch = queue.splice(0, this.config.batchSize);
-			
-			for(let [ trigger, args ] of batch) {				
+
+			for(let [ trigger, args ] of batch) {
 				result = this.__handleEmission(trigger, args, supressUpdates);
 			}
-			
+
 			const previous = this.getState();
 			this.setState(result);
-			
+
 			const payload = {
 				id: uuid(),
 				state: result,
@@ -341,7 +340,7 @@ export class Agent extends AgencyBase {
 				timestamp: Date.now(),
 			};
 			const updateResult = this.hook(Agent.Hooks.UPDATE, Agent.ControlCharacter(Agent.Hooks.BATCH), [ payload ]);
-			
+
 			this.config.queue = new Set(queue);
 		}
 
@@ -375,7 +374,7 @@ export class Agent extends AgencyBase {
 					} else if(handler instanceof Agent) {
 						result = handler.hook(hook, trigger, args, result);
 					}
-					
+
 					if(hook === Agent.ControlCharacter(Agent.Hooks.FILTER) && result === true) {
 						return result;
 					}
@@ -391,14 +390,14 @@ export class Agent extends AgencyBase {
 
 		return result;
 	}
-	
+
 	rpc(name, ...args) {
 		if(this.config.allowRPC === true) {
 			if(!Array.isArray(args)) {
 				args = [ args ];
 			}
 
-			if(name in this && typeof this[name] === "function") {
+			if(name in this && typeof this[ name ] === "function") {
 				return this[ name ](...args);
 			}
 		}
@@ -469,37 +468,25 @@ export class Agent extends AgencyBase {
 		const next = this.trigger(trigger, args);
 		const payload = {
 			id: uuid(),
-			type: this.config.isReducer ? `reducer` : `handler`,
+			state: next,
+			previous,
 			emitter: this.id,
 			trigger,
 			args,
 			timestamp: Date.now(),
 		};
-		
-		if(this.config.isReducer) {
-			/**
-			 * Because this is a reducer, add _both_ the next and previous state to the payload.
-			 */
-			payload.state = next;
-			payload.previous = previous;
 
-			//? Process the hooks, acting as a state reducer	
-			if(next !== void 0 && next !== previous) {
-				this.setState(next);
-	
-				/**
-				 * Suppress the update if this is invoked by a batch process
-				 */
-				if(!suppress) {
-					//? Optionally broadcast the state change, passing the state object
-					const updateResult = this.hook(Agent.Hooks.UPDATE, trigger, [ payload ]);
-				}
-			}
-		} else {
+		//? Process the hooks, acting as a state reducer	
+		if(next !== void 0 && next !== previous) {
+			this.setState(next);	//? A reducer result can include the $eval key, but you probably shouldn't maybe? ;)
+
 			/**
-			 * Since this is not a reducer, only add the result to the payload.
+			 * Suppress the update if this is invoked by a batch process
 			 */
-			payload.result = next;
+			if(!suppress) {
+				//? Optionally broadcast the state change, passing the state object
+				const updateResult = this.hook(Agent.Hooks.UPDATE, trigger, [ payload ]);
+			}
 		}
 
 		//? Optionally emit effect hooks, passing the state object
@@ -548,14 +535,14 @@ export class Agent extends AgencyBase {
 		for(let i = 0; i < qty; i++) {
 			let args = fnOrArgs;
 			if(typeof fnOrArgs === "function") {
-				args = fnOrArgs();
+				args = fnOrArgs(i);
 			}
 
 			const agent = this.Create(...args);
 			agents.push(agent);
 
 			if(typeof each === "function") {
-				each(agent);
+				each(i, agent);
 			}
 		}
 

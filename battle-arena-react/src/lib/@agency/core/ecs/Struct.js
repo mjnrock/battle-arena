@@ -245,8 +245,9 @@ export class Struct extends AgencyBase {
 
 		for(let [ key, value ] of Object.entries(this)) {
 			let rows = [];
-			if(value instanceof Struct) {
-				rows.push([ i, pid, "$struct", key ]);
+			if(value instanceof Struct || (value instanceof AgencyBase && typeof value.toHierarchy === "function")) {
+				const type = value instanceof Struct ? "$struct" : "$agency";
+				rows.push([ i, pid, type, key ]);
 
 				const [ resultTable, j ] = value.toHierarchy(includeId, i, true);
 				rows = [
@@ -256,9 +257,36 @@ export class Struct extends AgencyBase {
 
 				i = j;
 			} else {
-				rows.push([ i, pid, key, value ]);
-				
-				i++;
+				//FIXME Abstract these commonalities and recurse, instead
+				if(Array.isArray(value) || value instanceof Set) {
+					const type = Array.isArray(value) ? "$array" : "$set";
+					value = Array.from(value);
+
+					rows.push([ i, pid, type, key ]);
+					i++;
+
+					for(let [ j, v ] of value.entries()) {
+						rows.push([ i + j, i - 1, j, v ]);
+					}	
+
+					i += value.length;
+				} else if(typeof value === "object" || value instanceof Map) {
+					const type = typeof value === "object" ? "$object" : "$map";
+					value = Array.from(Object.entries(value));
+
+					rows.push([ i, pid, type, key ]);
+					i++;
+
+					Object.entries(value).forEach(([ key, value ], j) => {
+						rows.push([ i + j, i - 1, key, value ]);
+					});
+
+					i += Object.keys(value).length;
+				} else {
+					rows.push([ i, pid, key, value ]);
+					
+					i++;
+				}
 			}
 			
 

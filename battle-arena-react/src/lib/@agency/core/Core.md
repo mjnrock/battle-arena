@@ -24,7 +24,7 @@ Every class that is meaningfully trackable extends the `AgencyBase` class.
 ## Agent [^](#core)
 extends **[AgencyBase](#agencybase)**
 
-The main **eventable** class within the Agency framework.  
+The main **eventable** class within the Agency framework.
 
 ### Class Properties
 |Property|Type|Optional|
@@ -32,6 +32,8 @@ The main **eventable** class within the Agency framework.
 |`state`|`Object`|✅|
 |`events`|`Map`|✅|
 |`config`|`Object`|✅|
+
+> Instead of reducing `state`, an `Agent` can act solely as an event bus if *all* handlers `return void 0;`.  In this case, you must then mensure that any handler on the agent does not return any state.
 
 > `{ $eval: true, ...state }` can be added to `state` initialization (in general, any time `setState` is used) to evaluate: 1) `state` if it is a function, or 2) evaluate all _first (1st)_ level `{ key: fn }` in the `state` object.  This allows for the entire state to be dynamic, or in cases where `.Factory` is used, each iteration will receive the newly-created agent (`fn(this)`), allowing for dynamic state generation over factories.
 

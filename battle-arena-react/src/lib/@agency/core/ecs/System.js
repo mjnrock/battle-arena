@@ -1,6 +1,6 @@
 import Context from "../Context";
-import { singleOrArrayArgs } from "../../util/helper";
 import Entity from "./Entity";
+import { singleOrArrayArgs } from "../../util/helper";
 
 /**
  * The System is basically a Component-reducer for Entities.  When dispatched, the System will
@@ -8,7 +8,7 @@ import Entity from "./Entity";
  * handlers are expected to perform *all* of the work required and assign the new Component state.
  */
 export class System extends Context {
-	constructor(entities = [], agentObj = {} = {}) {
+	constructor (entities = [], agentObj = {}) {
 		super(entities, agentObj);
 	}
 
@@ -17,13 +17,9 @@ export class System extends Context {
 			entities = entities(event, ...args);
 		}
 
-		entities = singleOrArrayArgs(entities);
+		const next = this.trigger(event, [ singleOrArrayArgs(entities), ...args ]);
 
-		for(let entity of entities) {
-			const next = this.trigger(event, [ entity, ...args ]);
-		}
-
-		return this;
+		return next;
 	}
 
 	/**
