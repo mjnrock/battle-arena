@@ -56,16 +56,16 @@ export class Struct extends AgencyBase {
 					let current = Reflect.get(target, prop);
 					for(let fn of target._hooks[ Struct.Hooks.VIEW ]) {
 						const result = fn(target, prop, current);
-	
+
 						// Short-circuit execution and return substitute value
 						if(result !== void 0) {
 							return result;
 						}
 					}
-	
+
 					return current;
 				}
-				
+
 				return Reflect.get(target, prop);
 			},
 			set: (target, prop, value) => {
@@ -108,24 +108,24 @@ export class Struct extends AgencyBase {
 		return proxy;
 	}
 
-    [ Symbol.iterator ]() {
-        var index = -1;
-        var data = Object.entries(Object.entries(this).reduce((acc, [ key, value ]) => {
+	[ Symbol.iterator ]() {
+		var index = -1;
+		var data = Object.entries(Object.entries(this).reduce((acc, [ key, value ]) => {
 			if(key !== "_hooks" && key !== "_meta") {
 				acc[ key ] = value;
 			}
 			return acc;
 		}, {}));
 
-        return {
-            next: () => ({ value: data[ ++index ], done: !(index in data) })
-        };
-    };
+		return {
+			next: () => ({ value: data[ ++index ], done: !(index in data) })
+		};
+	};
 	forEach(fn) {
 		for(let [ key, value ] of this) {
 			fn(key, value, this);
 		}
-		
+
 		return this;
 	}
 
@@ -138,7 +138,7 @@ export class Struct extends AgencyBase {
 		} else {
 			Reflect.set(this, prop, value);
 		}
-		
+
 		return this;
 	}
 	find(input, { firstMatchOnly = false, regexOnKey = true, regexOnValue = false } = {}) {
@@ -147,7 +147,7 @@ export class Struct extends AgencyBase {
 			results.push(this[ input ]);
 		} else if(typeof input === "function") {
 			for(let [ key, value ] of this) {
-				if(input(key, value, this) === true) {					
+				if(input(key, value, this) === true) {
 					if(firstMatchOnly) {
 						return value;
 					}
@@ -223,7 +223,7 @@ export class Struct extends AgencyBase {
 			if(value instanceof Struct) {
 				return { [ key ]: value.toObject(includeId), ...a };
 			}
-			
+
 			return { [ key ]: value, ...a };
 		}, {});
 	}
@@ -233,77 +233,72 @@ export class Struct extends AgencyBase {
 	toJson(includeId = true) {
 		return this.toString(includeId);
 	}
-	toHierarchy(includeId = true, pid = 0, ...recurseArgs) {
-		const [ isRecursion ] = recurseArgs;
+	toHierarchy(includeId = true, entries = Object.entries(this), pid = 0, table = []) {
+		let eid = pid + 1;
+		const addRow = (id, pid, k, v) => {
+			let newKey = isNaN(k) ? k : +k,
+				newValue = isNaN(v) ? v : +v;
 
-		let table = [];
-		let i = pid + 1;
+			if(typeof v === "boolean") {
+				newValue = !!v;
+			}
 
-		if(!isRecursion) {
-			table.push([ 0, null, "$root", null ]);
+			table.push([ id, pid, newKey, newValue ]);
+		};
+		
+		if(pid === 0) {
+			table.push([ 0, null, null, `$root` ]);
 		}
 
-		for(let [ key, value ] of Object.entries(this)) {
-			let rows = [];
-			if(value instanceof Struct || (value instanceof AgencyBase && typeof value.toHierarchy === "function")) {
-				const type = value instanceof Struct ? "$struct" : "$agency";
-				rows.push([ i, pid, type, key ]);
-
-				const [ resultTable, j ] = value.toHierarchy(includeId, i, true);
-				rows = [
-					...rows,
-					...resultTable,
-				];
-
-				i = j;
+		entries.forEach(([ key, value ], i) => {
+			if(includeId === false && key === "id") {
+				//NOOP
 			} else {
-				//FIXME Abstract these commonalities and recurse, instead
-				if(Array.isArray(value) || value instanceof Set) {
-					const type = Array.isArray(value) ? "$array" : "$set";
-					value = Array.from(value);
+				let type = false,
+					newValue = value;
 
-					rows.push([ i, pid, type, key ]);
-					i++;
+				if(newValue instanceof Struct) {
+					type = `$struct`;
+					newValue = Object.entries(newValue);
+				} else if(Array.isArray(newValue)) {
+					type = `$array`;
+					newValue = Object.entries(newValue);
+				} else if(newValue instanceof Set) {
+					type = `$set`;
+					newValue = Array.from(newValue.values()).map((v, i) => [ i, v ]);
+				} else if(newValue instanceof Map) {
+					type = `$map`;
+					newValue = Array.from(newValue.entries());
+				} else if(typeof newValue === "object") {
+					type = `$object`;
+					newValue = Object.entries(newValue);
+				}
 
-					for(let [ j, v ] of value.entries()) {
-						rows.push([ i + j, i - 1, j, v ]);
-					}	
+				if(type) {
+					addRow(eid, pid, key, type);
 
-					i += value.length;
-				} else if(typeof value === "object" || value instanceof Map) {
-					const type = typeof value === "object" ? "$object" : "$map";
-					value = Array.from(Object.entries(value));
-
-					rows.push([ i, pid, type, key ]);
-					i++;
-
-					Object.entries(value).forEach(([ key, value ], j) => {
-						rows.push([ i + j, i - 1, key, value ]);
-					});
-
-					i += Object.keys(value).length;
+					if(type === `$struct`) {
+						[ eid, table ] = value.toHierarchy(includeId, newValue, eid, table);
+					} else {
+						[ eid, table ] = this.toHierarchy(includeId, newValue, eid, table);
+					}
 				} else {
-					rows.push([ i, pid, key, value ]);
-					
-					i++;
+					addRow(eid, pid, key, newValue);
+					eid++;
 				}
 			}
-			
+		});
 
-			table = [
-				...table,
-				...rows,
-			];
-		}
-
-		if(isRecursion) {
+		if(pid !== 0) {
 			return [
-				table,
-				i,
+				eid,
+				table
 			];
 		}
 
 		return table;
+		// return table.sort((a, b) => a[ 0 ] - b[ 0 ]);	// Sort by EID
+		// return table.sort((a, b) => a[ 1 ] - b[ 1 ]);	// Sort by PID
 	}
 	to(format, ...args) {
 		switch(format) {

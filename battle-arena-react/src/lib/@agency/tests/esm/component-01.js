@@ -1,20 +1,28 @@
 import Console from "../../util/Console";
 
+import Struct from "../../core/ecs/Struct";
 import Component from "./../../core/ecs/Component";
 
 Console.NewContext("This test suite is designed to the basic event and hook functionality of the Context class.");
 
-const comp = new Component("test", {
-	dog: "woof",
-	cat: [ 1, 2, 3, 4, 5, 6 ],
-	cats: {
-		kiszka: "meow",
-		buddha: "rawr",
-		meows: {
-			yes: true,
-			no: false,
-		},
+const struct = new Struct({
+	fish: {
+		name: "Bob",
 	},
+});
+
+const comp = new Component("test", {
+	// dog: "woof",
+	// cat: [ 1, 2, 3, 4, 5, 6 ],
+	// cats: {
+	// 	kiszka: "meow",
+	// 	buddha: "rawr",
+	// 	meows: {
+	// 		yes: true,
+	// 		no: false,
+	// 	},
+	// },
+	fishes: struct,
 }, {
 	tags: [ "animals", "cats", "dogs" ],
 });

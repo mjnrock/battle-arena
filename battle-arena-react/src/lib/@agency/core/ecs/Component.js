@@ -11,7 +11,7 @@ export class Component extends Struct {
 		super(state, { id, tags });
 
 		this.name = name;
-		this.args = [ name, { id, tags } ];	//FIXME Uncomment
+		this.args = [ name, { id: this.id, tags: this.tags } ];	//FIXME Uncomment
 	}
 
 	generator(...args) {
