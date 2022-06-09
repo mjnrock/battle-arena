@@ -8,28 +8,25 @@ Console.NewContext("This test suite is designed to the basic event and hook func
 
 const comp = new Component("test");
 
-const [ e1, e2, e3 ] = Entity.Factory(3, [[ comp, ], {}], (i, e) => Console.label(`e${ i }`, e.test.toHierarchy()));
+const [ e1, e2, e3 ] = Entity.Factory(
+	3,
+	[ [ comp, ], {} ],
+	(i, e) => Console.label(`e${ i + 1 }`, e.id),
+);
 
-const system = new System([
-	e1,
-	e2,
-	e3,
-], {
+const [ s1 ] = System.Factory(1, {
 	state: {
 		$eval: true,
 		cats: () => Math.random() * 100,
 	},
 	events: {
-		test: (state, entity, ...args) => Console.label("test", state, entity.id, ...args),
+		test: (state, entities, ...args) => Console.label("test", state, entities.map(e => e.id), ...args),
 	}
-});
+},
+	(i, s) => Console.label(`s${ i + 1 }`, s.id),
+);
 
 // Console.label("system", system.id);
-// Console.label("system.registry", system.registry.id);
-
 // console.log(system);
 
-// system.dispatch("test", [ e1, e2 ], Date.now());
-// system.dispatchAll("test", Date.now());
-// system.dispatchAt(e1, "test", Date.now());
-// system.dispatchSome([ e1.id, e2 ], "test", Date.now());
+s1.dispatch("test", [ e1, e2 ], Date.now());

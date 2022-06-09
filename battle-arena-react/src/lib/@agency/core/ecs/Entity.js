@@ -2,9 +2,10 @@ import Registry from "../Registry";
 import { singleOrArrayArgs } from "./../../util/helper";
 
 /**
- * An Entity is a Context where the .state has been formalized to hold Components
- * within a Registry.  As an Entity, reducers on the state only function as event
- * handlers, and no longer function as reducers.
+ * An Entity is a Registry for Components (state), allowing for a centralized System (reducer) to
+ * manage the state of the Entity viz-a-viz the Components.  The System is responsible for
+ * assigning the new state of the Components, and as such, the Entity should be treated as a
+ * read-only container object.
  */
 export class Entity extends Registry {
 	constructor(components = [], agencyBaseObj = {}) {
