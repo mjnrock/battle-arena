@@ -17,24 +17,25 @@ const registry = new Registry([
 ]);
 
 const comp = new Component("test", {
-	dog: "woof",
-	cat: [ 1, 2, 3, 4, 5, 6 ],
-	cats: {
-		kiszka: "meow",
+	dog: 654,									// Number test
+	cat: [ 1, 2, 3, 4, 5, 6 ],					// Array test
+	cats: {										// Object test
+		kiszka: "meow",							// String test
 		buddha: "rawr",
-		meows: {
-			yes: true,
+		meows: {								// Nested Object test
+			yes: true,							// Boolean test
 			no: false,
+			miaos: [ -1, -2, -3 ]				// Nested Array test
 		},
-		cheese: new Map([
+		cheese: new Map([						// Map test
 			[ "cheddar", "cheddars" ],
 			[ "swiss", "swisses" ],
 			[ "american", "americans" ],
 		]),
 	},
-	fishes: registry,
+	fishes: registry,							// AgencyBase test
 }, {
-	tags: [ "animals", "cats", "dogs" ],
+	tags: [ "animals", "cats", "dogs" ],		// Set test
 });
 
 console.log(comp)

@@ -14,6 +14,7 @@ export class AgencyBase {
 		return this;
 	}
 
+	//#region Graph Structure
 	// addChild(child) {
 	// 	this.children.add(child);
 	// 	child.parent = this;
@@ -38,8 +39,7 @@ export class AgencyBase {
 
 	// 	return this;
 	// }
-
-
+	//#endregion Graph Structure
 
 	//#region Serialization
 	toArray(includeId = true) {
