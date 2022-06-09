@@ -1,5 +1,6 @@
 import Console from "../../util/Console";
 
+import Registry from "../../core/Registry";
 import Struct from "../../core/ecs/Struct";
 import Component from "./../../core/ecs/Component";
 
@@ -10,6 +11,10 @@ const struct = new Struct({
 		name: "Bob",
 	},
 });
+
+const registry = new Registry([
+	struct,
+]);
 
 const comp = new Component("test", {
 	dog: "woof",
@@ -27,7 +32,7 @@ const comp = new Component("test", {
 			[ "american", "americans" ],
 		]),
 	},
-	fishes: struct,
+	fishes: registry,
 }, {
 	tags: [ "animals", "cats", "dogs" ],
 });
