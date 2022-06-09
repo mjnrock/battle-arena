@@ -12,16 +12,21 @@ const struct = new Struct({
 });
 
 const comp = new Component("test", {
-	// dog: "woof",
-	// cat: [ 1, 2, 3, 4, 5, 6 ],
-	// cats: {
-	// 	kiszka: "meow",
-	// 	buddha: "rawr",
-	// 	meows: {
-	// 		yes: true,
-	// 		no: false,
-	// 	},
-	// },
+	dog: "woof",
+	cat: [ 1, 2, 3, 4, 5, 6 ],
+	cats: {
+		kiszka: "meow",
+		buddha: "rawr",
+		meows: {
+			yes: true,
+			no: false,
+		},
+		cheese: new Map([
+			[ "cheddar", "cheddars" ],
+			[ "swiss", "swisses" ],
+			[ "american", "americans" ],
+		]),
+	},
 	fishes: struct,
 }, {
 	tags: [ "animals", "cats", "dogs" ],
