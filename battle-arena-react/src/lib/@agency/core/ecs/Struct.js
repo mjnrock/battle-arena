@@ -240,7 +240,7 @@ export class Struct extends AgencyBase {
 				newValue = isNaN(v) ? v : +v;
 
 			if(typeof v === "boolean") {
-				newValue = !!v;
+				newValue = v;
 			}
 
 			table.push([ id, pid, newKey, newValue ]);
