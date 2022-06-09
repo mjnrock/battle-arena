@@ -54,10 +54,16 @@ export class RegistryEntry extends AgencyBase {
 
 export class Registry extends AgencyBase {
 	static Encoders = {
+		SetEntry: (self, id, entry, type) => {
+			self.registry.set(id, new RegistryEntry(id, entry, type));
+
+			return true;
+		},
 		InstanceOf: (self, ...classes) => (id, entry, type = RegistryEntry.Type.VALUE) => {
 			const isInstanceOf = classes.some(cls => entry instanceof cls);
 			
 			if(isInstanceOf) {
+				// return this.Encoders.SetEntry(self, id, entry, type);
 				self.registry.set(id, new RegistryEntry(id, entry, type));
 
 				return true;
@@ -67,11 +73,18 @@ export class Registry extends AgencyBase {
 		},
 	};
 
-	constructor (entries = [], agencyBaseObj = {}) {
-		super(agencyBaseObj);
+	constructor (entries = [], { encoder, decoder, agent = {} } = {}) {
+		super(agent);
 
 		this.registry = new Map();
 		this.registerMany(...entries);
+
+		if(typeof encoder === "function") {
+			this.encoder = encoder;
+		}
+		if(typeof decoder === "function") {
+			this.decoder = decoder;
+		}
 
 		return new Proxy(this, {
 			get: (target, key) => {

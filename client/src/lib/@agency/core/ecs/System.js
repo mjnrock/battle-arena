@@ -12,8 +12,8 @@ import { singleOrArrayArgs } from "../../util/helper";
  * NOTE that dispatch will *always* emit an array of Entities, event if there is only one (1).
  */
 export class System extends Agent {
-	constructor (agentObj = {}) {
-		super(agentObj);
+	constructor (agent = {}) {
+		super(agent);
 	}
 
 	dispatch(event, entities = [], ...args) {

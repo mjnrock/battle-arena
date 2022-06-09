@@ -35,21 +35,21 @@ const [ s1 ] = System.Factory(1, {
 
 Console.hr();
 
-// Console.label("system", system.id);
-// console.log(system);
+// // Console.label("system", system.id);
+// // console.log(system);
 
-//? State should NOT change
-console.log(s1.state)
-s1.dispatch("test", [ e1, e2 ], Date.now());
-console.log(s1.state)
-
+console.log(s1.state);
 Console.hr();
 
-//? State SHOULD change
+// //? State should NOT change
+s1.dispatch("test", [ e1, e2 ], Date.now());
+console.log(s1.state);
+Console.hr();
+
+// //? State SHOULD change
 s1.addHandler("test", () => ({
 	meows: Infinity,
 }));
 s1.dispatch("test", [ e1, e2 ], Date.now());
-console.log(s1.state)
-
+console.log(s1.state);
 Console.hr();

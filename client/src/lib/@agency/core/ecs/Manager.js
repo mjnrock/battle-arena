@@ -13,8 +13,8 @@ import Entity from "./Entity";
  * This is designed to preserve the ability of a System to dispatch on external Entities.
  */
 export class Manager extends System {
-	constructor (entities = [], agentObj = {}) {
-		super(agentObj);
+	constructor (entities = [], agent = {}) {
+		super(agent);
 
 		this.registry.encoder = Registry.Encoders.InstanceOf(this, Entity);
 		this.registry = new Registry(entities);

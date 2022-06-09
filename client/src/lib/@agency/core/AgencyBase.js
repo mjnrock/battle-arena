@@ -5,8 +5,13 @@ import { singleOrArrayArgs } from "../util/helper";
 export class AgencyBase {
 	constructor ({ id, tags = [] } = {}) {
 		this.id = id || uuid();
-
-		this.tags = new Set(singleOrArrayArgs(tags));
+		
+		Reflect.defineProperty(this, "tags", {
+			enumerable: false,
+			configurable: false,
+			writable: true,
+			value: new Set(singleOrArrayArgs(tags)),
+		});
 
 		return this;
 	}

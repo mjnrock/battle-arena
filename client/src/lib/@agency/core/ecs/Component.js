@@ -9,13 +9,38 @@ import Struct from "./Struct";
 export class Component extends Struct {
 	constructor (name, state = {}, { id, tags } = {}) {
 		super(state, { id, tags });
-
-		this.name = name;
-		this.args = [ name, { id: this.id, tags: this.tags } ];	//FIXME Uncomment
+		
+		Reflect.defineProperty(this, "name", {
+			enumerable: false,
+			configurable: false,
+			writable: false,
+			value: name,
+		});		
+		Reflect.defineProperty(this, "__args", {
+			enumerable: false,
+			configurable: false,
+			writable: false,
+			value: [ name, { id: this.id, tags: this.tags } ],
+		});
 
 		if(typeof this.name !== "string" && !this.name.length) {
 			throw new Error("Component @name must be a non-empty string");
 		}
+	}
+
+	[ Symbol.iterator ]() {
+		const data = Object.entries(this);
+		let index = 0;
+
+		return {
+			next: function () {
+				return { value: data[ ++index ], done: !(index in data) }
+			}
+		};
+	}
+
+	has(entity) {
+		return entity.has(this.name);
 	}
 
 	generator(...args) {
@@ -23,7 +48,7 @@ export class Component extends Struct {
 			return new this.constructor(...args);
 		}
 
-		return new this.constructor(...this.args);
+		return new this.constructor(...this.__args);
 	}
 };
 

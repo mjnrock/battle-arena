@@ -10,8 +10,8 @@ import { singleOrArrayArgs } from "./../../util/helper";
  * read-only container object.
  */
 export class Entity extends Registry {
-	constructor (components = [], { parent, children = [], agent = {} }) {
-		super([], agent);
+	constructor (components = [], { parent, children = [], agencyBase = {} } = {}) {
+		super([], agencyBase);
 
 		components = singleOrArrayArgs(components);
 		for(let component of components) {
