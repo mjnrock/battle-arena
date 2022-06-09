@@ -1,5 +1,6 @@
 import { v4 as uuid } from "uuid";
 import AgencyBase from "./AgencyBase";
+import Registry from "./Registry";
 
 export class Agent extends AgencyBase {
 	static ControlCharacter = (hook = ``) => {
@@ -27,6 +28,7 @@ export class Agent extends AgencyBase {
 
 		this.state = {};
 		this.events = new Map();
+		this.registry = new Registry();
 
 		this.config = {
 			allowRPC: false,

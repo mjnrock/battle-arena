@@ -1,4 +1,6 @@
 import Registry from "../Registry";
+import Component from "./Component";
+
 import { singleOrArrayArgs } from "./../../util/helper";
 
 /**
@@ -8,14 +10,78 @@ import { singleOrArrayArgs } from "./../../util/helper";
  * read-only container object.
  */
 export class Entity extends Registry {
-	constructor(components = [], agencyBaseObj = {}) {
-		super([], agencyBaseObj);
+	constructor (components = [], { parent, children = [], agent = {} }) {
+		super([], agent);
 
 		components = singleOrArrayArgs(components);
 		for(let component of components) {
 			this.registerWithAlias(component, component.name);
 		}
+
+		this.parent = parent;
+		this.children = new Set(children);
 	}
+
+	/**
+	 * Convenience method for Component creation and registration.
+	 * Use .unregister() to remove the Component.
+	 */
+	createComponent(name, state = {}, { id, tags } = {}) {
+		const component = new Component(name, state, { id, tags });
+
+		this.registerWithAlias(component, name);
+
+		return component;
+	}
+
+	// #region Graph Structure
+	addChild(child) {
+		this.children.add(child);
+		child.parent = this;
+
+		return this;
+	}
+	removeChild(child) {
+		this.children.delete(child);
+		child.parent = null;
+
+		return this;
+	}
+
+	addParent(parent) {
+		this.parent = parent;
+		parent.children.add(this);
+
+		return this;
+	}
+	removeParent(parent) {
+		this.parent = null;
+		parent.children.delete(this);
+
+		return this;
+	}
+
+	getChildAt(index) {
+		return Array.from(this.children)[ index ];
+	}
+	getChildren(selector) {
+		if(selector == null) {
+			return Array.from(this.children);
+		}
+
+		if(typeof selector === "string") {
+			return Array.from(this.children).filter(child => child.id === selector);
+		} else if(Array.isArray(selector)) {
+			return Array.from(this.children).filter(child => selector.includes(child.id));
+		} else if(typeof selector === "function") {
+			return Array.from(this.children).filter(selector);
+		}
+
+		return [];
+	}
+
+
+	//#endregion Graph Structure
 
 	static Create(...args) {
 		return new this(...args);

@@ -11,10 +11,11 @@ export class RegistryEntry extends AgencyBase {
 		POOL: Symbol("POOL"),
 	};
 
-	constructor (id, value, type = RegistryEntry.Type.VALUE, tags = []) {
+	constructor (id, value, type = RegistryEntry.Type.VALUE, tags = [], config = {}) {
 		super({ id, tags });
 
 		this.type = type;
+		this.config = config;	//TODO Use the YTBC, formalized Config system
 
 		if(type === RegistryEntry.Type.POOL) {
 			this.value = new Set(value || []);
@@ -192,6 +193,28 @@ export class Registry extends AgencyBase {
 			return true;
 		} else if(validate(id)) {
 			return this.encoder(id, entry, RegistryEntry.Type.VALUE);
+		}
+
+		return false;
+	}
+	/**
+	 * Specifically update the .value of the RegistryEntry, to preserve all
+	 * aliases and pools, as well as to maintain the same id.  Optionally, a
+	 * callback function can be passed to perform work if the update was 
+	 * successful (e.g. add to a state change recorder for historical log).
+	 */
+	update(id, value, callback) {
+		const entry = this.registry.get(id);
+
+		if(entry instanceof RegistryEntry && entry.isValueType) {
+			const oldValue = entry.value;
+			entry.value = value;
+
+			if(callback) {
+				callback(oldValue, value);
+			}
+
+			return true;
 		}
 
 		return false;
