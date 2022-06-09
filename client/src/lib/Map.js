@@ -22,6 +22,8 @@ export class Map extends Entity {
 				encoder: Registry.Encoders.InstanceOf(this, Node),
 			}),
 		});
+
+		this.addChildren(nodes);
 	}
 };
 

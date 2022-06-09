@@ -19,7 +19,7 @@ export class Entity extends Registry {
 		}
 
 		this.parent = parent;
-		this.children = new Set(children);
+		this.children = new Registry(children);
 	}
 
 	/**
@@ -41,9 +41,27 @@ export class Entity extends Registry {
 
 		return this;
 	}
+	addChildren(children = []) {
+		children = singleOrArrayArgs(children);
+
+		for(let child of children) {
+			this.addChild(child);
+		}
+
+		return this;
+	}
 	removeChild(child) {
 		this.children.delete(child);
 		child.parent = null;
+
+		return this;
+	}
+	removeChildren(children = []) {
+		children = singleOrArrayArgs(children);
+
+		for(let child of children) {
+			this.removeChild(child);
+		}
 
 		return this;
 	}
@@ -62,19 +80,19 @@ export class Entity extends Registry {
 	}
 
 	getChildAt(index) {
-		return Array.from(this.children)[ index ];
+		return Array.from(this.children.iterator)[ index ];
 	}
 	getChildren(selector) {
 		if(selector == null) {
-			return Array.from(this.children);
+			return Array.from(this.children.iterator);
 		}
 
 		if(typeof selector === "string") {
-			return Array.from(this.children).filter(child => child.id === selector);
+			return Array.from(this.children.iterator).filter(child => child.id === selector);
 		} else if(Array.isArray(selector)) {
-			return Array.from(this.children).filter(child => selector.includes(child.id));
+			return Array.from(this.children.iterator).filter(child => selector.includes(child.id));
 		} else if(typeof selector === "function") {
-			return Array.from(this.children).filter(selector);
+			return Array.from(this.children.iterator).filter(selector);
 		}
 
 		return [];
