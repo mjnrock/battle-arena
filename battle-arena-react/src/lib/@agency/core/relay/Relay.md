@@ -22,8 +22,11 @@ The **Message** is used to package a payload and attach relevant metadata, such 
 |`meta`|`Object`|✅|
 
 #### Example
-	// code
-	
+	const message = new Message({
+		data: Date.now(),
+		tags: `date`,
+	});
+
 ---
 
 ## MessageCollection [^](#relay)
@@ -32,14 +35,18 @@ extends **Registry**
 The **MessageCollection** is a `Registry` of `Messages`.  As such, it maintains an ordered record of inserted messages that can be iterated over or retrieved.  It is used under the hood by `Channel` to maintain a historical record of sent messages.
 
 #### Example
-	// code
+	const messageCollection = new MessageCollection([
+		message1,
+		message2,
+		message3,
+	]);
 
 ---
 
 ## Subscription [^](#relay)
 extends **AgencyBase**
 
-A **Subscription** is a wrapper-class that holds a *subscribor* (the object that is subscribing) and a *subscribee* (the object to which the subscribor is subscribing) and a *callback* function that can be executed on-demand via `.send`.
+A **Subscription** is a wrapper-class that holds a *subscribor* (the object that is subscribing) and a *subscribee* (the object to which the subscribor is subscribing) and a *callback* function that can be executed on-demand via `.send`.  If a `callback` is an `Agent`, `.send` will instead invoke `.emit(...args)` on the agent.
 
 ### Class Properties
 |Property|Type|Optional|
@@ -50,7 +57,11 @@ A **Subscription** is a wrapper-class that holds a *subscribor* (the object that
 |`mutator`|`fn`|✅|
 
 #### Example
-	// code
+	const subscribor = new Agent();		// Example only, not required to be an `Agent`
+	const subscribee = new Agent();		// Example only, not required to be an `Agent`
+	const callback = (...args) => console.log(...args);
+
+	const subscription = new Subscription(subscribor.id, subscribee.id, callback);
 
 > Note that `subscribor` and `subscribee` are `UUID` values, _not_ `Objects`.  If an `Object` is passed for either, the subscription will attempt to find `.id` on the object -- if it _does_, then `.id` will be used (but it still must be a valid `UUID`); if it _does not_, then the instantiation will fail with an error.  As such, `null` values are not allowed.
 
@@ -78,7 +89,13 @@ A **Channel** maintains a list of `Subscriptions` to itself as the `subscribee`,
 |`atMaxReplace`|`true`|If message size is at the maximum, should it 1) ignore the message entirely (`false`); or instead should it 2) remove the earliest message in its history (i.e. first index) and add the most recent one to the end of the stack (i.e. last index)|
 
 #### Example
-	// code
+	const channel = new Channel({
+		config: {
+			retainHistory: false,
+			maxHistory: 2,
+			atMaxReplace: false,
+		},
+	});
 
 ---
 
@@ -93,6 +110,9 @@ The **Network** is simply a collection of `Channels`, that additionally adds som
 |`channels`|`Array<Channel>`|✅|
 
 #### Example
-	// code
+	const network = new Network([
+		channel1,
+		channel2,
+	]);
 
 ---

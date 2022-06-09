@@ -1,11 +1,15 @@
 import Agent from "../Agent";
-import Entity from "./Entity";
 import { singleOrArrayArgs } from "../../util/helper";
 
 /**
  * The System is basically a Component-reducer for Entities.  When dispatched, the System will
  * iterate over all Entities and call the handlers associated with that dispatch event.  Those
- * handlers are expected to perform *all* of the work required and assign the new Component state.
+ * handlers are expected to perform *all* of the work *and* assignment of the new Component state
+ * to the Entity.
+ * 
+ * i.e. (...) => entities[ component.name ] = { ...newState }
+ * 
+ * NOTE that dispatch will *always* emit an array of Entities, event if there is only one (1).
  */
 export class System extends Agent {
 	constructor (agentObj = {}) {

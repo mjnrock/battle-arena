@@ -12,6 +12,10 @@ export class Component extends Struct {
 
 		this.name = name;
 		this.args = [ name, { id: this.id, tags: this.tags } ];	//FIXME Uncomment
+
+		if(typeof this.name !== "string" && !this.name.length) {
+			throw new Error("Component @name must be a non-empty string");
+		}
 	}
 
 	generator(...args) {

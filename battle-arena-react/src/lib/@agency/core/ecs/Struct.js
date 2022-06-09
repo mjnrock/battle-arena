@@ -94,8 +94,13 @@ export class Struct extends AgencyBase {
 				if(prop === "_hooks" || prop === "_meta") {
 					return Reflect.deleteProperty(target, prop);
 				} else if(Reflect.ownKeys(target).includes(prop)) {
+					let result = true;
 					for(let fn of target._hooks[ Struct.Hooks.DELETE ]) {
-						fn(target, prop);
+						result = fn(target, prop);
+					}
+
+					if(result === false) {
+						return target;
 					}
 				}
 

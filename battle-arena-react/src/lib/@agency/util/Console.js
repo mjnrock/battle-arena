@@ -50,7 +50,7 @@ export class Console {
 
 		return this;
 	}
-	static hr(count = 20, symbol = "-") {
+	static hr(count = 40, symbol = "-") {
 		this.line(count, symbol);
 
 		return this;
