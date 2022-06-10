@@ -22,9 +22,9 @@ const map = new Map();
 
 
 //FIXME This is registering the Node directly to Map, not to the Map's Node Component Registry
-
-
 console.log(map.nodes.registry.registerMany(n1, n2, n3));
+
+
 
 Console.label("map", map);
 Console.label("map.nodes", map.nodes);
