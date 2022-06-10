@@ -30,12 +30,7 @@ export class Map extends Entity {
 			const isInstanceOf = Registry.Encoders.InstanceOf(this.nodes.registry, Node)(id, value, type);
 
 			if(isInstanceOf) {
-				console.log(6666666666, isInstanceOf, id, Map.PositionEncoder(value), this.nodes.registry.has(id));
-				this.nodes.registry.addAlias(id, Map.PositionEncoder(value));
-				console.log(6666666666, this.nodes.registry[ id ]);
-				console.log(6666666666, this.nodes.registry[ Map.PositionEncoder(value) ]);
-
-				return true;
+				return Registry.Encoders.SetVariant(this.nodes.registry, Map.PositionEncoder(value), id);	//* sic (order of args)
 			}
 
 			return false;

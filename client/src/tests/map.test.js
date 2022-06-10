@@ -28,4 +28,4 @@ console.log(map.nodes.registry.registerMany(n1, n2, n3));
 
 Console.label("map", map);
 Console.label("map.nodes", map.nodes);
-// Console.label("map[0.0]", map[ `0.0` ].id);
+// Console.label("map.nodes.registry[0.0]", map.nodes.registry[ `0.0` ].id);
