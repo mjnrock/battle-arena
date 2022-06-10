@@ -55,19 +55,38 @@ export class RegistryEntry extends AgencyBase {
 
 export class Registry extends AgencyBase {
 	static Encoders = {
-		SetEntry: (self, id, entry, type) => {
-			self.registry.set(id, new RegistryEntry(id, entry, type));
+		SetEntry: (self, id, value, type) => {
+			self.registry.set(id, new RegistryEntry(id, value, type));
 
 			return true;
+		},
+		SetVariant: (self, id, value, type) => {
+			if(value instanceof RegistryEntry) {
+				// RegistryEntry
+				self.registry.set(id, value);
+				
+				return true;
+			} else if(validate(value)) {
+				// Alias
+				self.registry.set(id, new RegistryEntry(id, value, RegistryEntry.Type.ALIAS));
+				
+				return true;
+			} else if(Array.isArray(value) && value.every(e => validate(e))) {
+				// Pool
+				self.registry.set(id, new RegistryEntry(id, value, RegistryEntry.Type.POOL));
+				
+				return true;
+			}
+
+			return false;
 		},
 		InstanceOf: (self, ...classes) => (id, value, type = RegistryEntry.Type.VALUE) => {
 			const isInstanceOf = classes.some(cls => value instanceof cls);
 			
 			if(isInstanceOf) {
-				// return this.Encoders.SetEntry(self, id, entry, type);
-				self.registry.set(id, new RegistryEntry(id, value, type));
-
-				return true;
+				return this.Encoders.SetEntry(self, id, value, type);
+			} else {
+				this.Encoders.SetVariant(self, id, value, type);
 			}
 
 			return false;
