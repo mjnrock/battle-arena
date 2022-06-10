@@ -85,11 +85,9 @@ export class Registry extends AgencyBase {
 			
 			if(isInstanceOf) {
 				return this.Encoders.SetEntry(self, id, value, type);
-			} else {
-				this.Encoders.SetVariant(self, id, value, type);
 			}
-
-			return false;
+			
+			return this.Encoders.SetVariant(self, id, value, type);
 		},
 	};
 

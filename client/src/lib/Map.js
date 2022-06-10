@@ -19,22 +19,35 @@ export class Map extends Entity {
 		nodes = singleOrArrayArgs(nodes);
 
 		this.registerComponents({
-			nodes: ComponentRegistry(),
-		});
-		this.registerComponents({
 			nodes: ComponentRegistry([], {
-				encoder: Registry.Encoders.InstanceOf(this.nodes.registry, Node),
+				/**
+				 * Encoder `this` must be bound to the ComponentRegistry, therefor cannot use lambda function
+				 */
+				encoder(id, value, type) {
+					const isInstanceOf = Registry.Encoders.InstanceOf(this, Node)(id, value, type);
+		
+					if(isInstanceOf) {
+						/**
+						 * Create a position-based alias for the Node
+						 */
+						return Registry.Encoders.SetVariant(this, Map.PositionEncoder(value), id);	//* sic (order of args)
+					}
+		
+					return false;
+				},
+			}, {
+				/**
+				 * Additional functions/state may be added here
+				 */
+				node(input) {
+					if(Array.isArray(input)) {
+						return this.registry.get(input[ 0 ]);
+					}
+		
+					return this.registry.get(input);
+				},
 			}),
 		});
-		this.nodes.registry.encoder = (id, value, type) => {
-			const isInstanceOf = Registry.Encoders.InstanceOf(this.nodes.registry, Node)(id, value, type);
-
-			if(isInstanceOf) {
-				return Registry.Encoders.SetVariant(this.nodes.registry, Map.PositionEncoder(value), id);	//* sic (order of args)
-			}
-
-			return false;
-		};
 
 		this.addChildren(nodes);
 	}
