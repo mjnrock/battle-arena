@@ -25,4 +25,4 @@ const map = new Map([
 Console.label("map", map.id);
 Console.label("map.position", map.position);
 Console.label("map.nodes", map.nodes);
-Console.label("map.children", map.children);
+// Console.label("map.children", map.children);

@@ -22,6 +22,17 @@ export class Entity extends Registry {
 		this.children = new Registry(children);
 	}
 
+	registerComponent(component) {
+		this.registerWithAlias(component, component.name);
+
+		return this;
+	}
+	unregisterComponent(component) {
+		this.unregister(component.id);
+
+		return this;
+	}
+
 	/**
 	 * Convenience method for Component creation and registration.
 	 * Use .unregister() to remove the Component.
