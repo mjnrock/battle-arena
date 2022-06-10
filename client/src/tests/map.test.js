@@ -16,12 +16,16 @@ Console.label("n1", n1.id);
 Console.label("n1.position", n1.position);
 Console.label("n1.entities", n1.entities);
 
-const map = new Map([
-	n1,
-	n2,
-	n3,
-]);
+const map = new Map();
+
+// map.nodes.registry.registerMany(n1, n2, n3);
+
+
+//FIXME This is registering the Node directly to Map, not to the Map's Node Component Registry
+
+
+console.log(map.nodes.registry.registerMany(n1, n2, n3));
 
 Console.label("map", map);
-// Console.label("map.nodes", map.nodes.registry);
-Console.label("map.nodes", map[ `0.0` ]);
+Console.label("map.nodes", map.nodes);
+// Console.label("map[0.0]", map[ `0.0` ].id);

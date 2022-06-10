@@ -19,20 +19,9 @@ export class Map extends Entity {
 
 		this.registerComponents({
 			nodes: ComponentRegistry([], {
-				encoder: (id, value, type = RegistryEntry.Type.VALUE) => {
-					const isInstanceOf = Registry.Encoders.InstanceOf(this, Node)(id, value, type);
-
-					if(isInstanceOf) {
-						this.addAlias(id, Map.PositionEncoder(value));
-
-						return true;
-					}
-
-					return false;
-				},
+				encoder: Registry.Encoders.InstanceOf(this, Node),
 			}),
 		});
-		this.nodes.registry.registerMany(nodes);
 
 		this.addChildren(nodes);
 	}
