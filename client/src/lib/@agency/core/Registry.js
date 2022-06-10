@@ -1,5 +1,6 @@
 import { validate } from "uuid";
 import { v4 as uuid } from "uuid";
+import { spreadFirstElementOrArray } from "../util/helper";
 
 import AgencyBase from "./AgencyBase";
 
@@ -59,12 +60,12 @@ export class Registry extends AgencyBase {
 
 			return true;
 		},
-		InstanceOf: (self, ...classes) => (id, entry, type = RegistryEntry.Type.VALUE) => {
-			const isInstanceOf = classes.some(cls => entry instanceof cls);
+		InstanceOf: (self, ...classes) => (id, value, type = RegistryEntry.Type.VALUE) => {
+			const isInstanceOf = classes.some(cls => value instanceof cls);
 			
 			if(isInstanceOf) {
 				// return this.Encoders.SetEntry(self, id, entry, type);
-				self.registry.set(id, new RegistryEntry(id, entry, type));
+				self.registry.set(id, new RegistryEntry(id, value, type));
 
 				return true;
 			}
@@ -335,6 +336,8 @@ export class Registry extends AgencyBase {
 		return false;
 	}
 	registerMany(...entries) {
+		entries = spreadFirstElementOrArray(entries);
+
 		for(let entry of entries) {
 			this.register(entry);
 		}
@@ -347,6 +350,8 @@ export class Registry extends AgencyBase {
 		return this;
 	}
 	unregisterMany(...ids) {
+		ids = spreadFirstElementOrArray(ids);
+
 		for(let id of ids) {
 			this.remove(id);
 		}

@@ -10,10 +10,12 @@ export class Node extends Entity {
 
 		this.registerComponents([
 			ComponentPosition(x, y),
-			ComponentRegistry(entities, {
+		]);
+		this.registerComponents({
+			entities: ComponentRegistry(entities, {
 				encoder: Registry.Encoders.InstanceOf(this, Entity),
 			}),
-		]);
+		});
 
 		//* Maybe build some Component Object Factories that initialize multiple Components with dynamic args
 	}
