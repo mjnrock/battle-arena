@@ -39,12 +39,16 @@ export class Component extends Struct {
 		};
 	}
 
-	has(entity) {
-		return entity.has(this.name);
-	}
+	// has(entity) {
+	// 	return entity.has(this.name);
+	// }
 
 	generator(...args) {
-		if(args.length) {
+		if(args[ 0 ] instanceof Component) {
+			const [ comp, name ] = args;
+
+			return new this.constructor(name, comp);
+		} else if(args.length) {
 			return new this.constructor(...args);
 		}
 

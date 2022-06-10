@@ -1,7 +1,7 @@
 import Component from "../../lib/@agency/core/ecs/Component";
 import AgencyRegistry from "../../lib/@agency/core/Registry";
 
-export const Name = `registry`;
+export const Name = `registrar`;
 
 export function Registry(entries = [], opts = {}) {
 	return new Component(Name, {

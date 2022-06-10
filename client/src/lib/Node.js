@@ -8,21 +8,14 @@ export class Node extends Entity {
 	constructor(x, y, entities = []) {
 		super();
 
-		//FIXME Currently the ComponentFactories here do not work.  Uncomment below to break.
-		console.log(ComponentPosition(x, y));
-		console.log(ComponentRegistry(entities));
-		// this.registerComponent(ComponentPosition(x, y));
-		// this.registerComponent(ComponentRegistry(entities));
-		
-		this.createComponent("position", {
-			x,
-			y,
-		});
-		this.createComponent("entities", {
-			registry: new Registry(entities, {
+		this.registerComponents([
+			ComponentPosition(x, y),
+			ComponentRegistry(entities, {
 				encoder: Registry.Encoders.InstanceOf(this, Entity),
 			}),
-		});
+		]);
+
+		//* Maybe build some Component Object Factories that initialize multiple Components with dynamic args
 	}
 };
 

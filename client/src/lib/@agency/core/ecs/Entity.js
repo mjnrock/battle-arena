@@ -27,8 +27,35 @@ export class Entity extends Registry {
 
 		return this;
 	}
+	registerComponents(components = []) {
+		if(typeof components === "object" && !Array.isArray(components)) {
+			const next = {};
+			for(let [ name, component ] of Object.entries(components)) {
+				next[ name ] = component.generator(component, name)
+			}
+			
+			components = Object.values(next);
+		}
+
+		components = singleOrArrayArgs(components);
+
+		for(let component of components) {
+			this.registerComponent(component);
+		}
+
+		return this;
+	}
 	unregisterComponent(component) {
 		this.unregister(component.id);
+
+		return this;
+	}
+	unregisterComponents(components = []) {
+		components = singleOrArrayArgs(components);
+
+		for(let component of components) {
+			this.unregisterComponent(component);
+		}
 
 		return this;
 	}
