@@ -27,6 +27,10 @@ export class RegistryEntry extends AgencyBase {
 		return this;
 	}
 
+	copy(id) {
+		return new RegistryEntry(id, this.value, this.type, this.tags, this.config);
+	}
+
 	getValue(registry) {
 		if(this.type === RegistryEntry.Type.VALUE) {
 			return this.value;
@@ -56,24 +60,24 @@ export class RegistryEntry extends AgencyBase {
 export class Registry extends AgencyBase {
 	static Encoders = {
 		SetEntry: (self, id, value, type) => {
-			self.registry.set(id, new RegistryEntry(id, value, type));
+			self.$set(id, new RegistryEntry(id, value, type));
 
 			return true;
 		},
 		SetVariant: (self, id, value, type) => {
 			if(value instanceof RegistryEntry) {
 				// RegistryEntry
-				self.registry.set(id, value);
+				self.$set(id, value.copy(id));
 				
 				return true;
 			} else if(validate(value)) {
 				// Alias
-				self.registry.set(id, new RegistryEntry(id, value, RegistryEntry.Type.ALIAS));
+				self.$set(id, new RegistryEntry(id, value, RegistryEntry.Type.ALIAS));
 				
 				return true;
 			} else if(Array.isArray(value) && value.every(e => validate(e))) {
 				// Pool
-				self.registry.set(id, new RegistryEntry(id, value, RegistryEntry.Type.POOL));
+				self.$set(id, new RegistryEntry(id, value, RegistryEntry.Type.POOL));
 				
 				return true;
 			}
@@ -109,7 +113,6 @@ export class Registry extends AgencyBase {
 		}
 
 		for(let [ key, fn ] of Object.entries(state)) {
-			// this[ key ] = fn;
 			if(typeof fn === "function") {
 				this[ key ] = fn;
 			}
@@ -141,17 +144,28 @@ export class Registry extends AgencyBase {
 		};
 	}
 
+	/**
+	 * This section explicitly defines how an entry is set, and in general, these methods
+	 * should be used by encoder/decoder overrides.  Unless specific needs are required, these
+	 * will account for the major scenarios of setting an entry and common overloads.
+	 */
+	//#region Registry Abstractions
 	$get(input) {
 		return this.registry.get(input);
+	}
+	$has(input) {
+		return this.registry.has(input);
 	}
 	$add(entry) {
 		this.registry.set(entry.id, entry);
 
-		return this.registry.has(entry.id);
+		return this.$has(entry.id);
 	}
 	$set(key, value, type = RegistryEntry.Type.VALUE) {
 		if(key instanceof RegistryEntry) {
 			return this.$add(key);
+		} else if(value instanceof RegistryEntry) {
+			return this.$add(value.copy(key));
 		}
 
 		const entry = new RegistryEntry(key, value, type);
@@ -166,18 +180,33 @@ export class Registry extends AgencyBase {
 		return this.registry.delete(input);
 	}
 
+	get $keys() {
+		return this.registry.keys();
+	}
+	get $values() {
+		return this.registry.values();
+	}
+	get $entries() {
+		return this.registry.entries();
+	}
+	get $entries() {
+		return this.registry.entries();
+	}
+	get $size() {
+		return this.registry.size;
+	}
+	//#endregion Registry Abstractions
+
 	/**
 	 * This is a middleware encoder that will determine the actual value that will be stored in the registry.
 	 * If overriden, ensure that the value returned is a << RegistryEntry >>.
 	 */
 	encoder(id, entry, type = RegistryEntry.Type.VALUE) {
-		this.registry.set(id, new RegistryEntry(id, entry, type));
-
-		return this.registry.has(id);
+		return this.$set(id, new RegistryEntry(id, entry, type));
 	}
 	decoder(input) {
-		if(this.has(input)) {
-			return this.registry.get(input).getValue(this);
+		if(this.$has(input)) {
+			return this.$get(input).getValue(this);
 		} else if(input instanceof RegistryEntry) {
 			return input.getValue(this);
 		} else if(typeof input === "function") {			//* @input is a function
@@ -186,25 +215,99 @@ export class Registry extends AgencyBase {
 
 		return void 0;
 	}
-
+	
+	/**
+	 * This collection of methods will utilize all of the under-the-hook hooks to register a new entry.
+	 * They can be overriden and to circumvent them entirely, use the equivalent methods beginning with $.
+	 */
+	//#region Registry Wrapper Methods
 	has(id) {
-		return this.registry.has(id);
+		return this.$has(id);
 	}
 	get(id) {
 		return this.decoder(id);
 	}
-	getEntry(input) {
-		return this.registry.get(input);
+	add(input) {
+		return this.encoder(input);
 	}
-	getEntryValue(input) {
-		const entry = this.registry.get(input);
-
-		if(entry instanceof RegistryEntry) {
-			return entry.getValue(this);
+	/**
+	 * This is a restricted setter that only allows for the addition of:
+	 * 		1) RegistryEntry
+* 			2) A valid UUID and entry that will become a VALUE type
+	 */
+	set(id, entry) {
+		if(id instanceof RegistryEntry) {
+			return this.add(id);
+		} else if(validate(id)) {
+			return this.encoder(id, entry, RegistryEntry.Type.VALUE);
 		}
 
-		return void 0;
+		return false;
 	}
+	/**
+	 * Specifically update the .value of the RegistryEntry, to preserve all
+	 * aliases and pools, as well as to maintain the same id.  Optionally, a
+	 * callback function can be passed to perform work if the update was 
+	 * successful (e.g. add to a state change recorder for historical log).
+	 */
+	update(id, value, callback) {
+		const entry = this.$get(id);
+
+		if(entry instanceof RegistryEntry && entry.isValueType) {
+			const oldValue = entry.value;
+			entry.value = value;
+
+			if(callback) {
+				callback(oldValue, value);
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+	remove(id) {
+		if(id instanceof RegistryEntry) {
+			return this.remove(id.id);
+		} else if(typeof id === "object" && id.id) {
+			return this.remove(id.id);
+		}
+
+		for(let [ key, entry ] of this.$entries) {
+			const value = entry.value;
+
+			if(key === id) {
+				/**
+				 * Remove the UUID entry
+				 */
+				this.$delete(key);
+			} else if(entry.isAliasType) {
+				if(value === id) {
+					/**
+					 * Remove the Alias entry
+					 */
+					this.$delete(key);
+				}
+			} else if(entry.isPoolType) {
+				if(value.has(id)) {
+					/**
+					 * Remove the entry from the Pool
+					 */
+					entry.value.delete(id);
+				}
+
+				/**
+				 * If the Pool is now empty, remove the Pool entry
+				 */
+				if(entry.value.size === 0) {
+					this.$delete(key);
+				}
+			}
+		}
+
+		return this;
+	}
+
 	find(input) {
 		if(this.has(input)) {
 			/**
@@ -248,85 +351,18 @@ export class Registry extends AgencyBase {
 
 		return false;
 	}
-	/**
-	 * This is a restricted setter that only allows for the addition of:
-	 * 		1) RegistryEntry
-* 			2) A valid UUID and entry that will become a VALUE type
-	 */
-	set(id, entry) {
-		if(id instanceof RegistryEntry) {
-			this.registry.set(id.id, id);
-
-			return true;
-		} else if(validate(id)) {
-			return this.encoder(id, entry, RegistryEntry.Type.VALUE);
-		}
-
-		return false;
-	}
-	/**
-	 * Specifically update the .value of the RegistryEntry, to preserve all
-	 * aliases and pools, as well as to maintain the same id.  Optionally, a
-	 * callback function can be passed to perform work if the update was 
-	 * successful (e.g. add to a state change recorder for historical log).
-	 */
-	update(id, value, callback) {
-		const entry = this.registry.get(id);
-
-		if(entry instanceof RegistryEntry && entry.isValueType) {
-			const oldValue = entry.value;
-			entry.value = value;
-
-			if(callback) {
-				callback(oldValue, value);
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-	add(input) {
-		return this.register(input);
-	}
-	remove(id) {
-		if(id instanceof RegistryEntry) {
-			return this.remove(id.id);
-		} else if(typeof id === "object" && id.id) {
-			return this.remove(id.id);
-		}
-
-		for(let [ key, entry ] of this.entries) {
-			const value = entry.value;
-
-			if(key === id) {
-				this.registry.delete(key);
-			} else if(entry.isAliasType) {
-				if(value === id) {
-					this.registry.delete(key);
-				}
-			} else if(entry.isPoolType) {
-				if(value.has(id)) {
-					entry.value.delete(id);
-				}
-			}
-		}
-
-		return this;
-	}
-
-	get keys() {
-		return this.registry.keys();
-	}
-	get values() {
-		return this.registry.values();
-	}
-	get entries() {
-		return this.registry.entries();
-	}
 
 	get ids() {
-		return Array.from(this.entries).reduce((arr, [ key, value ]) => {
+		return Array.from(this.$entries).reduce((arr, [ key, value ]) => {
+			if(value.type === RegistryEntry.Type.VALUE) {
+				return [ ...arr, key ]
+			}
+
+			return arr;
+		}, []);
+	}
+	get values() {
+		return Array.from(this.$entries).reduce((arr, [ key, value ]) => {
 			if(value.type === RegistryEntry.Type.VALUE) {
 				return [ ...arr, key ]
 			}
@@ -335,7 +371,7 @@ export class Registry extends AgencyBase {
 		}, []);
 	}
 	get aliases() {
-		return Array.from(this.entries).reduce((arr, [ key, value ]) => {
+		return Array.from(this.$entries).reduce((arr, [ key, value ]) => {
 			if(value.type === RegistryEntry.Type.ALIAS) {
 				return [ ...arr, key ]
 			}
@@ -344,7 +380,7 @@ export class Registry extends AgencyBase {
 		}, []);
 	}
 	get pools() {
-		return Array.from(this.entries).reduce((arr, [ key, value ]) => {
+		return Array.from(this.$entries).reduce((arr, [ key, value ]) => {
 			if(value.type === RegistryEntry.Type.POOL) {
 				return [ ...arr, key ]
 			}
@@ -358,10 +394,6 @@ export class Registry extends AgencyBase {
 	get iterator() {
 		return this.ids.map(id => this.get(id)).values();
 	}
-
-	get size() {
-		return this.registry.size;
-	}
 	get sizeValues() {
 		return Array.from(this.iterator).length;
 	}
@@ -371,7 +403,10 @@ export class Registry extends AgencyBase {
 	get sizePools() {
 		return this.pools.length;
 	}
+	//#endregion Registry Wrapper Methods
 
+
+	//#region Un/Registration Methods
 	register(entry) {
 		if(typeof entry === "object" && "id" in entry) {
 			if(this.encoder(entry.id, entry, RegistryEntry.Type.VALUE)) {
@@ -436,23 +471,6 @@ export class Registry extends AgencyBase {
 
 		return false;
 	}
-	getIdFromAlias(alias) {
-		return this.decoder(alias);
-	}
-	getAliasFromId(id, firstMatchOnly = true) {
-		const results = [];
-		for(let [ alias, entry ] of this.registry) {
-			if(entry === id) {
-				if(firstMatchOnly) {
-					return alias;
-				}
-
-				results.push(alias);
-			}
-		}
-
-		return results;
-	}
 
 	registerWithAlias(entry, ...aliases) {
 		const id = this.register(entry);
@@ -467,7 +485,62 @@ export class Registry extends AgencyBase {
 
 		return results;
 	}
+	//#endregion Un/Registration Methods
 
+	
+	//#region Access Helper Methods
+	getEntry(input) {
+		return this.$get(input);
+	}
+	getEntryValue(input) {
+		const entry = this.$get(input);
+
+		if(entry instanceof RegistryEntry) {
+			return entry.getValue(this);
+		}
+
+		return void 0;
+	}
+	getRawEntryValue(input) {
+		const entry = this.getEntry(input);
+
+		if(entry) {
+			return entry.value;
+		}
+
+		return void 0;
+	}
+	getIdFromAlias(alias) {
+		const entry = this.$get(alias);
+
+		if(entry instanceof RegistryEntry && entry.type === RegistryEntry.Type.ALIAS) {
+			return entry.value;
+		}
+
+		return false;
+	}
+	getAliasFromId(id, firstMatchOnly = true) {
+		const results = [];
+		for(let [ key, entry ] of this.registry.entries()) {
+			if(entry.type === RegistryEntry.Type.ALIAS && entry.value === id) {
+				if(firstMatchOnly) {
+					return key;
+				}
+
+				results.push(key);
+			}
+		}
+
+		if(results.length) {
+			return results;
+		}
+
+		return false;
+	}
+	//#endregion Access Helper Methods
+
+
+	//#region Pool Methods
 	getPool(tag) {
 		const pool = this.registry.get(tag);
 
@@ -502,8 +575,14 @@ export class Registry extends AgencyBase {
 
 		return false;
 	}
+	//#endregion Pool Methods
 
 
+	/**
+	 * Overall these methods are array-like utility methods, but also provide some
+	 * useful methods for working with other Registries (unions, intersections, etc.)
+	 */
+	//#region Utility Methods
 	static FilterValuesOnly = (id, entry) => entry.type === RegistryEntry.Type.VALUE;
 	static FilterAliasOnly = (id, entry) => entry.type === RegistryEntry.Type.ALIAS;
 	static FilterPoolOnly = (id, entry) => entry.type === RegistryEntry.Type.POOL;
@@ -645,6 +724,7 @@ export class Registry extends AgencyBase {
 
 		return -1;
 	}
+	//#endregion Utility Methods
 };
 
 export default Registry;

@@ -18,9 +18,9 @@ registry.registerWithAlias(12345, "num");
 registry2.registerWithAlias(a1, "AONE");
 registry.setPool("test", a1.id, a2.id);
 registry.setPool("test2", a1.id, a2.id);
-registry.setPool("test3", a1.id);
+registry.setPool("test3", a1.id, a3.id);
 
-// console.log(registry.size);
+// console.log(registry.$size);
 // console.log(registry.sizeAlias);
 // console.log(registry.sizePools);
 // console.log(registry.r2.AONE.id);
@@ -45,16 +45,23 @@ registry.setPool("test3", a1.id);
 // registry.addToPool("test", a3.id);
 // console.log(registry.getEntryValue("test").length);
 
-// console.log(registry.size);
-// registry.remove("a1");
-// registry.remove(a1.id);
-// console.log(registry.size);
+// console.log(registry.getEntry("test"));
+// console.log(registry.$size);
+// registry.remove(a1);
+// registry.remove(a2);
 
-// console.log(registry2.size);
-// console.log(registry2.keys);
+// console.log(registry.ids);
+// console.log(registry.aliases);
+// console.log(registry.pools);
+// console.log(registry.$size);
+// console.log(registry.getPool("test"));
+// console.log(registry.getEntry("test"));
+
+// console.log(registry2.$size);
+// console.log(registry2.$keys);
 // registry2.merge(registry);
-// console.log(registry2.size);
-// console.log(registry2.keys);
+// console.log(registry2.$size);
+// console.log(registry2.$keys);
 
 // for(let entry of registry) {
 // 	console.log(entry);

@@ -1,4 +1,4 @@
-const filename = `system-01`;
+const filename = `registry-01`;
 
 require("dotenv").config();
 require = require("esm")(module/*, options*/)
