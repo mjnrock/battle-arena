@@ -15,8 +15,19 @@ export class Game extends Entity {
 	constructor() {
 		super();
 
+		/**
+		 * The main Registry for all entities within the Game.
+		 */
+		this.Registry = new Registry();
+
+		/**
+		 * The main Registry for all systems within the Game.
+		 */
 		this.Systems = new Registry();
 
+		/**
+		 * The spacetime and material existence of the game, including Player.
+		 */
 		this.Realm = {};
 		// this.realm = new Realm();
 
@@ -29,6 +40,20 @@ export class Game extends Entity {
 		this.Data = {};
 
 		this.Mesh = new Network();
+
+		this.pre();
+		this.init();
+		this.post();
+	}
+
+	pre() {
+
+	}
+	init() {
+
+	}
+	post() {
+
 	}
 
 	registerSystem(system) {
