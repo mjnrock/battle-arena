@@ -38,6 +38,7 @@ export class Game extends Entity {
 	}
 
 	pre() {
+		//FIXME	Factory feels like it maybe should be a Component
 		this.Factory = {
 			Components: createComponentRegistry(this),
 			Systems: createSystemRegistry(this),
