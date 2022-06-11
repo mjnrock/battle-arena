@@ -1,3 +1,6 @@
+import AgencyFactory from "../../lib/@agency/core/Factory";
+import AgencyRegistry from "../../lib/@agency/core/Registry";
+
 import Registry, { Name as RegistryName } from "./Registry";
 import Position, { Name as PositionName }  from "./Position";
 
@@ -6,14 +9,18 @@ export const Components = {
 	[ PositionName ]: Position,
 };
 
-export const loadComponentRegistry = game => {
-	Object.entries(Components).forEach(([ key, clazz ]) => {
-		const system = new clazz(game);
+export const createComponentRegistry = game => {
+	const registry = new AgencyRegistry();
 
-		game.Components.registerWithAlias(system, key);
+	Object.entries(Components).forEach(([ key, clazz ]) => {
+		const comp = new AgencyFactory(clazz, [], {
+			name: key,
+		});
+
+		registry.registerWithAlias(comp, key);
 	});
 
-	return game;
+	return registry;
 };
 
 export default Components;

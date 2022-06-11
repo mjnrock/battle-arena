@@ -1,6 +1,7 @@
 import AgencyBase from "./AgencyBase";
 
 import { singleOrArrayArgs } from "../util/helper";
+import Registry from "./Registry";
 
 /**
  * The Factory is a simple class to hold all the variables required to
@@ -8,7 +9,7 @@ import { singleOrArrayArgs } from "../util/helper";
  * properties, which can be optionally overriden.
  */
 export class Factory extends AgencyBase {
-	constructor(species, args = [], { name, meta = {}, id, tags } = {}) {
+	constructor(species, args = [], { each, name, meta = {}, id, tags } = {}) {
 		super({ id, tags });
 
 		/**
@@ -30,6 +31,11 @@ export class Factory extends AgencyBase {
 		 * The default arguments to pass to the Class when instantiating
 		 */
 		this.args = args;
+
+		/**
+		 * Optionally call a function on each instance after it has been created (i.e. effects)
+		 */
+		this.each = each;
 	}
 
 	/**
@@ -43,11 +49,18 @@ export class Factory extends AgencyBase {
 	 * Create a new instance of the species, using default arguments if none are provided.
 	 */
 	create(...args) {
+		let instance;
 		if(args.length) {
-			return new this.species(...args);
+			instance = new this.species(...args);
+		} else {
+			instance = new this.species(...this.args);
 		}
 
-		return new this.species(...this.args);
+		if(typeof this.each === "function") {
+			this.each(instance);
+		}
+
+		return instance;
 	}
 	/**
 	 * Create multiple instances of the species, ultimately through .create
@@ -73,6 +86,22 @@ export class Factory extends AgencyBase {
 
 		return instances;
 	}
+	createRegistryFactory(aliasClassMap = {}, aliasArgsMap = {}) {
+		const registry = new Registry();
+	
+		Object.entries(aliasClassMap).forEach(([ key, clazz ]) => {
+			const args = Array.isArray(aliasArgsMap[ key ]) ? aliasArgsMap[ key ] : [];
+			const comp = new Factory(clazz, args, {
+				name: key,
+			});
+	
+			registry.registerWithAlias(comp, key);
+		});
+	
+		return registry;
+	}
+
+
 	static Generate(species, ...args) {
 		return new species(...args);
 	}
