@@ -16,6 +16,8 @@ export class AgencyBase {
 		return this;
 	}
 
+	deconstructor() {}
+
 	//#region Serialization
 	toArray(includeId = true) {
 		const obj = {

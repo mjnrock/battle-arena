@@ -1,6 +1,7 @@
 import Entity from "./@agency/core/ecs/Entity";
 import Registry from "./@agency/core/Registry";
-import Network from "./@agency/core/relay/Network";
+
+import { loadSystemsRegistry } from "../data/systems/package";
 
 /**
  * Game is the main class for the game engine, holding all the systems and entities,
@@ -14,11 +15,6 @@ import Network from "./@agency/core/relay/Network";
 export class Game extends Entity {
 	constructor() {
 		super();
-
-		/**
-		 * The main Registry for all entities within the Game.
-		 */
-		this.Registry = new Registry();
 
 		/**
 		 * The main Registry for all systems within the Game.
@@ -37,9 +33,6 @@ export class Game extends Entity {
 		this.Config = {};
 		// this.config = new Config();
 
-		this.Data = {};
-
-		this.Mesh = new Network();
 
 		this.pre();
 		this.init();
@@ -47,38 +40,16 @@ export class Game extends Entity {
 	}
 
 	pre() {
+		loadSystemsRegistry(this);
 
+		return this;
 	}
 	init() {
 
+
+		return this;
 	}
 	post() {
-
-	}
-
-	registerSystem(system) {
-		this.Systems.add(system);
-
-		return this;
-	}
-	registerSystems(systems = []) {
-		systems = singleOrArrayArgs(systems);
-
-		systems.forEach(system => this.registerSystem(system));
-
-		return this;
-	}
-
-	unregisterSystem(system) {
-		this.Systems.remove(system);
-
-		return this;
-	}
-	unregisterSystems(systems = []) {
-		systems = singleOrArrayArgs(systems);
-
-		systems.forEach(system => this.unregisterSystem(system));
-
 		return this;
 	}
 };
