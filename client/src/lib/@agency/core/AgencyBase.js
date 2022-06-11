@@ -156,6 +156,37 @@ export class AgencyBase {
 		}
 	}
 	//#endregion Serialization
+
+
+	//#region Instantiation
+	static Create(...args) {
+		return new this(...args);
+	}
+	static Factory(qty = 1, args = [], each) {
+		args = singleOrArrayArgs(args);
+
+		const instances = [];
+		for(let i = 0; i < qty; i++) {
+			/**
+			 * Allow for a callback to be passed in to modify the arguments, so that
+			 * the factory can create dynamic arguments for each iteration.
+			 */
+			let newArgs = typeof args === "function" ? args(i) : args;
+
+			const instance = this.Create(...newArgs);
+			instances.push(instance);
+
+			/**
+			 * Optionally perform work on the instance after it has been created.
+			 */
+			if(typeof each === "function") {
+				each(i, instance);
+			}
+		}
+
+		return instances;
+	}
+	//#endregion Instantiation
 };
 
 export default AgencyBase;

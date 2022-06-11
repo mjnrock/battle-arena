@@ -17,6 +17,8 @@ export class Game extends Entity {
 	constructor() {
 		super();
 
+		//TODO Create Archive/Dictionary/Registry for all the generators/classes/instances/etc.
+		
 		/**
 		 * The main Registry for all components within the Game.
 		 */
