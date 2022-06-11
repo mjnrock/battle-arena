@@ -4,8 +4,6 @@ import { singleOrArrayArgs } from "../@agency/util/helper";
 
 import Node from "./Node";
 
-import ComponentRegistry from "../../data/components/Registry";
-
 
 export class Map extends Entity {
 	static PositionEncoder = node => `${ node.position.x }.${ node.position.y }`;

@@ -91,11 +91,15 @@ export class Registry extends AgencyBase {
 		},
 	};
 
+	
 	constructor (entries = [], { encoder, decoder, state = {}, agent = {} } = {}) {
 		super(agent);
-
+		
 		this.registry = new Map();
 		this.registerMany(...entries);
+		
+		//TODO Add a WeakMap for object tracking to expedite removal of entries that are Objects and (may) have Aliases and Pool entries, instead of iterating over all entries
+		this.__cache = new WeakMap();
 
 		if(typeof encoder === "function") {
 			this.encoder = encoder;
@@ -135,6 +139,31 @@ export class Registry extends AgencyBase {
 				return { value: data[ ++index ], done: !(index in data) }
 			}
 		};
+	}
+
+	$get(input) {
+		return this.registry.get(input);
+	}
+	$add(entry) {
+		this.registry.set(entry.id, entry);
+
+		return this.registry.has(entry.id);
+	}
+	$set(key, value, type = RegistryEntry.Type.VALUE) {
+		if(key instanceof RegistryEntry) {
+			return this.$add(key);
+		}
+
+		const entry = new RegistryEntry(key, value, type);
+
+		return this.$add(entry);
+	}
+	$delete(input) {
+		if(input instanceof RegistryEntry) {
+			return this.registry.delete(input.id);
+		}
+		
+		return this.registry.delete(input);
 	}
 
 	/**
