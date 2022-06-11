@@ -1,6 +1,6 @@
 import ASystem from "./ASystem";
 
-export class MapSystem extends ASystem {
+export class Map extends ASystem {
 	static Events = {
 		collision: (state, entities, ...args) => {
 			console.log(entities);
@@ -15,4 +15,4 @@ export class MapSystem extends ASystem {
 	}
 };
 
-export default MapSystem;
+export default Map;

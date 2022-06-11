@@ -1,10 +1,8 @@
 import ASystem from "./ASystem";
 
-export class NodeSystem extends ASystem {
+export class Position extends ASystem {
 	static Events = {
-		join: () => {},
-		leave: () => {},
-		portal: () => {},
+		move: () => {},
 	};
 
 	constructor(game, events = {}, agent = {}) {
@@ -12,4 +10,4 @@ export class NodeSystem extends ASystem {
 	}
 };
 
-export default NodeSystem;
+export default Position;

@@ -1,12 +1,18 @@
-import MapSystem from "./MapSystem";
-import NodeSystem from "./NodeSystem";
+import Map from "./Map";
+import Node from "./Node";
+import Portal from "./Portal";
+import Position from "./Position";
+import Terrain from "./Terrain";
 
 export const Systems = {
-	Map: MapSystem,
-	Node: NodeSystem,
+	Map: Map,
+	Node: Node,
+	Position: Position,
+	Terrain: Terrain,
+	Portal: Portal,
 };
 
-export const loadSystemsRegistry = game => {
+export const loadSystemRegistry = game => {
 	Object.entries(Systems).forEach(([ key, clazz ]) => {
 		const system = new clazz(game);
 
