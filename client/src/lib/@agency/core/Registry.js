@@ -102,13 +102,12 @@ export class Registry extends AgencyBase {
 		this.registry = new Map();
 		this.registerMany(...entries);
 		
-		//TODO Add a WeakMap for object tracking to expedite removal of entries that are Objects and (may) have Aliases and Pool entries, instead of iterating over all entries
-		// Reflect.defineProperty(this, "__cache", {
-		// 	enumerable: false,
-		// 	configurable: false,
-		// 	writable: false,
-		// 	value: new WeakMap(),
-		// });
+		Reflect.defineProperty(this, "__cache", {
+			enumerable: false,
+			configurable: false,
+			writable: false,
+			value: new WeakMap(),
+		});
 
 		if(typeof encoder === "function") {
 			this.encoder = encoder;
@@ -155,6 +154,38 @@ export class Registry extends AgencyBase {
 	 * will account for the major scenarios of setting an entry and common overloads.
 	 */
 	//#region Registry Abstractions
+	$cache(entry) {
+		//FIXME Add Pool logic | Add entry-removal cleanup logic
+		let cacheEntry,
+			newAlias;
+		if(entry.isValueType) {
+			cacheEntry = entry.value;
+		} else if(entry.isAliasType) {
+			cacheEntry = entry.getValue(this);
+			newAlias = entry.id;
+		}
+
+		if(typeof cacheEntry === "object") {
+			const cache = this.__cache.get(cacheEntry) || {};
+
+			const cacheObj = {
+				id: cacheEntry.id,
+				aliases: new Set(cache.aliases || []),
+				pools: new Set(cache.pools || []),
+			};
+
+			if(newAlias) {
+				cacheObj.aliases.add(newAlias);
+			}
+
+			this.__cache.set(cacheEntry, cacheObj);
+
+			return true;
+		}
+
+		return false;
+	}
+
 	$get(input) {
 		return this.registry.get(input);
 	}
@@ -164,32 +195,8 @@ export class Registry extends AgencyBase {
 	$add(entry) {
 		this.registry.set(entry.id, entry);
 
-		//TODO Add Pool logic | Add entry-removal cleanup logic
-		// let cacheEntry,
-		// 	newAlias;
-		// if(entry.isValueType) {
-		// 	cacheEntry = entry.value;
-		// } else if(entry.isAliasType) {
-		// 	cacheEntry = entry.getValue(this);
-		// 	newAlias = entry.id;
-		// }
-
-		// if(typeof cacheEntry === "object") {
-		// 	const cache = this.__cache.get(cacheEntry) || {};
-
-		// 	const cacheObj = {
-		// 		id: cacheEntry.id,
-		// 		aliases: new Set(cache.aliases || []),
-		// 		pools: new Set(cache.pools || []),
-		// 	};
-
-		// 	if(newAlias) {
-		// 		cacheObj.aliases.add(newAlias);
-		// 	}
-
-		// 	this.__cache.set(cacheEntry, cacheObj);
-		// }
-
+		//FIXME Activate/uncomment this when __cache is available
+		// this.$cache(entry);
 
 		return this.$has(entry.id);
 	}
