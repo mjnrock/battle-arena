@@ -103,7 +103,12 @@ export class Registry extends AgencyBase {
 		this.registerMany(...entries);
 		
 		//TODO Add a WeakMap for object tracking to expedite removal of entries that are Objects and (may) have Aliases and Pool entries, instead of iterating over all entries
-		this.__cache = new WeakMap();
+		// Reflect.defineProperty(this, "__cache", {
+		// 	enumerable: false,
+		// 	configurable: false,
+		// 	writable: false,
+		// 	value: new WeakMap(),
+		// });
 
 		if(typeof encoder === "function") {
 			this.encoder = encoder;
@@ -158,6 +163,33 @@ export class Registry extends AgencyBase {
 	}
 	$add(entry) {
 		this.registry.set(entry.id, entry);
+
+		//TODO Add Pool logic | Add entry-removal cleanup logic
+		// let cacheEntry,
+		// 	newAlias;
+		// if(entry.isValueType) {
+		// 	cacheEntry = entry.value;
+		// } else if(entry.isAliasType) {
+		// 	cacheEntry = entry.getValue(this);
+		// 	newAlias = entry.id;
+		// }
+
+		// if(typeof cacheEntry === "object") {
+		// 	const cache = this.__cache.get(cacheEntry) || {};
+
+		// 	const cacheObj = {
+		// 		id: cacheEntry.id,
+		// 		aliases: new Set(cache.aliases || []),
+		// 		pools: new Set(cache.pools || []),
+		// 	};
+
+		// 	if(newAlias) {
+		// 		cacheObj.aliases.add(newAlias);
+		// 	}
+
+		// 	this.__cache.set(cacheEntry, cacheObj);
+		// }
+
 
 		return this.$has(entry.id);
 	}

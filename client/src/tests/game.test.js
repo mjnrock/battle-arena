@@ -5,7 +5,9 @@ import Game from "./../lib/Game";
 Console.NewContext();
 
 const game = new Game();
-// console.log(game.Systems);
+console.log(game.Systems.id);
+console.log(game.Systems.Map.id);
+console.log(game.Systems.__cache.get(game.Systems.Map));
 
 // console.log(game.Systems.Node.test());
 
