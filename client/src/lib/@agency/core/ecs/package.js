@@ -3,6 +3,7 @@ import Component from "./Component";
 import Entity from "./Entity";
 import System from "./System";
 import Manager from "./Manager";
+import Environment from "./Environment";
 
 export default {
 	Struct,
@@ -10,4 +11,5 @@ export default {
 	Entity,
 	System,
 	Manager,
+	Environment,
 };

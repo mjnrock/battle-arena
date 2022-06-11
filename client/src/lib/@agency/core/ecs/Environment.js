@@ -7,17 +7,17 @@ export class Environment extends AgencyBase {
 		/**
 		 * A Registry for Systems
 		 */
-		this.Systems = new Registry(systems);
+		this.systems = new Registry(systems);
 
 		/**
 		 * A Registry for Components
 		 */
-		this.Entities = new Registry(entities);
+		this.entities = new Registry(entities);
 
 		/**
 		 * Configuration settings
 		 */
-		this.Config = {
+		this.config = {
 			...config,
 		};
 	}

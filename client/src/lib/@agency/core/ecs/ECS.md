@@ -7,6 +7,7 @@ Below is an index of of the **Entity Component System (ECS)** [ `@agency/core/ec
 |[Entity](#entity)|`Class`|
 |[System](#system)|`Class`|
 |[Manager](#manager)|`Class`|
+|[Environment](#environment)|`Class`|
 
 ---
 
@@ -121,6 +122,38 @@ The **Manager** has the exact constraints as a `System`, except that it _maintai
 	], {
 		events: {
 			...componentReducers,
+		},
+	});
+
+---
+
+## Environment [^](#ecs)
+extends **AgencyBase**
+
+The **Environment** is a *space* or *context* drawn around a collection of `Systems` and `Entities`.  As such, an `Environment` can act as a general repository and registry of all instantiations of a given set of systems and of entities.  Their main purpose is to act as a source-of-truth and lookup table for any given `UUID` within its domain, and to facilitate action that is contingent upon such clarity.
+
+> **Example:** All of the **ECS** assets for a game could be universally grouped under an `Environment` registry
+
+### Class Properties
+|Property|Type|Optional|
+|-|-|-|
+|`systems`|`Registry<System>`|✅|
+|`entities`|`Registry<Entity>`|✅|
+|`config`|`Config`|✅|
+
+#### Example
+	const environment = new Environment({
+		systems: [
+			system1,
+			system2,
+			system3,
+		],
+		entities: [
+			entity1,
+			entity2,
+		],
+		config: {
+			...config
 		},
 	});
 
