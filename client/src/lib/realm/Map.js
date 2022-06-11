@@ -18,7 +18,7 @@ export class Map extends Entity {
 		}
 		nodes = singleOrArrayArgs(nodes);
 
-		this.nodes = new Registry([], {
+		this.Nodes = new Registry([], {
 			/**
 			 * Encoder `this` must be bound to the ComponentRegistry, therefor cannot use lambda function
 			 */

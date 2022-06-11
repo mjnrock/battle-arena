@@ -20,10 +20,10 @@ const map = new Map();
 
 // map.nodes.registry.registerMany(n1, n2, n3);
 
-map.nodes.registerMany(n1, n2, n3);
+map.Nodes.registerMany(n1, n2, n3);
 
 // Console.label("map", map);
-// Console.label("map.nodes", map.nodes);
-Console.label(`node-0.0`, map.nodes[ `0.0` ].id);
-Console.label(`node-0.0`, map.nodes[ `0.1` ].id);
-Console.label(`node-0.0`, map.nodes[ `0.2` ].id);
+// Console.label("map.nodes", map.Nodes);
+Console.label(`node-0.0`, map.Nodes[ `0.0` ].id);
+Console.label(`node-0.0`, map.Nodes[ `0.1` ].id);
+Console.label(`node-0.0`, map.Nodes[ `0.2` ].id);

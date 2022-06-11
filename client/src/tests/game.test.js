@@ -18,4 +18,4 @@ game.Systems.registerWithAlias(sysMap, "Map");
 // Console.hr();
 // console.log(game);
 
-game.Systems.Map.dispatch(`collision`, [ 1, 2 ], Date.now())
+game.Systems.Map.dispatch(`collision`, [ 1, 2 ], Date.now());
