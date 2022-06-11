@@ -5,7 +5,8 @@ import Game from "./../lib/Game";
 Console.NewContext();
 
 const game = new Game();
-// console.log(game.Components.aliases);
+console.log(game);
+
 // console.log(game.Systems);
 // console.log(game.Factory);
 // console.log(game.Systems.aliases);

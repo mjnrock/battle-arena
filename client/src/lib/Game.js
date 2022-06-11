@@ -1,8 +1,9 @@
 import Entity from "./@agency/core/ecs/Entity";
+import Registry from "./@agency/core/Registry";
+import Environment from "./@agency/core/ecs/Environment";
 
 import { createSystemRegistry } from "../data/systems/package";
 import { createComponentRegistry } from "../data/components/package";
-import Registry from "./@agency/core/Registry";
 
 /**
  * Game is the main class for the game engine, holding all the systems and entities,
@@ -43,6 +44,7 @@ export class Game extends Entity {
 			Components: createComponentRegistry(this),
 			Systems: createSystemRegistry(this),
 		};
+		this.Environment = new Environment({});
 
 		this.Systems = new Registry();
 
