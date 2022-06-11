@@ -91,7 +91,7 @@ export class Registry extends AgencyBase {
 		},
 	};
 
-	constructor (entries = [], { encoder, decoder, agent = {} } = {}) {
+	constructor (entries = [], { encoder, decoder, state = {}, agent = {} } = {}) {
 		super(agent);
 
 		this.registry = new Map();
@@ -102,6 +102,13 @@ export class Registry extends AgencyBase {
 		}
 		if(typeof decoder === "function") {
 			this.decoder = decoder;
+		}
+
+		for(let [ key, fn ] of Object.entries(state)) {
+			// this[ key ] = fn;
+			if(typeof fn === "function") {
+				this[ key ] = fn;
+			}
 		}
 
 		return new Proxy(this, {

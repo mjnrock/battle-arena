@@ -1,4 +1,4 @@
-const filename = `map`;
+const filename = `game`;
 
 require("dotenv").config();
 require = require("esm")(module/*, options*/)
