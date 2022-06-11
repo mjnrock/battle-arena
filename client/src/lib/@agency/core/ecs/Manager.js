@@ -16,7 +16,7 @@ export class Manager extends System {
 	constructor (entities = [], agent = {}) {
 		super(agent);
 
-		this.registry.encoder = Registry.Encoders.InstanceOf(this, Entity);
+		this.registry.encoder = Registry.Encoders.InstanceOf(Entity);
 		this.registry = new Registry(entities);
 	}
 

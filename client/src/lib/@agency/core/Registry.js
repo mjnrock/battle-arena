@@ -84,14 +84,14 @@ export class Registry extends AgencyBase {
 
 			return false;
 		},
-		InstanceOf: (self, ...classes) => (id, value, type = RegistryEntry.Type.VALUE) => {
+		InstanceOf: (...classes) => function(id, value, type = RegistryEntry.Type.VALUE) {
 			const isInstanceOf = classes.some(cls => value instanceof cls);
 			
 			if(isInstanceOf) {
-				return this.Encoders.SetEntry(self, id, value, type);
+				return Registry.Encoders.SetEntry(this, id, value, type)
 			}
 			
-			return this.Encoders.SetVariant(self, id, value, type);
+			return Registry.Encoders.SetVariant(this, id, value, type);
 		},
 	};
 
@@ -110,10 +110,10 @@ export class Registry extends AgencyBase {
 		});
 
 		if(typeof encoder === "function") {
-			this.encoder = encoder;
+			this.encoder = encoder.bind(this);
 		}
 		if(typeof decoder === "function") {
-			this.decoder = decoder;
+			this.decoder = decoder.bind(this);
 		}
 
 		for(let [ key, fn ] of Object.entries(state)) {

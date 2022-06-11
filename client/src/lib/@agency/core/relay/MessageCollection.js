@@ -6,7 +6,7 @@ export class MessageCollection extends Registry {
 	constructor(messages = [], agencyBaseObj = {}) {
 		super(messages, agencyBaseObj);
 
-		this.encoder = Registry.Encoders.InstanceOf(this, Message);
+		this.encoder = Registry.Encoders.InstanceOf(Message);
 	}
 
 	addMessage(message) {

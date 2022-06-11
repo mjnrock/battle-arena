@@ -18,10 +18,10 @@ export class Map extends Entity {
 
 		this.Nodes = new Registry([], {
 			/**
-			 * Encoder `this` must be bound to the ComponentRegistry, therefor cannot use lambda function
+			 * Encoder `this` must be bound to the ComponentRegistry, therefore cannot use lambda function
 			 */
 			encoder(id, value, type) {
-				const isInstanceOf = Registry.Encoders.InstanceOf(this, Node)(id, value, type);
+				const isInstanceOf = Registry.Encoders.InstanceOf(Node)(id, value, type);
 
 				if(isInstanceOf) {
 					/**
@@ -35,6 +35,23 @@ export class Map extends Entity {
 		});
 
 		this.addChildren(nodes);
+	}
+	
+	static CreateGrid(width, height, each) {
+		const map = new Map();
+		for(let y = 0; y < height; y++) {
+			for(let x = 0; x < width; x++) {
+				const node = new Node(x, y);
+
+				if(typeof each === "function") {
+					each(node);
+				}
+
+				map.registerWithAlias(node, Map.PositionEncoder(node));
+			}
+		}
+
+		return map;
 	}
 };
 

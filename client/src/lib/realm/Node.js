@@ -13,7 +13,7 @@ export class Node extends Entity {
 		]);
 		this.registerComponents({
 			entities: ComponentRegistry(entities, {
-				encoder: Registry.Encoders.InstanceOf(this, Entity),
+				encoder: Registry.Encoders.InstanceOf(Entity),
 			}),
 		});
 

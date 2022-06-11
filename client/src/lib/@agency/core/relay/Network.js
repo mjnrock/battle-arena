@@ -6,7 +6,7 @@ export class Network extends Registry {
 	constructor(channels = [], agencyBaseObj = {}) {
 		super(channels, agencyBaseObj);
 		
-		this.encoder = Registry.Encoders.InstanceOf(this, Channel);
+		this.encoder = Registry.Encoders.InstanceOf(Channel);
 	}
 
 	addChannel(channel, alias) {

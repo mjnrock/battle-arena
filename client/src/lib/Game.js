@@ -1,9 +1,12 @@
 import Entity from "./@agency/core/ecs/Entity";
-import Registry from "./@agency/core/Registry";
 import Environment from "./@agency/core/ecs/Environment";
+
+import Realm from "./realm/Realm";
+import RealmMap from "./realm/Map";
 
 import { createSystemRegistry } from "../data/systems/package";
 import { createComponentRegistry } from "../data/components/package";
+import { createEntityRegistry } from "../data/entities/package";
 
 /**
  * Game is the main class for the game engine, holding all the systems and entities,
@@ -18,12 +21,15 @@ export class Game extends Entity {
 	constructor() {
 		super();
 
-		//TODO Create Archive/Dictionary/Registry for all the generators/classes/instances/etc.
+		/**
+		 * The main registry for all Entities and System used in the game.
+		 */
+		this.Environment = new Environment();
 
 		/**
 		 * The spacetime and material existence of the game, including Player.
 		 */
-		this.Realm = {};
+		this.Realm = new Realm();
 		// this.realm = new Realm();
 
 		this.Render = {};
@@ -43,20 +49,19 @@ export class Game extends Entity {
 		this.Factory = {
 			Components: createComponentRegistry(this),
 			Systems: createSystemRegistry(this),
+			Entities: createEntityRegistry(this),
 		};
-		this.Environment = new Environment({});
-
-		this.Systems = new Registry();
-
-		const systemEntries = Array.from(this.Factory.Systems.iterator).map(factory => [ factory.name, factory.create() ]);
-		systemEntries.forEach(([ name, system ]) => {
-			this.Systems.registerWithAlias(system, name);
+		
+		Array.from(this.Factory.Systems.iterator).forEach(factory => {
+			this.Environment.systems.registerWithAlias(factory.create(), factory.name);
 		});
 
 		return this;
 	}
 	init() {
-
+		this.Realm.Maps.registerWithAlias(RealmMap.CreateGrid(10, 10), "overworld");
+		
+		this.Realm.entities.registry.registerWithAlias(this.Factory.Entities.Squirrel.create(), "player");
 
 		return this;
 	}
