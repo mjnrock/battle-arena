@@ -1,6 +1,6 @@
 import { validate } from "uuid";
 import { v4 as uuid } from "uuid";
-import { spreadFirstElementOrArray } from "../util/helper";
+import { singleOrArrayArgs, spreadFirstElementOrArray } from "../util/helper";
 
 import AgencyBase from "./AgencyBase";
 
@@ -96,11 +96,8 @@ export class Registry extends AgencyBase {
 	};
 
 	
-	constructor (entries = [], { encoder, decoder, state = {}, agent = {} } = {}) {
-		super(agent);
-		
-		this.registry = new Map();
-		this.registerMany(...entries);
+	constructor (entries = [], { encoder, decoder, state = {}, classifiers = [], agencyBase = {} } = {}) {
+		super(agencyBase);
 		
 		Reflect.defineProperty(this, "__cache", {
 			enumerable: false,
@@ -109,11 +106,21 @@ export class Registry extends AgencyBase {
 			value: new WeakMap(),
 		});
 
+		this.classifiers = new Set();
+		this.addClassifiers(...classifiers);
+
 		if(typeof encoder === "function") {
 			this.encoder = encoder.bind(this);
 		}
 		if(typeof decoder === "function") {
 			this.decoder = decoder.bind(this);
+		}
+		
+		this.registry = new Map();
+		if(Array.isArray(entries)) {
+			this.registerMany(...entries);
+		} else if(typeof entries === "object") {
+			this.registerManyWithAlias(entries);
 		}
 
 		for(let [ key, fn ] of Object.entries(state)) {
@@ -195,10 +202,17 @@ export class Registry extends AgencyBase {
 	$add(entry) {
 		this.registry.set(entry.id, entry);
 
-		//FIXME Activate/uncomment this when __cache is available
+		//FIXME Activate/uncomment this when __cache is available | This also must account for .classifiers
 		// this.$cache(entry);
+		
+		const result = this.get(entry.id);
+		if(result) {			
+			for(let classifier of this.classifiers) {
+				classifier(entry.id, entry.value, entry);
+			}
+		}
 
-		return this.$has(entry.id);
+		return result;
 	}
 	$set(key, value, type = RegistryEntry.Type.VALUE) {
 		if(key instanceof RegistryEntry) {
@@ -254,6 +268,39 @@ export class Registry extends AgencyBase {
 
 		return void 0;
 	}
+
+	addClassifier(classifier) {
+		if(typeof classifier === "function") {
+			this.classifiers.add(classifier.bind(this));
+		}
+
+		return this;
+	}
+	addClassifiers(...classifiers) {
+		classifiers = singleOrArrayArgs(classifiers);
+
+		for(let classifier of classifiers) {
+			this.addClassifier(classifier);
+		}
+
+		return this;
+	}
+	removeClassifier(classifier) {
+		return this.classifiers.delete(classifier);
+	}
+	removeClassifiers(...classifiers) {
+		classifiers = singleOrArrayArgs(classifiers);
+
+		const removed = [];
+		for(let classifier of classifiers) {
+			if(this.removeClassifier(classifier)) {
+				removed.push(classifier);
+			}
+		}
+
+		return removed;
+	}
+
 	
 	/**
 	 * This collection of methods will utilize all of the under-the-hook hooks to register a new entry.
@@ -517,6 +564,11 @@ export class Registry extends AgencyBase {
 		return this.addAlias(id, ...aliases);
 	}
 	registerManyWithAlias(...array) {
+		const [ first ] = array;
+		if(typeof first === "object") {
+			array = Object.entries(first).map(([ key, value ]) => [ value, key ]);
+		}
+		
 		const results = [];
 		for(let [ entry, ...aliases ] of array) {
 			results.push(this.registerWithAlias(entry, ...aliases));
@@ -610,6 +662,8 @@ export class Registry extends AgencyBase {
 			this.setPool(tag, [ ...values, ...ids ]);
 
 			return true;
+		} else {
+			this.setPool(tag, ids);
 		}
 
 		return false;

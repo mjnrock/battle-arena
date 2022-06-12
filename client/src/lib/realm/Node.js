@@ -8,10 +8,10 @@ export class Node extends Entity {
 	constructor(x, y, entities = []) {
 		super();
 
-		this.registerComponents([
+		this.registerMany([
 			ComponentPosition(x, y),
 		]);
-		this.registerComponents({
+		this.registerManyWithAlias({
 			entities: ComponentRegistry(entities, {
 				encoder: Registry.Encoders.InstanceOf(Entity),
 			}),

@@ -39,11 +39,11 @@ export class Component extends Struct {
 		};
 	}
 
-	// has(entity) {
-	// 	return entity.has(this.name);
-	// }
+	has(entity) {
+		return entity.has(this.name);
+	}
 
-	generator(...args) {
+	next(...args) {
 		if(args[ 0 ] instanceof Component) {
 			const [ comp, name ] = args;
 

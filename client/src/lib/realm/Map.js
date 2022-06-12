@@ -14,31 +14,24 @@ export class Map extends Entity {
 		if(typeof nodes === "function") {
 			nodes = nodes(this);
 		}
-		nodes = singleOrArrayArgs(nodes);
 
-		this.Nodes = new Registry([], {
+		this.Nodes = new Registry(nodes, {
 			/**
 			 * Encoder `this` must be bound to the ComponentRegistry, therefore cannot use lambda function
 			 */
-			encoder(id, value, type) {
-				const isInstanceOf = Registry.Encoders.InstanceOf(Node)(id, value, type);
-
-				if(isInstanceOf) {
-					/**
-					 * Create a position-based alias for the Node
-					 */
-					return Registry.Encoders.SetVariant(this, Map.PositionEncoder(value), id);	//* sic (order of args)
-				}
-
-				return false;
-			},
+			classifiers: [
+				(id, value) => {
+					if(value instanceof Node) {
+						this.addAlias(id, Map.PositionEncoder(value));
+					}
+				},
+			],
+			encoder: Registry.Encoders.InstanceOf(Node),
 		});
-
-		this.addChildren(nodes);
 	}
 	
 	static CreateGrid(width, height, each) {
-		const map = new Map();
+		const nodes = {};
 		for(let y = 0; y < height; y++) {
 			for(let x = 0; x < width; x++) {
 				const node = new Node(x, y);
@@ -46,12 +39,12 @@ export class Map extends Entity {
 				if(typeof each === "function") {
 					each(node);
 				}
-
-				map.registerWithAlias(node, Map.PositionEncoder(node));
+				
+				nodes[ Map.PositionEncoder(node) ] = node;
 			}
 		}
 
-		return map;
+		return new Map(nodes);
 	}
 };
 

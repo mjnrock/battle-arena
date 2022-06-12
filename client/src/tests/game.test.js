@@ -1,4 +1,6 @@
 import Console from "../lib/@agency/util/Console";
+import Map from "../lib/realm/Map";
+import Node from "../lib/realm/Node";
 
 import Game from "./../lib/Game";
 
@@ -20,7 +22,9 @@ const game = new Game();
 // console.log(comp);
 
 const overworld = game.Realm.Maps.overworld;
-// console.log(overworld)
+console.log(overworld)
+
 const player = game.Realm.entities.registry.player;
-console.log(player)
-console.log(player.position)
+// console.log(player)
+// console.log(player.position)
+console.log(player.children)

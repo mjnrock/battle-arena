@@ -59,9 +59,11 @@ export class Game extends Entity {
 		return this;
 	}
 	init() {
-		this.Realm.Maps.registerWithAlias(RealmMap.CreateGrid(10, 10), "overworld");
+		this.Realm.Maps.registerWithAlias(RealmMap.CreateGrid(1, 2), "overworld");
 		
-		this.Realm.entities.registry.registerWithAlias(this.Factory.Entities.Squirrel.create(), "player");
+		const [ sq1, sq2 ] = this.Factory.Entities.Squirrel.createMany(2);
+		this.Realm.entities.registry.registerWithAlias(sq1, "player");
+		sq1.registerWithAlias(sq2, "skwrl");
 
 		return this;
 	}

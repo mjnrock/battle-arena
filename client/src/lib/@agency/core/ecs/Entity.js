@@ -11,54 +11,64 @@ import { singleOrArrayArgs } from "./../../util/helper";
  */
 export class Entity extends Registry {
 	constructor (components = [], { parent, children = [], agencyBase = {} } = {}) {
-		super([], agencyBase);
+		super([], {
+			encoder: Registry.Encoders.InstanceOf(Component, Entity, Registry),
+			classifiers: [
+				(id, value) => {
+					if(value instanceof Entity) {
+						this.addToPool(`children`, id);
+					} else if(value instanceof Component) {
+						this.addAlias(id, value.name);
+					}
+				},
+			],
+			agencyBase,
+		});
+		
+		this.registerMany(...singleOrArrayArgs(components));
 
-		components = singleOrArrayArgs(components);
-		for(let component of components) {
-			this.registerWithAlias(component, component.name);
-		}
-
-		this.parent = parent;
-		this.children = new Registry(children);
+		// this.parent = parent;
+		// this.children = new Registry(children);
 	}
 
-	registerComponent(component) {
-		this.registerWithAlias(component, component.name);
+	// registerComponent(component) {
+	// 	this.register(component);
+	// 	// this.registerWithAlias(component, component.name);
 
-		return this;
-	}
-	registerComponents(components = []) {
-		if(typeof components === "object" && !Array.isArray(components)) {
-			const next = {};
-			for(let [ name, component ] of Object.entries(components)) {
-				next[ name ] = component.generator(component, name)
-			}
+	// 	return this;
+	// }
+	// registerComponents(components = []) {
+	// 	if(typeof components === "object" && !Array.isArray(components)) {
+	// 		const next = {};
+	// 		for(let [ name, component ] of Object.entries(components)) {
+	// 			next[ name ] = component.next(component, name)
+	// 		}
 			
-			components = Object.values(next);
-		}
+	// 		components = Object.values(next);
+	// 	}
 
-		components = singleOrArrayArgs(components);
+	// 	components = singleOrArrayArgs(components);
 
-		for(let component of components) {
-			this.registerComponent(component);
-		}
+	// 	for(let component of components) {
+	// 		this.registerComponent(component);
+	// 	}
 
-		return this;
-	}
-	unregisterComponent(component) {
-		this.unregister(component.id);
+	// 	return this;
+	// }
+	// unregisterComponent(component) {
+	// 	this.unregister(component.id);
 
-		return this;
-	}
-	unregisterComponents(components = []) {
-		components = singleOrArrayArgs(components);
+	// 	return this;
+	// }
+	// unregisterComponents(components = []) {
+	// 	components = singleOrArrayArgs(components);
 
-		for(let component of components) {
-			this.unregisterComponent(component);
-		}
+	// 	for(let component of components) {
+	// 		this.unregisterComponent(component);
+	// 	}
 
-		return this;
-	}
+	// 	return this;
+	// }
 
 	/**
 	 * Convenience method for Component creation and registration.
@@ -67,76 +77,74 @@ export class Entity extends Registry {
 	createComponent(name, state = {}, { id, tags } = {}) {
 		const component = new Component(name, state, { id, tags });
 
-		this.registerWithAlias(component, name);
+		this.register(component);
 
 		return component;
 	}
 
 	// #region Graph Structure
-	addChild(child) {
-		this.children.add(child);
-		child.parent = this;
+	// addChild(child) {
+	// 	this.children.add(child);
+	// 	child.parent = this;
 
-		return this;
-	}
-	addChildren(children = []) {
-		children = singleOrArrayArgs(children);
+	// 	return this;
+	// }
+	// addChildren(children = []) {
+	// 	children = singleOrArrayArgs(children);
 
-		for(let child of children) {
-			this.addChild(child);
-		}
+	// 	for(let child of children) {
+	// 		this.addChild(child);
+	// 	}
 
-		return this;
-	}
-	removeChild(child) {
-		this.children.delete(child);
-		child.parent = null;
+	// 	return this;
+	// }
+	// removeChild(child) {
+	// 	this.children.delete(child);
+	// 	child.parent = null;
 
-		return this;
-	}
-	removeChildren(children = []) {
-		children = singleOrArrayArgs(children);
+	// 	return this;
+	// }
+	// removeChildren(children = []) {
+	// 	children = singleOrArrayArgs(children);
 
-		for(let child of children) {
-			this.removeChild(child);
-		}
+	// 	for(let child of children) {
+	// 		this.removeChild(child);
+	// 	}
 
-		return this;
-	}
+	// 	return this;
+	// }
 
-	addParent(parent) {
-		this.parent = parent;
-		parent.children.add(this);
+	// addParent(parent) {
+	// 	this.parent = parent;
+	// 	parent.children.add(this);
 
-		return this;
-	}
-	removeParent(parent) {
-		this.parent = null;
-		parent.children.delete(this);
+	// 	return this;
+	// }
+	// removeParent(parent) {
+	// 	this.parent = null;
+	// 	parent.children.delete(this);
 
-		return this;
-	}
+	// 	return this;
+	// }
 
-	getChildAt(index) {
-		return Array.from(this.children.iterator)[ index ];
-	}
-	getChildren(selector) {
-		if(selector == null) {
-			return Array.from(this.children.iterator);
-		}
+	// getChildAt(index) {
+	// 	return Array.from(this.children.iterator)[ index ];
+	// }
+	// getChildren(selector) {
+	// 	if(selector == null) {
+	// 		return Array.from(this.children.iterator);
+	// 	}
 
-		if(typeof selector === "string") {
-			return Array.from(this.children.iterator).filter(child => child.id === selector);
-		} else if(Array.isArray(selector)) {
-			return Array.from(this.children.iterator).filter(child => selector.includes(child.id));
-		} else if(typeof selector === "function") {
-			return Array.from(this.children.iterator).filter(selector);
-		}
+	// 	if(typeof selector === "string") {
+	// 		return Array.from(this.children.iterator).filter(child => child.id === selector);
+	// 	} else if(Array.isArray(selector)) {
+	// 		return Array.from(this.children.iterator).filter(child => selector.includes(child.id));
+	// 	} else if(typeof selector === "function") {
+	// 		return Array.from(this.children.iterator).filter(selector);
+	// 	}
 
-		return [];
-	}
-
-
+	// 	return [];
+	// }
 	//#endregion Graph Structure
 
 	static Create(...args) {

@@ -6,7 +6,7 @@ export class Squirrel extends Entity {
 		// super(components = [], { parent, children = [], agencyBase = {} } = {})
 		super();
 
-		this.registerComponents({
+		this.registerManyWithAlias({
 			position: ComponentPosition(0, 0),
 		});
 	}

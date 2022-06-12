@@ -1,7 +1,7 @@
 import Entity from "../@agency/core/ecs/Entity";
 import Registry from "../@agency/core/Registry";
 
-import ComponentRegistry, { EntityRegistry } from "../../data/components/Registry";
+import { EntityRegistry } from "../../data/components/Registry";
 import EMap from "./Map";
 
 export class Realm extends Entity {
@@ -12,7 +12,7 @@ export class Realm extends Entity {
 			encoder: Registry.Encoders.InstanceOf(EMap),
 		});
 
-		this.registerComponent(EntityRegistry());
+		this.register(EntityRegistry());
 	}
 };
 

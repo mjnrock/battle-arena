@@ -61,8 +61,8 @@ The **Component** is a `Struct` that records a `name` and the _original argument
 		vy: 0,
 	});
 
-	console.log(component.generate() === component);	// false
-	console.log(component.generate().toString() === component.toString());	// true
+	console.log(component.next() === component);	// false
+	console.log(component.next().toString() === component.toString());	// true
 
 ---
 
