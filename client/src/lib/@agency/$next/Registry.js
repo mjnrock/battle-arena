@@ -1,5 +1,4 @@
 import { validate } from "uuid";
-import { singleOrArrayArgs } from "../util/helper";
 import AgencyBase from "../core/AgencyBase";
 
 export class RegistryEntry extends AgencyBase {
@@ -112,6 +111,23 @@ export class Registry extends AgencyBase {
 		});
 	}
 
+	getConfig() {
+		return this.__config;
+	}
+	setConfig(config = {}) {
+		this.config = config;
+
+		return this;
+	}
+	mergeConfig(config = {}) {
+		this.config = {
+			...this.config,
+			...config
+		};
+
+		return this;
+	};
+
 	get(id) {
 		return this.__config.decoder(this)(id);
 	}
@@ -123,6 +139,41 @@ export class Registry extends AgencyBase {
 	}
 	add(value, id, config = {}) {
 		return this.__config.encoder(this)(value, id, config);
+	}
+	find(regex, { ids = true, values = false, aliases = true, pools = true } = {}) {
+		const results = [];
+
+		for(let [ id, entry ] of this.__entries) {
+			if(pools && entry.isPoolType) {
+				for(let value of entry.value) {
+					if(regex.test(value) || regex.test(id)) {
+						results.push(entry);
+						break;
+					}
+				}
+			} else if(aliases && entry.isAliasType) {
+				if(regex.test(entry.value) || regex.test(id)) {
+					results.push(entry);
+				}
+			} else if(values && entry.isValueType) {
+				if(regex.test(entry.value)) {
+					results.push(entry);
+				}
+			} else if(ids && regex.test(id)) {
+				results.push(entry);
+			}
+		}
+
+		return results;
+	}
+	search(selector, ...args) {		
+		for(let [ id, entry ] of this) {
+			if(selector(entry, id, ...args) === true) {
+				return entry;
+			}
+		}
+
+		return null;
 	}
 
 	addAlias(uuid, ...aliases) {
@@ -173,24 +224,83 @@ export class Registry extends AgencyBase {
 
 		return this;
 	}
+	removeFromPool(name, ...uuids) {
+		const poolEntry = this.__entries.get(name);
 
+		if(poolEntry && poolEntry.isPoolType) {
+			for(let uuid of uuids) {
+				if(validate(uuid)) {
+					poolEntry.value.delete(uuid);
+				}
+			}
 
-	getConfig() {
-		return this.__config;
-	}
-	setConfig(config = {}) {
-		this.config = config;
+			if(poolEntry.value.size === 0) {
+				this.remove(name);
+			}
+		}
 
 		return this;
 	}
-	mergeConfig(config = {}) {
-		this.config = {
-			...this.config,
-			...config
+
+	[ Symbol.iterator ]() {
+		const data = Object.entries(this.__entries.entries());
+		let index = 0;
+
+		return {
+			next: function () {
+				return { value: data[ ++index ], done: !(index in data) }
+			}
 		};
+	}
 
-		return this;
-	};
+	forEach(callback, ...args) {
+		for(let [ id, entry ] of this) {
+			callback(entry, id, ...args);
+		}
+	}
+	map(callback, ...args) {
+		const results = [];
+		for(let [ id, entry ] of this) {
+			results.push(callback(entry, id, ...args));
+		}
+
+		return results;
+	}
+	reduce(callback, initialValue, ...args) {
+		let value = initialValue;
+		for(let [ id, entry ] of this) {
+			value = callback(value, entry, id, ...args);
+		}
+
+		return value;
+	}
+	filter(callback, ...args) {
+		const results = [];
+		for(let [ id, entry ] of this) {
+			if(callback(entry, id, ...args) === true) {
+				results.push(entry);
+			}
+		}
+
+		return results;
+	}
+
+	get values() {
+		return this.filter(entry => entry.isValueType).map(entry => [ entry.id, entry.value ]);
+	}
+	get pools() {
+		return this.filter(entry => entry.isPoolType).map(entry => [ entry.id, entry.value ]);
+	}
+	get aliases() {
+		return this.filter(entry => entry.isAliasType).map(entry => [ entry.id, entry.value ]);
+	}
+	get entries() {
+		return [ ...this ];
+	}
+
+	get size() {
+		return this.__entries.size;
+	}
 }
 
 export default Registry;
