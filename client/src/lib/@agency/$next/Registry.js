@@ -1,7 +1,7 @@
 import { validate } from "uuid";
-import AgencyBase from "../core/AgencyBase";
+import Registry from "../core/AgencyBase";
 
-export class RegistryEntry extends AgencyBase {
+export class RegistryEntry extends Registry {
 	static Type = {
 		VALUE: Symbol("VALUE"),
 		ALIAS: Symbol("ALIAS"),
@@ -39,15 +39,21 @@ export class RegistryEntry extends AgencyBase {
 	}
 }
 
-export class Registry extends AgencyBase {
+export class Registry extends Registry {
 	static Encoders = {
-		Default: (self) => (value, id, config) => {
-			if(value instanceof RegistryEntry) {
-				self.__entries.set(id || value.id, value);
+		Default: (self) => (entryOrValue, id, config) => {
+			if(entryOrValue instanceof RegistryEntry) {
+				const key = id || entryOrValue.id;
 
-				return id || value.id;
+				self.__entries.set(key, entryOrValue);
+
+				for(let classifier of self.__config.classifiers.values()) {
+					classifier.call(self, key, entryOrValue.value, entryOrValue);
+				}
+
+				return key;
 			} else {
-				return this.Encoders.Default(self)(new RegistryEntry(value, RegistryEntry.Type.VALUE, { id: validate(id) ? id : void 0, config }));
+				return this.Encoders.Default(self)(new RegistryEntry(entryOrValue, RegistryEntry.Type.VALUE, { id: validate(id) ? id : void 0, config }));
 			}
 		},
 	};
@@ -71,26 +77,50 @@ export class Registry extends AgencyBase {
 				for(let value of input) {
 					poolValues.push(this.Decoders.Default(self)(value));
 				}
-				
+
 				return poolValues;
 			}
 		},
 	};
 	static Classifiers = {
-		Default: () => {},
+		TypeOf: (primitive) => function(key, value, entry) {
+			if(typeof value === primitive) {
+				this.addToPool(`@${ primitive }`, key);
+			}
+		},
+		InstanceOf: (clazz) => function(key, value, entry) {
+			if(value instanceof clazz) {
+				this.addToPool(`@${ primitive }`, key);
+			}
+		},
 	};
 
-	constructor ({ config = {}, encoder, decoder, classifiers = [], agencyBase = {} } = {}) {
+	constructor ({ entries = [], config = {}, encoder, decoder, classifiers = [], agencyBase = {} } = {}) {
 		super(agencyBase);
 
 		this.__entries = new Map();
 		this.__meta = new Map();
 		this.__cache = new WeakMap();
 		this.__config = {
-			autoCache: true,
+
+			//TODO Implement the cache
+			/**
+			 * Utilize the WeakMap to store relationship information (e.g. aliases, pools, etc.) between RegistryEntries,
+			 * so that they can be easily cleaned up when the RegistryEntry is removed, without excessive iteration.
+			 * The @cacheThreshold is the minimum __entries.size before the cache is auto-refreshed.
+			 */
+			autoRefresh: true,
 			cacheThreshold: 100,
+
+			/**
+			 * Middleware to be applied to all entries before they are get or set.
+			 */
 			encoder: encoder || Registry.Encoders.Default,
 			decoder: decoder || Registry.Decoders.Default,
+
+			/**
+			 * Middleware that auto classifies entries into aliases or pools.
+			 */
 			classifiers: new Set(classifiers),
 		};
 
@@ -166,7 +196,7 @@ export class Registry extends AgencyBase {
 
 		return results;
 	}
-	search(selector, ...args) {		
+	search(selector, ...args) {
 		for(let [ id, entry ] of this) {
 			if(selector(entry, id, ...args) === true) {
 				return entry;
@@ -181,6 +211,20 @@ export class Registry extends AgencyBase {
 			for(let alias of aliases) {
 				this.set(alias, new RegistryEntry(uuid, RegistryEntry.Type.ALIAS, { id: alias }));
 			}
+		}
+
+		return this;
+	}
+	addAliasObject(obj = {}) {
+		let entries;
+		if(Array.isArray(obj)) {
+			entries = obj;
+		} else {
+			entries = Object.entries(obj);
+		}
+
+		for(let [ id, value ] of entries) {
+			this.addAlias(id, value);
 		}
 
 		return this;
@@ -243,7 +287,7 @@ export class Registry extends AgencyBase {
 	}
 
 	[ Symbol.iterator ]() {
-		const data = Object.entries(this.__entries.entries());
+		const data = Array.from(this.__entries.entries());
 		let index = 0;
 
 		return {
@@ -285,17 +329,73 @@ export class Registry extends AgencyBase {
 		return results;
 	}
 
+	union(...registries) {
+		const results = new Registry({ config: this.__config });
+
+		for(let registry of registries) {
+			for(let [ id, entry ] of registry) {
+				results.set(id, entry);
+			}
+		}
+
+		return results;
+	}
+	intersection(...registries) {
+		const results = new Registry({ config: this.__config });
+
+		for(let registry of registries) {
+			for(let [ id, entry ] of registry) {
+				if(this.has(id)) {
+					results.set(id, entry);
+				}
+			}
+		}
+
+		return results;
+	}
+
+	/**
+	 * The .keys, .values, and .entries getters will select only RegistryEntry.Type.VALUE entries.
+	 */
+	get keys() {
+		const results = [];
+		for(let [ id, entry ] of this) {
+			if(entry.isValueType) {
+				results.push(id);
+			}
+		}
+
+		return results;
+	}
 	get values() {
-		return this.filter(entry => entry.isValueType).map(entry => [ entry.id, entry.value ]);
-	}
-	get pools() {
-		return this.filter(entry => entry.isPoolType).map(entry => [ entry.id, entry.value ]);
-	}
-	get aliases() {
-		return this.filter(entry => entry.isAliasType).map(entry => [ entry.id, entry.value ]);
+		const results = [];
+		for(let [ id, entry ] of this) {
+			if(entry.isValueType) {
+				results.push(entry.value);
+			}
+		}
+
+		return results;
 	}
 	get entries() {
-		return [ ...this ];
+		const results = [];
+		for(let [ id, entry ] of this) {
+			if(entry.isValueType) {
+				results.push([ id, entry.value ]);
+			}
+		}
+
+		return results;
+	}
+
+	/**
+	 * The .aliases and .pools getters will return an entry-array of [ key, resolved value ] pairs.
+	 */
+	get pools() {
+		return Array.from(this.__entries.values()).filter(entry => entry.isPoolType).map(entry => [ entry.id, entry.value ]);
+	}
+	get aliases() {
+		return Array.from(this.__entries.values()).filter(entry => entry.isAliasType).map(entry => [ entry.id, entry.value ]);
 	}
 
 	get size() {
