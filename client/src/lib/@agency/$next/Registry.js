@@ -1,7 +1,7 @@
 import { validate } from "uuid";
-import Registry from "../core/AgencyBase";
+import AgencyBase from "../core/AgencyBase";
 
-export class RegistryEntry extends Registry {
+export class RegistryEntry extends AgencyBase {
 	static Type = {
 		VALUE: Symbol("VALUE"),
 		ALIAS: Symbol("ALIAS"),
@@ -39,7 +39,7 @@ export class RegistryEntry extends Registry {
 	}
 }
 
-export class Registry extends Registry {
+export class Registry extends AgencyBase {
 	static Encoders = {
 		Default: (self) => (entryOrValue, id, config) => {
 			if(entryOrValue instanceof RegistryEntry) {
@@ -90,12 +90,12 @@ export class Registry extends Registry {
 		},
 		InstanceOf: (clazz) => function(key, value, entry) {
 			if(value instanceof clazz) {
-				this.addToPool(`@${ primitive }`, key);
+				this.addToPool(`@${ clazz.name }`, key);
 			}
 		},
 	};
 
-	constructor ({ entries = [], config = {}, encoder, decoder, classifiers = [], agencyBase = {} } = {}) {
+	constructor (entries = [], { config = {}, encoder, decoder, classifiers = [], agencyBase = {} } = {}) {
 		super(agencyBase);
 
 		this.__entries = new Map();
@@ -125,6 +125,12 @@ export class Registry extends Registry {
 		};
 
 		this.mergeConfig(config);
+
+		if(Array.isArray(entries)) {
+			for(let entry of entries) {
+				this.add(entry);
+			}
+		}
 
 		return new Proxy(this, {
 			get: (target, key) => {
@@ -169,6 +175,15 @@ export class Registry extends Registry {
 	}
 	add(value, id, config = {}) {
 		return this.__config.encoder(this)(value, id, config);
+	}
+	addObject(obj = {}) {
+		for(let alias in obj) {
+			const uuid = this.add(obj[ alias ]);
+
+			this.addAlias(uuid, alias);
+		}
+
+		return this;
 	}
 	find(regex, { ids = true, values = false, aliases = true, pools = true } = {}) {
 		const results = [];

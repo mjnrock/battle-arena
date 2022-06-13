@@ -1,8 +1,8 @@
 import Registry from "../Registry";
 
 export class Entity extends Registry {
-	constructor({ id, tags } = {}) {
-		super({ id, tags });
+	constructor (components = [], { id, tags } = {}) {
+		super(components, { id, tags });
 	}
 };
 
