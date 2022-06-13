@@ -15,17 +15,44 @@ export class Environment extends AgencyBase {
 				Registry.Classifiers.InstanceOf(Component),
 			],
 		});
-
-		this.instances.addObject({
+		this.instances.addWithAlias({
 			Systems: new Registry(),
 			Entities: new Registry(),
 			Components: new Registry(),
 		});
-
-		this.generators = new Registry(generators);
+		
+		this.generators = new Registry(generators, {
+			classifiers: [
+				// Registry.Classifiers.Is(System),
+				// Registry.Classifiers.Is(Entity),
+				// Registry.Classifiers.Is(Component),
+			],
+		});
+		this.generators.addWithAlias({
+			Systems: new Registry(),
+			Entities: new Registry(),
+			Components: new Registry(),
+		});
 	}
 
-	// dispatch(systemId, event, entities = [], ...args) {
+	dispatch(systemId, event, entities = [], ...args) {
+		const system = this.instances.Systems.get(systemId);
+
+		if(!system) {
+			return false;
+		} else if(!system.events.has(event)) {
+			return false;
+		}
+		
+		entities = singleOrArrayArgs(entities);
+
+		const handlers = system.events.get(event);
+		for(let handler of handlers) {
+			handler(entities, ...args);
+		}
+
+		return true;
+	}
 
 };
 

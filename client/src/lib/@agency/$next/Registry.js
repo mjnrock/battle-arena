@@ -83,12 +83,17 @@ export class Registry extends AgencyBase {
 		},
 	};
 	static Classifiers = {
-		TypeOf: (primitive) => function(key, value, entry) {
+		Is: (thing) => function (key, value, entry) {
+			if(value === thing) {
+				this.addToPool(`@${ thing.toString() }`, key);
+			}
+		},
+		TypeOf: (primitive) => function (key, value, entry) {
 			if(typeof value === primitive) {
 				this.addToPool(`@${ primitive }`, key);
 			}
 		},
-		InstanceOf: (clazz) => function(key, value, entry) {
+		InstanceOf: (clazz) => function (key, value, entry) {
 			if(value instanceof clazz) {
 				this.addToPool(`@${ clazz.name }`, key);
 			}
@@ -125,12 +130,7 @@ export class Registry extends AgencyBase {
 		};
 
 		this.mergeConfig(config);
-
-		if(Array.isArray(entries)) {
-			for(let entry of entries) {
-				this.add(entry);
-			}
-		}
+		this.register(entries);
 
 		return new Proxy(this, {
 			get: (target, key) => {
@@ -145,6 +145,22 @@ export class Registry extends AgencyBase {
 				return result;
 			},
 		});
+	}
+
+	register(entries = {}) {
+		if(Array.isArray(entries)) {
+			for(let entry of entries) {
+				this.add(entry);
+			}
+		} else if(typeof entries === "object") {
+			for(let key in entries) {
+				this.addWithAlias({
+					[ key ]: entries[ key ].next(),
+				});
+			}
+		}
+
+		return this;
 	}
 
 	getConfig() {
@@ -176,7 +192,7 @@ export class Registry extends AgencyBase {
 	add(value, id, config = {}) {
 		return this.__config.encoder(this)(value, id, config);
 	}
-	addObject(obj = {}) {
+	addWithAlias(obj = {}) {
 		for(let alias in obj) {
 			const uuid = this.add(obj[ alias ]);
 

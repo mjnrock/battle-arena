@@ -14,10 +14,10 @@ export class Component extends AgencyBase {
 		}
 	}
 
-	next(state = {}, ...args) {
-		return new this.constructor(this.__name, {});
+	next(state, ...args) {
+		return new this.constructor(this.__name, state || this);
 	}
-	delta(state = {}, ...args) {
+	delta(state, ...args) {
 		return new this.constructor(this.__name, {
 			...this,
 			...state,
