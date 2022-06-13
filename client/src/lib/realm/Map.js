@@ -21,6 +21,7 @@ export class Map extends Entity {
 			 */
 			classifiers: [
 				(id, value) => {
+					//TODO Extract out the InstanceOf classifier into a static function on Registry
 					if(value instanceof Node) {
 						this.addAlias(id, Map.PositionEncoder(value));
 					}
