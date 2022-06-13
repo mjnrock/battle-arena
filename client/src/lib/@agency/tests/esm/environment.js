@@ -19,27 +19,27 @@ const e1 = new Entity([
 const env1 = new Environment({
 	instances: [ s1, e1, c1 ],
 
-	//FIXME .generators should hold Factory instances, generated from this object schema
 	//? Wrap the generator function and ensure classifiers are applied
-	generators: {
-		Component: Component,
-		Entity: Entity,
-		System: [ System, /* ...defaultArgs, */ ],	// If an array, the first element is the class, the rest are the default args
+	//FIXME .generators should hold Factory instances, generated from this object schema
+	// generators: {
+	// 	Component: Component,
+	// 	Entity: Entity,
+	// 	System: [ System, /* ...defaultArgs, */ ],	// If an array, the first element is the class, the rest are the default args
 
-		Components: {
-			position: [ Component, "position" ],
-			velocity: [ Component, "velocity" ],
-		},
-		Systems: {
-			movement: [ System, /* events = {}, */ ],
-		},
-		Entity: {
-			squirrel: [ Entity, [
-				"position",					// Component name for linking
-				[ "velocity", -1.3, 0.5 ],	// Component name w/ default args
-			] ],
-		},
-	},
+	// 	Components: {
+	// 		position: [ Component, "position" ],
+	// 		velocity: [ Component, "velocity" ],
+	// 	},
+	// 	Systems: {
+	// 		movement: [ System, /* events = {}, */ ],
+	// 	},
+	// 	Entity: {
+	// 		squirrel: [ Entity, [
+	// 			"position",					// Component name for linking
+	// 			[ "velocity", -1.3, 0.5 ],	// Component name w/ default args
+	// 		] ],
+	// 	},
+	// },
 });
 
 // console.log(e1);

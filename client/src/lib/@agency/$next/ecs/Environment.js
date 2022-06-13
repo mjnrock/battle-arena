@@ -5,8 +5,13 @@ import Entity from "./Entity";
 import System from "./System";
 
 export class Environment extends AgencyBase {
-	constructor({ instances = [], generators = [], id, tags } = {}) {
+	constructor ({ instances = [], generators = [], config = {}, id, tags } = {}) {
 		super({ id, tags });
+
+		this.config = {
+			// Default config
+		};
+		this.mergeConfig(config);
 
 		this.instances = new Registry(instances, {
 			classifiers: [
@@ -20,7 +25,7 @@ export class Environment extends AgencyBase {
 			Entities: new Registry(),
 			Components: new Registry(),
 		});
-		
+
 		this.generators = new Registry(generators, {
 			classifiers: [
 				// Registry.Classifiers.Is(System),
@@ -43,7 +48,7 @@ export class Environment extends AgencyBase {
 		} else if(!system.events.has(event)) {
 			return false;
 		}
-		
+
 		entities = singleOrArrayArgs(entities);
 
 		const handlers = system.events.get(event);
