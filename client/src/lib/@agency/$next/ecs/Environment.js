@@ -110,6 +110,9 @@ export class Environment extends AgencyBase {
 	}
 
 	//#region Convenience Getters
+	/**
+	 * Single-stroke are instances
+	 */
 	get E() {
 		return this.instances.Entities;
 	}
@@ -121,8 +124,10 @@ export class Environment extends AgencyBase {
 	}
 
 	/**
-	 * While this "introduces character ambiguity", this is only an alias, so don't use them if you suck at details.
-	 * They're overtly different to me, so *shrug*.
+	 * Double-strokes are generators
+	 * 
+	 * NOTE: While this "introduces character ambiguity", these are only an aliases, so don't
+	 * use them if you suck at details; they're overtly different to me, so *shrug*.
 	 */
 	get 𝔼() {		// G1 Macro
 		return this.generators.Entities;
