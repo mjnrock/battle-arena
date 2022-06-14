@@ -20,12 +20,7 @@ const env1 = new Environment({
 	instances: [ s1, e1, c1 ],
 
 	//? Wrap the generator function and ensure classifiers are applied
-	//FIXME .generators should hold Factory instances, generated from this object schema
 	generators: {
-		// Component: Component,
-		// Entity: Entity,
-		// System: [ System, /* ...defaultArgs, */ ],	// If an array, the first element is the class, the rest are the default args
-
 		Components: {
 			position: [ Component, "position" ],
 			velocity: [ Component, "velocity" ],
@@ -34,22 +29,33 @@ const env1 = new Environment({
 			movement: [ System, /* events = {}, */ ],
 		},
 		Entities: {
+			rabbit: Entity,
 			squirrel: [ Entity, [
 				"position",					// Component name for linking
-				[ "velocity", -1.3, 0.5 ],	// Component name w/ default args
+				"velocity",
+				// [ "velocity", -1.3, 0.5 ],	// Component name w/ default args
 			] ],
 		},
 	},
 });
 
+//? Confirm environment is created
 // console.log(e1);
+
 
 //? Test that instances are recorded correctly
 // console.log(env1.instances.Systems);
 // Console.hr();
 // console.log(env1.instances[ `@System` ]);
 
-// Test that generator Factories are created correctly
-console.log(env1.generators.Systems.movement.create());
-console.log(env1.generators.Components.position.create());
-console.log(env1.generators.Entities.squirrel.create());
+
+//? Test that generator Factories are created correctly
+// console.log(env1.generators.Systems.movement.create());
+// console.log(env1.generators.Components.position.create());
+// console.log(env1.generators.Entities.squirrel.create());
+console.log(env1.generators.Entities.rabbit.create());
+
+// Console.label("comp.args.position", env1.generators.Entities.squirrel.args[ 0 ].position);
+// Console.label("comp.args.velocity", env1.generators.Entities.squirrel.args[ 0 ].velocity);
+// Console.label("comp.position", env1.generators.Entities.squirrel.create().position);
+// Console.label("comp.velocity", env1.generators.Entities.squirrel.create().velocity);

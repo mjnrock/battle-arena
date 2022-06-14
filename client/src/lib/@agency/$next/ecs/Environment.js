@@ -46,7 +46,7 @@ export class Environment extends AgencyBase {
 					for(let compEntry of Object.values(compEntries)) {
 						if(Array.isArray(compEntry)) {
 							const [ name, ...args ] = compEntry;
-							const factory = obj.Components[ name ];
+							const factory = obj.Components[ name ].copy(...args);
 
 							comps[ name ] = factory;
 							
@@ -56,14 +56,14 @@ export class Environment extends AgencyBase {
 							comps[ compEntry ] = factory;
 						}
 					}
-				} else {
-					comps[ key ] = new Factory(entry);
-				}
 
-				/**
-				 * Entity will call .create() on Factories when passed as Components
-				 */
-				entities[ key ] = new Factory(Entity, [ comps ]);
+					/**
+					 * Entity will call .create() on Factories when passed as Components
+					 */
+					entities[ key ] = new Factory(Entity, [ comps ]);
+				} else {
+					entities[ key ] = new Factory(entry);
+				}
 			}
 
 			obj.Entities = entities;

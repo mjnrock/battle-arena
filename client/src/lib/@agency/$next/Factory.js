@@ -45,6 +45,16 @@ export class Factory extends AgencyBase {
 		return input instanceof this.species;
 	}
 
+	copy(...args) {
+		return new Factory(this.species, args, {
+			name: this.name,
+			meta: this.meta,
+			each: this.each,
+			id: this.id,
+			tags: this.tags
+		});
+	}
+
 	/**
 	 * Create a new instance of the species, using default arguments if none are provided.
 	 */
