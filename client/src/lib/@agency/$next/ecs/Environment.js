@@ -109,6 +109,32 @@ export class Environment extends AgencyBase {
 		this.generators = Environment.ParseGenerators(generators);
 	}
 
+	//#region Convenience Getters
+	get E() {
+		return this.instances.Entities;
+	}
+	get C() {
+		return this.instances.Components;
+	}
+	get S() {
+		return this.instances.Systems;
+	}
+
+	/**
+	 * While this "introduces character ambiguity", this is only an alias, so don't use them if you suck at details.
+	 * They're overtly different to me, so *shrug*.
+	 */
+	get 𝔼() {		// G1 Macro
+		return this.generators.Entities;
+	}
+	get ℂ() {		// G2 Macro
+		return this.generators.Components;
+	}
+	get 𝕊() {		// G3 Macro
+		return this.generators.Systems;
+	}
+	//#endregion Convenience Getters
+
 	dispatch(systemId, event, entities = [], ...args) {
 		const system = this.instances.Systems.get(systemId);
 
@@ -127,7 +153,6 @@ export class Environment extends AgencyBase {
 
 		return true;
 	}
-
 };
 
 export default Environment;

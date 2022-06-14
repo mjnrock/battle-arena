@@ -48,12 +48,15 @@ const env1 = new Environment({
 // Console.hr();
 // console.log(env1.instances[ `@System` ]);
 
+//TODO Remove all Factory associations on the Components (generator and related) and instead use .next/delta paradigm
 
 //? Test that generator Factories are created correctly
 // console.log(env1.generators.Systems.movement.create());
 // console.log(env1.generators.Components.position.create());
 // console.log(env1.generators.Entities.squirrel.create());
-console.log(env1.generators.Entities.rabbit.create());
+// console.log(env1.generators.Entities.rabbit.create());
+console.log(env1.E);
+console.log(env1.𝔼.rabbit.create());
 
 // Console.label("comp.args.position", env1.generators.Entities.squirrel.args[ 0 ].position);
 // Console.label("comp.args.velocity", env1.generators.Entities.squirrel.args[ 0 ].velocity);
