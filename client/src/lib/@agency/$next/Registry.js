@@ -1,5 +1,5 @@
 import { validate } from "uuid";
-import AgencyBase from "../core/AgencyBase";
+import AgencyBase from "./AgencyBase";
 
 export class RegistryEntry extends AgencyBase {
 	static Type = {

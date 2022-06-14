@@ -1,4 +1,4 @@
-import AgencyBase from "../AgencyBase";
+import AgencyBase from "./AgencyBase";
 
 /**
  * This is meant to be a DataFrame/ActiveRecord that is used to store and manage

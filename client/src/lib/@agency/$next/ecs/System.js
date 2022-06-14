@@ -1,4 +1,4 @@
-import AgencyBase from "../../core/AgencyBase";
+import AgencyBase from "./../AgencyBase";
 import { singleOrArrayArgs } from "../../util/helper";
 
 export class System extends AgencyBase {

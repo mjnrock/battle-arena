@@ -1,4 +1,4 @@
-import AgencyBase from "../../core/AgencyBase";
+import AgencyBase from "./../AgencyBase";
 
 export class Component extends AgencyBase {
 	constructor (name, state = {}, { id, tags } = {}) {
