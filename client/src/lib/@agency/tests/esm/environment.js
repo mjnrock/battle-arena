@@ -7,7 +7,18 @@ import Environment from "./../../$next/ecs/Environment";
 
 Console.NewContext();
 
-const s1 = new System();
+const s1 = new System({
+	test: [
+		() => {},
+		() => {},
+		() => {},
+		() => {},
+	],
+	test2: [
+		() => {},
+		() => {},
+	],
+});
 const c1 = new Component("test", {
 	cats: "meow",
 });
@@ -57,6 +68,18 @@ Console.hr();
 // Console.hr();
 // console.log(env1.instances[ `@System` ]);
 
+
+//? Verify that iterators work
+// for(let a of e1) {
+// 	console.log(9999, a)
+// }
+// for(let a of c1) {
+// 	console.log(7777, a)
+// }
+for(let a of s1) {
+	console.log(5555, a)
+}
+
 //? Test that generator Factories are created correctly
 // console.log(env1.generators.Systems.movement.create());
 // console.log(env1.generators.Components.position.create());
@@ -81,10 +104,3 @@ console.log(skwrl.velocity)
 
 console.log(c1.id)
 console.log(c1.next().id)
-
-for(let a of e1) {
-	console.log(9999, a)
-}
-for(let a of c1) {
-	console.log(7777, a)
-}

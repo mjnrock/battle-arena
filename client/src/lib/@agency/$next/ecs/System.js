@@ -10,6 +10,10 @@ export class System extends AgencyBase {
 		this.seed(events);
 	}
 
+	[ Symbol.iterator ]() {
+		return this.events[ Symbol.iterator ]();
+	}
+
 	seed(events = []) {
 		if(Array.isArray(events)) {
 			//NOOP -- Array Map
