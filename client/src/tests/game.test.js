@@ -5,5 +5,6 @@ import Game from "./../lib/Game";
 Console.NewContext();
 
 const game = new Game();
-console.log(game.Environment.generators.Entities.Squirrel.create());
-console.log(game.Environment.generators.Components.position.create(5, 3));	// Args go to the data.components.Position(x, y)
+console.log(game.Environment.Generators.Entities.Squirrel.create());
+console.log(game.Environment.Generators.Components.Position.create(5, 3));	// Args go to the data.components.Position(x, y)
+console.log(game.Environment.Generators.Components.Registrar.create());

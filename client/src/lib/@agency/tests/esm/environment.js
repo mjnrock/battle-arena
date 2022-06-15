@@ -68,9 +68,9 @@ Console.hr();
 
 
 //? Test that instances are recorded correctly
-// console.log(env1.instances.Systems);
+// console.log(env1.Instances.Systems);
 // Console.hr();
-// console.log(env1.instances[ `@System` ]);
+// console.log(env1.Instances[ `@System` ]);
 
 
 //? Verify that iterators work
@@ -85,18 +85,18 @@ Console.hr();
 // }
 
 //? Test that generator Factories are created correctly
-// console.log(env1.generators.Systems.movement.create());
-// console.log(env1.generators.Components.position.create());
-// console.log(env1.generators.Entities.squirrel.create());
-// console.log(env1.generators.Entities.rabbit.create());
+// console.log(env1.Generators.Systems.movement.create());
+// console.log(env1.Generators.Components.position.create());
+// console.log(env1.Generators.Entities.squirrel.create());
+// console.log(env1.Generators.Entities.rabbit.create());
 // console.log(env1.E);
 // console.log(env1.𝔼.squirrel.create());
 // console.log(env1.𝔼.rabbit.create());
 
-// Console.label("comp.args.position", env1.generators.Entities.squirrel.args[ 0 ].position);
-// Console.label("comp.args.velocity", env1.generators.Entities.squirrel.args[ 0 ].velocity);
-// Console.label("comp.position", env1.generators.Entities.squirrel.create().position);
-// Console.label("comp.velocity", env1.generators.Entities.squirrel.create().velocity);
+// Console.label("comp.args.position", env1.Generators.Entities.squirrel.args[ 0 ].position);
+// Console.label("comp.args.velocity", env1.Generators.Entities.squirrel.args[ 0 ].velocity);
+// Console.label("comp.position", env1.Generators.Entities.squirrel.create().position);
+// Console.label("comp.velocity", env1.Generators.Entities.squirrel.create().velocity);
 
 // console.log(env1.𝔼)
 // const { 𝔼, ℂ, 𝕊 } = env1;
@@ -157,7 +157,7 @@ const env1 = new Environment({
 const { 𝔼, ℂ, 𝕊 } = env1;
 const skwrl = 𝔼.squirrel.create();
 
-console.log(env1.instances.Entities)
+console.log(env1.Instances.Entities)
 // console.log(skwrl)
 // console.log(skwrl[ `@Component` ])
 // console.log(skwrl.position)

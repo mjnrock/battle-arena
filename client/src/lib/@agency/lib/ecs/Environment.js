@@ -63,13 +63,13 @@ export class Environment extends Identity {
 		/**
 		 * These are basically Factory-leaf, namespace-trees
 		 */
-		this.generators = Environment.ParseGeneratorObject(generators);
+		this.Generators = Environment.ParseGeneratorObject(generators);
 
 		/**
 		 * These ECS namespaces hold the actual instances
 		 */
 		//IDEA Any instances added should have a .deconstructor hook added to them to remove them from the Environment (may require Struct-like AgencyBase)
-		this.instances = {
+		this.Instances = {
 			Systems: new Registry(instances, {
 				encoder: Registry.Encoders.InstanceOf(System),
 			}),
@@ -91,13 +91,13 @@ export class Environment extends Identity {
 	 * Single-stroke are instances
 	 */
 	get E() {
-		return this.instances.Entities;
+		return this.Instances.Entities;
 	}
 	get C() {
-		return this.instances.Components;
+		return this.Instances.Components;
 	}
 	get S() {
-		return this.instances.Systems;
+		return this.Instances.Systems;
 	}
 
 	/**
@@ -107,18 +107,18 @@ export class Environment extends Identity {
 	 * use them if you suck at details; they're overtly different to me, so *shrug*.
 	 */
 	get 𝔼() {		// G1 Macro
-		return this.generators.Entities;
+		return this.Generators.Entities;
 	}
 	get ℂ() {		// G2 Macro
-		return this.generators.Components;
+		return this.Generators.Components;
 	}
 	get 𝕊() {		// G3 Macro
-		return this.generators.Systems;
+		return this.Generators.Systems;
 	}
 	//#endregion Convenience Getters
 
 	dispatch(systemId, event, entities = [], ...args) {
-		const system = this.instances.Systems.get(systemId);
+		const system = this.Instances.Systems.get(systemId);
 
 		if(!system) {
 			return false;

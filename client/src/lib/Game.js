@@ -17,12 +17,7 @@ export class Game {
 		/**
 		 * The main registry for all Entities and System used in the game.
 		 */
-		this.Environment = new Environment({
-			generators: {
-				Components,
-				Entities,
-			},
-		});
+		this.Environment = {};
 
 		/**
 		 * The spacetime and material existence of the game, including Player.
@@ -37,17 +32,25 @@ export class Game {
 		// this.config = new Config();
 
 
-		this.pre();
-		this.init();
-		this.post();
+		/**
+		 * Invoke all the creation hooks
+		 */
+		this.pre()
+			.init()
+			.post();
 	}
 
 	pre() {
+		this.Environment = new Environment({
+			generators: {
+				Components,
+				Entities,
+			},
+		});
 
 		return this;
 	}
 	init() {
-
 		return this;
 	}
 	post() {
