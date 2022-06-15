@@ -1,5 +1,6 @@
 import Registry from "../Registry";
 import Factory from "../Factory";
+import Component from "./Component";
 
 export class Entity extends Registry {
 	constructor (components = [], { id, tags } = {}) {
@@ -15,6 +16,10 @@ export class Entity extends Registry {
 
 				if(comp instanceof Factory) {
 					comp = comp.create();
+
+					if(!(comp instanceof Component)) {
+						throw new Error("Factory .species must be a Component.");
+					}
 				}
 				
 				const uuid = this.add(comp);
@@ -26,6 +31,10 @@ export class Entity extends Registry {
 
 				if(comp instanceof Factory) {
 					comp = comp.create();
+
+					if(!(comp instanceof Component)) {
+						throw new Error("Factory .species must be a Component.");
+					}
 				}
 				
 				const uuid = this.add(comp);

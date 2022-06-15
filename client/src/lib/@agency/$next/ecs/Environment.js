@@ -5,6 +5,7 @@ import Entity from "./Entity";
 import System from "./System";
 
 import Factory from "./../Factory";
+import { singleOrArrayArgs } from "../../util/helper";
 
 export class Environment extends AgencyBase {
 	static ParseGenerators(generators = {}) {
@@ -38,31 +39,66 @@ export class Environment extends AgencyBase {
 		}
 
 		if(generators.Entities) {
-			const entities = {};
-			for(let [ key, entry ] of Object.entries(generators.Entities)) {
-				const comps = {};
-				if(Array.isArray(entry)) {
-					const [ ent, [ ...compEntries ] ] = entry;
-					for(let compEntry of Object.values(compEntries)) {
-						if(Array.isArray(compEntry)) {
-							const [ name, ...args ] = compEntry;
-							const factory = obj.Components[ name ].copy(...args);
-
-							comps[ name ] = factory;
+			// const entities = {};
+			// for(let [ key, entry ] of Object.entries(generators.Entities)) {
+			// 	const comps = {};
+			// 	if(Array.isArray(entry)) {
+			// 		const [ ent, [ ...compEntries ] ] = entry;
+			// 		for(let compEntry of Object.values(compEntries)) {
+			// 			if(Array.isArray(compEntry)) {
+			// 				const [ name, ...args ] = compEntry;
+			// 				// const factory = obj.Components[ name ].copy(...args);
+			// 				const comp = obj.Components[ name ].create(...args);
 							
-						} else {
-							const factory = obj.Components[ compEntry ];
+			// 				// comps[ name ] = factory;
+			// 				comps[ name ] = comp;
+			// 			} else {
+			// 				// const factory = obj.Components[ compEntry ];
+			// 				const comp = obj.Components[ compEntry ].create();
+							
+			// 				// comps[ compEntry ] = factory;
+			// 				comps[ compEntry ] = comp;
+			// 			}
+			// 		}
+					
+			// 		/**
+			// 		 * Entity will call .create() on Factories when passed as Components
+			// 		 */
+			// 		entities[ key ] = new Factory(ent, [ comps ], {
+			// 			each(entity) {
+			// 				// TODO
+			// 			},
+			// 		});
+			// 	} else {
+			// 		entities[ key ] = new Factory(entry);
+			// 	}
 
-							comps[ compEntry ] = factory;
-						}
+			// 	console.log(key, entities[ key ])
+			// }
+
+
+
+			const entities = {};
+			for(let [ name, entry ] of Object.entries(generators.Entities)) {
+				if(Array.isArray(entry)) {
+					const comps = {};
+					let [ ent, compData ] = entry;
+					compData = singleOrArrayArgs(compData);
+					
+					for(let compArgs of compData) {
+						compArgs = singleOrArrayArgs(compArgs);
+						const [ name, ...args ] = compArgs;
+						
+						/**
+						 * If you pass a Factory to the Entity, it will call .create() on it
+						 * and use the result as the Component.
+						 */
+						comps[ name ] = obj.Components[ name ].copy(name, ...args);
 					}
-
-					/**
-					 * Entity will call .create() on Factories when passed as Components
-					 */
-					entities[ key ] = new Factory(Entity, [ comps ]);
+					
+					entities[ name ] = new Factory(ent, [ comps ]);
 				} else {
-					entities[ key ] = new Factory(entry);
+					entities[ name ] = new Factory(entry);
 				}
 			}
 
