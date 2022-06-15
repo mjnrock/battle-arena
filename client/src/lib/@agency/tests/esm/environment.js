@@ -117,6 +117,7 @@ Console.hr();
 //#region Iteration 2
 const s1 = new System();
 const e1 = new Entity();
+e1.tags.add("cats")
 const env1 = new Environment({
 	instances: [ s1, e1 ],
 
@@ -133,6 +134,14 @@ const env1 = new Environment({
 			rabbit: Entity,
 			squirrel: [
 				Entity,
+				//TODO Allow for the object version below
+				// {
+				// 	position: [],
+				// 	velocity: {
+				// 		x: -1.3,
+				// 		y: 0.5,
+				// 	},
+				// },
 				[
 					"position",					// Component name for linking
 					[ "velocity", {
@@ -148,8 +157,10 @@ const env1 = new Environment({
 const { 𝔼, ℂ, 𝕊 } = env1;
 const skwrl = 𝔼.squirrel.create();
 
-console.log(skwrl)
+console.log(env1.instances.Entities)
+// console.log(skwrl)
 // console.log(skwrl[ `@Component` ])
-console.log(skwrl.position)
-console.log(skwrl.velocity)
+// console.log(skwrl.position)
+// console.log(skwrl.velocity)
+
 //#endregion Iteration 2

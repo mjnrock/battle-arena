@@ -57,6 +57,18 @@ export class Registry extends AgencyBase {
 				return this.Encoders.Default(self)(new RegistryEntry(entryOrValue, RegistryEntry.Type.VALUE, { id: validate(id) ? id : void 0, config }));
 			}
 		},
+		TypeOf: (primitive) => (self) => (entryOrValue, id, config) => {
+			if(typeof entryOrValue === primitive) {
+				return this.Encoders.Default(self)(entryOrValue, id, config);
+			}
+		},
+		InstanceOf: (...classes) => (self) => (entryOrValue, id, config) => {
+			const isInstanceOf = classes.some(cls => entryOrValue instanceof cls);
+
+			if(isInstanceOf) {
+				return this.Encoders.Default(self)(entryOrValue, id, config);
+			}
+		},
 	};
 	static Decoders = {
 		Default: (self) => (input) => {
@@ -97,6 +109,11 @@ export class Registry extends AgencyBase {
 		InstanceOf: (clazz) => function (key, value, entry) {
 			if(value instanceof clazz) {
 				this.addToPool(`@${ clazz.name }`, key);
+			}
+		},
+		HasTag: (tag) => function (key, value, entry) {
+			if(typeof value === "object" && value.tags instanceof Set && value.tags.has(tag)) {
+				this.addToPool(`#${ tag }`, key);
 			}
 		},
 	};
@@ -187,11 +204,11 @@ export class Registry extends AgencyBase {
 	has(id) {
 		return this.__entries.has(id);
 	}
-	set(id, entry) {
-		return this.__config.encoder(this)(entry, id);
+	set(id, entry, encoderArgs = []) {
+		return this.__config.encoder(this, ...encoderArgs)(entry, id);
 	}
-	add(value, id, config = {}) {
-		return this.__config.encoder(this)(value, id, config);
+	add(value, id, config = {}, encoderArgs = []) {
+		return this.__config.encoder(this, ...encoderArgs)(value, id, config);
 	}
 	addWithAlias(obj = {}) {
 		for(let alias in obj) {

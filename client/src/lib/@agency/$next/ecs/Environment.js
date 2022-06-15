@@ -8,7 +8,11 @@ import Factory from "./../Factory";
 import { singleOrArrayArgs } from "../../util/helper";
 
 export class Environment extends AgencyBase {
-	static ParseGenerators(generators = {}) {
+	/**
+	 * This function only returns an Object (not a Registry), but replaces
+	 * the leaf-level entries with the instantiated Factories.
+	 */
+	static ParseGeneratorObject(generators = {}) {
 		const obj = {};
 		
 		obj.Components = Factory.ParseObject(generators.Components || {});
@@ -48,38 +52,37 @@ export class Environment extends AgencyBase {
 	constructor ({ instances = [], generators = {}, config = {}, id, tags } = {}) {
 		super({ id, tags });
 
+		/**
+		 * Optionally allow for a custom config object
+		 */
 		this.config = {
 			// Default config
 		};
 		this.mergeConfig(config);
+		
+		/**
+		 * These are basically Factory-leaf, namespace-trees
+		 */
+		this.generators = Environment.ParseGeneratorObject(generators);
 
-		this.instances = new Registry(instances, {
-			classifiers: [
-				Registry.Classifiers.InstanceOf(System),
-				Registry.Classifiers.InstanceOf(Entity),
-				Registry.Classifiers.InstanceOf(Component),
-			],
-		});
-		this.instances.addWithAlias({
-			Systems: new Registry(),
-			Entities: new Registry(),
-			Components: new Registry(),
-		});
+		/**
+		 * These ECS namespaces hold the actual instances
+		 */
+		this.instances = {
+			Systems: new Registry(instances, {
+				encoder: Registry.Encoders.InstanceOf(System),
+			}),
+			Entities: new Registry(instances, {
+				encoder: Registry.Encoders.InstanceOf(Entity),
+				classifiers: [
+					Registry.Classifiers.HasTag("cats"),
+				],
+			}),
+			Components: new Registry(instances, {
+				encoder: Registry.Encoders.InstanceOf(Component),
+			}),
+		};
 
-		this.generators = new Registry([], {
-			classifiers: [
-				// Registry.Classifiers.Is(System),
-				// Registry.Classifiers.Is(Entity),
-				// Registry.Classifiers.Is(Component),
-			],
-		});
-		this.generators.addWithAlias({
-			Systems: new Registry(),
-			Entities: new Registry(),
-			Components: new Registry(),
-		});
-
-		this.generators = Environment.ParseGenerators(generators);
 	}
 
 	//#region Convenience Getters
