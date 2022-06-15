@@ -55,8 +55,6 @@ Console.hr();
 // Console.hr();
 // console.log(env1.instances[ `@System` ]);
 
-//TODO Remove all Factory associations on the Components (generator and related) and instead use .next/delta paradigm
-
 //? Test that generator Factories are created correctly
 // console.log(env1.generators.Systems.movement.create());
 // console.log(env1.generators.Components.position.create());

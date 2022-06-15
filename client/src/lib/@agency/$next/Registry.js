@@ -1,5 +1,6 @@
 import { validate } from "uuid";
 import AgencyBase from "./AgencyBase";
+import { singleOrArrayArgs } from "../util/helper";
 
 export class RegistryEntry extends AgencyBase {
 	static Type = {
@@ -400,7 +401,7 @@ export class Registry extends AgencyBase {
 	}
 	get values() {
 		const results = [];
-		for(let [ id, entry ] of this) {
+		for(let [ id, entry ] of this.__entries.entries()) {
 			if(entry.isValueType) {
 				results.push(entry.value);
 			}
@@ -410,7 +411,7 @@ export class Registry extends AgencyBase {
 	}
 	get entries() {
 		const results = [];
-		for(let [ id, entry ] of this) {
+		for(let [ id, entry ] of this.__entries.entries()) {
 			if(entry.isValueType) {
 				results.push([ id, entry.value ]);
 			}
@@ -423,7 +424,7 @@ export class Registry extends AgencyBase {
 	 * The .aliases and .pools getters will return an entry-array of [ key, resolved value ] pairs.
 	 */
 	get pools() {
-		return Array.from(this.__entries.values()).filter(entry => entry.isPoolType).map(entry => [ entry.id, entry.value ]);
+		return Array.from(this.__entries.entries()).filter(([ key, entry ]) => entry.isPoolType).map(([ key, entry ]) => [ key, entry.value ]);
 	}
 	get aliases() {
 		return Array.from(this.__entries.values()).filter(entry => entry.isAliasType).map(entry => [ entry.id, entry.value ]);
@@ -431,6 +432,38 @@ export class Registry extends AgencyBase {
 
 	get size() {
 		return this.__entries.size;
+	}
+
+	addClassifier(classifier) {
+		if(typeof classifier === "function") {
+			this.__config.classifiers.add(classifier.bind(this));
+		}
+
+		return this;
+	}
+	addClassifiers(...classifiers) {
+		classifiers = singleOrArrayArgs(classifiers);
+
+		for(let classifier of classifiers) {
+			this.addClassifier(classifier);
+		}
+
+		return this;
+	}
+	removeClassifier(classifier) {
+		return this.__config.classifiers.delete(classifier);
+	}
+	removeClassifiers(...classifiers) {
+		classifiers = singleOrArrayArgs(classifiers);
+
+		const removed = [];
+		for(let classifier of classifiers) {
+			if(this.removeClassifier(classifier)) {
+				removed.push(classifier);
+			}
+		}
+
+		return removed;
 	}
 }
 

@@ -24,10 +24,6 @@ export class Component extends AgencyBase {
 		if(!this.name) {
 			throw new Error("Component must have a name.");
 		}
-
-		for(let entry of this) {
-			console.log(333, this.id, entry);
-		}
 	}
 
 	[ Symbol.iterator ]() {
