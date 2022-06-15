@@ -45,12 +45,15 @@ export class Game {
 			generators: {
 				Components,
 				Entities,
+				Systems: {},	// TODO Convert data.Systems to newer paradigm
 			},
 		});
 
 		return this;
 	}
 	init() {
+		//TODO Create a Realm, Map, Player
+		
 		return this;
 	}
 	post() {
