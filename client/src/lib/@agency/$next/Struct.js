@@ -134,6 +134,32 @@ export class Struct extends AgencyBase {
 
 		return this;
 	}
+	map(fn) {
+		const results = [];
+		for(let [ key, value ] of this) {
+			results.push(fn(key, value, this));
+		}
+
+		return results;
+	}
+	filter(fn) {
+		const results = [];
+		for(let [ key, value ] of this) {
+			if(fn(key, value, this) === true) {
+				results.push(value);
+			}
+		}
+
+		return results;
+	}
+	reduce(fn, initial) {
+		let acc = initial;
+		for(let [ key, value ] of this) {
+			acc = fn(acc, value, key, this);
+		}
+
+		return acc;
+	}
 
 	//#region CRUD
 	upsert(prop, value) {
@@ -146,42 +172,6 @@ export class Struct extends AgencyBase {
 		}
 
 		return this;
-	}
-	find(input, { firstMatchOnly = false, regexOnKey = true, regexOnValue = false } = {}) {
-		const results = [];
-		if(input in this) {
-			results.push(this[ input ]);
-		} else if(typeof input === "function") {
-			for(let [ key, value ] of this) {
-				if(input(key, value, this) === true) {
-					if(firstMatchOnly) {
-						return value;
-					}
-
-					results.push(value);
-				}
-			}
-		} else if(input instanceof RegExp) {
-			for(let [ key, value ] of this) {
-				if(regexOnKey && input.test(key)) {
-					if(firstMatchOnly) {
-						return value;
-					}
-
-					results.push(value);
-				}
-				//FIXME
-				// else if(regexOnValue && (typeof value === "string" || typeof value === "number") && input.test(value.toString())) {
-				// 	if(firstMatchOnly) {
-				// 		return value;
-				// 	}
-
-				// 	results.push(value);
-				// }
-			}
-		}
-
-		return results;
 	}
 	remove(prop) {
 		if(typeof prop === "object") {

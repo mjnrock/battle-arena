@@ -9,6 +9,20 @@ import Registry from "./Registry";
  * properties, which can be optionally overriden.
  */
 export class Factory extends AgencyBase {
+	static ParseObject(obj = {}) {
+		const result = {};
+		for(let [ key, entry ] of Object.entries(obj)) {
+			if(Array.isArray(entry)) {
+				const [ comp, ...args ] = entry;
+				result[ key ] = new Factory(comp, args);
+			} else {
+				result[ key ] = new Factory(entry);
+			}
+		}
+
+		return result;
+	};
+
 	constructor(species, args = [], { each, name, meta = {}, id, tags } = {}) {
 		super({ id, tags });
 

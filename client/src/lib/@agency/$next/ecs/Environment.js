@@ -10,74 +10,11 @@ import { singleOrArrayArgs } from "../../util/helper";
 export class Environment extends AgencyBase {
 	static ParseGenerators(generators = {}) {
 		const obj = {};
-		if(generators.Components) {
-			const components = {};
-			for(let [ key, entry ] of Object.entries(generators.Components)) {
-				if(Array.isArray(entry)) {
-					const [ comp, ...args ] = entry;
-					components[ key ] = new Factory(comp, args);
-				} else {
-					components[ key ] = new Factory(entry);
-				}
-			}
-
-			obj.Components = components;
-		}
-
-		if(generators.Systems) {
-			const systems = {};
-			for(let [ key, entry ] of Object.entries(generators.Systems)) {
-				if(Array.isArray(entry)) {
-					const [ sys, ...args ] = entry;
-					systems[ key ] = new Factory(sys, args);
-				} else {
-					systems[ key ] = new Factory(entry);
-				}
-			}
-
-			obj.Systems = systems;
-		}
+		
+		obj.Components = Factory.ParseObject(generators.Components || {});
+		obj.Systems = Factory.ParseObject(generators.Systems || {});
 
 		if(generators.Entities) {
-			// const entities = {};
-			// for(let [ key, entry ] of Object.entries(generators.Entities)) {
-			// 	const comps = {};
-			// 	if(Array.isArray(entry)) {
-			// 		const [ ent, [ ...compEntries ] ] = entry;
-			// 		for(let compEntry of Object.values(compEntries)) {
-			// 			if(Array.isArray(compEntry)) {
-			// 				const [ name, ...args ] = compEntry;
-			// 				// const factory = obj.Components[ name ].copy(...args);
-			// 				const comp = obj.Components[ name ].create(...args);
-							
-			// 				// comps[ name ] = factory;
-			// 				comps[ name ] = comp;
-			// 			} else {
-			// 				// const factory = obj.Components[ compEntry ];
-			// 				const comp = obj.Components[ compEntry ].create();
-							
-			// 				// comps[ compEntry ] = factory;
-			// 				comps[ compEntry ] = comp;
-			// 			}
-			// 		}
-					
-			// 		/**
-			// 		 * Entity will call .create() on Factories when passed as Components
-			// 		 */
-			// 		entities[ key ] = new Factory(ent, [ comps ], {
-			// 			each(entity) {
-			// 				// TODO
-			// 			},
-			// 		});
-			// 	} else {
-			// 		entities[ key ] = new Factory(entry);
-			// 	}
-
-			// 	console.log(key, entities[ key ])
-			// }
-
-
-
 			const entities = {};
 			for(let [ name, entry ] of Object.entries(generators.Entities)) {
 				if(Array.isArray(entry)) {

@@ -70,7 +70,9 @@ export const Dice = {
 		return Dice.roll(1, 2) === 1 ? 1 : 0
 	},
 
-    //NOTE  Common dice configuration convenience methods
+    /**
+	 * Common dice configuration convenience methods
+	 */
 	d2: (number = 1, bonus = 0) => {
 		return Dice.roll(number, 2, bonus);
 	},
@@ -125,7 +127,7 @@ export const Dice = {
      * A weighted pool using pairs, instead
      * e.g. weightValuePairs = [ [ 1, "a" ], ..., [ 26, "z" ] ]
      */
-	weighted2: (weightValuePairs = []) => {
+	weightedPairs: (weightValuePairs = []) => {
 		const total = weightValuePairs.reduce((a, v) => a + v[ 0 ], 0);
 		const roll = Dice.random(1, total);
 		
