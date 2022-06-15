@@ -1,24 +1,21 @@
 import AgencyBase from "./../AgencyBase";
 
 export class Component extends AgencyBase {
-	constructor (name, state = {}, { id, tags, enumerableId = false, enumerableName = true } = {}) {
-		super({ id, tags });
+	constructor (name, state = {}, { id, tags } = {}) {
+		super({ id: state.id || id, tags: state.tags || tags });
 
-		Reflect.defineProperty(this, "id", {
-			enumerable: enumerableId,
-			configurable: true,
-			writable: true,
-			value: this.id,
-		});
 		Reflect.defineProperty(this, "name", {
-			enumerable: enumerableName,
+			enumerable: false,
 			configurable: true,
 			writable: true,
 			value: name,
 		});
 
 		for(let key in state) {
-			this[ key ] = state[ key ];
+			const attributes = Object.getOwnPropertyDescriptor(this, key);
+			if(!attributes || (attributes && attributes.writable)) {
+				this[ key ] = state[ key ];
+			}
 		}
 
 		if(!this.name) {

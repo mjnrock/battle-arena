@@ -8,7 +8,9 @@ import Environment from "./../../$next/ecs/Environment";
 Console.NewContext();
 
 const s1 = new System();
-const c1 = new Component("test");
+const c1 = new Component("test", {
+	cats: "meow",
+});
 const e1 = new Entity([
 	c1,
 ]);
@@ -79,3 +81,10 @@ console.log(skwrl.velocity)
 
 console.log(c1.id)
 console.log(c1.next().id)
+
+for(let a of e1) {
+	console.log(9999, a)
+}
+for(let a of c1) {
+	console.log(7777, a)
+}

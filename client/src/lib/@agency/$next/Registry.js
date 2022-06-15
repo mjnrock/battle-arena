@@ -319,14 +319,15 @@ export class Registry extends AgencyBase {
 	}
 
 	[ Symbol.iterator ]() {
-		const data = Array.from(this.__entries.entries());
-		let index = 0;
-
-		return {
-			next: function () {
-				return { value: data[ ++index ], done: !(index in data) }
+		const data = Array.from(this.__entries.values()).reduce((a, e) => {
+			if(e.isValueType) {
+				return [ ...a, [ e.id, e.value ] ];
 			}
-		};
+
+			return a;
+		}, []);
+
+		return data[ Symbol.iterator ]();
 	}
 
 	forEach(callback, ...args) {
