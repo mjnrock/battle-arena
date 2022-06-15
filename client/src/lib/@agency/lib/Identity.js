@@ -1,8 +1,8 @@
 import { v4 as uuid } from "uuid";
 
-import { singleOrArrayArgs } from "./../util/helper";
+import { singleOrArrayArgs } from "../util/helper";
 
-export class AgencyBase {
+export class Identity {
 	constructor ({ id, tags = [] } = {}) {
 		this.id = id || uuid();
 		
@@ -53,7 +53,7 @@ export class AgencyBase {
 		}
 
 		return Object.entries(obj).map(([ key, value ]) => {
-			if(value instanceof AgencyBase) {
+			if(value instanceof Identity) {
 				return [ key, value.toArray(includeId) ];
 			}
 
@@ -71,7 +71,7 @@ export class AgencyBase {
 		}
 
 		return Object.entries(obj).reduce((a, [ key, value ]) => {
-			if(value instanceof AgencyBase) {
+			if(value instanceof Identity) {
 				return { [ key ]: value.toObject(includeId), ...a };
 			}
 
@@ -119,7 +119,7 @@ export class AgencyBase {
 				let type = false,
 					newValue = value;
 
-				if(newValue instanceof AgencyBase) {
+				if(newValue instanceof Identity) {
 					type = `$agency.${ newValue.constructor.name.toLowerCase() }`;
 					newValue = Object.entries(newValue);
 				} else if(Array.isArray(newValue)) {
@@ -212,4 +212,4 @@ export class AgencyBase {
 	//#endregion Instantiation
 };
 
-export default AgencyBase;
+export default Identity;

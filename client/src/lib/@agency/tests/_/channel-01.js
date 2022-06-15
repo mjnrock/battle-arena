@@ -1,9 +1,9 @@
 import Console from "../../util/Console";
 
-import Agent from "./../../core/Agent";
+import Agent from "../../lib/Agent";
 
-import Message from "../../core/relay/Message";
-import Channel from "../../core/relay/Channel";
+import Message from "../../lib/relay/Message";
+import Channel from "../../lib/relay/Channel";
 
 Console.NewContext("This test suite validates the usage of Channel by leveraging Message, MessageCollection, and Subscription.");
 

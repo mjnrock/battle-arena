@@ -1,4 +1,4 @@
-import AgencyBase from "./AgencyBase";
+import Identity from "./Identity";
 
 import { singleOrArrayArgs } from "../util/helper";
 import Registry from "./Registry";
@@ -8,7 +8,7 @@ import Registry from "./Registry";
  * instantiate a new object of a given type and with a pre-defined set of
  * properties, which can be optionally overriden.
  */
-export class Factory extends AgencyBase {
+export class Factory extends Identity {
 	static ParseObject(obj = {}) {
 		const result = {};
 		for(let [ key, entry ] of Object.entries(obj)) {

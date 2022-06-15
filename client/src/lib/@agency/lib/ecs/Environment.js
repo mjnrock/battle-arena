@@ -1,4 +1,4 @@
-import AgencyBase from "./../AgencyBase";
+import Identity from "../Identity";
 import Registry from "./../Registry";
 import Component from "./Component";
 import Entity from "./Entity";
@@ -7,7 +7,7 @@ import System from "./System";
 import Factory from "./../Factory";
 import { singleOrArrayArgs } from "../../util/helper";
 
-export class Environment extends AgencyBase {
+export class Environment extends Identity {
 	/**
 	 * This function only returns an Object (not a Registry), but replaces
 	 * the leaf-level entries with the instantiated Factories.
@@ -68,6 +68,7 @@ export class Environment extends AgencyBase {
 		/**
 		 * These ECS namespaces hold the actual instances
 		 */
+		//IDEA Any instances added should have a .deconstructor hook added to them to remove them from the Environment (may require Struct-like AgencyBase)
 		this.instances = {
 			Systems: new Registry(instances, {
 				encoder: Registry.Encoders.InstanceOf(System),

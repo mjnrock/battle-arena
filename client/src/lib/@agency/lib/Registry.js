@@ -1,8 +1,8 @@
 import { validate } from "uuid";
-import AgencyBase from "./AgencyBase";
+import Identity from "./Identity";
 import { singleOrArrayArgs } from "../util/helper";
 
-export class RegistryEntry extends AgencyBase {
+export class RegistryEntry extends Identity {
 	static Type = {
 		VALUE: Symbol("VALUE"),
 		ALIAS: Symbol("ALIAS"),
@@ -40,9 +40,14 @@ export class RegistryEntry extends AgencyBase {
 	}
 }
 
-export class Registry extends AgencyBase {
+export class Registry extends Identity {
 	static Encoders = {
 		Default: (self) => (entryOrValue, id, config) => {
+			/**
+			 * Use the RegistryEntry check to assume that the value has already
+			 * been processed.  While this isn't foolproof, it is an easy solution
+			 * to dealing with Aliases and Pools in more complex encoder scenarios.
+			 */
 			if(entryOrValue instanceof RegistryEntry) {
 				const key = id || entryOrValue.id;
 
@@ -65,7 +70,7 @@ export class Registry extends AgencyBase {
 		InstanceOf: (...classes) => (self) => (entryOrValue, id, config) => {
 			const isInstanceOf = classes.some(cls => entryOrValue instanceof cls);
 
-			if(isInstanceOf) {
+			if(isInstanceOf || entryOrValue instanceof RegistryEntry) {
 				return this.Encoders.Default(self)(entryOrValue, id, config);
 			}
 		},
@@ -114,6 +119,16 @@ export class Registry extends AgencyBase {
 		HasTag: (tag) => function (key, value, entry) {
 			if(typeof value === "object" && value.tags instanceof Set && value.tags.has(tag)) {
 				this.addToPool(`#${ tag }`, key);
+			}
+		},
+		/**
+		 * Classify the value into a Pool for *every* tag that it has
+		 */
+		Tagging: () => function (key, value, entry) {
+			if(typeof value === "object" && value.tags instanceof Set) {
+				for(let tag of value.tags.values()) {
+					this.addToPool(`#${ tag }`, key);
+				}
 			}
 		},
 	};
@@ -297,6 +312,7 @@ export class Registry extends AgencyBase {
 		if(poolEntry && poolEntry.isPoolType) {
 			poolEntry.value = new Set(uuids);
 		} else if(!this.has(name)) {
+
 			this.set(name, new RegistryEntry(new Set(uuids), RegistryEntry.Type.POOL));
 		}
 

@@ -1,7 +1,7 @@
-import AgencyBase from "./../AgencyBase";
+import Identity from "../Identity";
 import { singleOrArrayArgs } from "../../util/helper";
 
-export class System extends AgencyBase {
+export class System extends Identity {
 	constructor (events = [], { id, tags } = {}) {
 		super({ id, tags });
 

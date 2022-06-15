@@ -1,6 +1,6 @@
-import AgencyBase from "./../AgencyBase";
+import Identity from "../Identity";
 
-export class Component extends AgencyBase {
+export class Component extends Identity {
 	constructor (name, state = {}, { id, tags } = {}) {
 		super({ id: state.id || id, tags: state.tags || tags });
 

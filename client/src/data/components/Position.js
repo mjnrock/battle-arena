@@ -1,4 +1,4 @@
-import Component from "../../lib/@agency/core/ecs/Component";
+import Component from "./../../lib/@agency/lib/ecs/Component";
 
 export const Name = `position`;
 

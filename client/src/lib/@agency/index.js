@@ -1,4 +1,4 @@
-import Core from "./core/package";
+import Core from "./lib/package";
 import Util from "./util/package";
 
 export const Agency = {
