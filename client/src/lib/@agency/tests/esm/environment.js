@@ -78,3 +78,6 @@ const skwrl = 𝔼.squirrel.create();
 console.log(skwrl)
 console.log(skwrl.position)
 console.log(skwrl.velocity)
+
+console.log(c1.id)
+console.log(c1.next().id)

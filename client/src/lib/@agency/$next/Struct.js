@@ -25,8 +25,8 @@ export class Struct extends AgencyBase {
 		 * in general (e.g. Accessor hook to return value from an API)
 		 */
 		Reflect.defineProperty(this, "__hooks", {
-			configurable: true,
 			enumerable: false,
+			configurable: true,
 			writable: false,
 			value: {
 				[ Struct.Hooks.VIEW ]: new Set(), 		// Accessor hook, these can completely modify what gets returned and when
@@ -40,8 +40,8 @@ export class Struct extends AgencyBase {
 		 * Allow a space for metadata/config information
 		 */
 		Reflect.defineProperty(this, "__meta", {
-			configurable: false,
 			enumerable: false,
+			configurable: false,
 			writable: true,
 			value: {},
 		});
@@ -115,18 +115,8 @@ export class Struct extends AgencyBase {
 	}
 
 	[ Symbol.iterator ]() {
-		var index = -1;
-		var data = Object.entries(Object.entries(this).reduce((acc, [ key, value ]) => {
-			if(key !== "__hooks" && key !== "__meta") {
-				acc[ key ] = value;
-			}
-			return acc;
-		}, {}));
-
-		return {
-			next: () => ({ value: data[ ++index ], done: !(index in data) })
-		};
-	};
+		return Object.entries(this)[ Symbol.iterator ]();
+	}
 	forEach(fn) {
 		for(let [ key, value ] of this) {
 			fn(key, value, this);
