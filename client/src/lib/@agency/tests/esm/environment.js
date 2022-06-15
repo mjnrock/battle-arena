@@ -72,7 +72,8 @@ Console.hr();
 // Console.label("comp.velocity", env1.generators.Entities.squirrel.create().velocity);
 
 // console.log(env1.𝔼)
-const skwrl = env1.𝔼.squirrel.create();
+const { 𝔼, ℂ, 𝕊 } = env1;
+const skwrl = 𝔼.squirrel.create();
 
 console.log(skwrl)
 console.log(skwrl.position)

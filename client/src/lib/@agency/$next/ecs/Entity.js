@@ -23,7 +23,7 @@ export class Entity extends Registry {
 				}
 				
 				const uuid = this.add(comp);
-				this.addAlias(uuid, comp.__name);
+				this.addAlias(uuid, comp.name);
 			}
 		} else if(typeof components === "object") {
 			for(let key in components) {
@@ -39,7 +39,7 @@ export class Entity extends Registry {
 				
 				const uuid = this.add(comp);
 				this.addAlias(uuid, key);
-				this.addAlias(uuid, comp.__name);
+				this.addAlias(uuid, comp.name);
 			}
 		}
 
