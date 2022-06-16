@@ -19,8 +19,8 @@ const game = new Game();
 // 		x: 5.12312,
 // 		y: 35.5,
 // 	},
-// }));
-console.log(game.Environment.Generators.Entities.Squirrel.regenerate());
+// }).Position);
+// console.log(game.Environment.Generators.Entities.Squirrel.regenerate());
 // console.log(game.Environment.Generators.Components.Position.regenerate({ x: 5, y: 3 }));	// Args go to the data.components.Position(x, y)
 // console.log(game.Environment.Generators.Systems.Portal.regenerate());
 

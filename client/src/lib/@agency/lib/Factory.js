@@ -9,8 +9,8 @@ import Registry from "./Registry";
  * properties, which can be optionally overriden.
  */
 export class Factory extends Identity {
-	static Methods = {		
-		Create: (self) => (...args) => {
+	static Creation = {		
+		FromArgs: (self) => (...args) => {
 			let instance;
 			if(args.length) {
 				instance = new self.species(...args);
@@ -20,6 +20,15 @@ export class Factory extends Identity {
 
 			if(typeof self.each === "function") {
 				self.each(instance);
+			}
+
+			return instance;
+		},
+		FromState: (self) => (state = {}) => {
+			const instance = new self.species(...self.args);
+
+			if(typeof self.each === "function") {
+				self.each(instance, state);
 			}
 
 			return instance;

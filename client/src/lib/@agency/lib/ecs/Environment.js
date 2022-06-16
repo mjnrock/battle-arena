@@ -9,7 +9,7 @@ import { singleOrArrayArgs } from "../../util/helper";
 
 export class Environment extends Identity {
 	static Each = {
-		ReseedComponentState: (obj = {}) => (entity, compArgs = {}) => {
+		ReseedComponentState: (registry) => (entity, compArgs = {}) => {
 			/**
 			 * This will only perform work if the arguments passed to the Entity is
 			 * and object of the form:
@@ -20,7 +20,7 @@ export class Environment extends Identity {
 					const comp = entity[ key ];
 					
 					if(comp) {
-						entity.replaceValue(key, obj.Components[ key ].create(state));
+						entity.replaceValue(key, registry[ key ].create(state));
 					}
 				}
 			}
@@ -68,10 +68,12 @@ export class Environment extends Identity {
 					}
 
 					entities[ name ] = new Factory(ent, [ comps, ...entityArgs ], {
-						each: Environment.Each.ReseedComponentState(obj),
+						each: Environment.Each.ReseedComponentState(obj.Components),
 					});
 				} else {
-					entities[ name ] = new Factory(entry, entityArgs);
+					entities[ name ] = new Factory(entry, entityArgs, {
+						each: Environment.Each.ReseedComponentState(obj.Components),
+					});
 				}
 			}
 
