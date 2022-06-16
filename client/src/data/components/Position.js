@@ -2,10 +2,12 @@ import Component from "./../../lib/@agency/lib/ecs/Component";
 
 export const Name = `Position`;
 
-export function Position(x, y) {
+export function Position(state = {}) {
 	return new Component(Name, {
-		x,
-		y,
+		x: 0,
+		y: 0,
+
+		...state,
 	});
 };
 

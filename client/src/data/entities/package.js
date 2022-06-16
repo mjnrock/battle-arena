@@ -5,21 +5,12 @@ export const Entities = {
 
 	Squirrel: [
 		Squirrel,
-		//TODO Allow for the object version below
-		// {
-		// 	Registrar: [],
-		// 	Position: {
-		// 		x: -1.3,
-		// 		y: 0.5,
-		// 	},
-		// },
-		[
-			[ "Position", {
-				x: 0,
-				y: 1,
-			} ],
-			"Registrar",
-		]
+		{
+			Position: {
+				x: -1.3,
+				y: 0.5,
+			},
+		},
 	],
 };
 

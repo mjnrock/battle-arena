@@ -234,6 +234,55 @@ export class Registry extends Identity {
 
 		return this;
 	}
+	remove(key) {
+		const entry = this.__entries.get(key);
+
+		if(entry) {
+			let uuid,
+				results = [];
+			if(entry.isValueType) {
+				uuid = entry.id;
+			} else if(entry.isAliasType) {
+				uuid = entry.value;
+			} else {
+				throw new Error(`Cannot remove a RegistryEntry that is not a value or alias.`);
+			}
+
+			for(let [ key, value ] of this.__entries.entries()) {
+				if(value.isValueType && value.id === uuid) {
+					results.push(this.__entries.delete(key));
+				} else if(value.isAliasType && value.value === uuid) {
+					results.push(this.__entries.delete(key));
+				} else if(value.isPoolType && value.value.has(uuid)) {
+					results.push(value.value.delete(uuid));
+
+					/**
+					 * If the pool is empty, remove it.
+					 */
+					if(value.value.size === 0) {
+						results.push(this.__entries.delete(key));
+					}
+				}
+			}
+
+			return results.some(result => result);
+		}
+
+		return false;
+	}
+	replaceValue(key, value) {
+		const entry = this.__entries.get(key);
+
+		if(entry) {
+			if(entry.isValueType) {
+				entry.value = value;
+			} else if(entry.isAliasType) {
+				this.replaceValue(entry.value, value);
+			}
+		}
+
+		return this;
+	}
 	find(regex, { ids = true, values = false, aliases = true, pools = true } = {}) {
 		const results = [];
 

@@ -52,6 +52,10 @@ export class Component extends Identity {
 			...state,
 		}, { id: this.id, tags: this.tags, ...opts });
 	}
+
+	static Create(name, state = {}, opts = {}) {
+		return new this(name, state, opts);
+	}
 };
 
 export default Component;

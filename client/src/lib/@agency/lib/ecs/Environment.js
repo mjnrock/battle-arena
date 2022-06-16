@@ -8,11 +8,30 @@ import Factory from "./../Factory";
 import { singleOrArrayArgs } from "../../util/helper";
 
 export class Environment extends Identity {
+	static Each = {
+		ReseedComponentState: (obj = {}) => (entity, compArgs = {}) => {
+			/**
+			 * This will only perform work if the arguments passed to the Entity is
+			 * and object of the form:
+			 * { [ ComponentName ]: { ...ComponentState }, ... }
+			 */
+			if(!Array.isArray(compArgs) && typeof compArgs === "object") {
+				for(let [ key, state ] of Object.entries(compArgs)) {
+					const comp = entity[ key ];
+					
+					if(comp) {
+						entity.replaceValue(key, obj.Components[ key ].create(state));
+					}
+				}
+			}
+		},
+	}
+
 	/**
 	 * This function only returns an Object (not a Registry), but replaces
 	 * the leaf-level entries with the instantiated Factories.
 	 */
-	static ParseGeneratorObject(generators = {}, { $args = {} } = {}) {
+	static ParseGeneratorObject(generators = {}) {
 		const obj = {};
 		const { system: systemArgs, component: componentArgs, entity: entityArgs } = (generators.$args || {});
 		
@@ -25,20 +44,32 @@ export class Environment extends Identity {
 				if(Array.isArray(entry)) {
 					const comps = {};
 					let [ ent, compData ] = entry;
-					compData = singleOrArrayArgs(compData);
-					
-					for(let compArgs of compData) {
-						compArgs = singleOrArrayArgs(compArgs);
-						const [ compName, ...initArgs ] = compArgs;
-						
+
+					if(typeof compData === "object"  && !Array.isArray(compData)) {
+						compData = Object.entries(compData);
+					}
+
+					/**
+					 * Ensure compData is iterable
+					 */
+					for(let compArgs of singleOrArrayArgs(compData)) {
+						/**
+						 * Ensure compArgs is iterable
+						 */
+						const [ compName, ...initArgs ] = singleOrArrayArgs(compArgs);
+
 						/**
 						 * If you pass a Factory to the Entity, it will call .create() on it
 						 * and use the result as the Component.
 						 */
-						comps[ compName ] = obj.Components[ compName ].copy(compName, ...initArgs);
+						if(obj.Components[ compName ]) {
+							comps[ compName ] = obj.Components[ compName ].copy(...initArgs);
+						}
 					}
-					
-					entities[ name ] = new Factory(ent, [ comps, ...entityArgs ]);
+
+					entities[ name ] = new Factory(ent, [ comps, ...entityArgs ], {
+						each: Environment.Each.ReseedComponentState(obj),
+					});
 				} else {
 					entities[ name ] = new Factory(entry, entityArgs);
 				}

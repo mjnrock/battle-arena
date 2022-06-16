@@ -9,6 +9,22 @@ import Registry from "./Registry";
  * properties, which can be optionally overriden.
  */
 export class Factory extends Identity {
+	static Methods = {		
+		Create: (self) => (...args) => {
+			let instance;
+			if(args.length) {
+				instance = new self.species(...args);
+			} else {
+				instance = new self.species(...self.args);
+			}
+
+			if(typeof self.each === "function") {
+				self.each(instance);
+			}
+
+			return instance;
+		},
+	};
 	static ParseObject(obj = {}, args = []) {
 		args = singleOrArrayArgs(args);
 
@@ -83,7 +99,7 @@ export class Factory extends Identity {
 		}
 
 		if(typeof this.each === "function") {
-			this.each(instance);
+			this.each(instance, ...(args || this.args));
 		}
 
 		return instance;
