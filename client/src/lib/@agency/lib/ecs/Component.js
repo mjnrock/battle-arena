@@ -70,6 +70,7 @@ export class ComponentRegistry extends Component {
 		super(name, state, { id, tags });
 
 		this.registry = new Registry(entries, registryOpts);
+		console.log(2222222, entries, this.registry)
 
 		return new Proxy(this, {
 			get: (target, key) => {

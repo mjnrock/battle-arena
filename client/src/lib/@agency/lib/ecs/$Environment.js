@@ -1,10 +1,10 @@
 import Identity from "../Identity";
-import Registry from "./../Registry";
+import Registry from "../Registry";
 import Component from "./Component";
 import Entity from "./Entity";
 import System from "./System";
 
-import Factory from "./../Factory";
+import Factory from "../Factory";
 import { singleOrArrayArgs } from "../../util/helper";
 
 export class Environment extends Identity {
@@ -41,40 +41,7 @@ export class Environment extends Identity {
 		if(generators.Entities) {
 			const entities = {};
 			for(let [ name, entry ] of Object.entries(generators.Entities)) {
-				if(Array.isArray(entry)) {
-					const comps = {};
-					let [ ent, compData ] = entry;
-
-					if(typeof compData === "object" && !Array.isArray(compData)) {
-						compData = Object.entries(compData);
-					}
-
-					/**
-					 * Ensure compData is iterable
-					 */
-					for(let compArgs of singleOrArrayArgs(compData)) {
-						/**
-						 * Ensure compArgs is iterable
-						 */
-						const [ compName, ...initArgs ] = singleOrArrayArgs(compArgs);
-
-						/**
-						 * If you pass a Factory to the Entity, it will call .create() on it
-						 * and use the result as the Component.
-						 */
-						if(obj.Components[ compName ]) {
-							comps[ compName ] = obj.Components[ compName ].copy(...initArgs);
-						}
-					}
-
-					entities[ name ] = new Factory(ent, [ comps, ...entityArgs ], {
-						each: Environment.Each.ReseedComponentState(obj.Components),
-					});
-				} else {
-					entities[ name ] = new Factory(entry, entityArgs, {
-						each: Environment.Each.ReseedComponentState(obj.Components),
-					});
-				}
+				
 			}
 
 			obj.Entities = entities;

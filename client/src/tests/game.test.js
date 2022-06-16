@@ -42,10 +42,3 @@ const game = new Game();
 //? Verify that the Realm space is working
 const realm = new Realm();
 // console.log(realm);
-// console.log(realm.maps);
-// console.log(realm.maps.registry.__entries);
-realm.maps.addWithAlias({
-	overworld: new Entity(),
-});
-// console.log(realm.maps.registry.__entries);
-console.log(realm.maps.overworld);

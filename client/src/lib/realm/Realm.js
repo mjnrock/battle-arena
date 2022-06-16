@@ -1,16 +1,18 @@
 import { EntityRegistrar } from "../../data/components/Registrar";
 import Entity from "../@agency/lib/ecs/Entity";
-import Map from "./Map";
+import RealmMap from "./Map";
 
 export class Realm extends Entity {
-	constructor () {
+	constructor (maps = []) {
 		super();
 
 		this.register({
 			maps: EntityRegistrar({}, {
-				overworld: new Map(),
+				overworld: new RealmMap(),
 			}),
 		});
+
+		console.log(987987, this.maps.overworld)
 	}
 };
 
