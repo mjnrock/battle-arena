@@ -1,6 +1,8 @@
+import Entity from "../lib/@agency/lib/ecs/Entity";
 import Console from "../lib/@agency/util/Console";
 
 import Game from "./../lib/Game";
+import Realm from "./../lib/realm/Realm";
 
 Console.NewContext();
 
@@ -37,3 +39,13 @@ const game = new Game();
 // });
 // console.log(registry.getPool("#squirrel", true));
 
+//? Verify that the Realm space is working
+const realm = new Realm();
+// console.log(realm);
+// console.log(realm.maps);
+// console.log(realm.maps.registry.__entries);
+realm.maps.addWithAlias({
+	overworld: new Entity(),
+});
+// console.log(realm.maps.registry.__entries);
+console.log(realm.maps.overworld);

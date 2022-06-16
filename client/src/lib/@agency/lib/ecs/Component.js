@@ -1,4 +1,5 @@
 import Identity from "../Identity";
+import Registry from "../Registry";
 
 /**
  * The Component is a low-level wrapper structure used to store data in the
@@ -7,6 +8,12 @@ import Identity from "../Identity";
 export class Component extends Identity {
 	constructor (name, state = {}, { id, tags } = {}) {
 		super({ id: state.id || id, tags: state.tags || tags });
+
+		if(typeof state !== "object" || Array.isArray(state)) {
+			state = {
+				$value: state,
+			};
+		}
 
 		/**
 		 * Remove the enumerability of .name, but retain the configurable property
@@ -57,5 +64,29 @@ export class Component extends Identity {
 		return new this(name, state, opts);
 	}
 };
+
+export class ComponentRegistry extends Component {
+	constructor (name, state = {}, { id, tags, entries = [], registryOpts = {} } = {}) {
+		super(name, state, { id, tags });
+
+		this.registry = new Registry(entries, registryOpts);
+
+		return new Proxy(this, {
+			get: (target, key) => {
+				if(typeof target[ key ] === "function") {
+					return Reflect.get(target, key);
+				} else if(key === "registry") {
+					return target.registry;
+				} else if(target.registry.has(key)) {
+					return target.registry.get(key);
+				} else if(key in target.registry) {
+					return target.registry[ key ];
+				}
+
+				return Reflect.get(target, key);
+			},
+		});
+	}
+}
 
 export default Component;

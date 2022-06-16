@@ -124,10 +124,19 @@ export class Registry extends Identity {
 		/**
 		 * Classify the value into a Pool for *every* tag that it has
 		 */
-		Tagging: () => function (key, value, entry) {
+		Tagging: ({ typeTagging = false, nameTagging = false } = {}) => function (key, value, entry) {
 			if(typeof value === "object" && value.tags instanceof Set) {
 				for(let tag of value.tags.values()) {
 					this.addToPool(`#${ tag }`, key);
+				}
+
+				if(typeof value === "object") {
+					if(nameTagging && value.name) {
+						this.addToPool(`#${ value.name.toString() }`, key);
+					}
+					if(typeTagging && value.type) {
+						this.addToPool(`#${ value.type.toString() }`, key);
+					}
 				}
 			}
 		},
@@ -187,9 +196,17 @@ export class Registry extends Identity {
 			}
 		} else if(typeof entries === "object") {
 			for(let key in entries) {
-				this.addWithAlias({
-					[ key ]: entries[ key ].next(),
-				});
+				const entry = entries[ key ];
+
+				if(typeof entry === "object" && typeof entry.next === "function") {
+					this.addWithAlias({
+						[ key ]: entries[ key ].next(),
+					});
+				} else {
+					this.addWithAlias({
+						[ key ]: entries[ key ],
+					});
+				}
 			}
 		}
 

@@ -3,6 +3,8 @@ import Environment from "./@agency/lib/ecs/Environment";
 import Components from "../data/components/package";
 import Entities from "../data/entities/package";
 import Systems from "../data/systems/package";
+import Realm from "./realm/Realm";
+import Map from "./realm/Map";
 
 /**
  * Game is the main class for the game engine, holding all the systems and entities,
@@ -67,6 +69,9 @@ export class Game {
 	}
 	init() {
 		//TODO Create a Realm, Map, Player
+		this.Realm = new Realm([
+			new Map(),
+		]);
 		
 		return this;
 	}

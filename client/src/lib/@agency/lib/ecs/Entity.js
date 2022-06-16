@@ -23,8 +23,30 @@ export class Entity extends Registry {
 		return data[ Symbol.iterator ]();
 	}
 
+	addComponent(name, state = {}, opts = {}) {
+		const comp = name instanceof Component ? name : new Component(name, state, opts);
+
+		this.register(comp);
+
+		return comp;
+	}
+	removeComponent(name) {
+		const comp = this.get(name instanceof Component ? name.name : name);
+
+		if(comp) {
+			this.unregister(comp);
+
+			return true;
+		}
+
+		return false;
+	}
+
 	register(components = {}) {
-		if(Array.isArray(components)) {
+		if(components instanceof Component) {
+			const uuid = this.add(components);
+			this.addAlias(uuid, components.name);
+		} else if(Array.isArray(components)) {
 			for(let key in components) {
 				let comp = components[ key ];
 

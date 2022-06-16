@@ -1,18 +1,16 @@
-import Entity from "../@agency/core/ecs/Entity";
-import Registry from "../@agency/core/Registry";
-
-import { EntityRegistry } from "../../data/components/Registry";
-import EMap from "./Map";
+import { EntityRegistrar } from "../../data/components/Registrar";
+import Entity from "../@agency/lib/ecs/Entity";
+import Map from "./Map";
 
 export class Realm extends Entity {
-	constructor (maps = []) {
+	constructor () {
 		super();
 
-		this.Maps = new Registry(maps, {
-			encoder: Registry.Encoders.InstanceOf(EMap),
+		this.register({
+			maps: EntityRegistrar({}, {
+				overworld: new Map(),
+			}),
 		});
-
-		this.register(EntityRegistry());
 	}
 };
 
