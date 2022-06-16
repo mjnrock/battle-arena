@@ -1,4 +1,4 @@
-const filename = `environment`;
+const filename = `component`;
 
 require("dotenv").config();
 require = require("esm")(module/*, options*/)
