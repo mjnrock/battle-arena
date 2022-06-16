@@ -306,6 +306,22 @@ export class Registry extends Identity {
 		return [];
 	}
 
+	getPool(name, asRegistry = false) {
+		const pool = this.get(name);
+
+		if(pool) {
+			/**
+			 * Optionally return the Pool as a new Registry
+			 */
+			if(asRegistry) {
+				return new Registry(pool);
+			}
+			
+			return pool;
+		}
+
+		return [];
+	}
 	setPool(name, ...uuids) {
 		const poolEntry = this.__entries.get(name);
 

@@ -49,16 +49,8 @@ export class Environment extends Identity {
 		return obj;
 	}
 
-	constructor ({ instances = [], generators = {}, config = {}, id, tags } = {}) {
+	constructor ({ instances = [], generators = {}, id, tags } = {}) {
 		super({ id, tags });
-
-		/**
-		 * Optionally allow for a custom config object
-		 */
-		this.config = {
-			// Default config
-		};
-		this.mergeConfig(config);
 		
 		/**
 		 * These are basically Factory-leaf, namespace-trees

@@ -10,7 +10,7 @@ export class Map extends ASystem {
 		leave: () => {},
 	};
 
-	constructor(game, events = {}, agent = {}) {
+	constructor(game, events = [], agent = {}) {
 		super(game, events, agent);
 	}
 };

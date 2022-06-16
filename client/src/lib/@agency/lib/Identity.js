@@ -4,39 +4,18 @@ import { singleOrArrayArgs } from "../util/helper";
 
 export class Identity {
 	constructor ({ id, tags = [] } = {}) {
-		this.id = id || uuid();
-		
+		Reflect.defineProperty(this, "id", {
+			enumerable: true,
+			configurable: false,
+			writable: true,
+			value: id || uuid(),
+		});
 		Reflect.defineProperty(this, "tags", {
 			enumerable: false,
 			configurable: false,
 			writable: true,
 			value: new Set(singleOrArrayArgs(tags)),
 		});
-		Reflect.defineProperty(this, "__config", {
-			enumerable: false,
-			configurable: false,
-			writable: true,
-			value: {},
-		});
-
-		return this;
-	}
-
-	getConfig() {
-		return this.__config;
-	}
-	setConfig(config = {}) {
-		this.__config = config;
-
-		return this;
-	}
-	mergeConfig(config = {}) {
-		this.__config = {
-			...this.__config,
-			...config,
-		};
-
-		return this;
 	}
 
 	deconstructor() {}

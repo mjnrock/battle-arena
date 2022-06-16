@@ -6,7 +6,7 @@ export class Portal extends ASystem {
 		activate: () => {},
 	};
 
-	constructor(game, events = {}, agent = {}) {
+	constructor(game, events = [], agent = {}) {
 		super(game, events, agent);
 	}
 };

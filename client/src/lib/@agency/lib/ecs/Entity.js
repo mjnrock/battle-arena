@@ -6,11 +6,7 @@ export class Entity extends Registry {
 	constructor (components = [], { id, tags } = {}) {
 		super([], { id, tags });
 
-		this.addClassifiers(
-			Registry.Classifiers.InstanceOf(Component),
-			Registry.Classifiers.InstanceOf(Registry),
-			Registry.Classifiers.InstanceOf(Entity),
-		);
+		this.addClassifier(Registry.Classifiers.InstanceOf(Component, Registry, Entity));
 
 		this.register(components);
 	}

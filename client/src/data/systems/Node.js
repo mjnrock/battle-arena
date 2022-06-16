@@ -7,7 +7,7 @@ export class Node extends ASystem {
 		portal: () => {},
 	};
 
-	constructor(game, events = {}, agent = {}) {
+	constructor(game, events = [], agent = {}) {
 		super(game, events, agent);
 	}
 };

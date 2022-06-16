@@ -1,9 +1,17 @@
 import Identity from "../Identity";
 
+/**
+ * The Component is a low-level wrapper structure used to store data in the
+ * Entity.
+ */
 export class Component extends Identity {
 	constructor (name, state = {}, { id, tags } = {}) {
 		super({ id: state.id || id, tags: state.tags || tags });
 
+		/**
+		 * Remove the enumerability of .name, but retain the configurable property
+		 * so that it can be changed, if desired.
+		 */
 		Reflect.defineProperty(this, "name", {
 			enumerable: false,
 			configurable: true,
@@ -11,6 +19,10 @@ export class Component extends Identity {
 			value: name,
 		});
 
+		/**
+		 * Load all properties from the state into the Component, so long as the
+		 * property is writable.
+		 */
 		for(let key in state) {
 			const attributes = Object.getOwnPropertyDescriptor(this, key);
 			if(!attributes || (attributes && attributes.writable)) {
@@ -18,6 +30,9 @@ export class Component extends Identity {
 			}
 		}
 
+		/**
+		 * A Component must have a name.
+		 */
 		if(!this.name) {
 			throw new Error("Component must have a name.");
 		}

@@ -5,7 +5,7 @@ export class Terrain extends ASystem {
 		assign: () => {},
 	};
 
-	constructor(game, events = {}, agent = {}) {
+	constructor(game, events = [], agent = {}) {
 		super(game, events, agent);
 	}
 };

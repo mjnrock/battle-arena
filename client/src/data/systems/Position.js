@@ -5,7 +5,7 @@ export class Position extends ASystem {
 		move: () => {},
 	};
 
-	constructor(game, events = {}, agent = {}) {
+	constructor(game, events = [], agent = {}) {
 		super(game, events, agent);
 	}
 };

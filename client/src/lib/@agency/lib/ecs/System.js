@@ -22,6 +22,7 @@ export class System extends Identity {
 		}
 
 		for(let [ event, handlerSet ] of events) {
+			handlerSet = singleOrArrayArgs(handlerSet);
 			if(!this.events.has(event)) {
 				this.events.set(event, new Set());
 			}
