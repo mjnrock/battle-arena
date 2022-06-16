@@ -12,11 +12,12 @@ export class Environment extends Identity {
 	 * This function only returns an Object (not a Registry), but replaces
 	 * the leaf-level entries with the instantiated Factories.
 	 */
-	static ParseGeneratorObject(generators = {}) {
+	static ParseGeneratorObject(generators = {}, { $args = {} } = {}) {
 		const obj = {};
+		const { system: systemArgs, component: componentArgs, entity: entityArgs } = (generators.$args || {});
 		
-		obj.Components = Factory.ParseObject(generators.Components || {});
-		obj.Systems = Factory.ParseObject(generators.Systems || {});
+		obj.Components = Factory.ParseObject(generators.Components || {}, componentArgs);
+		obj.Systems = Factory.ParseObject(generators.Systems || {}, systemArgs);
 
 		if(generators.Entities) {
 			const entities = {};
@@ -28,18 +29,18 @@ export class Environment extends Identity {
 					
 					for(let compArgs of compData) {
 						compArgs = singleOrArrayArgs(compArgs);
-						const [ name, ...args ] = compArgs;
+						const [ compName, ...initArgs ] = compArgs;
 						
 						/**
 						 * If you pass a Factory to the Entity, it will call .create() on it
 						 * and use the result as the Component.
 						 */
-						comps[ name ] = obj.Components[ name ].copy(name, ...args);
+						comps[ compName ] = obj.Components[ compName ].copy(compName, ...initArgs);
 					}
 					
-					entities[ name ] = new Factory(ent, [ comps ]);
+					entities[ name ] = new Factory(ent, [ comps, ...entityArgs ]);
 				} else {
-					entities[ name ] = new Factory(entry);
+					entities[ name ] = new Factory(entry, entityArgs);
 				}
 			}
 

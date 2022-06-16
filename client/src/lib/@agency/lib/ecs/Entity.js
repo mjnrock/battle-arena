@@ -49,6 +49,9 @@ export class Entity extends Registry {
 					if(!(comp instanceof Component)) {
 						throw new Error("Factory .species must be a Component.");
 					}
+				} else if(comp instanceof Component) {
+					//TODO Allow for variables to be passed through to the Component
+					comp = comp.next();
 				}
 
 				const uuid = this.add(comp);

@@ -44,10 +44,22 @@ export class Game {
 	pre() {
 		this.Environment = new Environment({
 			generators: {
+				/**
+				 * System needs the Game instance as first argument -- generator will ensure
+				 * that args are an Array.
+				 */
+				$args: {
+					system: this,
+					entity: [],
+					component: [],
+				},
+
+				/**
+				 * The main generators for the Game, loaded externally and used here.
+				 */
 				Components,
 				Entities,
-				//FIXME This generator should auto-assign the @game, but currently it requires instantiation first (via Factory?)
-				Systems: Systems,
+				Systems,
 			},
 		});
 

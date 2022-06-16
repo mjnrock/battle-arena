@@ -9,10 +9,30 @@ const game = new Game();
 // console.log(game);
 
 //? Verify that generators are working
-// console.log(game.Environment.Generators.Entities.Squirrel.create());
+console.log(game.Environment.Generators.Entities.Squirrel.create({
+	//TODO Allow for component overrides to occur like this -- currently it overwrites the Component
+	// First argument only
+	Position: {
+		x: 3,
+		y: 5,
+	},
+	Registrar: [ "fish" ],
+
+	// Spread arguments
+	// Position: [
+	// 	{
+	// 		x: 2,
+	// 		y: 4,
+	// 	},
+	// 	{
+	// 		tags: [ "skwrl" ],
+	// 	},
+	// ],
+}).Position);
+console.log(game.Environment.Generators.Entities.Squirrel.create().Position);
 // console.log(game.Environment.Generators.Components.Position.create(5, 3));	// Args go to the data.components.Position(x, y)
 // console.log(game.Environment.Generators.Components.Registrar.create());
-console.log(game.Environment.Generators.Systems.Portal.create(game));	//FIXME Modify so @game is already present
+// console.log(game.Environment.Generators.Systems.Portal.create());
 
 // const ent = game.Environment.Generators.Entities.Squirrel.create();
 // const ent2 = game.Environment.Generators.Entities.Squirrel.create();

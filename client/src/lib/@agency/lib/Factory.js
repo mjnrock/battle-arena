@@ -9,14 +9,16 @@ import Registry from "./Registry";
  * properties, which can be optionally overriden.
  */
 export class Factory extends Identity {
-	static ParseObject(obj = {}) {
+	static ParseObject(obj = {}, args = []) {
+		args = singleOrArrayArgs(args);
+
 		const result = {};
 		for(let [ key, entry ] of Object.entries(obj)) {
 			if(Array.isArray(entry)) {
-				const [ comp, ...args ] = entry;
-				result[ key ] = new Factory(comp, args);
+				const [ clazz, ...initArgs ] = entry;
+				result[ key ] = new Factory(clazz, [ ...initArgs, ...args ]);
 			} else {
-				result[ key ] = new Factory(entry);
+				result[ key ] = new Factory(entry, args);
 			}
 		}
 
