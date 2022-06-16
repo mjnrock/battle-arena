@@ -1,4 +1,3 @@
-import Registry from "../lib/@agency/lib/Registry";
 import Console from "../lib/@agency/util/Console";
 
 import Game from "./../lib/Game";
@@ -9,17 +8,23 @@ const game = new Game();
 // console.log(game);
 
 //? Verify that generators are working
-console.log(game.Environment.Generators.Entities.Squirrel.create({
+console.log(game.Environment.Generators.Entities.Squirrel.regenerateMany(3, {
 	Position: {
 		x: 5.12312,
 		y: 35.5,
 	},
-}).Position);
-// console.log(game.Environment.Generators.Entities.Squirrel.create().Position);
+}));
+console.log(game.Environment.Generators.Entities.Squirrel.regenerate({
+	Position: {
+		x: 5.12312,
+		y: 35.5,
+	},
+}));
+// console.log(game.Environment.Generators.Entities.Squirrel.create().__entries);
 // console.log(game.Environment.Generators.Components.Position.create({ x: 5, y: 3 }));	// Args go to the data.components.Position(x, y)
-// console.log(game.Environment.Generators.Components.Registrar.create());
 // console.log(game.Environment.Generators.Systems.Portal.create());
 
+//? Verify that the tagging and pool results are working
 // const ent = game.Environment.Generators.Entities.Squirrel.create();
 // const ent2 = game.Environment.Generators.Entities.Squirrel.create();
 // ent.tags.add("squirrel");
@@ -31,3 +36,4 @@ console.log(game.Environment.Generators.Entities.Squirrel.create({
 // 	],
 // });
 // console.log(registry.getPool("#squirrel", true));
+

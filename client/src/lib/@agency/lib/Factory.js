@@ -107,7 +107,7 @@ export class Factory extends Identity {
 	/**
 	 * Create multiple instances of the species, ultimately through .create
 	 */
-	createMany(qty = 1, args = [], each) {		
+	createMany(qty = 1, args = []) {		
 		args = singleOrArrayArgs(args);
 
 		const instances = [];		
@@ -121,8 +121,8 @@ export class Factory extends Identity {
 			const instance = this.create(...newArgs);
 			instances.push(instance);
 
-			if(typeof each === "function") {
-				each(i, instance, this);
+			if(typeof this.each === "function") {
+				this.each(instance, ...(args.length ? args : this.args));
 			}
 		}
 
@@ -141,6 +141,32 @@ export class Factory extends Identity {
 		});
 	
 		return registry;
+	}
+
+	/**
+	 * This is similar to .create, but will **always** use the default arguments and
+	 * it should always be used with a .each function that provides override work.
+	 * e.g. Environment.Each.ReseedComponentState
+	 */
+	regenerate(state = {}) {
+		const instance = new this.species(...this.args);
+
+		if(typeof this.each === "function") {
+			this.each(instance, state);
+		}
+
+		return instance;
+	}
+	regenerateMany(qty, state = {}) {
+		const instances = [];
+		const nextState = typeof state === "function" ? state() : state;
+
+		for(let i = 0; i < qty; i++) {
+			const instance = this.regenerate(nextState);
+			instances.push(instance);
+		}
+
+		return instances;
 	}
 
 
