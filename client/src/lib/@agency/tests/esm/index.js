@@ -2,4 +2,4 @@ const filename = `component`;
 
 require("dotenv").config();
 require = require("esm")(module/*, options*/)
-module.exports = require(`./${ filename }.js`);
+module.exports = require(`./${ filename }.test.js`);
