@@ -528,7 +528,7 @@ export class Registry extends Component {
 	/**
 	 * The .keys, .values, and .entries getters will select only RegistryEntry.Type.VALUE entries.
 	 */
-	keys() {
+	get keys() {
 		const results = [];
 		for(let [ id, entry ] of this) {
 			if(entry.isValueType) {
@@ -538,7 +538,7 @@ export class Registry extends Component {
 
 		return results;
 	}
-	values() {
+	get values() {
 		const results = [];
 		for(let [ id, entry ] of this._entries.entries()) {
 			if(entry.isValueType) {
@@ -548,7 +548,7 @@ export class Registry extends Component {
 
 		return results;
 	}
-	entries() {
+	get entries() {
 		const results = [];
 		for(let [ id, entry ] of this._entries.entries()) {
 			if(entry.isValueType) {

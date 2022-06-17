@@ -1,8 +1,9 @@
 import { validate } from "uuid";
 
-import { spreadFirstElementOrArray } from "../util/helper";
 import Identity from "./Identity";
 import Component from "./Component";
+
+import { singleOrArrayArgs } from "../util/helper";
 
 export class RegistryEntry extends Identity {
 	static Type = {
@@ -53,9 +54,9 @@ export class Registry extends Component {
 			if(entryOrValue instanceof RegistryEntry) {
 				const key = id || entryOrValue.id;
 
-				self._entries.set(key, entryOrValue);
+				self.__entries.set(key, entryOrValue);
 
-				for(let classifier of self._config.classifiers.values()) {
+				for(let classifier of self.__config.classifiers.values()) {
 					classifier.call(self, key, entryOrValue.value, entryOrValue);
 				}
 
@@ -80,7 +81,7 @@ export class Registry extends Component {
 	static Decoders = {
 		Default: (self) => (input) => {
 			if(self.has(input)) {
-				return this.Decoders.Default(self)(self._entries.get(input));
+				return this.Decoders.Default(self)(self.__entries.get(input));
 			} else if(input instanceof RegistryEntry) {
 				switch(input.type) {
 					case RegistryEntry.Type.VALUE:
@@ -144,15 +145,23 @@ export class Registry extends Component {
 		},
 	};
 
-	/**
-	 * @param {RegistryEntry} entries **Must** have RegistryEntry as values/elements
-	 * @param {*} compArgs 
-	 */
-	constructor (entries = {}, { config, encoder, decoder, classifiers, ...rest } = {}) {
-		super({ ...rest });
+	constructor (entries = [], { config = {}, encoder, decoder, classifiers = [], id, tags } = {}) {
+		super({ id, tags });
 
 		this._entries = new Map();
+		this._meta = new Map();
+		this._cache = new WeakMap();
 		this._config = {
+
+			//TODO Implement the cache
+			/**
+			 * Utilize the WeakMap to store relationship information (e.g. aliases, pools, etc.) between RegistryEntries,
+			 * so that they can be easily cleaned up when the RegistryEntry is removed, without excessive iteration.
+			 * The @cacheThreshold is the minimum __entries.size before the cache is auto-refreshed.
+			 */
+			autoRefresh: true,
+			cacheThreshold: 100,
+
 			/**
 			 * Middleware to be applied to all entries before they are get or set.
 			 */
@@ -162,11 +171,10 @@ export class Registry extends Component {
 			/**
 			 * Middleware that auto classifies entries into aliases or pools.
 			 */
-			classifiers: new Set(),
+			classifiers: new Set(classifiers),
 		};
 
 		this.mergeConfig(config);
-		this.addClassifiers(classifiers);
 		this.register(entries);
 
 		return new Proxy(this, {
@@ -188,10 +196,16 @@ export class Registry extends Component {
 		if(typeof entries === "object") {
 			for(let key in entries) {
 				const entry = entries[ key ];
-				
-				this.addMany({
-					[ key ]: entry,
-				});
+
+				if(entry instanceof Component) {
+					this.addWithAlias({
+						[ key ]: entries[ key ].next(),
+					});
+				} else {
+					this.addWithAlias({
+						[ key ]: entries[ key ],
+					});
+				}
 			}
 		}
 
@@ -204,7 +218,7 @@ export class Registry extends Component {
 	setConfig(config = {}) {
 		this.config = config;
 
-		return this.getConfig();
+		return this;
 	}
 	mergeConfig(config = {}) {
 		this.config = {
@@ -212,7 +226,7 @@ export class Registry extends Component {
 			...config
 		};
 
-		return this.getConfig();
+		return this;
 	};
 
 	get(id) {
@@ -227,26 +241,11 @@ export class Registry extends Component {
 	add(value, id, config = {}, encoderArgs = []) {
 		return this._config.encoder(this, ...encoderArgs)(value, id, config);
 	}
-	addMany(obj = {}) {
+	addWithAlias(obj = {}) {
 		for(let alias in obj) {
 			const uuid = this.add(obj[ alias ]);
 
-			if(uuid !== alias) {
-				this.addAlias(uuid, alias);
-			}
-		}
-
-		return this;
-	}
-	replaceValue(key, value) {
-		const entry = this._entries.get(key);
-
-		if(entry) {
-			if(entry.isValueType) {
-				entry.value = value;
-			} else if(entry.isAliasType) {
-				this.replaceValue(entry.value, value);
-			}
+			this.addAlias(uuid, alias);
 		}
 
 		return this;
@@ -287,8 +286,22 @@ export class Registry extends Component {
 
 		return false;
 	}
+	replaceValue(key, value) {
+		const entry = this._entries.get(key);
+
+		if(entry) {
+			if(entry.isValueType) {
+				entry.value = value;
+			} else if(entry.isAliasType) {
+				this.replaceValue(entry.value, value);
+			}
+		}
+
+		return this;
+	}
 	find(regex, { ids = true, values = false, aliases = true, pools = true } = {}) {
 		const results = [];
+
 		for(let [ id, entry ] of this._entries) {
 			if(pools && entry.isPoolType) {
 				for(let value of entry.value) {
@@ -321,38 +334,6 @@ export class Registry extends Component {
 
 		return null;
 	}
-	
-	addClassifier(classifier) {
-		if(typeof classifier === "function") {
-			this._config.classifiers.add(classifier.bind(this));
-		}
-
-		return this;
-	}
-	addClassifiers(...classifiers) {
-		classifiers = spreadFirstElementOrArray(classifiers);
-		
-		for(let classifier of classifiers) {
-			this.addClassifier(classifier);
-		}
-
-		return this;
-	}
-	removeClassifier(classifier) {
-		return this._config.classifiers.delete(classifier);
-	}
-	removeClassifiers(...classifiers) {
-		classifiers = spreadFirstElementOrArray(classifiers);
-
-		const removed = [];
-		for(let classifier of classifiers) {
-			if(this.removeClassifier(classifier)) {
-				removed.push(classifier);
-			}
-		}
-
-		return removed;
-	}
 
 	addAlias(uuid, ...aliases) {
 		if(this.has(uuid)) {
@@ -363,9 +344,6 @@ export class Registry extends Component {
 
 		return this;
 	}
-	/**
-	 * { [ alias ] : uuid, [ alias ] : [ ...uuid ]("Pool"), ... }
-	 */
 	addAliasObject(obj = {}) {
 		let entries;
 		if(Array.isArray(obj)) {
@@ -374,24 +352,23 @@ export class Registry extends Component {
 			entries = Object.entries(obj);
 		}
 
-		for(let [ alias, uuid ] of entries) {
-			if(Array.isArray(uuid)) {
-				this.setPool(alias, uuid);
-			} else if(this.has(uuid)) {
-				this.addAlias(uuid, alias);
-			}
+		for(let [ id, value ] of entries) {
+			this.addAlias(id, value);
 		}
 
 		return this;
 	}
 	removeAlias(uuid, ...aliases) {
 		if(this.has(uuid)) {
+			const results = [];
 			for(let alias of aliases) {
-				this.remove(alias);
+				results.push(this.remove(alias));
 			}
+
+			return results;
 		}
 
-		return this;
+		return [];
 	}
 
 	getPool(name, asRegistry = false) {
@@ -412,13 +389,12 @@ export class Registry extends Component {
 	}
 	setPool(name, ...uuids) {
 		const poolEntry = this._entries.get(name);
-		const cleanedUuids = uuids.filter(uuid => validate(uuid) && this.has(uuid));
 
 		if(poolEntry && poolEntry.isPoolType) {
-			poolEntry.value = new Set(cleanedUuids);
+			poolEntry.value = new Set(uuids);
 		} else if(!this.has(name)) {
 
-			this.set(name, new RegistryEntry(new Set(cleanedUuids), RegistryEntry.Type.POOL));
+			this.set(name, new RegistryEntry(new Set(uuids), RegistryEntry.Type.POOL));
 		}
 
 		return this;
@@ -528,7 +504,7 @@ export class Registry extends Component {
 	/**
 	 * The .keys, .values, and .entries getters will select only RegistryEntry.Type.VALUE entries.
 	 */
-	keys() {
+	get keys() {
 		const results = [];
 		for(let [ id, entry ] of this) {
 			if(entry.isValueType) {
@@ -538,7 +514,7 @@ export class Registry extends Component {
 
 		return results;
 	}
-	values() {
+	get values() {
 		const results = [];
 		for(let [ id, entry ] of this._entries.entries()) {
 			if(entry.isValueType) {
@@ -548,7 +524,7 @@ export class Registry extends Component {
 
 		return results;
 	}
-	entries() {
+	get entries() {
 		const results = [];
 		for(let [ id, entry ] of this._entries.entries()) {
 			if(entry.isValueType) {
@@ -573,46 +549,36 @@ export class Registry extends Component {
 		return this._entries.size;
 	}
 
-	static MapRegistryEntries(entries = {}, baseMap) {
-		/**
-		 * Short-circuit if no entries are provided.
-		 */
-		if(Object.keys(entries).length === 0 || (baseMap != null && !(baseMap instanceof Map))) {
-			return baseMap || new Map();
+	addClassifier(classifier) {
+		if(typeof classifier === "function") {
+			this._config.classifiers.add(classifier.bind(this));
 		}
 
-		/**
-		 * Optionally allow a base Map to be provided.
-		 */
-		const map = baseMap || new Map();
-		if(entries instanceof Map) {
-			/**
-			 * If the entries are already a Map, just copy it.
-			 */
-			return this.MapRegistryEntries(Object.fromEntries(entries));
-		} else if(Array.isArray(entries)) {
-			/**
-			 * Only allow RegistryEntry arrays
-			 */
-			for(let entry of entries) {
-				if(entry instanceof RegistryEntry) {
-					map.set(entry.id, entry);
-				}
-			}
-		} else if(typeof entries === "object") {
-			/**
-			 * If the entries are an object, map each entry to an aliased RegistryEntry.
-			 */
-			for(let [ id, entry ] of Object.entries(entries)) {
-				if(entry instanceof RegistryEntry) {
-					map.set(id, entry);
-				}
-			}
-		} else if(entries instanceof Registry) {
-			map.set(entries.id, entries);
+		return this;
+	}
+	addClassifiers(...classifiers) {
+		classifiers = singleOrArrayArgs(classifiers);
+
+		for(let classifier of classifiers) {
+			this.addClassifier(classifier);
 		}
 
-		return map;
+		return this;
+	}
+	removeClassifier(classifier) {
+		return this._config.classifiers.delete(classifier);
+	}
+	removeClassifiers(...classifiers) {
+		classifiers = singleOrArrayArgs(classifiers);
+
+		const removed = [];
+		for(let classifier of classifiers) {
+			if(this.removeClassifier(classifier)) {
+				removed.push(classifier);
+			}
+		}
+
+		return removed;
 	}
 }
 
