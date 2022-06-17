@@ -4,14 +4,24 @@ import Registry from "./Registry";
 export class Entity extends Registry {
 	constructor (components = {}, { state = {}, ...opts } = {}) {
 		super({}, {
+			/**
+			 * By default, only allow components to be added to the entity.
+			 */
 			encoder: Registry.Encoders.InstanceOf(Component),
+
+			/**
+			 * By default, classify components by any tags that they have.
+			 */
 			classifiers: [
-				Registry.Classifiers.InstanceOf(Component),
+				Registry.Classifiers.Tagging(),
 			],
 
 			...opts,
 		});
 
+		/**
+		 * Register all provided components.
+		 */
 		this.register(components);
 
 		/**
@@ -20,7 +30,7 @@ export class Entity extends Registry {
 		this._state = state;
 	}
 
-	send(emitter, { namespace, event, data } = {}) {
+	send(emitter, { namespace, event, data, filter, ...rest } = {}) {
 		/**
 		 * Enforce that the emitter is a Component.
 		 */
@@ -30,6 +40,13 @@ export class Entity extends Registry {
 
 		for(let component of this.values()) {
 			/**
+			 * Optionally ignore any components that do not match the filter.
+			 */
+			if(typeof filter === "function" && filter(component) !== true) {
+				continue;
+			}
+
+			/**
 			 * Prevent sending message to self.
 			 */
 			if(emitter.id !== component.id) {
@@ -37,7 +54,9 @@ export class Entity extends Registry {
 					namespace,
 					event,
 					data,
-					state: this._state
+					state: this._state,
+					
+					...rest,
 				});
 			}
 		}

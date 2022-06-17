@@ -322,6 +322,21 @@ export class Registry extends Component {
 		return null;
 	}
 	
+	setEncoder(encoder) {
+		if(typeof encoder === "function") {
+			this._config.encoder = encoder;
+		}
+
+		return this;
+	}
+	setDecoder(decoder) {
+		if(typeof decoder === "function") {
+			this._config.decoder = decoder;
+		}
+
+		return this;
+	}
+	
 	addClassifier(classifier) {
 		if(typeof classifier === "function") {
 			this._config.classifiers.add(classifier.bind(this));
