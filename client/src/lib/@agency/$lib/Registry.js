@@ -1,7 +1,7 @@
 import { validate } from "uuid";
 
 import Identity from "./Identity";
-import Component from "./Component";
+import Entity from "./Component";
 
 import { singleOrArrayArgs } from "../util/helper";
 
@@ -43,7 +43,7 @@ export class RegistryEntry extends Identity {
 	}
 }
 
-export class Registry extends Component {
+export class Registry extends Entity {
 	static Encoders = {
 		Default: (self) => (entryOrValue, id, config) => {
 			/**
@@ -197,7 +197,7 @@ export class Registry extends Component {
 			for(let key in entries) {
 				const entry = entries[ key ];
 
-				if(entry instanceof Component) {
+				if(entry instanceof Entity) {
 					this.addWithAlias({
 						[ key ]: entries[ key ].next(),
 					});

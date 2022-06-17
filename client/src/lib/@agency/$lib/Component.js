@@ -36,6 +36,12 @@ export class Component extends Identity {
 			...state,
 		}, { id, tags });
 	}
+	copy({ id = true, tags } = {}) {
+		return Component.Copy(this, { id, tags });
+	}
+	recreate({ id = true, tags } = {}) {
+		return Component.Recreate(this, { id, tags });
+	}
 
 	[ Symbol.iterator ]() {
 		return Object.entries(this)[ Symbol.iterator ]();
@@ -51,6 +57,10 @@ export class Component extends Identity {
 	 */
 	static Upsert(self, state = {}) {
 		for(let key in state) {
+			if(key === "id" || key === "tags") {
+				continue;
+			}
+
 			const attributes = Object.getOwnPropertyDescriptor(self, key);
 			if(!attributes || (attributes && attributes.writable)) {
 				self[ key ] = state[ key ];
@@ -60,12 +70,26 @@ export class Component extends Identity {
 		return self;
 	}
 	static Copy(self, { id = true, tags } = {}) {
-		return self.next(self._args.state, { id, tags });
+		return new self.constructor({
+			name: self.name,
+			state: self,
+			id,
+			tags,
+		});
+	}
+	static Recreate(self, { id = true, tags } = {}) {
+		return new self.constructor({
+			name: self.name,
+			state: self._args.state,
+			id,
+			tags,
+		});
 	}
 
 	static Next(self, state, { id, tags } = {}) {
 		let newId = id || self.id,
 			newTags = tags || self.tags;
+
 
 		if(id === true) {
 			newId = uuid();
@@ -74,7 +98,12 @@ export class Component extends Identity {
 			newTags = new Set();
 		}
 
-		return new self.constructor(self.name, state || self, { id: newId, tags: newTags });
+		return new self.constructor({
+			name: self.name,
+			state: state || self,
+			id: newId,
+			tags: newTags,
+		});
 	}
 	static Delta(self, state, { id, tags } = {}) {
 		let newId = id || self.id,
@@ -87,10 +116,15 @@ export class Component extends Identity {
 			newTags = new Set();
 		}
 
-		return new self.constructor(self.name, {
-			...self,
-			...state,
-		}, { id: newId, tags: newTags });
+		return new self.constructor({
+			name: self.name,
+			state: {
+				...self,
+				...state,
+			},
+			id: newId,
+			tags: newTags,
+		});
 	}
 }
 
