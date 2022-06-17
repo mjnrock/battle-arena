@@ -4,6 +4,11 @@ export class Component extends Identity {
 	constructor ({ name, id, tags, next, delta, receive } = {}) {
 		super({ id, tags });
 
+		/**
+		 * Create a hidden property to uniquely identify the Component.
+		 * Once set, it cannot be changed; to change it, create a new
+		 * Component instance.
+		 */
 		Reflect.defineProperty(this, "name", {
 			enumerable: false,
 			configurable: false,
@@ -11,6 +16,9 @@ export class Component extends Identity {
 			value: name,
 		});
 
+		/**
+		 * Provide override assignments, if any
+		 */
 		if(typeof next === "function") {
 			this.next = next;
 		}
@@ -22,27 +30,30 @@ export class Component extends Identity {
 		}
 	}
 
+	/**
+	 * Allow the Component to be iterated over by its key-value pairs.
+	 */
 	[ Symbol.iterator ]() {
 		return Object.entries(this)[ Symbol.iterator ]();
 	}
 
 	/**
 	 * Determine the next state of the Component, or optinally
-	 * return a new Component instance
+	 * return a new Component instance.
 	 */
 	next(...args) {
 		return this;
 	}
 
 	/**
-	 * A merge-equivalent of the next() method
+	 * A merge-equivalent of the next() method.
 	 */
 	delta(state = {}, ...args) {
 		return this;
 	}
 
 	/**
-	 * Receive data from another Component
+	 * Receive data from another Component.
 	 */
 	receive({ namespace, event, data } = {}) {}
 };

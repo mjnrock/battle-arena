@@ -25,11 +25,14 @@ export class Entity extends Registry {
 		this.register(components);
 
 		/**
-		 * Optionally include a *shareable* state on the Entity
+		 * Optionally include a *shareable* state on the Entity.
 		 */
 		this._state = state;
 	}
 
+	/**
+	 * Broadcast a message payload to all components registered to the Entity.
+	 */
 	send(emitter, { namespace, event, data, filter, ...rest } = {}) {
 		/**
 		 * Enforce that the emitter is a Component.
@@ -55,7 +58,7 @@ export class Entity extends Registry {
 					event,
 					data,
 					state: this._state,
-					
+
 					...rest,
 				});
 			}
