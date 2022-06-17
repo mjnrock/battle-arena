@@ -1,13 +1,12 @@
-import { singleOrArrayArgs } from "../util/helper";
-import Entity from "./Component";
+import { coerceToIterable } from "../util/helper";
+import Component from "./Component";
 
-export class Events extends Entity {
-	constructor (eventObj, { id, tags } = {}) {
-		super({ id, tags });
+export class Events extends Component {
+	constructor ({ handlers, ...comp } = {}) {
+		super({ handlers, ...comp });
 
 		this.handlers = new Map();
-
-		this.addHandlers(eventObj);
+		this.addHandlers(handlers);
 	}
 
 	addHandler(event, handler) {
@@ -15,7 +14,7 @@ export class Events extends Entity {
 			this.handlers.set(event, new Set());
 		}
 
-		const handlers = singleOrArrayArgs(handler);
+		const handlers = coerceToIterable(handler);
 		for(let fn of handlers) {
 			if(typeof fn === "function") {
 				this.handlers.get(event).add(fn);
@@ -24,8 +23,12 @@ export class Events extends Entity {
 
 		return this;
 	}
-	addHandlers(eventObj = {}) {
-		for (let [ event, handler ] of Object.entries(eventObj)) {
+	addHandlers(handlerObj = {}) {
+		if(handlerObj instanceof Map) {
+			handlerObj = Object.fromEntries(handlerObj);
+		}
+
+		for (let [ event, handler ] of Object.entries(handlerObj)) {
 			this.addHandler(event, handler);
 		}
 
@@ -39,7 +42,7 @@ export class Events extends Entity {
 
 		const set = this.handlers.get(event);
 
-		return this;
+		return set.delete(handler);
 	}
 	removeEvent(...events) {
 		const results = [];

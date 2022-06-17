@@ -1,11 +1,17 @@
+import Component from "./Component";
 import Entity from "./Entity";
 import Events from "./Events";
 
-export class System extends Entity {
-	constructor (eventObj, { id, tags } = {}) {
-		super({ id, tags });
+export class System extends Component {
+	constructor ({ events = {}, ...rest } = {}) {
+		super({ ...rest });
 
-		this.events = new Events(eventObj);
+		/**
+		 *!FIXME: The .next / .delta paradigm changes when a Component has nested components.
+		 */
+		this.events = new Events({
+			handlers: events,
+		});
 	}
 }
 

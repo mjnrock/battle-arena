@@ -1,9 +1,17 @@
-import { v4 as uuid } from "uuid";
+import { singleOrArrayArgs } from "../util/helper";
 
 import Identity from "./Identity";
 
 export class Component extends Identity {
-	constructor ({ name, state = {}, id, tags } = {}) {
+	static ParseOpts(self, { name, id, tags } = {}) {
+		return {
+			name: Identity.Comparators.IsStringOrSymbol(name) ? name : self.name,
+			id: Identity.Comparators.IsStringOrSymbol(id) ? id : self.id,
+			tags: tags ? singleOrArrayArgs(tags) : self.tags,
+		};
+	};
+
+	constructor ({ name, state = {}, id, tags, ...rest } = {}) {
 		super({ id, tags });
 
 		Reflect.defineProperty(this, "name", {
@@ -17,115 +25,69 @@ export class Component extends Identity {
 			configurable: false,
 			writable: false,
 			value: {
-				name,
-				state,
-				id,
-				tags,
+				...arguments[ 0 ],
 			},
 		});
 
-		Component.Upsert(this, state);
-	}
-
-	next(state, { id, tags } = {}) {
-		return Component.Next(this, state, { id, tags });
-	}
-	delta(state = {}, { id, tags } = {}) {
-		return Component.Delta(this, {
-			...this,
-			...state,
-		}, { id, tags });
-	}
-	copy({ id = true, tags } = {}) {
-		return Component.Copy(this, { id, tags });
-	}
-	recreate({ id = true, tags } = {}) {
-		return Component.Recreate(this, { id, tags });
+		this.upsert(state);
 	}
 
 	[ Symbol.iterator ]() {
 		return Object.entries(this)[ Symbol.iterator ]();
 	}
 
-	static Create(name, state = {}, opts = {}) {
-		return new this(name, state, opts);
-	}
-
-	/**
-	 * Load all properties from the @state into the Component, as long as the
-	 * property is writable.
-	 */
-	static Upsert(self, state = {}) {
+	upsert(state = {}) {
 		for(let key in state) {
 			if(key === "id" || key === "tags") {
 				continue;
 			}
 
-			const attributes = Object.getOwnPropertyDescriptor(self, key);
+			const attributes = Object.getOwnPropertyDescriptor(this, key);
 			if(!attributes || (attributes && attributes.writable)) {
-				self[ key ] = state[ key ];
+				this[ key ] = state[ key ];
 			}
 		}
-
-		return self;
+		
+		return this;
 	}
-	static Copy(self, { id = true, tags } = {}) {
-		return new self.constructor({
-			name: self.name,
-			state: self,
-			id,
-			tags,
+
+	next(state = {}, { name, id, tags } = {}) {
+		const comp = new this.constructor({
+			...state,
+			...this.constructor.ParseOpts(this, {
+				name: name || this.name,
+				id: id || this.id,
+				tags: tags || this.tags,
+			}),
+		});
+
+		return comp;
+	}
+	delta(state = {}, { name, id, tags } = {}) {
+		const comp = new this.constructor({
+			...this,
+			...state,
+			...this.constructor.ParseOpts(this, {
+				name: name || this.name,
+				id: id || this.id,
+				tags: tags || this.tags,
+			}),
+		});
+
+		return comp;
+	}
+
+
+	recreate() {
+		return new this.constructor(this._args);
+	}
+	copy(compArgPos = 0) {
+		return new this.constructor({
+			state: this,
+			name: this.name,
+			tags: this.tags,
 		});
 	}
-	static Recreate(self, { id = true, tags } = {}) {
-		return new self.constructor({
-			name: self.name,
-			state: self._args.state,
-			id,
-			tags,
-		});
-	}
-
-	static Next(self, state, { id, tags } = {}) {
-		let newId = id || self.id,
-			newTags = tags || self.tags;
-
-
-		if(id === true) {
-			newId = uuid();
-		}
-		if(tags === true) {
-			newTags = new Set();
-		}
-
-		return new self.constructor({
-			name: self.name,
-			state: state || self,
-			id: newId,
-			tags: newTags,
-		});
-	}
-	static Delta(self, state, { id, tags } = {}) {
-		let newId = id || self.id,
-			newTags = tags || self.tags;
-
-		if(id === true) {
-			newId = uuid();
-		}
-		if(tags === true) {
-			newTags = new Set();
-		}
-
-		return new self.constructor({
-			name: self.name,
-			state: {
-				...self,
-				...state,
-			},
-			id: newId,
-			tags: newTags,
-		});
-	}
-}
+};
 
 export default Component;
