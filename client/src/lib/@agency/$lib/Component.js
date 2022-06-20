@@ -44,7 +44,6 @@ export class Component extends Identity {
 	next(...args) {
 		return this;
 	}
-
 	/**
 	 * A merge-equivalent of the next() method.
 	 */
@@ -53,9 +52,9 @@ export class Component extends Identity {
 	}
 
 	/**
-	 * Receive data from another Component.
+	 * Receive data from the Entity.
 	 */
-	receive({ namespace, event, data } = {}) {}
+	receive({ namespace, event, data, state: entityState, ...rest } = {}) {}
 };
 
 export default Component;

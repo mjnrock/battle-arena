@@ -238,19 +238,6 @@ export class Registry extends Component {
 
 		return this;
 	}
-	replaceValue(key, value) {
-		const entry = this._entries.get(key);
-
-		if(entry) {
-			if(entry.isValueType) {
-				entry.value = value;
-			} else if(entry.isAliasType) {
-				this.replaceValue(entry.value, value);
-			}
-		}
-
-		return this;
-	}
 	remove(key) {
 		const entry = this._entries.get(key);
 
@@ -322,6 +309,20 @@ export class Registry extends Component {
 		return null;
 	}
 	
+	replaceValue(key, value) {
+		const entry = this._entries.get(key);
+
+		if(entry) {
+			if(entry.isValueType) {
+				entry.value = value;
+			} else if(entry.isAliasType) {
+				this.replaceValue(entry.value, value);
+			}
+		}
+
+		return this;
+	}
+	
 	setEncoder(encoder) {
 		if(typeof encoder === "function") {
 			this._config.encoder = encoder;
@@ -336,7 +337,7 @@ export class Registry extends Component {
 
 		return this;
 	}
-	
+
 	addClassifier(classifier) {
 		if(typeof classifier === "function") {
 			this._config.classifiers.add(classifier.bind(this));

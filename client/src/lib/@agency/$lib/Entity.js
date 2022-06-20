@@ -63,8 +63,6 @@ export class Entity extends Registry {
 				});
 			}
 		}
-
-		return this;
 	}
 }
 
