@@ -1,5 +1,4 @@
 import { v4 as uuid } from "uuid";
-import Relay from "@lespantsfancy/relay";
 
 import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
@@ -13,8 +12,6 @@ export const Game = {
 	game: new GameBase(),
 };
 export const Context = React.createContext();
-
-console.log(Game)
 
 export function App() {
 	const [ game, setGame ] = useState(Game);
