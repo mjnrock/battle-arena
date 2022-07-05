@@ -1505,10 +1505,10 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
-"@lespantsfancy/relay@^0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@lespantsfancy/relay/-/relay-0.2.2.tgz#b18e3646d262f98449a0d805d897964dd7d79f4e"
-  integrity sha512-BnPbPbLvbCbxIY+14htbl5LQL/mVRt1S8TEzqHblH71ByxDSbQYkQoGqLRzofnvMuKjFmh3KNCCHEt198y/g3g==
+"@lespantsfancy/relay@^0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@lespantsfancy/relay/-/relay-0.2.4.tgz#86ef7b5be37702568402db036b2c00fc7d21d8e3"
+  integrity sha512-iiEk021/T26U02HlzscuGsZUHgbM65Vr/gM7chhKa2t18q7oGYWM1C/l2xa+WTTaDdUBnWyC0hqlcq9qVLlY4g==
   dependencies:
     "@types/node" "^18.0.1"
     "@types/react" "^18.0.14"
