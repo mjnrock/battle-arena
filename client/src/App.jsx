@@ -6,12 +6,15 @@ import { Routes, Route } from "react-router-dom";
 
 import Router from "./routes/package";
 
+import GameBase from "./lib/Game";
+
 export const Game = {
 	id: uuid(),
+	game: new GameBase(),
 };
 export const Context = React.createContext();
 
-console.log(Relay)
+console.log(Game)
 
 export function App() {
 	const [ game, setGame ] = useState(Game);
