@@ -4,7 +4,7 @@ import { Context } from "./../App";
 
 import Entity from "../lib/ecs/Entity";
 import System from "../lib/ecs/System";
-import Registry from "../lib/Registry";
+import Registry from "./../lib/Registry";
 
 const [ ent, ent2 ] = Entity.Factory(2, {
 	cats: [
@@ -15,40 +15,37 @@ const [ ent, ent2 ] = Entity.Factory(2, {
 			name: "cat2",
 		},
 	],
+	kasheeka: {
+		meows: true,
+	},
 	bob: 1,
 });
 
-// const system = new System({
-// 	test: ({ entities, type, data }) => {
-// 		console.log(11111, entities, type, data);
-// 	},
-// });
+const reg = new Registry({
+	p1: ent,
+	p2: ent2,
+});
 
-// system.invoke([ ent ], "test", Date.now());
+const system = new System({
+	test: ({ entities, type, data }) => {
+		console.log(11111, entities, type, data);
+	},
+});
 
-const reg = new Registry([
-	ent,
-	ent2,
-]);
+system.invoke(reg, "test", Date.now());
 
-console.log(reg);
-
-for(let entry of reg) {
-	console.log(`ENTRY:`, entry);	
-}
-
-for(let entry of ent) {
-	console.log(`E:ENTRY:`, entry);	
-}
+console.log(ent.kasheeka)
+ent.update("kasheeka", {a:123}, true);
+console.log(ent.kasheeka)
 
 export default function Home() {
-    const game = useContext(Context);
+	const game = useContext(Context);
 
-    return (
-        <div>
+	return (
+		<div>
 			{
 				game.id
 			}
 		</div>
-    )
+	)
 }

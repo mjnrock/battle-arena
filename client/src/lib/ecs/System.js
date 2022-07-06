@@ -1,5 +1,6 @@
 import Relay from "@lespantsfancy/relay";
 import Identity from "../Identity";
+import Registry from "../Registry";
 
 export class System extends Identity {
 	constructor (handlers = {}, { id, tags } = {}) {
@@ -9,6 +10,10 @@ export class System extends Identity {
 	}
 
 	invoke(entities = [], type, data, opts = {}) {
+		if(entities instanceof Registry) {
+			entities = Array.from(entities.values);
+		}
+
 		if(!Array.isArray(entities)) {
 			entities = [ entities ];
 		}

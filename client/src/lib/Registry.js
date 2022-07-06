@@ -239,14 +239,29 @@ export class Registry extends Identity {
 
 		return this;
 	}
-	replaceValue(key, value) {
+	update(key, value, merge = false) {
 		const entry = this._entries.get(key);
 
 		if(entry) {
 			if(entry.isValueType) {
+				if(merge) {
+					if(Array.isArray(entry.value)) {
+						entry.value.push(value);
+					} else if(typeof entry.value === "object") {
+						entry.value = {
+							...entry.value,
+							...value,
+						};
+					} else {
+						entry.value = value;
+					}
+
+					return this;
+				}
+				
 				entry.value = value;
 			} else if(entry.isAliasType) {
-				this.replaceValue(entry.value, value);
+				this.update(entry.value, value, merge);
 			}
 		}
 
