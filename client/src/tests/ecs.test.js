@@ -1,6 +1,6 @@
-import Entity from "./../lib/ecs/entity";
-import System from "./../lib/ecs/System";
-import Registry from "./../lib/Registry";
+import Entity from "../game/lib/ecs/entity";
+import System from "../game/lib/ecs/System";
+import Registry from "../game/lib/Registry";
 
 const [ ent, ent2 ] = Entity.Factory(2, {
 	$eval: true,

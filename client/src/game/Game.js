@@ -1,4 +1,4 @@
-import Identity from "./Identity";
+import Identity from "./lib/Identity";
 
 export class Game extends Identity {
 	constructor({ id, tags } = {}) {

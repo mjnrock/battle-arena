@@ -5,7 +5,7 @@ import { Routes, Route } from "react-router-dom";
 
 import Router from "./routes/package";
 
-import GameBase from "./lib/Game";
+import GameBase from "./game/Game";
 
 export const Game = {
 	id: uuid(),
