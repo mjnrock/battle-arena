@@ -39,3 +39,7 @@ system.invoke(reg, "test", Date.now());
 for(let [ id, ent ] of reg) {
 	console.log(ent.bob);
 }
+
+const id = ent.register(51)
+console.log(789, id)
+console.log(789, ent[ id ])

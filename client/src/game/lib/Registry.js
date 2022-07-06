@@ -182,21 +182,18 @@ export class Registry extends Identity {
 		});
 	}
 
+	/**
+	 * This is a high-level convenience wrapper for .add and .addMany with the caveat
+	 * that this will assume that any object in the first position is an alias map; 
+	 * if that is not the case, use .add directly.
+	 */
 	register(...args) {
 		const [ entries ] = args;
 		if(typeof entries === "object") {
-			for(let key in entries) {
-				const entry = entries[ key ];
-				
-				this.addMany({
-					[ key ]: entry,
-				});
-			}
-		} else {
-			this.add(...args);
+			return this.addMany(entries);
 		}
-
-		return this;
+		
+		return this.add(...args);
 	}
 
 	getConfig() {
@@ -229,15 +226,18 @@ export class Registry extends Identity {
 		return this._config.encoder(this, ...encoderArgs)(value, id, config);
 	}
 	addMany(obj = {}) {
+		const ids = [];
 		for(let alias in obj) {
 			const uuid = this.add(obj[ alias ]);
 
 			if(uuid !== alias) {
 				this.addAlias(uuid, alias);
 			}
+
+			ids.push(uuid);
 		}
 
-		return this;
+		return ids;
 	}
 	update(key, value, merge = false) {
 		const entry = this._entries.get(key);
