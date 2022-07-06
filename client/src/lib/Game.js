@@ -1,5 +1,9 @@
-export class Game {
-	constructor() {
+import Identity from "./Identity";
+
+export class Game extends Identity {
+	constructor({ id, tags } = {}) {
+		super({ id, tags });
+		
 		/**
 		 * The main registry for all Entities and System used in the game.
 		 */

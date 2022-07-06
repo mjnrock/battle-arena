@@ -7,18 +7,36 @@ export class Entity extends Registry {
 		this.register(components);
 	}
 
-	static Factory(qty = 1, components = {}, { id, tags, $eval = false, ...rest } = {}) {
-		if($eval) {
-			for(let [ name, input ] of Object.entries(components)) {
-				if(typeof input === "function") {
-					components[ name ] = input();
-				} else {
-					components[ name ] = input;
+	/**
+	 * If @components contains the pair { $eval: true }, then any value that is a
+	 * function will be
+	 */
+	static Factory(qty = 1, components = {}, { tags, ...rest } = {}) {
+		return new Array(qty).fill(0).map(() => {
+			const entity = new this([], { tags, ...rest });
+			const next = { ...components };
+
+			if("$eval" in next && next[ "$eval" ] === true) {
+				delete next[ "$eval" ];
+
+				let i = 0;
+				for(let [ name, input ] of Object.entries(next)) {
+					if(typeof input === "function") {
+						entity.register({
+							[ name ]: input(i, entity),
+						});
+					} else {
+						entity.register({
+							[ name ]: input,
+						});
+					}
+
+					i++;
 				}
 			}
-		}
 
-		return new Array(qty).fill(0).map(() => new this(components, { id, tags, ...rest }));
+			return entity;
+		});
 	}
 };
 
