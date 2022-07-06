@@ -1,12 +1,11 @@
 import Relay from "@lespantsfancy/relay";
 import Identity from "../Identity";
-import Registry from "../Registry";
 
 export class System extends Identity {
 	constructor (handlers = {}, { id, tags } = {}) {
 		super({ id, tags });
 
-		this.handlers = new Relay.Service(handlers);
+		this.handlers = new Relay.System(handlers);
 	}
 
 	invoke(entities = [], type, data, opts = {}) {
