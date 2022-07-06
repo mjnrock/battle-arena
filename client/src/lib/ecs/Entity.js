@@ -33,6 +33,8 @@ export class Entity extends Registry {
 
 					i++;
 				}
+			} else {
+				entity.register(next);
 			}
 
 			return entity;
