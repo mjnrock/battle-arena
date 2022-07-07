@@ -1,6 +1,10 @@
-import Entity from "../game/lib/ecs/entity";
+import Console from "./../game/util/Console";
+import Entity from "../game/lib/ecs/Entity";
 import System from "../game/lib/ecs/System";
+import Manager from "../game/lib/ecs/Manager";
 import Registry from "../game/lib/Registry";
+
+Console.NewContext();
 
 const [ ent, ent2 ] = Entity.Factory(2, {
 	$eval: true,
@@ -17,6 +21,8 @@ const [ ent, ent2 ] = Entity.Factory(2, {
 		meows: true,
 	},
 	bob: () => Math.random(),
+}, {
+	tags: [ "cat" ],
 });
 
 const reg = new Registry({
@@ -32,14 +38,28 @@ const system = new System({
 
 system.invoke(reg, "test", Date.now());
 
+const mgr = new Manager({
+	p1: ent,
+	p2: ent2,
+}, {
+	test: ({ entities, type, data } = {}) => {
+		console.log(22222, entities.map(e => e.id), type, data);
+	},
+});
+
+mgr.invoke("test", Date.now());
+
+console.log(mgr.entities)
+// console.log(mgr.entities[ "#cat" ])
+
 // console.log(ent.kasheeka)
 // ent.update("kasheeka", {a:123}, true);
 // console.log(ent.kasheeka)
 
-for(let [ id, ent ] of reg) {
-	console.log(ent.bob);
-}
+// for(let [ id, ent ] of reg) {
+// 	console.log(ent.bob);
+// }
 
-const id = ent.register(51)
-console.log(789, id)
-console.log(789, ent[ id ])
+// const id = ent.register(51)
+// console.log(789, id)
+// console.log(789, ent[ id ])

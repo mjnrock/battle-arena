@@ -1,4 +1,5 @@
 import { validate } from "uuid";
+import { spreadFirstElementOrArray } from "./../util/helper";
 
 import Identity from "./Identity";
 
@@ -112,7 +113,11 @@ export class Registry extends Identity {
 			}
 		},
 		InstanceOf: (clazz) => function (key, value, entry) {
-			if(value instanceof clazz) {
+			if(clazz === true) {
+				if(Identity.Comparators.IsClass(value)) {
+					this.addToPool(`@${ value.constructor.name }`, key);
+				}
+			} else if(value instanceof clazz) {
 				this.addToPool(`@${ clazz.name }`, key);
 			}
 		},
@@ -345,7 +350,9 @@ export class Registry extends Identity {
 
 		return this;
 	}
-	addClassifiers(...classifiers) {		
+	addClassifiers(...classifiers) {
+		classifiers = spreadFirstElementOrArray(classifiers);
+
 		for(let classifier of classifiers) {
 			this.addClassifier(classifier);
 		}
@@ -583,48 +590,6 @@ export class Registry extends Identity {
 
 	get size() {
 		return this._entries.size;
-	}
-
-	static MapRegistryEntries(entries = {}, baseMap) {
-		/**
-		 * Short-circuit if no entries are provided.
-		 */
-		if(Object.keys(entries).length === 0 || (baseMap != null && !(baseMap instanceof Map))) {
-			return baseMap || new Map();
-		}
-
-		/**
-		 * Optionally allow a base Map to be provided.
-		 */
-		const map = baseMap || new Map();
-		if(entries instanceof Map) {
-			/**
-			 * If the entries are already a Map, just copy it.
-			 */
-			return this.MapRegistryEntries(Object.fromEntries(entries));
-		} else if(Array.isArray(entries)) {
-			/**
-			 * Only allow RegistryEntry arrays
-			 */
-			for(let entry of entries) {
-				if(entry instanceof RegistryEntry) {
-					map.set(entry.id, entry);
-				}
-			}
-		} else if(typeof entries === "object") {
-			/**
-			 * If the entries are an object, map each entry to an aliased RegistryEntry.
-			 */
-			for(let [ id, entry ] of Object.entries(entries)) {
-				if(entry instanceof RegistryEntry) {
-					map.set(id, entry);
-				}
-			}
-		} else if(entries instanceof Registry) {
-			map.set(entries.id, entries);
-		}
-
-		return map;
 	}
 }
 

@@ -8,6 +8,10 @@ export class Manager extends System {
 
 		this.entities = new Registry(entities, {
 			encoder: Registry.Encoders.InstanceOf(Entity),
+			classifiers: [
+				Registry.Classifiers.InstanceOf(true),
+				Registry.Classifiers.Tagging(),
+			],
 		});
 	}
 
