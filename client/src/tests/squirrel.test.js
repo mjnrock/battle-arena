@@ -4,7 +4,7 @@ import Squirrel from "./../game/data/entities/Squirrel";
 Console.NewContext();
 
 const [ skwrl, skwrl2 ] = Squirrel.Factory(2, {
-	args: {
+	init: {
 		position: () => ({
 			x: Math.random() * 100,
 			y: Math.random() * 100,

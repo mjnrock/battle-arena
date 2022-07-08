@@ -1,4 +1,4 @@
-const filename = `squirrel`;
+const filename = `mainloop`;
 
 require("dotenv").config();
 require = require("esm")(module/*, options*/)

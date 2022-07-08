@@ -13,7 +13,7 @@ import Registry from "../Registry";
 export class Entity extends Registry {
 	static Components = {};
 
-	constructor ({ components = {}, name, id, tags, args } = {}) {
+	constructor ({ components = {}, name, id, tags, init } = {}) {
 		super([], { id, tags });
 
 		this.name = name;
@@ -25,7 +25,7 @@ export class Entity extends Registry {
 		 */
 		const defaultComps = Array.isArray(this.constructor.Components) ? this.constructor.Components : Object.entries(this.constructor.Components)
 		for(let [ name, comp ] of defaultComps) {
-			let largs = args[ name ];
+			let largs = init[ name ];
 
 			if(typeof largs === "function") {
 				largs = largs(this);
@@ -45,9 +45,9 @@ export class Entity extends Registry {
 	 * If @components contains the pair { $eval: true }, then any value that is a
 	 * function will be
 	 */
-	static Factory(qty = 1, { components = {}, tags, ...rest } = {}) {
+	static Factory(qty = 1, { components = {}, ...rest } = {}) {
 		return new Array(qty).fill(0).map(() => {
-			const entity = new this({ components: [], tags, ...rest });
+			const entity = new this({ components: [], ...rest });
 			const next = { ...components };
 
 			if("$eval" in next && next[ "$eval" ] === true) {

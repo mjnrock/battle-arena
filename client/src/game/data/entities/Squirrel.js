@@ -7,13 +7,13 @@ export class Squirrel extends Entity {
 		PositionPair,
 	];
 
-	constructor ({ components = [], id, tags, args = {} } = {}) {
+	constructor ({ components = [], id, tags, init = {} } = {}) {
 		super({
 			name: "squirrel",
 			components,
 			id,
 			tags,
-			args,
+			init,
 		});
 	}
 };
