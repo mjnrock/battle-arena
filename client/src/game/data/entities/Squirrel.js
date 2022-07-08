@@ -1,10 +1,20 @@
-import Entity from "./../../lib/@agency/lib/ecs/Entity";
+import Entity from "./../../lib/ecs/Entity";
+
+import { Name as PositionName, Position } from "./../components/Position";
 
 export class Squirrel extends Entity {
-	constructor(components = [], { id, tags } = {}) {
-		super(components, { id, tags });
+	static Components = {
+		[ PositionName ]: Position,
+	};
 
-		//TODO Add Components
+	constructor ({ components = [], id, tags, args = {} } = {}) {
+		super({
+			name: "squirrel",
+			components,
+			id,
+			tags,
+			args,
+		});
 	}
 };
 

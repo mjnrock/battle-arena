@@ -1,14 +1,14 @@
-import Component from "./../../lib/@agency/lib/ecs/Component";
-
-export const Name = `Position`;
+export const Name = `position`;
 
 export function Position(state = {}) {
-	return new Component(Name, {
+	return {
+		name: Name,
+
 		x: 0,
 		y: 0,
 
 		...state,
-	});
+	};
 };
 
 export default Position;

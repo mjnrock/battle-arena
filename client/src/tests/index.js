@@ -1,4 +1,4 @@
-const filename = `ecs`;
+const filename = `squirrel`;
 
 require("dotenv").config();
 require = require("esm")(module/*, options*/)

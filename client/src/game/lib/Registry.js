@@ -200,6 +200,22 @@ export class Registry extends Identity {
 		
 		return this.add(...args);
 	}
+	/**
+	 * This allows for registering objects that contain a property equal to
+	 * that of @attr.  The resolved value of @attr will be used to create an alias.
+	 */
+	registerWithAttr(obj, attr = "name") {
+		if(typeof obj === "object" && attr in obj) {
+			return this.addMany({
+				[ obj[ attr ] ]: obj,
+			});
+		}
+
+		return false;
+	}
+	registerWithName(obj) {
+		return this.registerWithAttr(obj, "name");
+	}
 
 	getConfig() {
 		return this._config;
