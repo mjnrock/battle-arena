@@ -1,6 +1,5 @@
 import Console from "../game/util/Console";
 import Entity from "./../game/lib/ecs/Entity";
-import Position from "./../game/data/components/Position";
 import MainLoop from "./../game/data/components/MainLoop";
 import SystemMainLoop from "./../game/data/systems/MainLoop";
 
@@ -8,7 +7,6 @@ Console.NewContext();
 
 const ent = new Entity({
 	components: {
-		position: Position(),
 		mainloop: MainLoop(),
 	}
 });
