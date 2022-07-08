@@ -27,4 +27,7 @@ export function EntityRegistrar(state = {}, entities = [], opts = {}) {
 	});
 };
 
+export const DefaultPair = [ Name, Registrar ];
+export const EntityRegistrarPair = [ Name, EntityRegistrar ];
+
 export default Registrar;

@@ -23,7 +23,8 @@ export class Entity extends Registry {
 		/**
 		 * Register the default components
 		 */
-		for(let [ name, comp ] of Object.entries(this.constructor.Components)) {
+		const defaultComps = Array.isArray(this.constructor.Components) ? this.constructor.Components : Object.entries(this.constructor.Components)
+		for(let [ name, comp ] of defaultComps) {
 			let largs = args[ name ];
 
 			if(typeof largs === "function") {
@@ -34,7 +35,9 @@ export class Entity extends Registry {
 				largs = [ largs ];
 			}
 
-			this.registerWithName(comp(...largs));
+			this.register({
+				[ name ]: comp(...largs),
+			});
 		}
 	}
 

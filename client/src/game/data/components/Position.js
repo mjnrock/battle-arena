@@ -11,4 +11,6 @@ export function Position(state = {}) {
 	};
 };
 
+export const DefaultPair = [ Name, Position ];
+
 export default Position;

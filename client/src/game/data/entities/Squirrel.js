@@ -1,11 +1,11 @@
 import Entity from "./../../lib/ecs/Entity";
 
-import { Name as PositionName, Position } from "./../components/Position";
+import { DefaultPair as PositionPair } from "./../components/Position";
 
 export class Squirrel extends Entity {
-	static Components = {
-		[ PositionName ]: Position,
-	};
+	static Components = [
+		PositionPair,
+	];
 
 	constructor ({ components = [], id, tags, args = {} } = {}) {
 		super({
