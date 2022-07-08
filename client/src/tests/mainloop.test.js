@@ -10,6 +10,7 @@ const ent = new Entity({
 		mainloop: MainLoop(),
 	}
 });
+
 const sys = new SystemMainLoop({
 	onTick: ({ dt, now }) => {
 		Console.log(`tick ${ now } ${ dt }`);
@@ -20,6 +21,7 @@ const sys = new SystemMainLoop({
 });
 
 sys.invoke([ ent ], "start");
+
 setTimeout(() => {
 	sys.invoke([ ent ], "stop");
 }, 500)
