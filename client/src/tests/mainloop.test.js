@@ -27,6 +27,6 @@ sys.invoke([ ent ], "start");
 
 setTimeout(() => {
 	const result = sys.invoke([ ent ], "stop");
-	
+
 	console.log(result);
-}, 500)
+}, 500);

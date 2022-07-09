@@ -42,33 +42,42 @@ export class Entity extends Registry {
 	}
 
 	/**
-	 * If @components contains the pair { $eval: true }, then any value that is a
-	 * function will be
+	 * Factory method for creating new Entities.
+	 * 
+	 * NOTE: This will **always** evaluate the root-level functions
+	 * within the @components parameter, so as not to create collisions.
 	 */
 	static Factory(qty = 1, { components = {}, ...rest } = {}) {
 		return new Array(qty).fill(0).map(() => {
 			const entity = new this({ components: [], ...rest });
 			const next = { ...components };
 
-			if("$eval" in next && next[ "$eval" ] === true) {
-				delete next[ "$eval" ];
-
-				let i = 0;
-				for(let [ name, input ] of Object.entries(next)) {
-					if(typeof input === "function") {
-						entity.register({
-							[ name ]: input(i, entity),
-						});
-					} else {
-						entity.register({
-							[ name ]: input,
-						});
-					}
-
-					i++;
+			let i = 0;
+			for(let [ name, input ] of Object.entries(next)) {
+				if(typeof input === "function") {
+					/**
+					 * Evaluate any root-level functions
+					 */
+					entity.register({
+						[ name ]: input(i, entity),
+					});
+				} else if("next" in input) {
+					/**
+					 * Assume its a generator*
+					 */
+					entity.register({
+						[ name ]: input.next().value,
+					});
+				} else {
+					/**
+					 * Take value as-is
+					 */
+					entity.register({
+						[ name ]: input,
+					});
 				}
-			} else {
-				entity.register(next);
+
+				i++;
 			}
 
 			return entity;

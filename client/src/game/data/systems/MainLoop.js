@@ -2,12 +2,14 @@ import System from "../../lib/ecs/System";
 import { Name as CompName } from "../components/MainLoop";
 
 export class MainLoop extends System {
-	constructor ({ onBegin, onTick, onRender, onEnd } = {}) {
+	constructor ({ onBegin, onTick, onRender, onEnd, handlers = {} } = {}) {
 		super();
 
 		this.handlers.addHandlers({
 			start: this.start.bind(this),
 			stop: this.stop.bind(this),
+
+			...handlers,
 		});
 
 		this.onBegin = onBegin || this.onBegin;
@@ -19,7 +21,7 @@ export class MainLoop extends System {
 	//#region Helpers
 	get(entity) {
 		if(entity.has(CompName)) {
-			return entity.mainloop;
+			return entity.get(CompName);
 		}
 
 		return false;
