@@ -1,28 +1,12 @@
+import Matter from "matter-js";
+
 export const Name = `position`;
 
-export function* Position(state = {}) {
+export function* Position({ x = 0, y = 0 } = {}) {
 	while(true) {
-		yield {
-			name: Name,
-	
-			x: 0,
-			y: 0,
-	
-			...state,
-		};
+		yield Matter.Vector.create(x, y);
 	}
 };
-
-// export function Position(state = {}) {
-// 	return {
-// 		name: Name,
-
-// 		x: 0,
-// 		y: 0,
-
-// 		...state,
-// 	};
-// };
 
 export const DefaultPair = [ Name, Position ];
 

@@ -4,10 +4,24 @@ import Registry from "../Registry";
 import Entity from "./Entity";
 
 export class System extends Identity {
-	constructor (handlers = {}, { id, tags } = {}) {
+	constructor ({ handlers = {}, id, tags, name } = {}) {
 		super({ id, tags });
 
+		this.name = name;
 		this.handlers = new Relay.System(handlers);
+	}
+	
+	get(entity) {
+		if(entity.has(this.name)) {
+			return entity.get(this.name);
+		}
+
+		return false;
+	}
+	set(entity, data) {
+		entity.update(this.name, data);
+
+		return entity;
 	}
 
 	invoke(entities = [], type, data, opts = {}) {

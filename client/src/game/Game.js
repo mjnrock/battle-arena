@@ -3,24 +3,6 @@ import Identity from "./lib/Identity";
 export class Game extends Identity {
 	constructor({ id, tags } = {}) {
 		super({ id, tags });
-		
-		/**
-		 * The main registry for all Entities and System used in the game.
-		 */
-		this.Environment = {};
-
-		/**
-		 * The spacetime and material existence of the game, including Player.
-		 */
-		this.Realm = {};
-
-
-		this.Render = {};
-
-
-		this.Config = {};
-		// this.config = new Config();
-
 
 		/**
 		 * Invoke all the creation hooks

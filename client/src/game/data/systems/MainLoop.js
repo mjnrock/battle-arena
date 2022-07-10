@@ -3,7 +3,7 @@ import { Name as CompName } from "../components/MainLoop";
 
 export class MainLoop extends System {
 	constructor ({ onBegin, onTick, onRender, onEnd, handlers = {} } = {}) {
-		super();
+		super({ name: CompName });
 
 		this.handlers.addHandlers({
 			start: this.start.bind(this),
@@ -19,14 +19,6 @@ export class MainLoop extends System {
 	}
 
 	//#region Helpers
-	get(entity) {
-		if(entity.has(CompName)) {
-			return entity.get(CompName);
-		}
-
-		return false;
-	}
-
 	fps(ml) {
 		return 1000 / ml.getSimulationTimestep();
 	}

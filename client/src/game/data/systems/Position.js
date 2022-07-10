@@ -1,24 +1,17 @@
+import Matter from "matter-js";
+
 import System from "../../lib/ecs/System";
 import { Name as CompName } from "../components/Position";
 
 export class Position extends System {
 	constructor ({ handlers = {} } = {}) {
-		super();
+		super({ name: CompName });
 
 		this.handlers.addHandlers({
 			move: this.move.bind(this),
 			
 			...handlers,
 		});
-	}
-
-	//#region Helpers
-	get(entity) {
-		if(entity.has(CompName)) {
-			return entity.get(CompName);
-		}
-
-		return false;
 	}
 	
 	//#region Events
@@ -30,11 +23,9 @@ export class Position extends System {
 				const { x, y, isDelta } = data;
 
 				if(isDelta) {
-					pos.x += x;
-					pos.y += y;
+					this.set(entity, Matter.Vector.add(pos, Matter.Vector.create(x, y)));
 				} else {
-					pos.x = x;
-					pos.y = y;
+					this.set(entity, Matter.Vector.create(x, y));
 				}
 			}
 		}
