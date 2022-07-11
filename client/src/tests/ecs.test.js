@@ -36,7 +36,7 @@ const system = new System({
 	},
 });
 
-system.invoke(reg, "test", Date.now());
+system.trigger(reg, "test", Date.now());
 
 const mgr = new Manager({
 	p1: ent,
@@ -47,7 +47,7 @@ const mgr = new Manager({
 	},
 });
 
-mgr.invoke("test", Date.now());
+mgr.trigger("test", Date.now());
 
 console.log(mgr.entities)
 // console.log(mgr.entities[ "#cat" ])

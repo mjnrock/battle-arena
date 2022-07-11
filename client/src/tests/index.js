@@ -1,4 +1,4 @@
-const filename = `position`;
+const filename = `game`;
 
 require("dotenv").config();
 require = require("esm")(module/*, options*/)

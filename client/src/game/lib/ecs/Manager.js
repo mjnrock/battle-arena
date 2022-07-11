@@ -15,8 +15,8 @@ export class Manager extends System {
 		});
 	}
 
-	invoke(type, data, opts = {}) {
-		return super.invoke(this.entities.values, type, data, opts);
+	trigger(type, data, opts = {}) {
+		return super.trigger(this.entities.values, type, data, opts);
 	}
 };
 

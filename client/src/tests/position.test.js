@@ -36,7 +36,7 @@ sys.handlers.addHandler("**", () => console.log("POST"))
 Console.label("E1", ent.position);
 Console.label("E2", ent2.position);
 
-sys.invoke([ ent ], "move", {
+sys.trigger([ ent ], "move", {
 	x: 1,
 	y: 1,
 	isDelta: true,
@@ -45,7 +45,7 @@ sys.invoke([ ent ], "move", {
 Console.label("E1", ent.position);
 Console.label("E2", ent2.position);
 
-sys.invoke([ ent ], "move", {
+sys.trigger([ ent ], "move", {
 	x: 2,
 	y: 2,
 	isDelta: false,

@@ -73,17 +73,17 @@ export function unflatten(obj, { splitter = "." } = {}) {
  * This is a generalized recursion function that will iterate over all
  *  key-value-pairs within the passed @obj, performing work recursively.
  *  Get/Set traps can be utilized, a custom test can be used to decide
- *  if a key should invoke recursion, and a custom object copier can be
+ *  if a key should trigger recursion, and a custom object copier can be
  *  used to create a shallow copy or deep copy (default).
  * 
  * @obj The object over which << recurse >> will iterate
  * @setter ? | An assignment function to modify current values
- * @getter ? | An accessor function to perform work on each, nested entry
+ * @each ? | An accessor function to perform work on each, nested entry
  * @condition ? | A conditional function to test if << recurse >> should be invoked recursively
  * @copyObject ? | false | A boolean to use JSON.parse(JSON.stringify(@obj)), or a custom copy function
  * @_namespace ? | Used internally for recursion calls
  */
-export function recurse(obj, { setter, getter, condition, copyObject = false, _namespace } = {}) {
+export function recurse(obj, { setter, each, condition, copyObject = false, _namespace } = {}) {
     let newObj;
     if(copyObject) {
         if(typeof copyObject === "function") {
@@ -103,7 +103,7 @@ export function recurse(obj, { setter, getter, condition, copyObject = false, _n
         let nkey = _namespace ? `${ _namespace }.${ key }` : key;
 
         if(condition(key, value)) {
-            newObj[ key ] = recurse(newObj[ key ], { setter, getter, condition, _namespace: nkey });
+            newObj[ key ] = recurse(newObj[ key ], { setter, each, condition, _namespace: nkey });
         } else {
             if(typeof setter === "function") {
                 newObj[ key ] = setter(key, value, _namespace, newObj);
@@ -112,8 +112,8 @@ export function recurse(obj, { setter, getter, condition, copyObject = false, _n
             }
         }
 
-        if(typeof getter === "function") {
-            getter(nkey, newObj[ key ], value);
+        if(typeof each === "function") {
+            each(nkey, newObj[ key ], value);
         }
     }
 
@@ -238,7 +238,7 @@ export function arrayRange(input, length) {
 }
 
 /**
- * A wrapper function to invoke if you want to amend various prototypes
+ * A wrapper function to trigger if you want to amend various prototypes
  * Current:
  *  - Array
  */

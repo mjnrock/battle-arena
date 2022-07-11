@@ -13,7 +13,7 @@ import Registry from "../Registry";
 export class Entity extends Registry {
 	static Components = {};
 
-	constructor ({ components = {}, name, id, tags, init } = {}) {
+	constructor ({ components = {}, name, id, tags, init = {} } = {}) {
 		super([], { id, tags });
 
 		this.name = name;
@@ -23,7 +23,7 @@ export class Entity extends Registry {
 		/**
 		 * Register the default components
 		 */
-		const defaultComps = Array.isArray(this.constructor.Components) ? this.constructor.Components : Object.entries(this.constructor.Components)
+		const defaultComps = Array.isArray(this.constructor.Components) ? this.constructor.Components : Object.entries(this.constructor.Components);
 		for(let [ name, comp ] of defaultComps) {
 			let largs = init[ name ];
 

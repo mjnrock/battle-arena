@@ -24,7 +24,7 @@ export class System extends Identity {
 		return entity;
 	}
 
-	invoke(entities = [], type, data, opts = {}) {
+	trigger(entities = [], type, data, opts = {}) {
 		if(entities instanceof Registry && !(entities instanceof Entity)) {
 			entities = Array.from(entities.values);
 		}

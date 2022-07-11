@@ -23,10 +23,10 @@ const sys = new SystemMainLoop({
 sys.handlers.addHandler("*", () => console.log("PRE"))
 sys.handlers.addHandler("**", () => console.log("POST"))
 
-sys.invoke([ ent ], "start");
+sys.trigger([ ent ], "start");
 
 setTimeout(() => {
-	const result = sys.invoke([ ent ], "stop");
+	const result = sys.trigger([ ent ], "stop");
 
 	console.log(result);
 }, 500);
