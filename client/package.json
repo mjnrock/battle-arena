@@ -33,7 +33,8 @@
 		"rules": {
 			"no-unused-vars": "off",
 			"no-extend-native": "off",
-			"import/no-anonymous-default-export": "off"
+			"import/no-anonymous-default-export": "off",
+			"react-hooks/exhaustive-deps": "off"
 		}
 	},
 	"browserslist": {

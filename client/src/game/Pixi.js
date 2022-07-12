@@ -6,7 +6,6 @@ export class Pixi {
 			width: window.innerWidth,
 			height: window.innerHeight,
 			antialias: true,
-			transparent: false,
 			resolution: window.devicePixelRatio || 1,
 		});
 
@@ -17,8 +16,6 @@ export class Pixi {
 		graphics.beginFill(0xDE3249);
 		graphics.drawRect(50, 50, 100, 100);
 		graphics.endFill();
-
-		// this.app.stop();
 
 		this.app.stage.addChild(graphics);
 	}

@@ -25,8 +25,8 @@ export class Game extends Identity {
 		this.input = {
 			// keyboard: new KeyController({ element: window }),
 			// mouse: new MouseController({ element: window }),
-			keyboard: {},	// STUB
-			mouse: {},		// STUB
+			// keyboard: {},	// STUB
+			// mouse: {},		// STUB
 		};
 		
 		this.systems = new Registry();
@@ -57,7 +57,7 @@ export class Game extends Identity {
 	}
 	post() {
 		this.render = new Pixi();
-		
+
 		return this;
 	}
 };
