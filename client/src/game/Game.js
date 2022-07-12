@@ -9,7 +9,7 @@ export class Game extends Identity {
 
 		this.realm = new Registry({
 			overworld: new World({
-				size: [ 10, 10 ],
+				size: [ 2, 2 ],
 			}),
 		});
 

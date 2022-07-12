@@ -77,19 +77,14 @@ export class Identity {
 			return false;
 		},
 		IsClass(input) {
+			return input.toString().substring(0, 5) === "class";
+		},
+		IsInstance(input) {
 			if(typeof input !== "object") {
 				return false;
 			}
 			
-			const isCtorClass = input.constructor && input.constructor.toString().substring(0, 5) === 'class'
-
-			if(input.prototype === undefined) {
-				return isCtorClass;
-			}
-
-			const isPrototypeCtorClass = input.prototype.constructor && input.prototype.constructor.toString && input.prototype.constructor.toString().substring(0, 5) === 'class'
-
-			return isCtorClass || isPrototypeCtorClass;
+			return input instanceof input.constructor;
 		},
 
 		/**

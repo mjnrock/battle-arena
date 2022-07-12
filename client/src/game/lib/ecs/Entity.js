@@ -1,3 +1,4 @@
+import Identity from "../Identity";
 import Registry from "../Registry";
 
 /**
@@ -35,9 +36,19 @@ export class Entity extends Registry {
 				largs = [ largs ];
 			}
 
-			this.register({
-				[ name ]: comp(...largs),
-			});
+			if(Identity.Comparators.IsClass(comp) && !Identity.Comparators.IsInstance(comp)) {
+				this.register({
+					[ name ]: new comp(...largs),
+				});
+			} else if(typeof comp === "function") {
+				this.register({
+					[ name ]: comp(...largs),
+				});
+			} else {
+				this.register({
+					[ name ]: comp,
+				});
+			}
 		}
 	}
 

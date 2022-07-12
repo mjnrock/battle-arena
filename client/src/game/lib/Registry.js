@@ -324,6 +324,11 @@ export class Registry extends Identity {
 
 		return false;
 	}
+	clear() {
+		this._entries.clear();
+
+		return this;
+	}
 	find(regex, { ids = true, values = false, aliases = true, pools = true } = {}) {
 		const results = [];
 		for(let [ id, entry ] of this._entries) {
@@ -604,7 +609,7 @@ export class Registry extends Identity {
 		return Array.from(this._entries.values()).filter(entry => entry.isAliasType).map(entry => [ entry.id, entry.value ]);
 	}
 
-	get size() {
+	get count() {
 		return this._entries.size;
 	}
 }
