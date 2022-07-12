@@ -4,6 +4,8 @@ import Registry from "./lib/Registry";
 import { World } from "./data/entities/realm/World";
 
 export class Game extends Identity {
+	static Instance;
+
 	constructor({ id, tags } = {}) {
 		super({ id, tags });
 
@@ -19,6 +21,19 @@ export class Game extends Identity {
 		this.pre()
 			.init()
 			.post();
+
+		if(!Game.Instance) {
+			Game.Instance = this;
+		}
+	}
+
+	static getInstance() {
+		if(!Game.Instance) {
+			throw new Error(`<< Game.Instance >> is not set.  Either create a new instance first or override this method.`);
+			// Game.Instance = new Game();
+		}
+
+		return Game.Instance;
 	}
 
 	pre() {

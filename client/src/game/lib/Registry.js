@@ -514,7 +514,7 @@ export class Registry extends Identity {
 		}
 	}
 	map(callback, ...args) {
-		const registry = new Registry();
+		const registry = new Registry({ config: this._config });
 		for(let [ id, entry ] of this) {
 			registry.add(callback(entry, id, ...args), id);
 		}
@@ -530,7 +530,7 @@ export class Registry extends Identity {
 		return value;
 	}
 	filter(callback, ...args) {
-		const registry = new Registry();
+		const registry = new Registry({ config: this._config });
 		for(let [ id, entry ] of this) {
 			if(callback(entry, id, ...args) === true) {
 				registry.add(entry, id);
