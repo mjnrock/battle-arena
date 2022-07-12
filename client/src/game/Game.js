@@ -58,6 +58,18 @@ export class Game extends Identity {
 	post() {
 		this.render = new Pixi();
 
+		//NOTE: This works -- abstract this out to appropriate place
+		// const graphics = new PixiJS.Graphics();
+		// setInterval(() => {
+
+		// 	// Rectangle
+		// 	graphics.beginFill(0xDE3249);
+		// 	graphics.drawRect(Math.random() * 500, Math.random() * 500, 100, 100);
+		// 	graphics.endFill();
+	
+		// 	this.render.app.stage.addChild(graphics);
+		// }, 1000);
+
 		return this;
 	}
 };
