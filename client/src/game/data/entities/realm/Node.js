@@ -1,4 +1,4 @@
-import Entity from "../../../lib/ecs/Entity";
+import { Entity } from "../../../lib/ecs/Entity";
 
 import { DefaultPair as PositionPair } from "../../components/Position";
 import { DefaultPair as TerrainPair } from "../../components/Terrain";
