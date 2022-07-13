@@ -1,4 +1,31 @@
-### JSON Data
+# Spritesheet Internals
+```
+/**
+* A map containing all textures of the sprite sheet.
+* Can be used to create a Sprite:
+* ```js
+* new PIXI.Sprite(sheet.textures["image.png"]);
+* ```
+*/
+public textures: Dict<Texture>;
+
+/**
+* A map containing the textures for each animation.
+* Can be used to create an AnimatedSprite:
+* ```js
+* new PIXI.AnimatedSprite(sheet.animations["anim_name"])
+* ```
+*/
+public animations: Dict<Texture[]>;
+
+/**
+* Reference to the original JSON data.
+* @type {object}
+*/
+public data: ISpritesheetData;
+```
+
+## JSON Data
 ```
 /** Represents the JSON data for a spritesheet atlas. */
 export interface ISpritesheetFrameData {
@@ -101,30 +128,3 @@ In this example below, all frame sizes are identical (unlike the plane demo abov
 	sourceSize: {w: 64, h: 64}
 	spriteSourceSize: {x: 0, y: 0, w: 64, h: 64}
 	trimmed: false
-
-### Spritesheet Internals
-```
-/**
-* A map containing all textures of the sprite sheet.
-* Can be used to create a Sprite:
-* ```js
-* new PIXI.Sprite(sheet.textures["image.png"]);
-* ```
-*/
-public textures: Dict<Texture>;
-
-/**
-* A map containing the textures for each animation.
-* Can be used to create an AnimatedSprite:
-* ```js
-* new PIXI.AnimatedSprite(sheet.animations["anim_name"])
-* ```
-*/
-public animations: Dict<Texture[]>;
-
-/**
-* Reference to the original JSON data.
-* @type {object}
-*/
-public data: ISpritesheetData;
-```
