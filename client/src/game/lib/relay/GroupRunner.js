@@ -1,9 +1,6 @@
 import Runner from "./Runner";
 
-/**
- * A Peloton is a collection of runners.
- */
-export class Peloton {
+export class GroupRunner {
 	constructor (names = []) {
 		this.runners = new Map();
 
@@ -100,7 +97,7 @@ export class Peloton {
 	}
 
 	copy() {
-		const copy = new Peloton();
+		const copy = new GroupRunner();
 
 		this.runners.forEach((runner, name) => copy.runners.set(name, runner.copy()));
 
@@ -108,4 +105,4 @@ export class Peloton {
 	}
 };
 
-export default Peloton;
+export default GroupRunner;

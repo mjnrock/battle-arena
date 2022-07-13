@@ -1,7 +1,7 @@
 import Runner from "./Runner";
-import Peloton from "./Peloton";
+import GroupRunner from "./GroupRunner";
 
 export default {
 	Runner,
-	Peloton,
+	GroupRunner,
 };

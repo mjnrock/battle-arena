@@ -9,6 +9,8 @@ export class Pixi {
 			resolution: window.devicePixelRatio || 1,
 		});
 
+		console.log(this.app)
+
 
 		const graphics = new PixiJS.Graphics();
 
