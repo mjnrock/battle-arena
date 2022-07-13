@@ -1,7 +1,7 @@
 import Runner from "./Runner";
-import Collection from "./Collection";
+import Peloton from "./Peloton";
 
 export default {
 	Runner,
-	Collection,
+	Peloton,
 };

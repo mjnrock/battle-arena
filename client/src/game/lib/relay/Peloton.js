@@ -1,6 +1,9 @@
 import Runner from "./Runner";
 
-export class Collection {
+/**
+ * A Peloton is a collection of runners.
+ */
+export class Peloton {
 	constructor (names = []) {
 		this.runners = new Map();
 
@@ -97,7 +100,7 @@ export class Collection {
 	}
 
 	copy() {
-		const copy = new Collection();
+		const copy = new Peloton();
 
 		this.runners.forEach((runner, name) => copy.runners.set(name, runner.copy()));
 
@@ -105,4 +108,4 @@ export class Collection {
 	}
 };
 
-export default Collection;
+export default Peloton;
