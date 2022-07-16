@@ -3,8 +3,9 @@
 import * as PixiJS from "pixi.js";
 import MatterJS from "matter-js";
 import { clamp } from "./game/util/helper";
+import Entity from "./game/lib/ecs/Entity";
+import Position from "./game/data/components/Position";
 
-//TODO Create an entity wrapper that holds both the rigid body and the sprite
 //TODO Add 100, 1000, 10000 entities and test collisions
 
 function initMatter() {
@@ -13,6 +14,18 @@ function initMatter() {
     const stack = MatterJS.Composites.stack(100, 600 - 21 - 20 * 20, 10, 10, 20, 0, function(x, y) {
         return MatterJS.Bodies.circle(x, y, 20);
     });
+
+//TODO Create an entity wrapper that holds both the rigid body and the sprite
+	const entity = new Entity({
+		name: "squirrel",
+		components: {
+			position: Position({
+				x: 0,
+				y: 0,
+			}),
+			sprite: null,
+		},
+	});
 
 	MatterJS.World.add(engine.world, stack);
 	MatterJS.Composite.add(engine.world, [
