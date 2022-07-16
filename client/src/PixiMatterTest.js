@@ -4,52 +4,89 @@ import * as PixiJS from "pixi.js";
 import MatterJS from "matter-js";
 import { clamp } from "./game/util/helper";
 
-const renderer = new PixiJS.Renderer({
-	width: window.innerWidth,
-	height: window.innerHeight,
-	resolution: window.devicePixelRatio || 1,
-	autoDensity: true,
-});
+//TODO Create an entity wrapper that holds both the rigid body and the sprite
+//TODO Add 100, 1000, 10000 entities and test collisions
 
-window.addEventListener("resize", resize);
-
-function resize() {
-	const { innerWidth: width, innerHeight: height } = window;
+function initMatter() {
+	const engine = MatterJS.Engine.create();
 	
-	renderer.resize(width, height);
-}
+    const stack = MatterJS.Composites.stack(100, 600 - 21 - 20 * 20, 10, 10, 20, 0, function(x, y) {
+        return MatterJS.Bodies.circle(x, y, 20);
+    });
 
-const stage = new PixiJS.Container();
+	MatterJS.World.add(engine.world, stack);
+	MatterJS.Composite.add(engine.world, [
+        // walls
+        MatterJS.Bodies.rectangle(0, 0, window.innerWidth, 1, { isStatic: true }),
+        MatterJS.Bodies.rectangle(0, 0, 1, window.innerHeight, { isStatic: true }),
+        MatterJS.Bodies.rectangle(window.innerWidth, 0, 1, window.innerHeight, { isStatic: true }),
+        MatterJS.Bodies.rectangle(0, window.innerHeight, window.innerWidth, 1, { isStatic: true }),
+        stack,
+    ]);
 
-const ticker = new PixiJS.Ticker();
-ticker.add(animate);
-ticker.start();
-
-const sprites = [];
-function addSprite() {
-	const texture = PixiJS.Texture.from("assets/images/squirrel.png");
-	const sprite = new PixiJS.Sprite(texture);
-	
-	sprite.x = clamp((Math.random() > 0.5 ? 1 : -1) * Math.random() * renderer.screen.width, 0, renderer.screen.width);
-	sprite.y = clamp((Math.random() > 0.5 ? 1 : -1) * Math.random() * renderer.screen.height, 0, renderer.screen.height);
-	sprite.anchor.set(0.5);
-	stage.addChild(sprite);
-
-	sprites.push(sprite);
+	return engine;
 };
 
-for(let i = 0; i < 1000; i++) {
-	addSprite();
-}
-
-function animate() {
-	sprites.forEach(sprite => {
-		sprite.rotation += 0.01;
+function initPixi() {
+	const renderer = new PixiJS.Renderer({
+		width: window.innerWidth,
+		height: window.innerHeight,
+		resolution: window.devicePixelRatio || 1,
+		autoDensity: true,
 	});
 
-	renderer.render(stage);
+	window.addEventListener("resize", resize);
+
+	function resize() {
+		const { innerWidth: width, innerHeight: height } = window;
+		
+		renderer.resize(width, height);
+	}
+
+	const stage = new PixiJS.Container();
+
+	const ticker = new PixiJS.Ticker();
+	ticker.add(animate);
+	ticker.start();
+
+	const sprites = [];
+	function addSprite() {
+		const texture = PixiJS.Texture.from("assets/images/squirrel.png");
+		const sprite = new PixiJS.Sprite(texture);
+		
+		sprite.x = clamp((Math.random() > 0.5 ? 1 : -1) * Math.random() * renderer.screen.width, 0, renderer.screen.width);
+		sprite.y = clamp((Math.random() > 0.5 ? 1 : -1) * Math.random() * renderer.screen.height, 0, renderer.screen.height);
+		sprite.anchor.set(0.5);
+		stage.addChild(sprite);
+
+		sprites.push(sprite);
+	};
+
+	for(let i = 0; i < 1000; i++) {
+		addSprite();
+	}
+
+	function animate() {
+		sprites.forEach(sprite => {
+			sprite.rotation += 0.01;
+		});
+
+		renderer.render(stage);
+	};
+
+	return renderer;
 };
 
+const engine = initMatter();
+const renderer = initPixi();
+
+setInterval(() => {
+	MatterJS.Engine.update(engine, 100);
+}, 100);
+
+console.log(engine)
+
 export default {
+	engine,
 	renderer,
 };
