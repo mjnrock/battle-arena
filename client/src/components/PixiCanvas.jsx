@@ -1,15 +1,15 @@
 import React, { useEffect, useRef } from "react";
 
-export function PixiCanvas({ app } = {}) {
-	const canvasRef = useRef();
+export function PixiCanvas({ app, view } = {}) {
+	const canvasRef = useRef(null);
 
 	useEffect(() => {
 		const ref = canvasRef.current;
 
-		ref.appendChild(app.view);
+		ref.appendChild(view || app.view);
 
 		return () => {
-			ref.removeChild(app.view);
+			ref.removeChild(view || app.view);
 		}
 	}, []);
 
