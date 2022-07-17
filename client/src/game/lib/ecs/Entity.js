@@ -72,7 +72,8 @@ export class Entity extends Registry {
 					entity.register({
 						[ name ]: input(i, entity),
 					});
-				} else if("next" in input) {
+				} else if(typeof input === "object" && "next" in (input || {})) {
+					
 					/**
 					 * Assume its a generator*
 					 */
