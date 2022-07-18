@@ -1,141 +1,109 @@
 import * as PixiJS from "pixi.js";
 
+/**
+ * This is the main render wrapper class.  All rendering should be done through this class,
+ * loading assets, creating sprites, and rendering the scene.  The asset loader is also present,
+ * and should be the single source of truth for loaded assets.  This class does NOT contain
+ * a game loop, but instead relies on external invocation of the .render method.
+ */
 export class Pixi {
-	constructor () {
-		this.app = new PixiJS.Application({
-			width: window.innerWidth,
-			height: window.innerHeight,
-			antialias: true,
+	constructor ({ width, height } = {}) {
+		this.config = {
+			width: width || window.innerWidth,
+			height: height || window.innerHeight,
+			current: {
+				container: "default",
+				overlay: "default",
+			},
+		};
+
+		/**
+		 * The default loader for PixiJS, store all of the assets in memory here.
+		 */
+		this.loader = new PixiJS.Loader();
+
+		/**
+		 * The default renderer for PixiJS, this is the main renderer for all screen drawing.
+		 */
+		this.renderer = new PixiJS.Renderer({
+			width: this.config.width,
+			height: this.config.height,
 			resolution: window.devicePixelRatio || 1,
+			autoDensity: true,
 		});
 
-		console.log(this.app)
+		/**
+		 * The main containers for the renderer.
+		 */
+		this.containers = new Map();
+
+		/**
+		 * These are PIXI.Graphics objects that are used to draw on the screen.
+		 */
+		this.overlays = new Map();
 
 
-		const graphics = new PixiJS.Graphics();
+		//TODO Load textures with this.loader, map them to Entities; add/remove them to the stage, as appropriate
+	
+		//TODO Add a resize event listener to the window
 
-		// Rectangle
-		graphics.beginFill(0xDE3249);
-		graphics.drawRect(50, 50, 100, 100);
-		graphics.endFill();
+		//TODO Bind mouse events
 
-		this.app.stage.addChild(graphics);
+		this.init();
 	}
 
-	// //STUB - Quickly compiled here for future learning
-	// preloadAssets () {
-	// 	this.app.loader.baseUrl = "images";
-	// 	this.app.loader
-	// 		.add("player", "player.png")
-	// 		.add("enemy", "enemy.png");
+	init() {
+		this.containers.set("default", new PixiJS.Container());
+		this.overlays.set("default", new PixiJS.Graphics());
 
-	// 	this.app.loader.onProgress.add((e) => {
-	// 		console.log("Loading assets...", e.progress);
-	// 	});
-	// 	this.app.loader.onComplete.add(() => {
-	// 		console.log("Done loading!");
-	// 	});
-	// 	this.app.loader.onError.add((e) => {
-	// 		console.error("Error", e.message);
-	// 	});
+		this.stage.addChild(this.graphics);
+
+		return this;
+	}
+
+	/**
+	 * The canvas of the renderer.
+	 */
+	get canvas() {
+		return this.renderer.view;
+	}
+
+	/**
+	 * A getter for the current container, specified in the config.
+	 */
+	get stage() {
+		return this.containers.get(this.config.current.container);
+	}
+	/**
+	 * A getter for the current overlay, specified in the config.
+	 */
+	get graphics() {
+		return this.overlays.get(this.config.current.overlay);
+	}
+
+	/**
+	 * This is the main render loop for the PixiJS renderer.
+	 * Invoke this function to redraw the scene.
+	 * 
+	 * @param {number} dt - The time since the last frame in milliseconds.
+	 */
+	render(dt) {
+		for(let [ name, overlay ] of this.overlays) {
+			overlay.clear();
+		}
+
+		this.i = this.i || 0;
+		this.i += 1;
+
+		const { stage, graphics } = this;
+		graphics.beginFill(0xFF0000);
+		graphics.drawCircle(100 + Math.random() * 25, 100 + Math.random() * 25, 25);
+		graphics.endFill();
 		
-	// 	this.app.loader.load(() => console.log("Complete!"));
+		//TODO Probably add render hook manager here and iterate over them
 
-	// 	//* this.app.ticker.add(gameLoop);
-
-	// 	const playerSprite = PixiJS.Sprite.from(this.app.loader.resources[ "player" ].texture);
-	// 	playerSprite.x = this.app.view.width / 2;
-	// 	playerSprite.y = this.app.view.height / 2;
-	// 	playerSprite.anchor.set(0.5);
-
-	// 	this.app.stage.addChild(playerSprite);
-
-	// 	console.log(this.app.loader);
-	// 	console.log(this.app.stage);
-	// }
-
-	// //STUB - Quickly compiled here for future learning
-	// createPlayerSheet() {
-	// 	const playerSheet = new PixiJS.BaseTexture.from(this.app.loader.resources[ "player" ].url);
-	// 	let w = 64,
-	// 		h = 64;
-
-	// 	playerSheet[ "standSouth" ] = [
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(0, 0, w, h)),
-	// 	];
-	// 	playerSheet[ "standNorth" ] = [
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w, 0, w, h)),
-	// 	];
-	// 	playerSheet[ "standWest" ] = [
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 2, 0, w, h)),
-	// 	];
-	// 	playerSheet[ "standEast" ] = [
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 3, 0, w, h)),
-	// 	];
-
-	// 	playerSheet[ "walkSouth" ] = [
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(0, h, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w, h, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 2, h, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 3, h, w, h)),
-	// 	];
-	// 	playerSheet[ "walkNorth" ] = [
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(0, h * 2, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w, h * 2, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 2, h * 2, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 3, h * 2, w, h)),
-	// 	];
-	// 	playerSheet[ "walkWest" ] = [
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(0, h * 3, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w, h * 3, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 2, h * 3, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 3, h * 3, w, h)),
-	// 	];
-	// 	playerSheet[ "walkEast" ] = [
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(0, h * 4, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w, h * 4, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 2, h * 4, w, h)),
-	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 3, h * 4, w, h)),
-	// 	];
-
-	// 	return playerSheet;
-	// }
-
-	// //STUB - Quickly compiled here for future learning
-	// createPlayer() {
-	// 	const playerSheet = this.createPlayerSheet();
-	// 	const player = new PixiJS.Sprite(playerSheet[ "walkSouth" ]);
-	// 	player.loop = false;
-	// 	player.anchor.set(0.5);
-	// 	player.animationSpeed = 0.5;
-	// 	player.x = this.app.view.width / 2;
-	// 	player.y = this.app.view.height / 2;
-
-	// 	this.app.stage.addChild(player);
-
-	// 	player.play();
-
-	// 	return player;
-	// }
-
-	// //STUB - Quickly compiled here for future learning
-	// gameLoop(delta) {
-	// 	// console.log(delta);
-
-	// 	//? Player movement (SOUTH)
-	// 	if(!player.player) {
-	// 		player.textures = playerSheet[ "walkSouth" ];
-	// 		player.play();
-	// 	}
-	// 	player.y -= 5;
-
-	// 	//? Player movement (NORTH)
-	// 	if(!player.player) {
-	// 		player.textures = playerSheet[ "walkNorth" ];
-	// 		player.play();
-	// 	}
-	// 	player.y += 5;
-	// }
+		this.renderer.render(stage);
+	}
 };
 
 export default Pixi;

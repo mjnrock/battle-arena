@@ -2,7 +2,7 @@
 
 import * as PixiJS from "pixi.js";
 import MatterJS from "matter-js";
-import Entity from "./game/lib/ecs/Entity";
+import Entity from "../client/src/game/lib/ecs/Entity";
 
 const entities = Entity.Factory(2, {
 	name: "squirrel",
@@ -11,9 +11,6 @@ const entities = Entity.Factory(2, {
 			100 + Math.random() * 250,
 			100 + Math.random() * 250,
 			30,
-			{
-				isSensor: true,
-			},
 		),
 		sprite: null,
 	},
@@ -156,6 +153,6 @@ setInterval(() => {
 }, 100);
 
 export default {
-	// engine,
+	engine,
 	renderer,
 };
