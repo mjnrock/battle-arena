@@ -67,11 +67,13 @@ export class Pixi {
 
 		/**
 		 * These are PIXI.Graphics objects that are used to draw on the screen.
-		 * This is a map of [ name, PIXI.Graphics ] entries.
+		 * This is a map of [ name, PIXI.Graphics ] entries.  When added, these
+		 * will always be attached to the current container.
 		 */
 		this.overlays = new Map();
 
 		//TODO Load textures with this.loader, map them to Entities; add/remove them to the stage, as appropriate
+		//TODO Move the resource manager to a separate class, but create a link between these for rendering
 		/**
 		 * The default loader for PixiJS, store all of the assets in memory here.
 		 */
@@ -79,7 +81,7 @@ export class Pixi {
 
 		/**
 		 * A container to hold any objects that need to be updated by the main render loop.
-		 * Anything added to this *must* contain a .render method.
+		 * As this is a PIXI.Runner, anything added to this *must* contain a .render method.
 		 */
 		this.observers = new PixiJS.Runner("render");
 		for(let observer of observers) {
@@ -95,14 +97,14 @@ export class Pixi {
 		/**
 		 * Initialize the renderer and modify, as needed.
 		 */
-		Pixi.init(this);
+		Pixi.Init(this);
 	}
 
 	/**
 	 * A general initialization function that will be run on every new instance.
 	 * Override this function to modify the initialization process.
 	 */
-	static init(self) {
+	static Init(self) {
 		/**
 		 * Stop the shared ticker on Pixi and take over the rendering loop.
 		 */
@@ -148,7 +150,7 @@ export class Pixi {
 	/**
 	 * A generalized cleanup function for Pixi instances
 	 */
-	static destroy(self) {
+	static Destroy(self) {
 		self.ticker.stop();
 		self.ticker.remove(self.config.renderListener);
 		self.ticker.destroy();
@@ -164,7 +166,7 @@ export class Pixi {
 	 * Invoke this to cleanup the Pixi instance.
 	 */
 	deconstructor() {
-		Pixi.destroy(this);
+		Pixi.Destroy(this);
 	}
 
 	/**
