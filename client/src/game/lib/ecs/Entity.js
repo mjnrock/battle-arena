@@ -14,12 +14,18 @@ import Registry from "../Registry";
 export class Entity extends Registry {
 	static Components = {};
 
-	constructor ({ components = {}, name, id, tags, init = {} } = {}) {
+	constructor ({ components = {}, name, id, tags, init = {}, ...rest } = {}) {
 		super([], { id, tags });
 
 		this.name = name;
 
 		this.register(components);
+
+		for(let [key, value] of Object.entries(rest)) {
+			if(typeof value === "function") {
+				this[ key ] = value;
+			}
+		}
 
 		/**
 		 * Register the default components

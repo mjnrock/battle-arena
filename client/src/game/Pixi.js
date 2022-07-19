@@ -47,6 +47,12 @@ export class Pixi {
 			 * TODO: Listen for the availability of the fullscreen API and invoke accordingly.
 			 */
 			isFullscreen: false,
+
+			/**
+			 * Rendering cache objects
+			 */
+			lastRender: 0,
+			isAnimating: false,
 		};
 
 		/**
@@ -118,7 +124,7 @@ export class Pixi {
 		// self.config.renderListener = self.render.bind(self);
 		self.config.renderListener = self.render.bind(self);
 		self.ticker.add(self.config.renderListener);
-		self.ticker.stop();
+		self.stop();
 
 		/**
 		 * Add a default stage (PIXI.Container) and graphics (PIXI.Graphics) to the renderer.
@@ -336,11 +342,14 @@ export class Pixi {
 	 * @param {number} dt - The time since the last frame in milliseconds.
 	 */
 	render(dt) {
+		const now = Date.now();
 		this.graphics.clear();
 		
 		this.observers.run(dt, this);
 
 		this.renderer.render(this.stage);
+
+		this.config.lastRender = now;
 	}
 
 	/**
@@ -348,6 +357,7 @@ export class Pixi {
 	 */
 	start() {
 		this.ticker.start();
+		this.config.isAnimating = true;
 
 		return this;
 	}
@@ -356,9 +366,131 @@ export class Pixi {
 	 */
 	stop() {
 		this.ticker.stop();
+		this.config.isAnimating = false;
 
 		return this;
+	}
+	get isAnimating() {
+		return this.config.isAnimating;
 	}
 };
 
 export default Pixi;
+
+
+
+
+
+// preloadAssets () {
+	// 	this.app.loader.baseUrl = "images";
+	// 	this.app.loader
+	// 		.add("player", "player.png")
+	// 		.add("enemy", "enemy.png");
+
+	// 	this.app.loader.onProgress.add((e) => {
+	// 		console.log("Loading assets...", e.progress);
+	// 	});
+	// 	this.app.loader.onComplete.add(() => {
+	// 		console.log("Done loading!");
+	// 	});
+	// 	this.app.loader.onError.add((e) => {
+	// 		console.error("Error", e.message);
+	// 	});
+		
+	// 	this.app.loader.load(() => console.log("Complete!"));
+
+	// 	//* this.app.ticker.add(gameLoop);
+
+	// 	const playerSprite = PixiJS.Sprite.from(this.app.loader.resources[ "player" ].texture);
+	// 	playerSprite.x = this.app.view.width / 2;
+	// 	playerSprite.y = this.app.view.height / 2;
+	// 	playerSprite.anchor.set(0.5);
+
+	// 	this.app.stage.addChild(playerSprite);
+
+	// 	console.log(this.app.loader);
+	// 	console.log(this.app.stage);
+	// }
+
+	// //STUB - Quickly compiled here for future learning
+	// createPlayerSheet() {
+	// 	const playerSheet = new PixiJS.BaseTexture.from(this.app.loader.resources[ "player" ].url);
+	// 	let w = 64,
+	// 		h = 64;
+
+	// 	playerSheet[ "standSouth" ] = [
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(0, 0, w, h)),
+	// 	];
+	// 	playerSheet[ "standNorth" ] = [
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w, 0, w, h)),
+	// 	];
+	// 	playerSheet[ "standWest" ] = [
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 2, 0, w, h)),
+	// 	];
+	// 	playerSheet[ "standEast" ] = [
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 3, 0, w, h)),
+	// 	];
+
+	// 	playerSheet[ "walkSouth" ] = [
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(0, h, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w, h, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 2, h, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 3, h, w, h)),
+	// 	];
+	// 	playerSheet[ "walkNorth" ] = [
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(0, h * 2, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w, h * 2, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 2, h * 2, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 3, h * 2, w, h)),
+	// 	];
+	// 	playerSheet[ "walkWest" ] = [
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(0, h * 3, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w, h * 3, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 2, h * 3, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 3, h * 3, w, h)),
+	// 	];
+	// 	playerSheet[ "walkEast" ] = [
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(0, h * 4, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w, h * 4, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 2, h * 4, w, h)),
+	// 		new PixiJS.Texture(playerSheet, new PixiJS.Rectangle(w * 3, h * 4, w, h)),
+	// 	];
+
+	// 	return playerSheet;
+	// }
+
+	// //STUB - Quickly compiled here for future learning
+	// createPlayer() {
+	// 	const playerSheet = this.createPlayerSheet();
+	// 	const player = new PixiJS.Sprite(playerSheet[ "walkSouth" ]);
+	// 	player.loop = false;
+	// 	player.anchor.set(0.5);
+	// 	player.animationSpeed = 0.5;
+	// 	player.x = this.app.view.width / 2;
+	// 	player.y = this.app.view.height / 2;
+
+	// 	this.app.stage.addChild(player);
+
+	// 	player.play();
+
+	// 	return player;
+	// }
+
+	// //STUB - Quickly compiled here for future learning
+	// gameLoop(delta) {
+	// 	// console.log(delta);
+
+	// 	//? Player movement (SOUTH)
+	// 	if(!player.player) {
+	// 		player.textures = playerSheet[ "walkSouth" ];
+	// 		player.play();
+	// 	}
+	// 	player.y -= 5;
+
+	// 	//? Player movement (NORTH)
+	// 	if(!player.player) {
+	// 		player.textures = playerSheet[ "walkNorth" ];
+	// 		player.play();
+	// 	}
+	// 	player.y += 5;
+	// }
