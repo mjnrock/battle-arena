@@ -197,6 +197,8 @@ export class MouseController extends Identity {
 		e.preventDefault();
 		this.updateMask(e, true);
 
+		console.log(e.type, e.clientX, e.clientY);
+
 		// this.addEvent({
 		// 	type: "down",
 		// 	x: e.clientX,
@@ -209,6 +211,8 @@ export class MouseController extends Identity {
 		e.preventDefault();
 		this.updateMask(e, false);
 
+		console.log(e.type, e.clientX, e.clientY);
+
 		// this.addEvent({
 		// 	type: "up",
 		// 	x: e.clientX,
@@ -220,6 +224,8 @@ export class MouseController extends Identity {
 	onMouseMove(e) {
 		e.preventDefault();
 
+		console.log(e.type, e.clientX, e.clientY);
+
 		// this.addEvent({
 		// 	type: "move",
 		// 	x: e.clientX,
@@ -230,6 +236,8 @@ export class MouseController extends Identity {
 	}
 	onContextMenu(e) {
 		e.preventDefault();
+
+		console.log(e.type, e.clientX, e.clientY);
 
 		// this.addEvent({
 		// 	type: "contextmenu",
