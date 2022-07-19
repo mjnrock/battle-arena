@@ -1,4 +1,3 @@
-import { Runner } from "matter-js";
 import * as PixiJS from "pixi.js";
 
 import MouseController from "./lib/input/MouseController";
@@ -10,7 +9,7 @@ import MouseController from "./lib/input/MouseController";
  * a game loop, but instead relies on external invocation of the .render method.
  */
 export class Pixi {
-	constructor ({ width, height, hooks = [] } = {}) {
+	constructor ({ width, height, observers = [] } = {}) {
 		this.config = {
 			width: width || window.innerWidth,
 			height: height || window.innerHeight,
@@ -38,11 +37,13 @@ export class Pixi {
 
 		/**
 		 * The main containers for the renderer.
+		 * This is a map of [ name, PIXI.Container ] entries.
 		 */
 		this.containers = new Map();
 
 		/**
 		 * These are PIXI.Graphics objects that are used to draw on the screen.
+		 * This is a map of [ name, PIXI.Graphics ] entries.
 		 */
 		this.overlays = new Map();
 
@@ -52,31 +53,13 @@ export class Pixi {
 		this.loader = new PixiJS.Loader();
 
 		/**
-		 * Add any render hooks, such as graphics drawing operations.
+		 * A container to hold any objects that need to be updated by the main render loop.
+		 * Anything added to this *must* contain a .render method.
 		 */
-		this.hooks = new Set(hooks);
-
-		/**
-		 * A container to hold any objects that need to be updated on the main render loop.
-		 * Anything added to this *must* contain a .render method.  If you pass a function,
-		 * it will be wrapped in an object and assigned to the "render" key, returning the 
-		 * newly created object for proper cleanup, when needed.
-		 * 
-		 * NOTE: This fires after the hooks, but before the main render call.
-		 */
-		this.dependents = new PixiJS.Runner("render");
-		const _add = this.dependents.add;
-		this.dependents.add = function(input) {
-			if(typeof input === "function") {
-				input = {
-					render: input,
-				};
-			}
-			
-			_add.call(this, input);
-
-			return input;
-		};
+		this.observers = new PixiJS.Runner("render");
+		for(let observer of observers) {
+			this.observers.add(observer);
+		}
 
 		/**
 		 * A ticker that can be used to invoke the render loop using 
@@ -93,6 +76,9 @@ export class Pixi {
 	}
 
 	init() {
+		/**
+		 * Stop the shared ticker on Pixi and take over the rendering loop.
+		 */
 		PixiJS.Ticker.shared.stop();
 
 		/**
@@ -103,29 +89,45 @@ export class Pixi {
 		this.ticker.add(this.render.bind(this));
 		this.ticker.stop();
 
-		this.containers.set("default", new PixiJS.Container());
+		/**
+		 * Add a default stage (PIXI.Container) and graphics (PIXI.Graphics) to the renderer.
+		 */
+		this.addContainer("default");
 		this.addOverlay("default");
 
-		this.stage.addChild(this.graphics);
-
+		/**
+		 * Bind the mouse controller to the canvas to take over mouse events.
+		 */
 		this.config.mouse = new MouseController({
 			element: this.canvas,
 		});
 
+		/**
+		 * Add a resize listener to the window and resize the renderer.
+		 */
 		window.addEventListener("resize", this.resizeToViewport.bind(this));
 		this.resizeToViewport();
 
+		/**
+		 * Determine the current context type of the renderer and assign it to the config.
+		 */
 		this.getContextType(true);
 
 		return this;
 	}
 
+	/**
+	 * Get the current width and height as a tuple.
+	 */
 	get size() {
 		return [
 			this.config.width,
 			this.config.height,
 		];
 	}
+	/**
+	 * Resize the renderer to the specified width and height.
+	 */
 	resize(width, height) {
 		this.config.width = width;
 		this.config.height = height;
@@ -134,6 +136,9 @@ export class Pixi {
 
 		return this;
 	}
+	/**
+	 * Resize the renderer to the current viewport, using innerWidth and innerHeight.
+	 */
 	resizeToViewport() {
 		return this.resize(window.innerWidth, window.innerHeight);
 	}
@@ -144,9 +149,15 @@ export class Pixi {
 	get canvas() {
 		return this.renderer.view;
 	}
+	/**
+	 * A getter for the canvas' current context.
+	 */
 	get ctx() {
 		return this.config.context.current;
 	}
+	/**
+	 * Determine the current context type of the renderer.
+	 */
 	getContextType(reassign = false) {
 		let type = null;
 
@@ -172,7 +183,9 @@ export class Pixi {
 	get stage() {
 		return this.containers.get(this.config.current.container);
 	}
-
+	/**
+	 * Add a new container to the registry, to be used as a stage.
+	 */
 	addContainer(name, container) {
 		container = container || new PixiJS.Container();
 
@@ -180,6 +193,9 @@ export class Pixi {
 
 		return container;
 	}
+	/**
+	 * Remove a container from the registry.
+	 */
 	removeContainer(name) {
 		const container = this.containers.get(name);
 		
@@ -189,7 +205,10 @@ export class Pixi {
 
 		return false;
 	}
-	useContainer(name) {
+	/**
+	 * Change the current stage to the specified name.
+	 */
+	useContainer(name = "default") {
 		this.config.current.container = name;
 
 		return this;
@@ -201,7 +220,9 @@ export class Pixi {
 	get graphics() {
 		return this.overlays.get(this.config.current.overlay);
 	}
-
+	/**
+	 * Add a new overlay to the registry, to be used as a graphics overlay.
+	 */
 	addOverlay(name, overlay) {
 		overlay = overlay || new PixiJS.Graphics();
 
@@ -211,6 +232,9 @@ export class Pixi {
 
 		return overlay;
 	}
+	/**
+	 * Remove an overlay from the registry.
+	 */
 	removeOverlay(name) {
 		const overlay = this.overlays.get(name);
 		
@@ -222,7 +246,10 @@ export class Pixi {
 
 		return false;
 	}
-	useOverlay(name) {
+	/**
+	 * Change the current overlay to the specified name.
+	 */
+	useOverlay(name = "default") {
 		this.config.current.overlay = name;
 
 		return this;
@@ -238,17 +265,22 @@ export class Pixi {
 	render(dt) {
 		this.graphics.clear();
 		
-		this.hooks.forEach(hook => hook(dt, this));
-		this.dependents.run(dt, this);
+		this.observers.run(dt, this);
 
 		this.renderer.render(this.stage);
 	}
 
+	/**
+	 * Start the main render loop.
+	 */
 	start() {
 		this.ticker.start();
 
 		return this;
 	}
+	/**
+	 * Stop the main render loop.
+	 */
 	stop() {
 		this.ticker.stop();
 

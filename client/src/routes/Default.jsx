@@ -12,33 +12,25 @@ import Pixi from "../game/Pixi";
 const pixi = new Pixi({
 	width: 500,
 	height: 500,
+	observers: [
+		{
+			render(dt, px) {
+				const { stage, graphics } = px;
+				graphics.beginFill(0xFF0000);
+				graphics.drawCircle(100 + Math.random() * 10, 100 + Math.random() * 10, 25);
+				graphics.endFill();
+			},
+		},
+		{
+			render(dt, px) {
+				const { stage, graphics } = px;
+				graphics.beginFill(0xFF00FF);
+				graphics.drawCircle(500 + Math.random() * 10, 500 + Math.random() * 10, 25);
+				graphics.endFill();
+			},
+		},
+	]
 });
-pixi.dependents.add({
-	render(dt, px) {
-		const { stage, graphics } = px;
-		graphics.beginFill(0xFF0000);
-		graphics.drawCircle(100 + Math.random() * 10, 100 + Math.random() * 10, 25);
-		graphics.endFill();
-	},
-})
-pixi.dependents.add({
-	render(dt, px) {
-		const { stage, graphics } = px;
-		graphics.beginFill(0xFF00FF);
-		graphics.drawCircle(500 + Math.random() * 10, 500 + Math.random() * 10, 25);
-		graphics.endFill();
-	},
-});
-const a = pixi.dependents.add((dt, px) => {
-	const { stage, graphics } = px;
-	graphics.beginFill(0x00FF00);
-	graphics.drawCircle(500 + Math.random() * 10, 100 + Math.random() * 10, 25);
-	graphics.endFill();
-});
-// console.log(a)
-// setTimeout(() => {
-// 	pixi.dependents.remove(a);
-// }, 1500)
 
 export function Default() {
 	const { game } = useContext(Context);
