@@ -10,18 +10,42 @@ import MouseController from "./lib/input/MouseController";
  */
 export class Pixi {
 	constructor ({ width, height, observers = [] } = {}) {
+		/**
+		 * The general configuration and internal cache storage.
+		 */
 		this.config = {
+			/**
+			 * Cache the width and height of the canvas.
+			 */
 			width: width || window.innerWidth,
 			height: height || window.innerHeight,
+
+			/**
+			 * Store the current container and overlay from their respective Maps.
+			 */
 			current: {
 				container: "default",
 				overlay: "default",
 			},
+
+			/**
+			 * This will contain the initialized MouseController.
+			 * TODO: Generalize this to input controllers and refactor accordingly.
+			 */
 			mouse: null,
+
+			/**
+			 * Cache the canvas' context information
+			 */
 			context: {
 				current: null,
 				type: null,
 			},
+
+			/**
+			 * A boolean to indicate whether or not the renderer leverage (and invoke) the Fullscreen API.
+			 * TODO: Listen for the availability of the fullscreen API and invoke accordingly.
+			 */
 			isFullscreen: false,
 		};
 
@@ -47,6 +71,7 @@ export class Pixi {
 		 */
 		this.overlays = new Map();
 
+		//TODO Load textures with this.loader, map them to Entities; add/remove them to the stage, as appropriate
 		/**
 		 * The default loader for PixiJS, store all of the assets in memory here.
 		 */
@@ -67,15 +92,17 @@ export class Pixi {
 		 */
 		this.ticker = new PixiJS.Ticker();
 
-
-		//TODO Load textures with this.loader, map them to Entities; add/remove them to the stage, as appropriate
-	
-		//TODO Add a resize event listener to the window
-
-		this.init();
+		/**
+		 * Initialize the renderer and modify, as needed.
+		 */
+		Pixi.init(this);
 	}
 
-	init() {
+	/**
+	 * A general initialization function that will be run on every new instance.
+	 * Override this function to modify the initialization process.
+	 */
+	static init(self) {
 		/**
 		 * Stop the shared ticker on Pixi and take over the rendering loop.
 		 */
@@ -86,34 +113,65 @@ export class Pixi {
 		 * you must manually start the ticker again if you want to use it
 		 * as the main render loop.
 		 */
-		this.ticker.add(this.render.bind(this));
-		this.ticker.stop();
+		// self.config.renderListener = self.render.bind(self);
+		self.config.renderListener = self.render.bind(self);
+		self.ticker.add(self.config.renderListener);
+		self.ticker.stop();
 
 		/**
 		 * Add a default stage (PIXI.Container) and graphics (PIXI.Graphics) to the renderer.
 		 */
-		this.addContainer("default");
-		this.addOverlay("default");
+		self.addContainer("default");
+		self.addOverlay("default");
 
 		/**
 		 * Bind the mouse controller to the canvas to take over mouse events.
 		 */
-		this.config.mouse = new MouseController({
-			element: this.canvas,
+		self.config.mouse = new MouseController({
+			element: self.canvas,
 		});
 
 		/**
 		 * Add a resize listener to the window and resize the renderer.
 		 */
-		window.addEventListener("resize", this.resizeToViewport.bind(this));
-		this.resizeToViewport();
+		self.config.resizeListener = self.resizeToViewport.bind(self);
+		window.addEventListener("resize", self.config.resizeListener);
+		self.resizeToViewport();
 
 		/**
 		 * Determine the current context type of the renderer and assign it to the config.
 		 */
-		this.getContextType(true);
+		self.getContextType(true);
 
-		return this;
+		return self;
+	}
+	/**
+	 * A generalized cleanup function for Pixi instances
+	 */
+	static destroy(self) {
+		self.ticker.stop();
+		self.ticker.remove(self.config.renderListener);
+		self.ticker.destroy();
+
+		self.observers.destroy();
+
+		self.renderer.destroy(true);
+
+		window.removeEventListener("resize", self.config.resizeListener);
+	}
+
+	/**
+	 * Invoke this to cleanup the Pixi instance.
+	 */
+	deconstructor() {
+		Pixi.destroy(this);
+	}
+
+	/**
+	 * A convenience getter for the MouseController
+	 */
+	get mouse() {
+		return this.config.mouse;
 	}
 
 	/**
@@ -124,6 +182,19 @@ export class Pixi {
 			this.config.width,
 			this.config.height,
 		];
+	}
+	/**
+	 * Get the current bounds of the canvas.
+	 */
+	get bounds() {
+		const canvas = this.canvas;
+
+		return {
+			x: canvas.offsetLeft,
+			y: canvas.offsetTop,
+			width: canvas.offsetWidth,
+			height: canvas.offsetHeight,
+		};
 	}
 	/**
 	 * Resize the renderer to the specified width and height.
