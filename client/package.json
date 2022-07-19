@@ -8,6 +8,7 @@
 		"@testing-library/react": "^13.0.0",
 		"@testing-library/user-event": "^13.2.1",
 		"esm": "^3.2.25",
+		"is-base64": "^1.1.0",
 		"mainloop.js": "^1.0.4",
 		"matter-js": "^0.18.0",
 		"pixi.js": "^6.4.2",

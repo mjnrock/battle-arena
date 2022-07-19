@@ -1,6 +1,7 @@
 import * as PixiJS from "pixi.js";
 
 import MouseController from "./lib/input/MouseController";
+import Runner from "./lib/relay/Runner";
 
 /**
  * This is the main render wrapper class.  All rendering should be done through this class,
@@ -87,9 +88,9 @@ export class Pixi {
 
 		/**
 		 * A container to hold any objects that need to be updated by the main render loop.
-		 * As this is a PIXI.Runner, anything added to this *must* contain a .render method.
+		 * As this is a typed Runner, anything added to this *must* contain a .render method.
 		 */
-		this.observers = new PixiJS.Runner("render");
+		this.observers = new Runner("render");
 		for(let observer of observers) {
 			this.observers.add(observer);
 		}
@@ -135,9 +136,9 @@ export class Pixi {
 		/**
 		 * Bind the mouse controller to the canvas to take over mouse events.
 		 */
-		self.config.mouse = new MouseController({
-			element: self.canvas,
-		});
+		// self.config.mouse = new MouseController({
+		// 	element: self.canvas,
+		// });
 
 		/**
 		 * Add a resize listener to the window and resize the renderer.

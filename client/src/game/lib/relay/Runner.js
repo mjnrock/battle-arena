@@ -31,7 +31,7 @@ export class Runner {
 	}
 
 	run(...args) {
-		const results = this.listeners.map(listener => listener[ this.name ](...args));
+		const results = Array.from(this.listeners).map(listener => listener[ this.name ](...args));
 
 		return results;
 	}

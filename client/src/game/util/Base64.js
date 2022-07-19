@@ -1,8 +1,9 @@
 //TODO Newer JS syntax is not supported in a node-fetch dependency
 import isBase64 from "is-base64";
-import nodeFetch from "node-fetch";
+// import nodeFetch from "node-fetch";
 
-const envFetch = nodeFetch || fetch;
+// const envFetch = nodeFetch || fetch;
+const envFetch = fetch;
 
 export const Base64 = {
     test: input => isBase64(input, { mimeRequired: true }),

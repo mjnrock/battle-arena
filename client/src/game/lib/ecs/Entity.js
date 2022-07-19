@@ -64,7 +64,7 @@ export class Entity extends Registry {
 	 * NOTE: This will **always** evaluate the root-level functions
 	 * within the @components parameter, so as not to create collisions.
 	 */
-	static Factory(qty = 1, { components = {}, ...rest } = {}) {
+	static Factory(qty = 1, { components = {}, each, ...rest } = {}) {
 		return new Array(qty).fill(0).map(() => {
 			const entity = new this({ components: [], ...rest });
 			const next = { ...components };
@@ -96,6 +96,10 @@ export class Entity extends Registry {
 				}
 
 				i++;
+			}
+
+			if(each) {
+				each(entity, i);
 			}
 
 			return entity;
