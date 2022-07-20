@@ -109,6 +109,16 @@ export class Identity {
 		this.id = id || uuid();
 		this.tags = new Set(tags);
 	}
+
+	toObject() {
+		return {
+			id: this.id,
+			tags: Array.from(this.tags),
+		};
+	}
+	toString() {
+		return JSON.stringify(this.toObject());
+	}
 };
 
 export default Identity;
