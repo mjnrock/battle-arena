@@ -246,6 +246,18 @@ export class Registry extends Identity {
 	add(value, id, config = {}, encoderArgs = []) {
 		return this._config.encoder(this, ...encoderArgs)(value, id, config);
 	}
+	/**
+	 * This is identical to .add, but with an optional alias.
+	 */
+	addWithAlias(input, alias) {
+		const uuid = this.add(input);
+
+		if(alias) {
+			this.addAlias(uuid, alias);
+		}
+
+		return uuid;
+	}
 	addMany(obj = {}) {
 		const ids = [];
 		for(let alias in obj) {
