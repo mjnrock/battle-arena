@@ -4,15 +4,13 @@ import { Rectangle } from "./shapes/Rectangle";
 
 /**
  * A Tile is a rectangular image that is pulled from a source image.  The Tile
- * contains a dedicated canvas that is used to replicate the snippet, as well
+ * contains a dedicated canvas that is used to replicate the tile, as well
  * as a source reference to the original canvas, should it be required.
  * 
  * The tile data is encoded in the boundary property, using the source image as
  * the reference basis (i.e. Tile coordinates are relative to the source top-left).
  * 
- * NOTE: This class is meant as a storage container for sprite data, and
- * therefore explicitly does not use any PIXI references -- PIXI would be expected to
- * use data from this class.
+ * NOTE: This class is meant as a data storage container for image/sprite data.
  */
 export class Tile extends Identity {
 	constructor ({ x, y, width, height, source, boundary, ...rest } = {}) {
@@ -27,40 +25,40 @@ export class Tile extends Identity {
 		/**
 		 * HTMLCanvasElement
 		 */
-		this.snippet = document.createElement("canvas");
+		this.tile = document.createElement("canvas");
 		this.load(source);
 
 		this.source = source;
 	}
 
 	/**
-	 * Alias for the snippet canvas.
+	 * Alias for the tile canvas.
 	 */
 	get canvas() {
-		return this.snippet;
+		return this.tile;
 	}
 	/**
-	 * Get the 2D context of the snippet canvas.
+	 * Get the 2D context of the tile canvas.
 	 */
 	get ctx() {
-		return this.snippet.getContext("2d");
+		return this.tile.getContext("2d");
 	}
 
 	/**
-	 * Used to actually create the canvas snippet.
+	 * Used to actually create the canvas tile.
 	 */
 	load(canvas) {
 		/**
 		 * Erase any existing image data
 		 */
-		this.ctx.clearRect(0, 0, this.snippet.width, this.snippet.height);
-		this.snippet.width = this.boundary.width;
-		this.snippet.height = this.boundary.height;
+		this.ctx.clearRect(0, 0, this.tile.width, this.tile.height);
+		this.tile.width = this.boundary.width;
+		this.tile.height = this.boundary.height;
 
 		/**
-		 * Draw the source image onto the snippet canvas, using the boundary as the clipping area
+		 * Draw the source image onto the tile canvas, using the boundary as the clipping area
 		 */
-		this.ctx.drawImage(canvas, this.boundary.x, this.boundary.y, this.boundary.width, this.boundary.height, 0, 0, this.snippet.width, this.snippet.height);
+		this.ctx.drawImage(canvas, this.boundary.x, this.boundary.y, this.boundary.width, this.boundary.height, 0, 0, this.tile.width, this.tile.height);
 
 		return this;
 	}
@@ -72,21 +70,21 @@ export class Tile extends Identity {
 	}
 
 	/**
-	 * Convenience method for creating an ImageData object from the snippet
+	 * Convenience method for creating an ImageData object from the tile
 	 */
 	toImageData() {
-		return this.ctx.getImageData(0, 0, this.snippet.width, this.snippet.height);
+		return this.ctx.getImageData(0, 0, this.tile.width, this.tile.height);
 	}
 	/**
-	 * Convenience method for creating a base64 string from the snippet
+	 * Convenience method for creating a base64 string from the tile
 	 */
 	toDataURL(type = "image/png", quality = 1.0) {
-		return this.snippet.toDataURL(type, quality);
+		return this.tile.toDataURL(type, quality);
 	}
 
 	/**
 	 * Convert the Tile into an object, while converting
-	 * the snippet image as a base64 string via this.toDataURL().
+	 * the tile image as a base64 string via this.toDataURL().
 	 * As such, those arguments can be passed here.
 	 */
 	toObject(type = "image/png", quality = 1.0) {

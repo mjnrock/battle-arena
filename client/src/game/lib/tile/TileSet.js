@@ -33,6 +33,10 @@ export class TileSet extends Tile {
 		};
 	}
 
+	[ Symbol.iterator ]() {
+		return this.tiles[ Symbol.iterator ]();
+	}
+
 	addTileData({ alias, tx, ty, x, y, ...rest } = {}) {
 		if(typeof tx === "number" && typeof ty === "number") {
 			x = tx * this.config.tw;
