@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 import { Base64 } from "../game/util/Base64";
 import { Tessellator } from "./../game/lib/tile/Tessellator";
+import { SpriteSheet } from "./../game/lib/tile/pixi/SpriteSheet";
 
 export function Test() {
 	const canvasRef = useRef(null);
@@ -26,21 +27,28 @@ export function Test() {
 				args: [ { tw: 32, th: 32 } ],
 			});
 
+			const spriteSheet = new SpriteSheet({
+				tileset: tessellator.tileset,
+			});
+
 			for(let [ uuid, tile ] of tessellator.tileset) {
 				if(Math.random() < 0.5) {
 					ctx.drawImage(
 						tile.canvas,
 
-						tile.boundary.x,
-						tile.boundary.y,
-						tile.boundary.width,
-						tile.boundary.height
+						tile.offset.x,
+						tile.offset.y,
+						tile.offset.width,
+						tile.offset.height
 					);
 				}
 			}
 
 			console.log(tessellator.tileset.tiles[ "squirrel.normal.north.0" ]);
 			console.log(tessellator.tileset.tiles[ "squirrel.normal.south.1" ]);
+
+			console.log(spriteSheet.get("squirrel.normal.north.0"));
+			console.log(spriteSheet.get("squirrel.normal.south.1"));
 		}
 	}, [ source ]);
 

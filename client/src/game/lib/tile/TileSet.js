@@ -44,6 +44,7 @@ export class TileSet extends Tile {
 		}
 
 		const tile = new Tile({
+			alias,
 			x,
 			y,
 			width: this.config.tw,

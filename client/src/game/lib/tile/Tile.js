@@ -7,20 +7,21 @@ import { Rectangle } from "./shapes/Rectangle";
  * contains a dedicated canvas that is used to replicate the tile, as well
  * as a source reference to the original canvas, should it be required.
  * 
- * The tile data is encoded in the boundary property, using the source image as
+ * The tile data is encoded in the offset property, using the source image as
  * the reference basis (i.e. Tile coordinates are relative to the source top-left).
  * 
  * NOTE: This class is meant as a data storage container for image/sprite data.
  */
 export class Tile extends Identity {
-	constructor ({ x, y, width, height, source, boundary, ...rest } = {}) {
+	constructor ({ alias, x, y, width, height, source, offset, ...rest } = {}) {
 		super({ ...rest });
 
 		if(!(source instanceof HTMLCanvasElement)) {
 			throw new Error("@source must be an instance of HTMLCanvasElement");
 		}
 
-		this.boundary = boundary instanceof Rectangle ? boundary : new Rectangle({ x, y, width, height });
+		this.alias = alias;
+		this.offset = offset instanceof Rectangle ? offset : new Rectangle({ x, y, width, height });
 
 		/**
 		 * HTMLCanvasElement
@@ -32,10 +33,10 @@ export class Tile extends Identity {
 	}
 
 	get width() {
-		return this.boundary.width;
+		return this.offset.width;
 	}
 	get height() {
-		return this.boundary.height;
+		return this.offset.height;
 	}
 	get size() {
 		return [ this.width, this.height ];
@@ -62,13 +63,13 @@ export class Tile extends Identity {
 		 * Erase any existing image data
 		 */
 		this.ctx.clearRect(0, 0, this.tile.width, this.tile.height);
-		this.tile.width = this.boundary.width;
-		this.tile.height = this.boundary.height;
+		this.tile.width = this.offset.width;
+		this.tile.height = this.offset.height;
 
 		/**
-		 * Draw the source image onto the tile canvas, using the boundary as the clipping area
+		 * Draw the source image onto the tile canvas, using the offset as the clipping area
 		 */
-		this.ctx.drawImage(canvas, this.boundary.x, this.boundary.y, this.boundary.width, this.boundary.height, 0, 0, this.tile.width, this.tile.height);
+		this.ctx.drawImage(canvas, this.offset.x, this.offset.y, this.offset.width, this.offset.height, 0, 0, this.tile.width, this.tile.height);
 
 		return this;
 	}
@@ -101,7 +102,7 @@ export class Tile extends Identity {
 		return {
 			...super.toObject(),
 
-			boundary: this.boundary.toObject(),
+			offset: this.offset.toObject(),
 			source: this.toDataURL(type, quality),
 		};
 	}
@@ -119,7 +120,7 @@ export class Tile extends Identity {
 		return await Base64.Decode(object.source).then(source => new Tile({
 			...object,
 			source,
-			boundary: Rectangle.FromObject(object.boundary),
+			offset: Rectangle.FromObject(object.offset),
 		}));
 	}
 };
