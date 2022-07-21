@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Base64 } from "../game/util/Base64";
 
+import { Base64 } from "../game/util/Base64";
 import { Tessellator } from "./../game/lib/tile/Tessellator";
-import { Tile } from "./../game/lib/tile/Tile";
 
 export function Test() {
 	const canvasRef = useRef(null);
 	const [ source, setSource ] = useState();
-	const [ tiles, setTiles ] = useState([]);
 
 	useEffect(() => {
 		Base64.FileDecode("assets/images/squirrel.png").then(canvas => setSource(canvas));
@@ -18,30 +16,31 @@ export function Test() {
 			const canvas = canvasRef.current;
 			const ctx = canvas.getContext("2d");
 
-			// canvas.width = source.width;
-			// canvas.height = source.height;
+			canvas.width = 1000;
+			canvas.height = 800;
 
-			
-			const [ tile1 ] = [
-				new Tile({
-					x: 32,
-					y: 32,
-					width: 32,
-					height: 32,
-					source: source,
-					// source: ctx.getImageData(0, 0, 32, 32)
-				}),
-			];
+			const tessellator = Tessellator.FromCanvas({
+				alias: "squirrel",
+				canvas: source,
+				algorithm: Tessellator.Algorithms.GridBased,
+				args: [ { tw: 32, th: 32 } ],
+			});
 
-			canvas.width = tile1.boundary.width;
-			canvas.height = tile1.boundary.height;
-			ctx.drawImage(tile1.canvas, 0, 0);
+			for(let [ uuid, tile ] of tessellator.tileset) {
+				if(Math.random() < 0.5) {
+					ctx.drawImage(
+						tile.canvas,
 
-			console.log(tile1.canvas.toDataURL());
+						tile.boundary.x,
+						tile.boundary.y,
+						tile.boundary.width,
+						tile.boundary.height
+					);
+				}
+			}
 
-			setTiles([
-				tile1,
-			]);
+			console.log(tessellator.tileset.tiles[ "squirrel.normal.north.0" ]);
+			console.log(tessellator.tileset.tiles[ "squirrel.normal.south.1" ]);
 		}
 	}, [ source ]);
 

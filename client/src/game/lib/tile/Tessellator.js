@@ -18,10 +18,47 @@ import { TileSet } from "./TileSet";
  */
 export class Tessellator {
 	static Algorithms = {
-		GridBased: (source, { tw, th } = {}) => {
-			const tileset = new TileSet({ source });
+		GridBased: (self, { tw, th } = {}) => {
+			if(self.source.width % tw !== 0 || self.source.height % th !== 0) {
+				throw new Error("Source image dimensions must be evenly divisible by tile dimensions.");
+			}
 
-			//TODO - Implement grid-based tessellation.
+			const tileset = new TileSet({ source: self.source, tw, th });
+			const directions = [ "north", "east", "south", "west" ];
+			
+			//TODO: Profile the image before tessellating, returning [ [ row_i, col_count ], ... ]
+			//TODO: Parameterize this and perhaps only pass ({ x, y, imageProfileResults })
+			const name = ({ entity, state, direction, index }) => `${ entity }.${ state }.${ direction }.${ index }`;
+
+			let diri = 0;
+			for(let y = 0; y < tileset.height; y += th) {
+				let index = 0;
+				for(let x = 0; x < tileset.width; x += tw) {
+					const direction = directions[ diri ];
+					const alias = name({
+						entity: self.alias,
+						state: "normal",
+						direction: direction,
+						index: index,
+					});
+
+					//FIXME: This current assumes that the source image is saturated -- account for early EOR for @index
+					tileset.addTileData({
+						alias: alias,
+						x,
+						y,
+						width: tw,
+						height: th,
+					});
+
+					++index;
+				}
+				++diri;
+
+				if(diri >= directions.length) {
+					diri = 0;
+				}
+			}
 
 			return tileset;
 		},
@@ -34,18 +71,49 @@ export class Tessellator {
 		this.tileset = null;
 	}
 
-	async tessellate(algorithm, ...args) {
-		const tileset = await algorithm(this.source, ...args);
+	/**
+	 * Perform the tessellation algorithm on the source image.
+	 */
+	tessellate(algorithm, ...args) {
+		const tileset = algorithm(this, ...args);
 
 		this.tileset = tileset;
 
-		return this;
+		return tileset;
 	}
 
-	static async FetchFile(url, alias) {
+	/**
+	 * Asynchronously loads a source image, optionally tessellating it if
+	 * an algorithm is provided; else, the new Tessellator will be returned
+	 * without tessellation.
+	 */
+	static async FromFile({ url, alias, algorithm, args = [] } = {}) {
 		const canvas = await Base64.FileDecode(url);
+		const tessellator = new Tessellator({ alias, source: canvas });
 
-		return new Tessellator({ alias, source: canvas });
+		if(typeof algorithm !== "function") {
+			return tessellator;
+		}
+
+		tessellator.tessellate(algorithm, ...args);
+
+		return tessellator;
+	}
+	/**
+	 * Create a new Tessellator from a source image, optionally tessellating it
+	 * if an algorithm is provided; else, the new Tessellator will be returned
+	 * without tessellation.
+	 */
+	static FromCanvas({ canvas, alias, algorithm, args = [] } = {}) {
+		const tessellator = new Tessellator({ alias, source: canvas });
+
+		if(typeof algorithm !== "function") {
+			return tessellator;
+		}
+
+		tessellator.tessellate(algorithm, ...args);
+
+		return tessellator;
 	}
 };
 

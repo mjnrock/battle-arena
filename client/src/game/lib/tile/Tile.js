@@ -31,6 +31,16 @@ export class Tile extends Identity {
 		this.source = source;
 	}
 
+	get width() {
+		return this.boundary.width;
+	}
+	get height() {
+		return this.boundary.height;
+	}
+	get size() {
+		return [ this.width, this.height ];
+	}
+
 	/**
 	 * Alias for the tile canvas.
 	 */

@@ -249,11 +249,11 @@ export class Registry extends Identity {
 	/**
 	 * This is identical to .add, but with an optional alias.
 	 */
-	addWithAlias(input, alias) {
+	addWithAlias(input, ...aliases) {
 		const uuid = this.add(input);
 
-		if(alias) {
-			this.addAlias(uuid, alias);
+		if(uuid) {
+			this.addAlias(uuid, ...aliases);
 		}
 
 		return uuid;

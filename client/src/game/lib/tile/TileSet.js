@@ -5,7 +5,7 @@ import { Tile } from "./Tile";
 
 /**
  * A TileSet is both a Tile itself, and a Registry of child Tiles.  Each Tile
- * in the registry is a stadalone representation of that tile snippet, but also
+ * in the registry is a stadalone representation of that tile, but also
  * contains the metadata relative to this.source.
  * 
  * Tiles can be added directly, or they can be created from the source image by
@@ -48,7 +48,7 @@ export class TileSet extends Tile {
 			y,
 			width: this.config.tw,
 			height: this.config.th,
-			source: this.snippet,
+			source: this.tile,
 			...rest,
 		});
 
