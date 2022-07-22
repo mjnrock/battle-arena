@@ -3,13 +3,32 @@ import { useState, useEffect, useRef } from "react";
 import { Base64 } from "../game/util/Base64";
 import { Tessellator } from "./../game/lib/tile/Tessellator";
 import { SpriteSheet } from "./../game/lib/tile/pixi/SpriteSheet";
+import Timer from "../game/lib/tile/animate/Timer";
 
 export function Test() {
 	const canvasRef = useRef(null);
 	const [ source, setSource ] = useState();
+	const timer = new Timer({
+		cadence: [ 100, 100, 1250, 2000 ],
+		listeners: {
+			next: [
+				({ id, current, elapsed }) => console.log("next", id, current, elapsed),
+			],
+			loop: [
+				({ id, current, elapsed }) => console.log("loop", id, current, elapsed),
+			],
+		},
+	});
 
 	useEffect(() => {
 		Base64.FileDecode("assets/images/squirrel.png").then(canvas => setSource(canvas));
+
+		timer.start();
+		console.log(timer)
+
+		return () => {
+			timer.stop();
+		};
 	}, []);
 
 	useEffect(() => {
