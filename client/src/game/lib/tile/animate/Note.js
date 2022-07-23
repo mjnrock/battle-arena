@@ -4,6 +4,17 @@ export class Note {
 		this.duration = duration;
 		this.isRelative = isRelative;
 	}
+
+	setIsRelative() {
+		this.isRelative = true;
+
+		return this;
+	}
+	setIsAbsolute() {
+		this.isRelative = false;
+
+		return this;
+	}
 };
 
 export default Note;

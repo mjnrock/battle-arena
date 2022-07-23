@@ -4,31 +4,33 @@ import { Base64 } from "../game/util/Base64";
 import { Tessellator } from "./../game/lib/tile/Tessellator";
 import { SpriteSheet } from "./../game/lib/tile/pixi/SpriteSheet";
 import Timer from "../game/lib/tile/animate/Timer";
+import Measure from "../game/lib/tile/animate/Measure";
+import Score from "../game/lib/tile/animate/Score";
 
 export function Test() {
 	const canvasRef = useRef(null);
 	const [ source, setSource ] = useState();
-	const timer = new Timer({
-		cadence: [ 100, 100, 1250, 2000 ],
-		listeners: {
-			next: [
-				({ id, current, elapsed }) => console.log("next", id, current, elapsed),
-			],
-			loop: [
-				({ id, current, elapsed }) => console.log("loop", id, current, elapsed),
-			],
-		},
-	});
+	// const timer = new Timer({
+	// 	cadence: [ 100, 100, 1250, 2000 ],
+	// 	listeners: {
+	// 		next: [
+	// 			({ id, current, elapsed }) => console.log("next", id, current, elapsed),
+	// 		],
+	// 		loop: [
+	// 			({ id, current, elapsed }) => console.log("loop", id, current, elapsed),
+	// 		],
+	// 	},
+	// });
 
 	useEffect(() => {
 		Base64.FileDecode("assets/images/squirrel.png").then(canvas => setSource(canvas));
 
-		timer.start();
-		console.log(timer)
+		// timer.start();
+		// console.log(timer)
 
-		return () => {
-			timer.stop();
-		};
+		// return () => {
+		// 	timer.stop();
+		// };
 	}, []);
 
 	useEffect(() => {
@@ -50,6 +52,25 @@ export function Test() {
 				tileset: tessellator.tileset,
 			});
 
+			const measure = Measure.CreateEqual(
+				"squirrel.normal.north.0",
+				"squirrel.normal.north.1"
+			);
+			const score = new Score({
+				measures: [ measure ],
+			});
+			score.timer.parseListeners({
+				next: [
+					({ id, current, elapsed }) => {
+						// spriteImageIndex = current;
+						console.log("next", id, current, elapsed);
+					},
+				],
+			});
+			score.timer.start();
+
+			console.log(score.timer)
+
 			for(let [ uuid, tile ] of tessellator.tileset) {
 				if(Math.random() < 0.5) {
 					ctx.drawImage(
@@ -60,6 +81,16 @@ export function Test() {
 						tile.offset.width,
 						tile.offset.height
 					);
+				} else {
+					ctx.strokeStyle = "red";
+					ctx.beginPath();
+					ctx.rect(
+						tile.offset.x,
+						tile.offset.y,
+						tile.offset.width,
+						tile.offset.height
+					);
+					ctx.stroke();
 				}
 			}
 
