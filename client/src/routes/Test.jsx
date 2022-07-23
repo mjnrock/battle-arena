@@ -71,6 +71,12 @@ export function Test() {
 
 			console.log(score.timer)
 
+			/**
+			 ** HEY READ THIS
+			 *? HEY READ THIS
+			 * TODO Next steps for testing are to bounce the Score into a Track and test on the PIXI renderer
+			 */
+
 			for(let [ uuid, tile ] of tessellator.tileset) {
 				if(Math.random() < 0.5) {
 					ctx.drawImage(
