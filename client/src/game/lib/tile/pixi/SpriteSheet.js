@@ -31,6 +31,8 @@ export class SpriteSheet extends Identity {
 	get(alias) {
 		return this.textures.get(alias);
 	}
+
+	//FIXME: Verify this works
 	toObject(type = "image/png", quality = 1.0) {
 		return {
 			...super.toObject(),

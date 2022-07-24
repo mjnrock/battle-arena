@@ -625,6 +625,7 @@ export class Registry extends Identity {
 		return this._entries.size;
 	}
 
+	//FIXME: Verify this works
 	toObject() {
 		const obj = {};
 		for(let [ id, entry ] of this) {

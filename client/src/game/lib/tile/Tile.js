@@ -98,6 +98,7 @@ export class Tile extends Identity {
 	 * the tile image as a base64 string via this.toDataURL().
 	 * As such, those arguments can be passed here.
 	 */
+	//FIXME: Verify this works
 	toObject(type = "image/png", quality = 1.0) {
 		return {
 			...super.toObject(),
