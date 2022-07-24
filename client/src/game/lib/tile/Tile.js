@@ -102,8 +102,11 @@ export class Tile extends Identity {
 		return {
 			...super.toObject(),
 
+			...this,
+
 			offset: this.offset.toObject(),
 			source: this.toDataURL(type, quality),
+			tile: this.toDataURL(type, quality),
 		};
 	}
 	/**

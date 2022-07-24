@@ -31,6 +31,16 @@ export class SpriteSheet extends Identity {
 	get(alias) {
 		return this.textures.get(alias);
 	}
+	toObject(type = "image/png", quality = 1.0) {
+		return {
+			...super.toObject(),
+
+			...this,
+
+			tileset: this.tileset.toObject(type, quality),
+			textures: Object.fromEntries(this.textures.entries()),
+		};
+	}
 };
 
 export default SpriteSheet;

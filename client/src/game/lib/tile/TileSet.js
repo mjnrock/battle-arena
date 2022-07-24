@@ -89,6 +89,16 @@ export class TileSet extends Tile {
 		return this;
 	}
 
+	toObject(type = "image/png", quality = 1.0) {
+		return {
+			...super.toObject(),
+
+			...this,
+
+			tiles: this.tiles.toObject(),
+		};
+	}
+
 	async FetchFile(url, { ...opts } = {}) {
 		const canvas = await Base64.FileDecode(url);
 		const tileSet = new TileSet({ source: canvas, ...opts });

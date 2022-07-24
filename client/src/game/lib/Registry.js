@@ -624,6 +624,18 @@ export class Registry extends Identity {
 	get count() {
 		return this._entries.size;
 	}
+
+	toObject() {
+		const obj = {};
+		for(let [ id, entry ] of this) {
+			obj[ id ] = entry.value;
+		}
+
+		return obj;
+	}
+	toString() {
+		return JSON.stringify(this.toObject());
+	}
 }
 
 export default Registry;
