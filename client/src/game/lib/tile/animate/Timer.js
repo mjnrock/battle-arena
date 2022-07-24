@@ -1,10 +1,22 @@
 import { Identity } from "./../../Identity";
 import { Invoker } from "../../relay/Invoker";
 
+/**
+ * When in delta-mode, the Timer expects to be fed a delta-time in milliseconds.  In practice, this
+ * .next invocation should happen from the Game's update method.  When the .next is invoked, the current
+ * time will be used to calculate the appropriate index-offset, given the current time.  It can then be
+ * queried for the current sprite index, to be linked with a Track.  When in timeout-mode, the Timer
+ * will automatically invoke its .next method at the cadence of the current index.  When .next is
+ * invoked, the next index will be calculated on the expiration of a setTimeout callback, set to the timeout
+ * of the current index's duration, as per this.cadence[ this.current ].
+ */
 export class Timer extends Identity {
+	/**
+	 * Used as a static reference point for any Timer to use as a baseline point-in-time.
+	 */
 	static CoreTime = Date.now();
 
-	constructor ({ start = false, loop = true, cadence = [], listeners = {}, type = "timeout", ...rest } = {}) {
+	constructor ({ start = false, loop = true, cadence = [], listeners = {}, isDelta = true, ...rest } = {}) {
 		super({ ...rest });
 
 		this.current = 0;
@@ -20,7 +32,14 @@ export class Timer extends Identity {
 		};
 
 		this.config = {
-			type, 				// "timeout" or "delta"
+			/**
+			 * When TRUE, the Timer will expect .next to receive the current timestamp,
+			 * so that it can calculate the appropriate index.
+			 * When FALSE, the Timer will expect .next to receive nothing, and will instead
+			 * begin (or continue) a setTimeout chain, that will continue (or not) based
+			 * on config.loop.
+			 */
+			isDelta,
 			start: null,
 			loop: loop,
 			timeout: null,
@@ -41,6 +60,10 @@ export class Timer extends Identity {
 		return this.config.start !== null;
 	}
 
+	/**
+	 * A convenience method for parsing a listener object into a kvp list,
+	 * using the key as the event name and the value as the listener(s).
+	 */
 	parseListeners(obj) {
 		for(const key in obj) {
 			if(obj.hasOwnProperty(key)) {
@@ -63,7 +86,27 @@ export class Timer extends Identity {
 		});
 	}
 	next(ts) {
-		if(this.config.type === "timeout") {
+		if(this.config.isDelta) {
+			ts = ts || Date.now();
+
+			// const remainder = ts % this.config.duration;
+			const remainder = (ts - Timer.CoreTime) % this.config.duration;
+
+			//TODO Build a BinaryTree to find the correct index
+			let index = 0;
+			let acc = 0;
+			for(let i = 0; i < this.cadence.length; i++) {
+				let step = this.cadence[ i ];
+				acc += step;
+
+				if(remainder < acc) {
+					index = i;
+					break;
+				}
+			}
+
+			this.current = index;
+		} else {
 			this.current += 1;
 
 			if(this.current >= this.max) {
@@ -74,21 +117,13 @@ export class Timer extends Identity {
 					this.current = -1;
 					this.stop();
 				}
-	
+
 				this.emit("complete");
 			}
 
 			this.config.timeout = setTimeout(() => {
 				this.next();
 			}, this.cadence[ this.current ]);
-		} else if(this.config.type === "delta") {
-			// const remainder = ts % this.config.duration;
-			const remainder = (ts - Timer.CoreTime) % this.config.duration;
-
-			//TODO Build a BinaryTree to find the correct index
-			const index = this.cadence.findIndex((c, i) => remainder < c && remainder >= this.cadence[ i - 1 ]);
-
-			this.current = index;
 		}
 
 		this.emit("next");

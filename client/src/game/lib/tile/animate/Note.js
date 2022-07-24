@@ -15,6 +15,14 @@ export class Note {
 
 		return this;
 	}
+
+	static FromObject(obj = {}) {
+		return new Note({
+			ref: obj.ref,
+			duration: obj.duration,
+			isRelative: obj.isRelative,
+		});
+	}
 };
 
 export default Note;

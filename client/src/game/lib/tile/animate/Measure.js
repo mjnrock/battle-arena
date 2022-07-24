@@ -66,6 +66,16 @@ export class Measure {
 		return this.duration;
 	}
 
+	each(fn) {
+		const results = [];
+
+		for(let i = 0; i < this.notes.length; i++) {
+			results.push(fn(this.notes[ i ], i));
+		}
+
+		return results;
+	}
+
 	/**
 	 * Beats per measure.
 	 */
@@ -91,6 +101,13 @@ export class Measure {
 			step: (1 / noteRefs.length) * duration,
 			duration,
 		});
+	}
+
+	/**
+	 * This will pass the refs to the .CreateEqual() method.
+	 */
+	static FromArray(array) {
+		return this.CreateEqual(...array);
 	}
 };
 

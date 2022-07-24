@@ -8,6 +8,7 @@ import Router from "./routes/package";
 import GameBase from "./game/Game";
 
 import "./assets/css/reset.css";
+import "./assets/css/main.css";
 
 export const Game = {
 	id: uuid(),

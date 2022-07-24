@@ -1,4 +1,5 @@
 import { Timer } from "./Timer";
+import { Measure } from "./Measure";
 
 export class Score {
 	constructor ({ measures = [] } = {}) {
@@ -62,12 +63,39 @@ export class Score {
 	refresh() {
 		this.duration = 0;
 		this.cadence = this.measures.reduce((acc, measure) => {
+			/**
+			 * Ensure that the Measure is up-to-date, before proceeding.
+			 */
+			measure.refresh();
+
 			this.duration += measure.duration;
 
 			return acc.concat(measure.cadence);
 		}, []);
 
 		return this.cadence;
+	}
+
+	each(fn) {
+		const results = [];
+		
+		for(let i = 0; i < this.measures.length; i++) {
+			const measureResults = this.measures[ i ].each(fn);
+
+			results.push(...measureResults);
+		}
+
+		return results;
+	}
+
+	/**
+	 * This will create Measures with equally-spaced cadence.
+	 * TODO: Add a smart check to see if the note-level entries (df. ref) are strings, arrays, or objects.
+	 */
+	static FromArray(array) {
+		return new Score({
+			measures: array.map(measure => Measure.FromArray(measure)),
+		});
 	}
 };
 

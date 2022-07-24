@@ -1,48 +1,79 @@
-import Timer from "./Timer";
+import { Identity } from "../../Identity";
+import { Timer } from "./Timer";
 
-//TODO Build out the .Create method, as that should be the primary way to create a Track (which is basically just a data frame)
 /**
  * ? To build this out, invoke .Create and pass an equal-measure-score and a lookup spritesheet.
  */
-export class Track {
-	constructor({ sprites, cadence, type } = {}) {
-		this.sprites = Array.from(sprites);
-		this.ticker = new Timer({
-			type,
-			cadence,
-		});
+export class Track extends Identity {
+	constructor ({ sprites, cadence, id, tags, ...timer } = {}) {
+		super({ id, tags });
 
-		if(type === "timeout") {
-			this.ticker.start();
-		}
+		this.sprites = Array.from(sprites);
+		this.timer = new Timer({
+			cadence,
+			start: true,
+			...timer,
+		});
 	}
 
 	setIsTimeout(start = false) {
-		this.ticker.stop();
-		this.ticker.setIsTimeout();
+		this.timer.stop();
+		this.timer.setIsTimeout();
 
 		if(start) {
-			this.ticker.start();
+			this.timer.start();
 		}
 
 		return this;
 	}
 	setIsDelta() {
-		this.ticker.stop();
-		this.ticker.setIsDelta();
+		this.timer.stop();
+		this.timer.setIsDelta();
 
 		return this;
 	}
 
 	get current() {
-		//TODO Build the reference with this.sprites and this.cadence
-		return this.ticker.current;
+		return this.sprites[ this.timer.current ][ 2 ];
 	}
 	next(time) {
-		return this.ticker.next(time);
+		return this.timer.next(time);
 	}
 
+	/**
+	 * Create a processed Track, based on the given spritesheet and score.
+	 */
 	static Create({ score, spritesheet } = {}) {
+		const cadence = score.cadence.reduce((acc, step) => {
+			acc = [ ...acc, step ];
+
+			return acc;
+		}, []);
+		const notes = [];
+
+		console.log(spritesheet)
+
+		let i = 0;
+		score.each(note => {
+			/**
+			 * Update the Note to contain the actual PIXI.Texture,
+			 * instead of the alias.
+			 */
+			note.ref = spritesheet.get(note.ref);
+
+			/**
+			 * Add the note data to the notes array.
+			 * [ index, duration, Texture ]
+			 */
+			notes.push([ i, cadence[ i ], note.ref ]);
+
+			i += 1;
+		});
+
+		return new Track({
+			sprites: notes,
+			cadence,
+		});
 	}
 };
 
