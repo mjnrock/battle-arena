@@ -11,7 +11,6 @@ export class Track extends Identity {
 		this.sprites = Array.from(sprites);
 		this.timer = new Timer({
 			cadence,
-			start: true,
 			...timer,
 		});
 	}
@@ -43,7 +42,7 @@ export class Track extends Identity {
 	/**
 	 * Create a processed Track, based on the given spritesheet and score.
 	 */
-	static Create({ score, spritesheet } = {}) {
+	static Create({ score, spritesheet, autoPlay = false } = {}) {
 		const cadence = score.cadence.reduce((acc, step) => {
 			acc = [ ...acc, step ];
 
@@ -71,6 +70,7 @@ export class Track extends Identity {
 		return new Track({
 			sprites: notes,
 			cadence,
+			start: autoPlay,
 		});
 	}
 };

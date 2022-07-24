@@ -5,7 +5,6 @@ import { Base64 } from "../game/util/Base64";
 import { Tessellator } from "./../game/lib/tile/Tessellator";
 import { SpriteSheet } from "./../game/lib/tile/pixi/SpriteSheet";
 import { Pixi } from "../game/Pixi";
-import { Measure } from "../game/lib/tile/animate/Measure";
 import { Score } from "../game/lib/tile/animate/Score";
 import { Track } from "../game/lib/tile/animate/Track";
 import { Entity } from "../game/lib/ecs/Entity";
@@ -25,7 +24,28 @@ export function Test() {
 	useEffect(() => {
 		Base64.FileDecode("assets/images/squirrel.png").then(canvas => setSquirrelSource(canvas));
 		Base64.FileDecode("assets/images/bunny.png").then(canvas => setBunnySource(canvas));
+		Base64.FilesDecode([
+			"assets/images/squirrel.png",
+			"assets/images/bunny.png",
+			"assets/images/bear.png",
+		]).then(data => {
+		// Base64.FilesDecode({
+		// 	squirrel: "assets/images/squirrel.png",
+		// 	bunny: "assets/images/bunny.png",
+		// 	bear: "assets/images/bear.png",
+		// }).then(data => {
+			console.log(data);
+		});
 	}, []);
+
+	/**
+	 * Steps:
+	 * 1) Decode Files into Canvases
+	 * 2) Tessellate each Canvas, using some pre-configured settings
+	 * 3) Create SpriteSheets from each tessellation TileSet
+	 * 4) Define each animation Score
+	 * 5) Process each Score into Tracks
+	 */
 
 	useEffect(() => {
 		if(squirrelSource) {
@@ -53,8 +73,9 @@ export function Test() {
 			const track = Track.Create({
 				score: squirrelScore,
 				spritesheet,
+				autoPlay: true,
 			});
-			
+
 			// track.timer.parseListeners({
 			// 	next: [
 			// 		({ id, current, elapsed }) => {
@@ -132,8 +153,9 @@ export function Test() {
 			const track = Track.Create({
 				score: bunnyScore,
 				spritesheet,
+				autoPlay: false,
 			});
-			
+
 			// track.timer.parseListeners({
 			// 	next: [
 			// 		({ id, current, elapsed }) => {

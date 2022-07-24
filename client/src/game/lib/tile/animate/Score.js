@@ -10,15 +10,6 @@ export class Score {
 		this.timer = new Timer({
 			cadence: this.cadence,
 		});
-
-		//* Delta example
-		// this.timer = new Timer({
-		// 	type: "delta",
-		// 	cadence: this.cadence,
-		// });
-		// setInterval(() => {
-		// 	this.timer.next(Date.now());
-		// }, 500);
 	}
 
 	addMeasure(measure) {

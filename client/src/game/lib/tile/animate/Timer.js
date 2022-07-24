@@ -48,8 +48,10 @@ export class Timer extends Identity {
 
 		this.reset(cadence);
 		this.parseListeners(listeners);
+
+		console.log("START", start)
 		if(start) {
-			this.start();
+			this.start(start);
 		}
 	}
 
@@ -86,6 +88,12 @@ export class Timer extends Identity {
 		});
 	}
 	next(ts) {
+		if(!this.isRunning) {
+			this.current = 0;
+			
+			return;
+		}
+
 		if(this.config.isDelta) {
 			ts = ts || Date.now();
 
@@ -110,11 +118,11 @@ export class Timer extends Identity {
 			this.current += 1;
 
 			if(this.current >= this.max) {
+				this.current = 0;
+
 				if(this.config.loop) {
-					this.current = 0;
 					this.emit("loop");
 				} else {
-					this.current = -1;
 					this.stop();
 				}
 
@@ -132,16 +140,16 @@ export class Timer extends Identity {
 	}
 
 	reset(cadence = []) {
-		this.current = -1;
+		this.current = 0;
 		this.max = cadence.length;
 		this.cadence = cadence;
 
 		this.config.duration = this.cadence.reduce((acc, cur) => acc + cur, 0);
 	}
 
-	start() {
+	start(ts) {
 		if(this.config.start === null) {
-			this.config.start = Date.now();
+			this.config.start = typeof ts === "number" ? ts : Date.now();
 			this.emit("start");
 
 			this.next();
