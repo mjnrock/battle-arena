@@ -51,8 +51,6 @@ export class Track extends Identity {
 		}, []);
 		const notes = [];
 
-		console.log(spritesheet)
-
 		let i = 0;
 		score.each(note => {
 			/**

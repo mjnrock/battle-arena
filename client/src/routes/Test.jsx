@@ -40,8 +40,8 @@ export function Test() {
 				tileset: tessellator.tileset,
 			});
 
-			//FIXME: This does not work properly -- Ensure the *entire* serialization chain happens correctly (it currently does not)
-			console.log(spritesheet.toObject());
+			//FIXME: These nested .toObjects do not work properly -- figure out which work and fix the others
+			// console.log(spritesheet.toObject());
 
 			const squirrelScore = Score.FromArray([
 				[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
