@@ -58,6 +58,15 @@ export class Entity extends Registry {
 		}
 	}
 
+	deconstructor() {
+		for(let key of Object.keys(this)) {
+			/**
+			 * Disassociate any components from the Entity
+			 */
+			this.remove(key);
+		}
+	}
+
 	/**
 	 * Factory method for creating new Entities.
 	 * 

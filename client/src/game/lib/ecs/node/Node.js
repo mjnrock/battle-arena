@@ -1,4 +1,4 @@
-import { Identity } from "../Identity";
+import { Identity } from "../../Identity";
 
 /**
  * The main purpose of Node is to allow for Entities to be placed
@@ -40,7 +40,6 @@ export class Node extends Identity {
 		this.state = {};
 		this.setState(state);
 	}
-
 
 	setState(state = {}) {
 		if(!Identity.Comparators.IsObject(state)) {
@@ -138,7 +137,7 @@ export class Node extends Identity {
 	 */
 	show(id) {
 		const child = this.getChild(id);
-		if(Node.Conforms(child) && this.order.indexOf(child) === -1) {
+		if(child && this.order.indexOf(child) === -1) {
 			this.order.push(child);
 		}
 
@@ -149,7 +148,7 @@ export class Node extends Identity {
 	 */
 	hide(id) {
 		const child = this.getChild(id);
-		if(Node.Conforms(child) && this.order.indexOf(child) !== -1) {
+		if(child && this.order.indexOf(child) !== -1) {
 			this.order.splice(this.order.indexOf(child), 1);
 		}
 
