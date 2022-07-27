@@ -86,6 +86,22 @@ export class Identity {
 			
 			return input instanceof input.constructor;
 		},
+		/**
+		 * This is meant as a broader "instanceof" checker,
+		 * allowing either @clazz instances and/or Objects that
+		 * have an @keys-defined shape (i.e. duck typing).
+		 */
+		Conforms(input, { keys = [], clazz } = {}) {
+			if(!Identity.Comparators.IsObject(input)) {
+				return false;
+			}
+	
+			if(clazz && input instanceof clazz) {
+				return true;
+			}
+
+			return keys.every(key => key in input);
+		},
 
 		/**
 		 * Complex comparators

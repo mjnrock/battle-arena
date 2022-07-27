@@ -1,8 +1,20 @@
 import { Identity } from "../Identity";
 
+/**
+ * The main purpose of Node is to allow for Entities to be placed
+ * within a tree structure.  As a component, the Node can be used
+ * as a data-proxy for the Entity and can be recovered, once traversed,
+ * through its .ref property.  Any system controlling the tree structure
+ * should perform the traversal and un/packing of the Node to the Entity.
+ * Optionally, @state can be added to the node to store additional information,
+ * outside of its descendency tree.
+ * 
+ * IDEA: Node is definitely a component, but it may also be an Entity -- reconcile.
+ * NOTE: "in/visible" can be interchanged with "in/active" depending on the context.
+ */
 export class Node extends Identity {
-	constructor ({ ref, parent, children = [], ...rest } = {}) {
-		super({ ...rest });
+	constructor ({ ref, parent, children = [], id, tags, ...state } = {}) {
+		super({ id, tags });
 		/**
 		 * A parent reference for any children of this node.
 		 */
@@ -24,6 +36,29 @@ export class Node extends Identity {
 		this.ref = ref;
 
 		this.addChildren(children);
+
+		this.state = {};
+		this.setState(state);
+	}
+
+
+	setState(state = {}) {
+		if(!Identity.Comparators.IsObject(state)) {
+			throw new Error("Node.setState: state must be an object");
+		}
+
+		this.state = state;
+
+		return this;
+	}
+	mergeState(state = {}) {
+		if(!Identity.Comparators.IsIterable(state)) {
+			throw new Error("Node.mergeState: state must be an iterable");
+		}
+
+		this.state = { ...this.state, ...state };
+
+		return this;
 	}
 
 	/**
@@ -43,7 +78,7 @@ export class Node extends Identity {
 			child = childOrId;
 		}
 
-		if(child) {
+		if(Node.Conforms(child)) {
 			this.children.set(child.id, child);
 			child.parent = this;
 
@@ -69,7 +104,7 @@ export class Node extends Identity {
 			child = childOrId;
 		}
 
-		if(child) {
+		if(Node.Conforms(child)) {
 			this.children.delete(child.id);
 			this.order.splice(this.order.indexOf(child), 1);
 		}
@@ -103,7 +138,7 @@ export class Node extends Identity {
 	 */
 	show(id) {
 		const child = this.getChild(id);
-		if(child && this.order.indexOf(child) === -1) {
+		if(Node.Conforms(child) && this.order.indexOf(child) === -1) {
 			this.order.push(child);
 		}
 
@@ -114,7 +149,7 @@ export class Node extends Identity {
 	 */
 	hide(id) {
 		const child = this.getChild(id);
-		if(child && this.order.indexOf(child) !== -1) {
+		if(Node.Conforms(child) && this.order.indexOf(child) !== -1) {
 			this.order.splice(this.order.indexOf(child), 1);
 		}
 
@@ -148,6 +183,23 @@ export class Node extends Identity {
 		this.order = [];
 
 		return this;
+	}
+
+	/**
+	 * Use only the visible children of the Node.
+	 */
+	get isEmpty() {
+		return this.order.length === 0;
+	}
+
+	/**
+	 * This is intended to perform a duck-typing check on @input.
+	 */
+	static Conforms(input) {
+		return Identity.Comparators.Conforms(input, {
+			keys: [ "id", "tags", "parent", "children", "order", "ref" ],
+			clazz: Node,
+		});
 	}
 };
 
