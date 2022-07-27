@@ -101,7 +101,7 @@ export class TileSet extends Tile {
 	}
 
 	async FetchFile(url, { ...opts } = {}) {
-		const canvas = await Base64.FileDecode(url);
+		const canvas = await Base64.DecodeFile(url);
 		const tileSet = new TileSet({ source: canvas, ...opts });
 
 		return tileSet;

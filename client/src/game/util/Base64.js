@@ -73,7 +73,7 @@ export const Base64 = {
 		});
 	},
 
-	FileDecode: (path, allowAnonymous = false) => {
+	DecodeFile: (path, allowAnonymous = false) => {
 		return new Promise((resolve, reject) => {
 			try {
 				if(path.match(/\.(json|txt)/i)) {
@@ -128,7 +128,7 @@ export const Base64 = {
 	 * 
 	 * This invokes .FileDecode() for each path provided.
 	 */
-	FilesDecode: (paths = [], allowAnonymous = false) => {
+	DecodeFiles: (paths = [], allowAnonymous = false) => {
 		return new Promise((resolve, reject) => {
 			try {
 				const promises = [];
@@ -136,13 +136,13 @@ export const Base64 = {
 				if(Identity.Comparators.IsStrictObject(paths)) {
 					for(let [ alias, path ] of Object.entries(paths)) {
 						promises.push(new Promise((resolve) => {
-							Base64.FileDecode(path, allowAnonymous).then(canvas => resolve([ alias, canvas ]));
+							Base64.DecodeFile(path, allowAnonymous).then(canvas => resolve([ alias, canvas ]));
 						}));
 					}
 				} else if(Identity.Comparators.IsArray(paths)) {
 					for(let path of paths) {
 						promises.push(new Promise((resolve) => {
-							Base64.FileDecode(path, allowAnonymous).then(canvas => resolve([ path, canvas ]));
+							Base64.DecodeFile(path, allowAnonymous).then(canvas => resolve([ path, canvas ]));
 						}));
 					}
 				}

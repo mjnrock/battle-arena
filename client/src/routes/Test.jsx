@@ -22,9 +22,9 @@ export function Test() {
 	const [ bunnySource, setBunnySource ] = useState();
 
 	useEffect(() => {
-		Base64.FileDecode("assets/images/squirrel.png").then(canvas => setSquirrelSource(canvas));
-		Base64.FileDecode("assets/images/bunny.png").then(canvas => setBunnySource(canvas));
-		Base64.FilesDecode([
+		Base64.DecodeFile("assets/images/squirrel.png").then(canvas => setSquirrelSource(canvas));
+		Base64.DecodeFile("assets/images/bunny.png").then(canvas => setBunnySource(canvas));
+		Base64.DecodeFiles([
 			"assets/images/squirrel.png",
 			"assets/images/bunny.png",
 			"assets/images/bear.png",
@@ -39,6 +39,7 @@ export function Test() {
 	}, []);
 
 	/**
+	 * TODO: Package this process into a function
 	 * Steps:
 	 * 1) Decode Files into Canvases
 	 * 2) Tessellate each Canvas, using some pre-configured settings

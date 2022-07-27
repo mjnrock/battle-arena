@@ -88,7 +88,7 @@ export class Tessellator {
 	 * without tessellation.
 	 */
 	static async FromFile({ url, alias, algorithm, args = [] } = {}) {
-		const canvas = await Base64.FileDecode(url);
+		const canvas = await Base64.DecodeFile(url);
 		const tessellator = new Tessellator({ alias, source: canvas });
 
 		if(typeof algorithm !== "function") {
