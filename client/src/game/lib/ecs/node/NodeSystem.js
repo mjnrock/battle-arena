@@ -4,7 +4,7 @@ export class NodeSystem extends System {
 	constructor({ name, handlers, ...opts } = {}) {
 		super({ name, ...opts });
 
-		this.handlers.addHandlers({
+		this.events.addHandlers({
 			activate: this.activate.bind(this),
 			
 			...handlers,

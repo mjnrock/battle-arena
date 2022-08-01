@@ -1,7 +1,11 @@
 export class Runner {
-	constructor (name) {
+	constructor (name, ...listeners) {
 		this.name = name;
 		this.listeners = new Set();
+
+		for(let listener of listeners) {
+			this.add(listener);
+		}
 	}
 
 	add(listener) {

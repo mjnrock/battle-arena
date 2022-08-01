@@ -1,3 +1,4 @@
+// import Relay from "@lespantsfancy/relay";
 import { Identity } from "../Identity";
 import { Registry } from "../Registry";
 
@@ -9,75 +10,50 @@ export class Environment extends Identity {
 		 * All Systems should be stored wherein each instance is stored by its name
 		 * and is representative of a Singleton instance.
 		 */
-		this.systems = new Registry();
+		this.system = new Registry();
 
 		/**
 		 * This acts as an environment-level registry of all Entities within it.
 		 */
-		this.entities = new Registry();
+		this.entity = new Registry();
 
 		/**
-		 * This should only contain functional generators for components.
+		 * All of the generators for Systems, Entities, and Components live here.
 		 */
-		this.components = new Registry();
+		this.factory = {
+			system: new Registry(),
+			entity: new Registry(),
+			component: new Registry(),
+		};
 
 		/**
-		 * This will create and register a new Entity within the Environment.
+		 * Add a trivial classifier that attaches the environment to the entity/system.
 		 */
-		this.spawner = new Registry();
-
-		this.systems.addClassifier(() => (k, v, e) => v._environment = this);
-		this.entities.addClassifier(() => (k, v, e) => v._environment = this);
+		this.system.addClassifier(() => (k, v, e) => v._environment = this);
+		this.entity.addClassifier(() => (k, v, e) => v._environment = this);
 	}
 
-	traverse(target, path) {
-		let paths = path.split(".");
+	bundle(event, ...args) {
+		return {
+			env: this,
+			event,
+			args,
+		};
 
-		let target = this[ paths.shift() ];
-
-		for(let path of paths) {
-			target = target[ path ];
-		}
-
-		return target;
+		// return new Relay.Message({
+		// 	type: event,
+		// 	data: args,
+		// 	env: this,
+		// });
 	}
+	dispatch(event, ...args) {
+		const [ module, event ] = event.split(".");
+		const system = this.system[ module ];
 
-	route(path, ...args) {
-		const target = this.traverse(this.systems, path);
+		if(system && module && event) {
+			const msg = this.bundle(event, ...args);
 
-		if(target) {
-			return target(...args);
-		}
-	}
-	next(path, ...args) {
-		const target = this.traverse(this.components, path);
-
-		if(target) {
-			return target(...args);
-		}
-	}
-
-	/**
-	 * Create and register a new Entity within the Environment.
-	 */
-	spawn(path, ...args) {
-		const target = this.traverse(this.spawner, path);
-
-		if(target) {
-			const entity = new target(...args);
-			this.entities.register(entity);
-		}
-	}
-	/**
-	 * STUB: This is far from complete, but skeletons the basic functionality
-	 */
-	despawn(entityOrId) {
-		const entity = this.entities.get(entityOrId);
-
-		if(entity) {
-			this.entities.unregister(entity);
-
-			entity.deconstructor();
+			return system.emit(event, msg, ...args);
 		}
 	}
 };
