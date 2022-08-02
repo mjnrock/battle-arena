@@ -11,7 +11,9 @@ export class System extends Identity {
 		this.name = name;
 
 		/**
-		 * The System subscribes itself to the Runner, receiving the payload when .emitted to the .handler[ event ] Runner
+		 * The System subscribes itself to the Runners, receiving the payload when .emitted to the .handler[ event ] Runner.
+		 * Since this is a [ key, Runner(key) ] map, any additional listeners that may want to subscribe to System .emitted events
+		 * can do so.
 		 */
 		this.events = new Map();
 
@@ -50,10 +52,17 @@ export class System extends Identity {
 		return entity;
 	}
 
+
 	/**
 	 * Add a handler to the System
 	 */
 	add(key) {
+		/**
+		 * By adding << this >>, we subscribe the System
+		 * to the Runner, which will run this[ key ] when
+		 * the event is emitted.  Modify that method to
+		 * alter its behavior.
+		 */
 		this.events.set(key, new Runner(key, this));
 
 		return this;
@@ -84,6 +93,22 @@ export class System extends Identity {
 
 		return this;
 	}
+
+
+	/**
+	 * Assigns the this-bound @fn to the System under the @event key.
+	 * This is primarily useful for adding handlers for which the System is responsible.
+	 */
+	bind(event, fn) {
+		if(!this.events.has(event)) {
+			this.add(event);
+		}
+
+		this[ event ] = fn.bind(this);
+
+		return this[ event ];
+	}
+
 
 	/**
 	 * Emit an event to the System's Runner at the given event key

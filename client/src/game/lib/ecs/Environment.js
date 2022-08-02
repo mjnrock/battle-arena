@@ -12,7 +12,7 @@ import { Registry } from "../Registry";
  * is meant to resolve singularly (e.g. "this particular entity").
  */
 export class Environment extends Identity {
-	constructor ({ id, tags, middleware } = {}) {
+	constructor ({ id, tags, middleware, state = {} } = {}) {
 		super({ id, tags });
 
 		/**
@@ -57,6 +57,49 @@ export class Environment extends Identity {
 		 * Assign the custom bundler, if provided, else use the default.
 		 */
 		this.middleware = middleware || this.middleware;
+
+		/**
+		 * * Optionally utilize a state, when needed.
+		 * Because of the potential complexity of the Environment,
+		 * a dedicated state space is provided for it.  If any configuration
+		 * is required (e.g. settings), it can be done here.
+		 * 
+		 * ? Since the middleware ought to pass the Environment as a reference,
+		 * ? any invocation could be used as a reducer.
+		 */
+		this.state = state;
+	}
+
+	/**
+	 * A convenience method for setting the state.
+	 * 
+	 * NOTE: This will invoke the middleware with a "state" event,
+	 * passing the state object, which can theorically be used to
+	 * modify @state in between.
+	 */
+	setState(state = {}) {
+		this.middleware("state", state);
+
+		this.state = state;
+
+		return this.state;
+	}
+	/**
+	 * A convenience method for merging @state into the state.
+	 * 
+	 * NOTE: This will invoke the middleware with a "state" event,
+	 * passing the state object, which can theorically be used to
+	 * modify @state in between.
+	 */
+	mergeState(state = {}) {
+		this.middleware("state", state);
+
+		this.state = {
+			...this.state,
+			...state,
+		};
+
+		return this.state;
 	}
 
 	/**
@@ -64,10 +107,11 @@ export class Environment extends Identity {
 	 * This is intended to be overridden, but will suffice as is, even
 	 * if it is not.
 	 */
-	middleware(event, ...args) {
+	middleware(event, entities, ...args) {
 		return {
 			env: this,
 			event,
+			entities,
 			args,
 		};
 	}
@@ -80,8 +124,10 @@ export class Environment extends Identity {
 	 *? This effectively allows for the use of the Environment
 	 *? as a middleware-System-router, utilizing an overridable
 	 *? bundler to customize the dispatch message.
+	 *
+	 * e.g.: ("World.move", $Entity.player, { x: 1, y: -1, delta: true })
 	 */
-	dispatch(path, ...args) {
+	dispatch(path, entities, ...args) {
 		const [ module, event ] = path.split(".");
 		const system = this.system[ module ];
 
@@ -90,9 +136,9 @@ export class Environment extends Identity {
 			 * The message is the result of the middleware bundler,
 			 * those middleware can perform other work, too.
 			 */
-			const msg = this.middleware(event, ...args);
+			const msg = this.middleware(event, entities, ...args);
 
-			return system.emit(event, msg, ...args);
+			return system.emit(event, entities, msg, ...args);
 		}
 	}
 };
