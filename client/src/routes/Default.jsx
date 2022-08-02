@@ -12,7 +12,7 @@ import Pixi from "../game/Pixi";
 import { Entity } from "./../game/lib/ecs/Entity";
 
 //* Instance of the PixiJS wrapper engine
-Base64.FileDecode("assets/images/squirrel.png").then(canvas => {
+Base64.DecodeFile("assets/images/squirrel.png").then(canvas => {
 	// const data = canvas.toDataURL();
 	//TODO Create a tesselation system to parse the image
 });

@@ -197,7 +197,7 @@ export class Registry extends Identity {
 		if(typeof entries === "object") {
 			return this.addMany(entries);
 		}
-		
+
 		return this.add(...args);
 	}
 	/**
@@ -249,11 +249,11 @@ export class Registry extends Identity {
 	/**
 	 * This is identical to .add, but with an optional alias.
 	 */
-	addWithAlias(input, ...aliases) {
+	addWithAlias(input, alias) {
 		const uuid = this.add(input);
 
-		if(uuid) {
-			this.addAlias(uuid, ...aliases);
+		if(uuid && alias) {
+			this.addAlias(uuid, alias);
 		}
 
 		return uuid;
@@ -291,7 +291,7 @@ export class Registry extends Identity {
 
 					return this;
 				}
-				
+
 				entry.value = value;
 			} else if(entry.isAliasType) {
 				this.update(entry.value, value, merge);
@@ -375,7 +375,7 @@ export class Registry extends Identity {
 
 		return null;
 	}
-	
+
 	addClassifier(classifier) {
 		if(typeof classifier === "function") {
 			this._config.classifiers.add(classifier.bind(this));
@@ -406,11 +406,13 @@ export class Registry extends Identity {
 		return removed;
 	}
 
-	addAlias(uuid, ...aliases) {
+	addAlias(uuid, alias) {
+		if(!alias) {
+			return this;
+		}
+
 		if(this.has(uuid)) {
-			for(let alias of aliases) {
-				this.set(alias, new RegistryEntry(uuid, RegistryEntry.Type.ALIAS, { id: alias }));
-			}
+			this.set(alias, new RegistryEntry(uuid, RegistryEntry.Type.ALIAS, { id: alias }));
 		}
 
 		return this;
@@ -456,7 +458,7 @@ export class Registry extends Identity {
 			if(asRegistry) {
 				return new Registry(pool);
 			}
-			
+
 			return pool;
 		}
 
