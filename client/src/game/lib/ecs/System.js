@@ -1,6 +1,27 @@
 import Identity from "../Identity";
 import Runner from "../relay/Runner";
 
+
+/**
+ * A convenience method for running a fn against a collection of entities,
+ * passing each entity, along with the args, to the fn.
+ */
+export function each(entities, fn, ...args) {
+	const results = [];
+	for(let entity of entities) {
+		results.push(fn(entity, ...args));
+	}
+
+	return results;
+};
+
+/**
+ * The System is the primary means of modifying the Component-state
+ * on an Entity.  All modifications should be driven by the events
+ * system, which will invoke the event-handler of each listener.  As
+ * such, the System is intended to be used as a message system, which
+ * can be routed by an Environment's .dispatch method.
+ */
 export class System extends Identity {
 	constructor ({ handlers = {}, id, tags, name } = {}) {
 		super({ id, tags });
