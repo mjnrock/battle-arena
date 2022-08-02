@@ -76,6 +76,10 @@ export class Game extends Identity {
 
 		return this;
 	}
+
+	get dispatch() {
+		return this.environment.dispatch;
+	}
 };
 
 export default Game;

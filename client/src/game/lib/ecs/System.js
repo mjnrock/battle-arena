@@ -98,6 +98,8 @@ export class System extends Identity {
 	/**
 	 * Assigns the this-bound @fn to the System under the @event key.
 	 * This is primarily useful for adding handlers for which the System is responsible.
+	 * 
+	 * NOTE: If you don't want to bind @fn, use this.events.get(@event).add(@fn) to instead assign directly to the Runner.
 	 */
 	bind(event, fn) {
 		if(!this.events.has(event)) {
