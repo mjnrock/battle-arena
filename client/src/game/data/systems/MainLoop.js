@@ -3,14 +3,9 @@ import { Name as CompName } from "../components/MainLoop";
 
 export class MainLoop extends System {
 	constructor ({ onBegin, onTick, onRender, onEnd, handlers = {} } = {}) {
-		super({ name: CompName });
+		super({ name: CompName, handlers });
 
-		this.handlers.addHandlers({
-			start: this.start.bind(this),
-			stop: this.stop.bind(this),
-
-			...handlers,
-		});
+		this.add("start", "stop");
 
 		this.onBegin = onBegin || this.onBegin;
 		this.onTick = onTick || this.onTick;

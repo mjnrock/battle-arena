@@ -43,6 +43,7 @@ export class Runner {
 	copy() {
 		const copy = new Runner(this.name);
 
+		copy.tags = new Set(this.tags);
 		copy.listeners = new Set(this.listeners);
 
 		return copy;

@@ -121,7 +121,12 @@ export class Registry extends Identity {
 				this.addToPool(`@${ clazz.name }`, key);
 			}
 		},
-		HasTag: (tag) => function (key, value, entry) {
+		HasAttribute: (attr) => function (key, value, entry) {
+			if(typeof value === "object" && value[ attr ] !== void 0) {
+				this.addToPool(`@${ attr }`, key);
+			}
+		},
+		TagIs: (tag) => function (key, value, entry) {
 			if(typeof value === "object" && value.tags instanceof Set && value.tags.has(tag)) {
 				this.addToPool(`#${ tag }`, key);
 			}

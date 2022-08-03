@@ -77,14 +77,16 @@ export class System extends Identity {
 	/**
 	 * Add a handler to the System
 	 */
-	add(key) {
+	add(...keys) {
 		/**
 		 * By adding << this >>, we subscribe the System
 		 * to the Runner, which will run this[ key ] when
 		 * the event is emitted.  Modify that method to
 		 * alter its behavior.
 		 */
-		this.events.set(key, new Runner(key, this));
+		for(let key of keys) {
+			this.events.set(key, new Runner(key, this));
+		}
 
 		return this;
 	}

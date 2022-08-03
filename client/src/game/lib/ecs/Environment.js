@@ -51,7 +51,10 @@ export class Environment extends Identity {
 		/**
 		 * Add a trivial classifier that attaches the environment to the entity.
 		 */
-		this.entity.addClassifier(() => (k, v, e) => v._environment = this);
+		this.entity.addClassifiers(
+			(k, v, e) => v._environment = this,
+			Registry.Classifiers.HasAttribute("nomen"),
+		);
 
 		/**
 		 * Assign the custom bundler, if provided, else use the default.

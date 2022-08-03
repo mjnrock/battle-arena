@@ -5,7 +5,7 @@ import Registry from "../Registry";
  * Within an Entity descendant, the Components property is a map of component names to component generators.
  * These represent the default components for that Entity.  Additional components can be added to the Entity
  * by passing them to the @components parameter upon instantiation.  The default components can be seeded
- * with data by passing them to the @args parameter, as well.
+ * with data by passing them to the @init parameter, as well.
  * 
  * NOTE: Any "root level" function will **always** be evaluated and the local result will be wrapped in an
  * array so that all arguments can be spread into the component generator; therefore, explicitly pass that
@@ -14,14 +14,24 @@ import Registry from "../Registry";
 export class Entity extends Registry {
 	static Components = {};
 
-	constructor ({ components = {}, name, id, tags, init = {}, ...rest } = {}) {
+	constructor ({ components = {}, nomen, id, tags, init = {}, ...rest } = {}) {
 		super([], { id, tags });
 
-		this.name = name;
+		/**
+		 * A class-unique name for the Entity
+		 */
+		this.nomen = nomen;
 
+		/**
+		 * Register any components passed during instantiation
+		 */
 		this.register(components);
 
-		for(let [key, value] of Object.entries(rest)) {
+		/**
+		 * If rest was populated with state, register each key/value pair
+		 * This is useful for initializing the Entity with methods or additional properties.
+		 */
+		for(let [ key, value ] of Object.entries(rest)) {
 			if(typeof value === "function") {
 				this[ key ] = value;
 			}
@@ -58,12 +68,28 @@ export class Entity extends Registry {
 		}
 	}
 
-	deconstructor() {
+	/**
+	 * Clean up the Entity before GC
+	 */
+	deconstructor(cascade = false) {
 		for(let key of Object.keys(this)) {
+			const value = this[ key ];
 			/**
-			 * Disassociate any components from the Entity
+			 * Unregisters (via :Registry) all components and destroys all properties/methods
 			 */
 			this.remove(key);
+
+			/**
+			 * Optionally destroy any properties with a "deconstructor" method
+			 */
+			if(cascade) {
+				/**
+				 * If a .deconstructor() method exists, call it
+				 */
+				if(typeof this[ key ] === "object" && "deconstructor" in this[ key ]) {
+					value.deconstructor(cascade);
+				}
+			}
 		}
 	}
 
@@ -88,7 +114,7 @@ export class Entity extends Registry {
 						[ name ]: input(i, entity),
 					});
 				} else if(typeof input === "object" && "next" in (input || {})) {
-					
+
 					/**
 					 * Assume its a generator*
 					 */

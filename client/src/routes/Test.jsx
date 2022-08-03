@@ -6,13 +6,13 @@ import { PixiCanvas } from "../components/PixiCanvas";
 import { Game } from "./../game/Game";
 
 const game = new Game();
-const game2 = new Game();
 
 console.log(game);
-console.log(Game.Get());
-console.log(game2);
-console.log(Game.Get());
-console.log(Game.Instances);
+console.log(game.environment);
+console.log(game.environment.system.mainloop);
+console.log(game.environment.entity);
+console.log(game.environment.factory.system.mainloop);
+console.log(game.environment.factory.entity.squirrel);
 
 export function Test() {
 	useEffect(() => {

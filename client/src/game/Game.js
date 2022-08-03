@@ -6,6 +6,26 @@ import { Environment } from "./lib/ecs/Environment";
 import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
+import { MainLoop } from "./data/systems/MainLoop";
+import { Squirrel } from "./data/entities/Squirrel";
+
+export function registerSystems(environment) {
+	environment.system.registerWithName(new MainLoop());
+	environment.factory.system.addMany({
+		"mainloop": MainLoop,
+	});
+	
+	return environment;
+};
+export function registerEntities(environment) {
+	environment.entity.registerWithName(new Squirrel());
+	environment.factory.entity.addMany({
+		"squirrel": Squirrel,
+	});
+
+	return environment;
+};
+
 
 export class Game extends Identity {
 	static Instances = new Registry();
@@ -30,6 +50,15 @@ export class Game extends Identity {
 		 * All of the rendering aspects of the game are stored here.
 		 */
 		this.render = {};
+		
+		/**
+		 * ! This is initialized in .post()
+		 * The HID/input controllers for the game.
+		 */
+		this.input = {
+			key: null,
+			mouse: null,
+		};
 
 		/**
 		 * Invoke all the creation hooks
@@ -55,6 +84,10 @@ export class Game extends Identity {
 	pre() {
 		//TODO: Register / initialize all of the environmental data here
 
+		registerSystems(this.environment);
+		registerEntities(this.environment);
+		// registerComponents(this.environment);
+
 		return this;
 	}
 	init() {
@@ -73,6 +106,15 @@ export class Game extends Identity {
 		this.render = new Pixi();
 
 		//TODO: Bootstrap all of the rendering aspects / data of the game
+		
+		this.input = {
+			key: new KeyController({
+				element: window,
+			}),
+			mouse: new MouseController({
+				element: this.render.canvas,
+			}),
+		};
 
 		return this;
 	}
