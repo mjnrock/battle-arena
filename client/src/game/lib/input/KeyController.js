@@ -78,7 +78,7 @@ export class KeyController extends Identity {
 
 		this.updateModifiers(e);
 
-		console.log(e.type, e.code);
+		console.log(e.type, e.code, this.mask);
 
 		return this;
 	}

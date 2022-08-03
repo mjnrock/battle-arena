@@ -14,7 +14,7 @@ export function registerSystems(environment) {
 	environment.factory.system.addMany({
 		"mainloop": MainLoop,
 	});
-	
+
 	return environment;
 };
 export function registerEntities(environment) {
@@ -24,6 +24,22 @@ export function registerEntities(environment) {
 	});
 
 	return environment;
+};
+export function registerComponents(environment) {
+	environment.factory.component.addMany({
+		//...TODO
+	});
+
+	return environment;
+};
+
+export function loadInput(game, { mouse, key } = {}) {
+	game.input = {
+		key: new KeyController(key),
+		mouse: new MouseController(mouse),
+	};
+
+	return game;
 };
 
 
@@ -50,7 +66,7 @@ export class Game extends Identity {
 		 * All of the rendering aspects of the game are stored here.
 		 */
 		this.render = {};
-		
+
 		/**
 		 * ! This is initialized in .post()
 		 * The HID/input controllers for the game.
@@ -83,10 +99,9 @@ export class Game extends Identity {
 
 	pre() {
 		//TODO: Register / initialize all of the environmental data here
-
 		registerSystems(this.environment);
 		registerEntities(this.environment);
-		// registerComponents(this.environment);
+		registerComponents(this.environment);
 
 		return this;
 	}
@@ -103,22 +118,31 @@ export class Game extends Identity {
 		return this;
 	}
 	post() {
+		/**
+		 * Initialize the Pixi wrapper
+		 */
 		this.render = new Pixi();
 
-		//TODO: Bootstrap all of the rendering aspects / data of the game
-		
-		this.input = {
-			key: new KeyController({
+		//TODO: Bootstrap all of the rendering, input, etc. aspects / data of the game
+
+		/**
+		 * Add any additional key / mouse args below.
+		 */
+		loadInput(this.environment, {
+			key: {
 				element: window,
-			}),
-			mouse: new MouseController({
+			},
+			mouse: {
 				element: this.render.canvas,
-			}),
-		};
+			},
+		});
 
 		return this;
 	}
 
+	/**
+	 * A convenience getter for the game's main environment.
+	 */
 	get dispatch() {
 		return this.environment.dispatch;
 	}
