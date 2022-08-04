@@ -1,5 +1,8 @@
 import Identity from "../Identity";
 
+//TODO: Create an only/except list for event listening (e.g. @only = [ "MouseUp", "MouseDown", "ContextMenu" ], @except = [ "MouseMove" ])
+//? Maybe create a list of events in the .config with a boolean flag whether it should fire those events or not and @only/@except T/F those entries
+
 export class MouseEventEntry {
 	constructor ({ type, x, y, button, modifiers, config, ...opts } = {}) {
 		this.type = type;

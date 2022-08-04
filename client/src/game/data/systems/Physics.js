@@ -2,6 +2,7 @@ import System from "../../lib/ecs/System";
 import { Name as CompName } from "../components/Physics";
 
 export class Physics extends System {
+	static Name = CompName;
 	constructor ({ handlers = {} } = {}) {
 		super({ name: CompName });
 

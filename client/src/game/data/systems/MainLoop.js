@@ -2,6 +2,7 @@ import System from "../../lib/ecs/System";
 import { Name as CompName } from "../components/MainLoop";
 
 export class MainLoop extends System {
+	static Name = CompName;
 	constructor ({ onBegin, onTick, onRender, onEnd, handlers = {} } = {}) {
 		super({ name: CompName, handlers });
 

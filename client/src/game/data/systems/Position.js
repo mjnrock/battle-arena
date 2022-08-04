@@ -4,6 +4,7 @@ import System from "../../lib/ecs/System";
 import { Name as CompName } from "../components/Position";
 
 export class Position extends System {
+	static Name = CompName;
 	constructor ({ handlers = {} } = {}) {
 		super({ name: CompName });
 

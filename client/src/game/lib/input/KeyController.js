@@ -1,5 +1,9 @@
 import Identity from "../Identity";
 
+//TODO: Allow configurable keys to not be intercepted (e.g. @bypass = [ "F5", "F12" ])
+//TODO: Create an only/except list for event listening (e.g. @only = [ "KeyUp", "KeyDown" ], @except = [ "KeyPress" ])
+//? Maybe create a list of events in the .config with a boolean flag whether it should fire those events or not and @only/@except T/F those entries
+
 export class KeyController extends Identity {
 	static MaskFlags = {
 		UP: 2 << 0,

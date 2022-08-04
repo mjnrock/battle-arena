@@ -10,18 +10,31 @@ import { MainLoop } from "./data/systems/MainLoop";
 import { Squirrel } from "./data/entities/Squirrel";
 
 export function registerSystems(environment) {
+	/**
+	 * * Initialize the Systems here
+	 */
 	environment.system.registerWithName(new MainLoop());
-	environment.factory.system.addMany({
-		"mainloop": MainLoop,
-	});
+
+	/**
+	 * * Register the System factories
+	 */
+	const system = [
+		MainLoop,
+	].map(s => [ s.Name, s ]);
+	environment.factory.system.addMany(Object.fromEntries(system));
 
 	return environment;
 };
 export function registerEntities(environment) {
-	environment.entity.registerWithName(new Squirrel());
-	environment.factory.entity.addMany({
-		"squirrel": Squirrel,
-	});
+	environment.entity.registerWithName(new Squirrel());	// STUB
+	
+	/**
+	 * * Register the Entity factories
+	 */
+	const entities = [
+		Squirrel,
+	].map(e => [ e.Name, e ]);
+	environment.factory.entity.addMany(Object.fromEntries(entities));
 
 	return environment;
 };
@@ -33,7 +46,7 @@ export function registerComponents(environment) {
 	return environment;
 };
 
-export function loadInput(game, { mouse, key } = {}) {
+export function loadInputControllers(game, { mouse, key } = {}) {
 	game.input = {
 		key: new KeyController(key),
 		mouse: new MouseController(mouse),
@@ -128,7 +141,7 @@ export class Game extends Identity {
 		/**
 		 * Add any additional key / mouse args below.
 		 */
-		loadInput(this.environment, {
+		loadInputControllers(this.environment, {
 			key: {
 				element: window,
 			},

@@ -12,6 +12,7 @@ import Registry from "../Registry";
  * array to prevent function evaluation in those cases.
  */
 export class Entity extends Registry {
+	static Name = "entity";
 	static Components = {};
 
 	constructor ({ components = {}, nomen, id, tags, init = {}, ...rest } = {}) {
