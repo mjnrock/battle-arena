@@ -9,6 +9,8 @@ import { MouseController } from "./lib/input/MouseController";
 import { MainLoop } from "./data/systems/MainLoop";
 import { Squirrel } from "./data/entities/Squirrel";
 
+//#region Initialization and Registration
+//TODO: Move these to a game config file.
 export function registerSystems(environment) {
 	/**
 	 * * Initialize the Systems here
@@ -54,6 +56,7 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 
 	return game;
 };
+//#endregion Initialization and Registration
 
 
 export class Game extends Identity {
@@ -75,13 +78,13 @@ export class Game extends Identity {
 		this.environment = new Environment();
 
 		/**
-		 * ! This is initialized in .post()
+		 * STUB: This is initialized in .post()
 		 * All of the rendering aspects of the game are stored here.
 		 */
 		this.render = {};
 
 		/**
-		 * ! This is initialized in .post()
+		 * STUB: This is initialized in .post()
 		 * The HID/input controllers for the game.
 		 */
 		this.input = {
