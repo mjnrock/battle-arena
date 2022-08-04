@@ -141,14 +141,15 @@ export class Game extends Identity {
 		/**
 		 * Add any additional key / mouse args below.
 		 */
-		loadInputControllers(this.environment, {
-			key: {
-				element: window,
-			},
-			mouse: {
-				element: this.render.canvas,
-			},
-		});
+		//FIXME: Commented out temporarily until these are more production-ready (cf. F5/F12 notes)
+		// loadInputControllers(this.environment, {
+		// 	key: {
+		// 		element: window,
+		// 	},
+		// 	mouse: {
+		// 		element: this.render.canvas,
+		// 	},
+		// });
 
 		return this;
 	}

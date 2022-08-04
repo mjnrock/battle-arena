@@ -47,12 +47,14 @@ export class Environment extends Identity {
 		/**
 		 * Add a trivial classifier that attaches the environment to the system.
 		 */
-		this.system.addClassifier(() => (k, v, e) => v._environment = this);
+		this.system.addClassifier(
+			Registry.Middleware.AttachRef(this, "_environment"),
+		);
 		/**
 		 * Add a trivial classifier that attaches the environment to the entity.
 		 */
 		this.entity.addClassifiers(
-			(k, v, e) => v._environment = this,
+			Registry.Middleware.AttachRef(this, "_environment"),
 			Registry.Classifiers.HasAttribute("nomen"),
 		);
 

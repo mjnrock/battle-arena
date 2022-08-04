@@ -101,6 +101,13 @@ export class Registry extends Identity {
 			}
 		},
 	};
+	static Middleware = {
+		AttachRef: (self, key) => function (k, v, e) {
+			if(self && key && Identity.Comparators.IsObject(v)) {
+				v[ key ] = self;
+			}
+		},
+	};
 	static Classifiers = {
 		Is: (thing) => function (key, value, entry) {
 			if(value === thing) {
@@ -168,7 +175,9 @@ export class Registry extends Identity {
 			decoder: decoder || Registry.Decoders.Default,
 
 			/**
-			 * Middleware that auto classifies entries into aliases or pools.
+			 * Middleware that can auto classify entries into aliases or pools.
+			 * Since these are just functions, they can also be used to perform
+			 * work to entries, as they registered (e.g. attaching a ref, logging, etc.)
 			 */
 			classifiers: new Set(),
 		};
