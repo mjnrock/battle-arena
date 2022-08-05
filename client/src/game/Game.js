@@ -7,7 +7,11 @@ import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
 import { MainLoop } from "./data/systems/MainLoop";
+
 import { Squirrel } from "./data/entities/Squirrel";
+import { Node } from "./data/entities/realm/Node";
+import { World } from "./data/entities/realm/World";
+import { Realm } from "./data/entities/realm/Realm";
 
 //#region Initialization and Registration
 //TODO: Move these to a game config file.
@@ -28,14 +32,32 @@ export function registerSystems(environment) {
 	return environment;
 };
 export function registerEntities(environment) {
-	environment.entity.registerWithName(new Squirrel());	// STUB
+	/**
+	 * STUB
+	 */
+	const initializeRealm = () => {
+		const overworld = new World({
+			size: [ 10, 10 ],
+		});
+		const realm = new Realm({
+			worlds: {
+				overworld,
+			},
+		});
+
+		return realm;
+	};
+	environment.entity.registerWithAttr(initializeRealm());
 	
 	/**
 	 * * Register the Entity factories
 	 */
 	const entities = [
 		Squirrel,
-	].map(e => [ e.Name, e ]);
+		Node,
+		World,
+		Realm,
+	].map(e => [ e.Nomen, e ]);
 	environment.factory.entity.addMany(Object.fromEntries(entities));
 
 	return environment;
@@ -60,12 +82,26 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 
 
 export class Game extends Identity {
+	/**
+	 * Treat the Game class largely as a de-facto Singleton,
+	 * but with the added benefit of being able to store multiple
+	 * instances of a Game (e.g. for parallelization).
+	 */
 	static Instances = new Registry();
 
+	/**
+	 * Create a standard getter, using a Singleton pattern as
+	 * the default return value.
+	 */
 	static Get(key = "default") {
 		return this.Instances[ key ];
 	}
 
+	/**
+	 * @alias is a Multiton-alias for the particular instance being
+	 * registered -- if you will only be using one instance of the
+	 * game, then you can ignore this parameter entirely.
+	 */
 	constructor ({ id, tags, alias } = {}) {
 		super({ id, tags });
 
@@ -111,6 +147,13 @@ export class Game extends Identity {
 		} else {
 			Game.Instances.addWithAlias(this, alias);
 		}
+	}
+
+	get realm() {
+		/**
+		 * TODO: This should remained registered with the environment, but decide whether or not it should be a getter or a facsimile.
+		 */
+		return this.environment.entity.realm;
 	}
 
 	pre() {

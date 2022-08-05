@@ -8,12 +8,8 @@ import { Game } from "./../game/Game";
 const game = new Game();
 
 console.log(game);
-console.log(game.environment);
-console.log(game.environment.system.mainloop);
-console.log(999, game.environment.system.mainloop._environment);
-console.log(game.environment.entity);
-console.log(game.environment.factory.system.mainloop);
-console.log(game.environment.factory.entity.squirrel);
+console.log(game.environment.entity.realm.worlds.overworld.nodes[ "1,1" ]);
+console.log(game.realm.worlds.overworld.nodes[ "1,1" ]);
 
 export function Test() {
 	useEffect(() => {

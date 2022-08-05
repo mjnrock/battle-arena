@@ -3,22 +3,21 @@ import { Registry } from "../../../lib/Registry";
 import { Node } from "./Node";
 
 export class World extends Entity {
+	static Nomen = "world";
 	static Components = {
 		size: (width, height) => ({
 			width,
 			height,
 		}),
 		nodes: Registry,
-		entities: Registry,
 	};
 
 	constructor ({ size = [ 10, 10 ], nodes = {}, entities = {}, each, ...rest } = {}) {
 		super({
-			name: "world",
+			nomen: World.Nomen,
 			init: {
 				size,
 				nodes,
-				entities,
 			},
 
 			...rest,
