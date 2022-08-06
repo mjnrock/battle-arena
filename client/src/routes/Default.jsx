@@ -7,7 +7,7 @@ import { PixiCanvas } from "../components/PixiCanvas";
 
 import * as PixiJS from "pixi.js";
 // import testPixiMatter from "../PixiMatterTest";
-import Pixi from "../game/Pixi";
+import Pixi from "../game/lib/pixi/Pixi";
 
 import { Entity } from "./../game/lib/ecs/Entity";
 

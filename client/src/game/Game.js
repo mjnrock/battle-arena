@@ -1,4 +1,4 @@
-import { Pixi } from "./Pixi";
+import { Pixi } from "./lib/pixi/Pixi";
 import { Identity } from "./lib/Identity";
 import { Registry } from "./lib/Registry";
 import { Environment } from "./lib/ecs/Environment";

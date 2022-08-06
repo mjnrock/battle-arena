@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Pixi } from "../game/Pixi";
+import { Pixi } from "../game/lib/pixi/Pixi";
 
 import { PixiCanvas } from "../components/PixiCanvas";
 
