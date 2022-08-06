@@ -6,67 +6,10 @@ import { Environment } from "./lib/ecs/Environment";
 import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
-import { Squirrel } from "./data/entities/Squirrel";
-import { Node } from "./data/entities/realm/Node";
-import { World } from "./data/entities/realm/World";
-import { Realm } from "./data/entities/realm/Realm";
-
-//TODO Move the functions to the Environment class and mount them to the instance
-//#region Initialization and Registration
-/**
- * Create a wrapper factory that accepts an environment and an
- * array of classes that must contain a .Nomen property.  A object
- * will be return with the shape:
- * { [ Class.Nomen ]: (qty, ...args) => new Class(...args) }
- */
-export function registrationFactoryHelper(environment, results) {
-	return Object.fromEntries(results.map(e => [
-		/**
-		 * Create an entry object with e.Nomen as the key
-		 */
-		e.Nomen,
-
-		/**
-		 * Wrap the Entity constructor in a factory function
-		 */
-		(qty, ...args) => {
-			const entities = [];
-			for(let i = 0; i < qty; i++) {
-				const next = new e(...args);
-
-				//TODO: Cleanup any Entities from the environment that are no longer valid, as needed.
-				environment.entity.add(next);
-
-				entities.push(next);
-			}
-
-			return entities;
-		},
-	]));
-};
-export function registerFactorySystems(environment, systems) {
-	/**
-	 * * Register the System factories
-	 */
-	environment.factory.entity.registerMany(registrationFactoryHelper(environment, systems));
-
-	return environment;
-};
-export function registerFactoryEntities(environment, entities) {
-	/**
-	 * * Register the Entity factories
-	 */
-	environment.factory.entity.registerMany(registrationFactoryHelper(environment, entities));
-
-	return environment;
-};
-export function registerFactoryComponents(environment) {
-	environment.factory.component.registerMany({
-		//...TODO
-	});
-
-	return environment;
-};
+import { Squirrel } from "./entities/Squirrel";
+import { Node } from "./entities/realm/Node";
+import { World } from "./entities/realm/World";
+import { Realm } from "./entities/realm/Realm";
 
 export function loadInputControllers(game, { mouse, key } = {}) {
 	game.input = {
@@ -123,6 +66,11 @@ export class Game extends Identity {
 		this.render = {};
 
 		/**
+		 * STUB: This is initialized in .init()
+		 */
+		this.realm = {};
+
+		/**
 		 * STUB: This is initialized in .post()
 		 * The HID/input controllers for the game.
 		 */
@@ -155,26 +103,19 @@ export class Game extends Identity {
 		}
 	}
 
-	get realm() {
-		/**
-		 * TODO: This should remained registered with the environment, but decide whether or not it should be a getter or a facsimile.
-		 */
-		return this.environment.entity.realm;
-	}
-
 	pre() {
 		//TODO: Register / initialize all of the environmental data here
-		registerFactorySystems(this.environment, [
+		this.environment.registerFactorySystems([
 			//STUB: Add all of the system classes here
 		]);
-		registerFactoryEntities(this.environment, [
+		this.environment.registerFactoryEntities([
 			//STUB: Add all of the entity classes here
 			Squirrel,
 			Node,
 			World,
 			Realm,
 		]);
-		registerFactoryComponents(this.environment);
+		this.environment.registerFactoryComponents([]);
 
 		return this;
 	}
@@ -186,7 +127,19 @@ export class Game extends Identity {
 		const { system: systems, entity: entities, factory } = this.environment;
 		const { system: $S, entity: $E, component: $C } = factory;
 
-		//TODO: Initialize all of the game data, create worlds, etc.
+		//TODO: Initialize all of the game data, create worlds, etc.		
+		//TODO: Make a general "game realm initialization" function
+		const [ overworld ] = $E.world(1, {
+			size: [ 10, 10 ],
+		});
+
+		//* Create the main realm
+		const [ realm ] = $E.realm(1, {
+			worlds: {
+				overworld,
+			},
+		});
+		this.realm = realm;
 
 		return this;
 	}

@@ -30,7 +30,7 @@ export class Entity extends Identity {
 	}
 
 	register(comps, init = {}) {
-		const nextComps = Array.isArray(comps) ? comps.map((a, i) => [ a.constructor.name, a ]) : Object.entries(comps);
+		const nextComps = Array.isArray(comps) ? comps.map((a, i) => [ a.name || a.constructor.name, a ]) : Object.entries(comps);
 		for(let [ name, comp ] of nextComps) {
 			let largs = init[ name ];
 

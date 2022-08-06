@@ -1,4 +1,4 @@
-import { Entity } from "../../../lib/ecs/Entity";
+import { Entity } from "./../../lib/ecs/Entity";
 
 import { position } from "./../../components/position";
 import { terrain } from "./../../components/terrain";

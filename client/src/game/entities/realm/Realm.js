@@ -1,5 +1,5 @@
-import { Entity } from "../../../lib/ecs/Entity";
-import { Registry } from "../../../lib/Registry";
+import { Entity } from "./../../lib/ecs/Entity";
+import { Registry } from "./../../lib/Registry";
 
 export class Realm extends Entity {
 	static Nomen = "realm";

@@ -145,6 +145,53 @@ export class Environment extends Identity {
 			return system.emit(event, entities, msg, ...args);
 		}
 	}
+
+	_registrationFactoryHelper(environment, results) {
+		return Object.fromEntries(results.map(e => [
+			/**
+			 * Create an entry object with e.Nomen as the key
+			 */
+			e.Nomen,
+	
+			/**
+			 * Wrap the Entity constructor in a factory function
+			 */
+			(qty, ...args) => {
+				const entities = [];
+				for(let i = 0; i < qty; i++) {
+					const next = new e(...args);
+	
+					//TODO: Cleanup any Entities from the environment that are no longer valid, as needed.
+					environment.entity.add(next);
+	
+					entities.push(next);
+				}
+	
+				return entities;
+			},
+		]));
+	};
+	registerFactorySystems(systems) {
+		if(!Array.isArray(systems)) { 
+			systems = [ systems ];
+		}
+		
+		this.factory.system.registerMany(this._registrationFactoryHelper(this, systems));
+	}
+	registerFactoryEntities(entities) {
+		if(!Array.isArray(entities)) { 
+			entities = [ entities ];
+		}
+		
+		this.factory.entity.registerMany(this._registrationFactoryHelper(this, entities));
+	}
+	registerFactoryComponents(components) {
+		if(!Array.isArray(components)) { 
+			components = [ components ];
+		}
+		
+		this.factory.component.registerMany(this._registrationFactoryHelper(this, components));
+	}
 };
 
 export default Environment;

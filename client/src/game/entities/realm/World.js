@@ -1,5 +1,5 @@
-import { Entity } from "../../../lib/ecs/Entity";
-import { Registry } from "../../../lib/Registry";
+import { Entity } from "./../../lib/ecs/Entity";
+import { Registry } from "./../../lib/Registry";
 import { Node } from "./Node";
 
 export class World extends Entity {
