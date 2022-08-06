@@ -1,7 +1,7 @@
 import * as PixiJS from "pixi.js";
 
 import MouseController from "../input/MouseController";
-import Runner from "../relay/Runner";
+import Runner from "../../util/relay/Runner";
 
 /**
  * This is the main render wrapper class.  All rendering should be done through this class,

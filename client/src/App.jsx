@@ -25,7 +25,7 @@ export function App() {
 				<Route path="/game" element={ <Router.Game /> } />
 				<Route path="/test" element={ <Router.Test /> } />
 				
-				<Route path="*" element={ <Router.Default /> } />
+				{/* <Route path="*" element={ <Router.Default /> } /> */}
 			</Routes>
 		</Context.Provider>
 	);

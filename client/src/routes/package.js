@@ -1,10 +1,10 @@
 /* eslint-disable */
-import Default from "./Default";
+// import Default from "./Default";
 import Game from "./Game";
 import Test from "./Test";
 
 export default {
-    Default,
+    // Default,
     Game,
     Test,
 };

@@ -1,4 +1,5 @@
-import Identity from "../Identity";
+import Identity from "../client/src/game/lib/Identity";
+import Registry from "../client/src/game/lib/Registry";
 
 /**
  * Within an Entity descendant, the Components property is a map of component names to component generators.
@@ -10,11 +11,11 @@ import Identity from "../Identity";
  * array so that all arguments can be spread into the component generator; therefore, explicitly pass that
  * array to prevent function evaluation in those cases.
  */
-export class Entity extends Identity {
+export class Entity extends Registry {
 	static Nomen = "entity";
 	static Components = {};
 
-	constructor ({ components = {}, nomen, id, tags, init = {} } = {}) {
+	constructor ({ components = {}, nomen, id, tags, init = {}, ...rest } = {}) {
 		super([], { id, tags });
 
 		/**
@@ -23,15 +24,26 @@ export class Entity extends Identity {
 		this.nomen = nomen || this.constructor.Nomen;
 
 		/**
-		 * Register all of the components and seed them with data from @init
+		 * Register any components passed during instantiation
 		 */
-		this.register(this.constructor.Components, init);
-		this.register(components, init);
-	}
+		this.register(components);
 
-	register(comps, init = {}) {
-		const nextComps = Array.isArray(comps) ? comps.map((a, i) => [ a.constructor.name, a ]) : Object.entries(comps);
-		for(let [ name, comp ] of nextComps) {
+		/**
+		 * If rest was populated with state, register each key/value pair
+		 * This is useful for initializing the Entity with methods or additional properties.
+		 */
+		for(let [ key, value ] of Object.entries(rest)) {
+			if(typeof value === "function") {
+				this[ key ] = value;
+			}
+		}
+
+		/**
+		 * Register the default components present in .Components
+		 */
+		const defaultComps = Array.isArray(this.constructor.Components) ? this.constructor.Components.map((a, i) => [ i, a ]) : Object.entries(this.constructor.Components);
+		for(let [ name, comp ] of defaultComps) {
+			name = typeof name === "number" ? comp.constructor.name : name;
 			let largs = init[ name ];
 
 			if(typeof largs === "function") {
@@ -43,17 +55,18 @@ export class Entity extends Identity {
 			}
 
 			if(Identity.Comparators.IsClass(comp) && !Identity.Comparators.IsInstance(comp)) {
-				this[ name ] = new comp(...largs);
+				this.register({
+					[ name ]: new comp(...largs),
+				});
 			} else if(typeof comp === "function") {
-				this[ name ] = comp(...largs);
+				this.register({
+					[ name ]: comp(...largs),
+				});
 			} else {
-				this[ name ] = comp;
+				this.register({
+					[ name ]: comp,
+				});
 			}
-		}
-	}
-	unregister(...keys) {
-		for(let key of keys) {
-			delete this[ key ];
 		}
 	}
 
@@ -61,10 +74,13 @@ export class Entity extends Identity {
 	 * Clean up the Entity before GC
 	 */
 	deconstructor(cascade = false) {
-		super.deconstructor();
-
 		for(let key of Object.keys(this)) {
 			const value = this[ key ];
+			/**
+			 * Unregisters (via :Registry) all components and destroys all properties/methods
+			 */
+			this.remove(key);
+
 			/**
 			 * Optionally destroy any properties with a "deconstructor" method
 			 */
@@ -77,8 +93,6 @@ export class Entity extends Identity {
 				}
 			}
 		}
-
-		this.unregister(...Object.keys(this));
 	}
 
 	/**
@@ -98,18 +112,24 @@ export class Entity extends Identity {
 					/**
 					 * Evaluate any root-level functions
 					 */
-					entity[ name ] = input(i, entity);
+					entity.register({
+						[ name ]: input(i, entity),
+					});
 				} else if(typeof input === "object" && "next" in (input || {})) {
 
 					/**
 					 * Assume its a generator*
 					 */
-					entity[ name ] = input.next().value;
+					entity.register({
+						[ name ]: input.next().value,
+					});
 				} else {
 					/**
 					 * Take value as-is
 					 */
-					entity[ name ] = input;
+					entity.register({
+						[ name ]: input,
+					});
 				}
 
 				i++;

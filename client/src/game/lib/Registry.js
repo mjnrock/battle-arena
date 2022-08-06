@@ -1,15 +1,11 @@
 import { validate } from "uuid";
-import { spreadFirstElementOrArray } from "./../util/helper";
-
-import Identity from "./Identity";
+import { Identity } from "./Identity";
 
 export class RegistryEntry extends Identity {
 	static Type = {
 		VALUE: Symbol("VALUE"),
 		ALIAS: Symbol("ALIAS"),
 		POOL: Symbol("POOL"),
-		// FN: Symbol("FN"),
-		// REF: Symbol("REF"),
 	};
 	static Config = {};
 
@@ -26,8 +22,8 @@ export class RegistryEntry extends Identity {
 		}
 	}
 
-	copy(id) {
-		return new RegistryEntry(id, this.value, this.type, { tags: this.tags, config: this.config });
+	copy() {
+		return new RegistryEntry(this.value, this.type, { tags: this.tags, config: this.config });
 	}
 
 	get isValueType() {
@@ -159,19 +155,19 @@ export class Registry extends Identity {
 		},
 	};
 
-	/**
-	 * @param {RegistryEntry} entries **Must** have RegistryEntry as values/elements
-	 * @param {*} compArgs 
-	 */
-	constructor (entries = {}, { config, encoder, decoder, classifiers, id, tags } = {}) {
+	constructor (entries = {}, { encoder, decoder, classifiers = [], config, id, tags } = {}) {
 		super({ id, tags });
 
 		this._entries = new Map();
 		this._config = {
 			/**
-			 * Middleware to be applied to all entries before they are get or set.
+			 * Middleware to be applied to all entries before they are set.
 			 */
 			encoder: encoder || Registry.Encoders.Default,
+
+			/**
+			 * Middleware to be applied to all entries before they are get.
+			 */
 			decoder: decoder || Registry.Decoders.Default,
 
 			/**
@@ -183,8 +179,8 @@ export class Registry extends Identity {
 		};
 
 		this.mergeConfig(config);
-		this.addClassifiers(classifiers);
-		this.register(entries);
+		this.registerMany(entries);
+		this.registerClassifiers(...classifiers);
 
 		return new Proxy(this, {
 			get: (target, key) => {
@@ -201,35 +197,7 @@ export class Registry extends Identity {
 		});
 	}
 
-	/**
-	 * This is a high-level convenience wrapper for .add and .addMany with the caveat
-	 * that this will assume that any object in the first position is an alias map; 
-	 * if that is not the case, use .add directly.
-	 */
-	register(...args) {
-		const [ entries ] = args;
-		if(typeof entries === "object") {
-			return this.addMany(entries);
-		}
-
-		return this.add(...args);
-	}
-	/**
-	 * This allows for registering objects that contain a property equal to
-	 * that of @attr.  The resolved value of @attr will be used to create an alias.
-	 */
-	registerWithAttr(obj, attr = "nomen") {
-		if(typeof obj === "object" && attr in obj) {
-			return this.addMany({
-				[ obj[ attr ] ]: obj,
-			});
-		}
-
-		return false;
-	}
-	registerWithName(obj) {
-		return this.registerWithAttr(obj, "nomen");
-	}
+	deconstructor() { }
 
 	getConfig() {
 		return this._config;
@@ -259,32 +227,6 @@ export class Registry extends Identity {
 	}
 	add(value, id, config = {}, encoderArgs = []) {
 		return this._config.encoder(this, ...encoderArgs)(value, id, config);
-	}
-	/**
-	 * This is identical to .add, but with an optional alias.
-	 */
-	addWithAlias(input, alias) {
-		const uuid = this.add(input);
-
-		if(uuid && alias) {
-			this.addAlias(uuid, alias);
-		}
-
-		return uuid;
-	}
-	addMany(obj = {}) {
-		const ids = [];
-		for(let alias in obj) {
-			const uuid = this.add(obj[ alias ]);
-
-			if(uuid !== alias) {
-				this.addAlias(uuid, alias);
-			}
-
-			ids.push(uuid);
-		}
-
-		return ids;
 	}
 	update(key, value, merge = false) {
 		const entry = this._entries.get(key);
@@ -389,79 +331,7 @@ export class Registry extends Identity {
 
 		return null;
 	}
-
-	addClassifier(classifier) {
-		if(typeof classifier === "function") {
-			this._config.classifiers.add(classifier.bind(this));
-		}
-
-		return this;
-	}
-	addClassifiers(...classifiers) {
-		classifiers = spreadFirstElementOrArray(classifiers);
-
-		for(let classifier of classifiers) {
-			this.addClassifier(classifier);
-		}
-
-		return this;
-	}
-	removeClassifier(classifier) {
-		return this._config.classifiers.delete(classifier);
-	}
-	removeClassifiers(...classifiers) {
-		const removed = [];
-		for(let classifier of classifiers) {
-			if(this.removeClassifier(classifier)) {
-				removed.push(classifier);
-			}
-		}
-
-		return removed;
-	}
-
-	addAlias(uuid, alias) {
-		if(!alias) {
-			return this;
-		}
-
-		if(this.has(uuid)) {
-			this.set(alias, new RegistryEntry(uuid, RegistryEntry.Type.ALIAS, { id: alias }));
-		}
-
-		return this;
-	}
-	/**
-	 * { [ alias ] : uuid, [ alias ] : [ ...uuid ]("Pool"), ... }
-	 */
-	addAliasObject(obj = {}) {
-		let entries;
-		if(Array.isArray(obj)) {
-			entries = obj;
-		} else {
-			entries = Object.entries(obj);
-		}
-
-		for(let [ alias, uuid ] of entries) {
-			if(Array.isArray(uuid)) {
-				this.setPool(alias, uuid);
-			} else if(this.has(uuid)) {
-				this.addAlias(uuid, alias);
-			}
-		}
-
-		return this;
-	}
-	removeAlias(uuid, ...aliases) {
-		if(this.has(uuid)) {
-			for(let alias of aliases) {
-				this.remove(alias);
-			}
-		}
-
-		return this;
-	}
-
+	
 	getPool(name, asRegistry = false) {
 		const pool = this.get(name);
 
@@ -524,6 +394,97 @@ export class Registry extends Identity {
 		return this;
 	}
 
+	register(value, ...opts) {
+		return this.add(value, ...opts);
+	}
+	registerWithAlias(value, alias, ...opts) {
+		const uuid = this.add(value, ...opts);
+
+		if(uuid && alias) {
+			if(Array.isArray(alias)) {
+				this.registerAlias(uuid, ...alias);
+			} else {
+				this.registerAlias(uuid, alias);
+			}
+		}
+
+		return uuid;
+	}
+	registerMany(entries = {}, optsFn) {
+		if(!optsFn) {
+			optsFn = () => [];
+		}
+
+		let uuids = [];
+		if(Identity.Comparators.IsArray(entries)) {
+			for(let i = 0; i < entries.length; i++) {
+				const value = entries[ i ];
+				const uuid = this.register(value, ...optsFn(value, i));
+
+				uuids.push(uuid);
+			}
+		} else if(Identity.Comparators.IsObject(entries)) {
+			for(let key of Object.keys(entries)) {
+				const value = entries[ key ];
+				const uuid = this.registerWithAlias(value, key, ...optsFn(value, key));
+
+				uuids.push(uuid);
+			}
+		}
+
+		return uuids;
+	}
+	unregister(...uuids) {
+		const results = [];
+
+		for(let uuid of uuids) {
+			results.push(this._entries.delete(uuid));
+		}
+
+		return results;
+	}
+
+	registerAlias(uuid, ...aliases) {
+		const entry = this._entries.get(uuid);
+
+		if(entry && entry.isValueType) {
+			for(let alias of aliases) {
+				let aliasEntry = new RegistryEntry(uuid, RegistryEntry.Type.ALIAS);
+
+				this._entries.set(alias, aliasEntry);
+			}
+		}
+	}
+	unregisterAlias(...aliases) {
+		const results = [];
+		for(let alias of aliases) {
+			results.push(this._entries.delete(alias));
+		}
+
+		return results;
+	}
+
+	registerClassifiers(...classifiers) {
+		for(let classifier of classifiers) {
+			if(typeof classifier === "function") {
+				this._config.classifiers.add(classifier.bind(this));
+			}
+		}
+	}
+	unregisterClassifiers(...classifiers) {
+		const removed = [];
+		for(let classifier of classifiers) {
+			if(this._config.classifiers.delete(classifier)) {
+				removed.push(classifier);
+			}
+		}
+
+		return removed;
+	}
+
+
+
+	//#region Iteration and Related
 	[ Symbol.iterator ]() {
 		const data = Array.from(this._entries.values()).reduce((a, e) => {
 			if(e.isValueType) {
@@ -640,19 +601,7 @@ export class Registry extends Identity {
 	get count() {
 		return this._entries.size;
 	}
-
-	//FIXME: Verify this works
-	toObject() {
-		const obj = {};
-		for(let [ id, entry ] of this) {
-			obj[ id ] = entry.value;
-		}
-
-		return obj;
-	}
-	toString() {
-		return JSON.stringify(this.toObject());
-	}
+	//#endregion Iteration and Related
 }
 
 export default Registry;

@@ -1,5 +1,5 @@
 import Identity from "../Identity";
-import Runner from "../relay/Runner";
+import Runner from "../../util/relay/Runner";
 
 
 /**

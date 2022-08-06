@@ -1,4 +1,4 @@
-import { System } from "../System";
+import { System } from "../../../client/src/game/lib/ecs/System";
 
 export class NodeSystem extends System {
 	constructor({ name, handlers, ...opts } = {}) {

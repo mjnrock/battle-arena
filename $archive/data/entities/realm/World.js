@@ -52,7 +52,9 @@ export class World extends Entity {
 				}
 
 				if(!!alias) {
-					this.nodes.registerWithAlias(node, alias);
+					this.nodes.register({
+						[ alias ]: node,
+					});
 				} else {
 					this.nodes.register(node);
 				}

@@ -1,9 +1,7 @@
 import { validate } from "uuid";
-import { spreadFirstElementOrArray } from "../util/helper";
+import { spreadFirstElementOrArray } from "../client/src/game/util/helper";
 
-import Identity from "./Identity";
-
-//TODO: Cleanup this file and refactor it to be much simpler and robust -- '"it's a mess." <- "I think I'm right." <-- "I'm right."' <--- that's the AI lololol
+import Identity from "../client/src/game/lib/Identity";
 
 export class RegistryEntry extends Identity {
 	static Type = {

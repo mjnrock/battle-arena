@@ -6,8 +6,6 @@ import { Environment } from "./lib/ecs/Environment";
 import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
-import { MainLoop } from "./data/systems/MainLoop";
-
 import { Squirrel } from "./data/entities/Squirrel";
 import { Node } from "./data/entities/realm/Node";
 import { World } from "./data/entities/realm/World";
@@ -21,7 +19,7 @@ import { Realm } from "./data/entities/realm/Realm";
  * will be return with the shape:
  * { [ Class.Nomen ]: (qty, ...args) => new Class(...args) }
  */
-export function registrationFactory(environment, results) {
+export function registrationFactoryHelper(environment, results) {
 	return Object.fromEntries(results.map(e => [
 		/**
 		 * Create an entry object with e.Nomen as the key
@@ -37,7 +35,7 @@ export function registrationFactory(environment, results) {
 				const next = new e(...args);
 
 				//TODO: Cleanup any Entities from the environment that are no longer valid, as needed.
-				environment.entity.registerWithAttr(next);
+				environment.entity.add(next);
 
 				entities.push(next);
 			}
@@ -46,29 +44,24 @@ export function registrationFactory(environment, results) {
 		},
 	]));
 };
-export function registerSystems(environment, systems) {
-	/**
-	 * * Initialize the Systems here
-	 */
-	environment.system.registerWithName(new MainLoop());
-
+export function registerFactorySystems(environment, systems) {
 	/**
 	 * * Register the System factories
 	 */
-	environment.factory.entity.addMany(registrationFactory(environment, systems));
+	environment.factory.entity.registerMany(registrationFactoryHelper(environment, systems));
 
 	return environment;
 };
-export function registerEntities(environment, entities) {
+export function registerFactoryEntities(environment, entities) {
 	/**
 	 * * Register the Entity factories
 	 */
-	environment.factory.entity.addMany(registrationFactory(environment, entities));
+	environment.factory.entity.registerMany(registrationFactoryHelper(environment, entities));
 
 	return environment;
 };
-export function registerComponents(environment) {
-	environment.factory.component.addMany({
+export function registerFactoryComponents(environment) {
+	environment.factory.component.registerMany({
 		//...TODO
 	});
 
@@ -111,6 +104,11 @@ export class Game extends Identity {
 		super({ id, tags });
 
 		/**
+		 * This controls the timing of updates and renders
+		 */
+		// this.loop = new MainLoop();
+
+		/**
 		 * Create the default environment for the game, holding
 		 * all assets and systems, as the root layer of the game.
 		 * All Systems and Entities are stored within this Environment,
@@ -147,10 +145,13 @@ export class Game extends Identity {
 		 * to add an/another instance-alias.
 		 */
 		if(!Game.Get()) {
-			Game.Instances.addWithAlias(this, "default");
-			Game.Instances.addAlias(this.id, alias);
+			Game.Instances.registerWithAlias(this, "default");
+
+			if(alias) {
+				Game.Instances.registerAlias(this.id, alias);
+			}
 		} else {
-			Game.Instances.addWithAlias(this, alias);
+			Game.Instances.registerWithAlias(this, alias);
 		}
 	}
 
@@ -163,16 +164,17 @@ export class Game extends Identity {
 
 	pre() {
 		//TODO: Register / initialize all of the environmental data here
-		registerSystems(this.environment, [
-			MainLoop,
+		registerFactorySystems(this.environment, [
+			//STUB: Add all of the system classes here
 		]);
-		registerEntities(this.environment, [
+		registerFactoryEntities(this.environment, [
+			//STUB: Add all of the entity classes here
 			Squirrel,
 			Node,
 			World,
 			Realm,
 		]);
-		registerComponents(this.environment);
+		registerFactoryComponents(this.environment);
 
 		return this;
 	}

@@ -3,7 +3,7 @@ import { Pixi } from "../game/lib/pixi/Pixi";
 
 import { PixiCanvas } from "../components/PixiCanvas";
 
-import { Game } from "../game/Game";
+import { Game } from "./../game/Game";
 
 
 
@@ -18,10 +18,6 @@ export function initializeRealm(game) {
 			overworld,
 		},
 	});
-
-	console.log(overworld)
-	console.log(realm)
-	console.log(game)
 	
 	return realm;
 };
@@ -35,7 +31,7 @@ export function Test() {
 		initializeRealm(game);
 
 		console.log(game);
-		// console.log(game.realm.worlds.overworld.nodes[ "0,0" ]);
+		console.log(game.realm.worlds.overworld.nodes[ "0,0" ]);
 
 		return () => {
 			game.render.ticker.stop();

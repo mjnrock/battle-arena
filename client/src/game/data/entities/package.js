@@ -1,17 +1,7 @@
 import Squirrel from "./Squirrel";
+import Realm from "./realm/package";
 
-export const Entities = {
-	//* [ Alias ]: Class | [ Class, ComponentEntryObject, ...rest ],
-
-	Squirrel: [
-		Squirrel,
-		{
-			Position: {
-				x: -1.3,
-				y: 0.5,
-			},
-		},
-	],
+export default {
+	Squirrel,
+	Realm,
 };
-
-export default Entities;
