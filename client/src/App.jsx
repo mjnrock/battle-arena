@@ -22,8 +22,10 @@ export function App() {
 	return (		
 		<Context.Provider value={ game }>
 			<Routes>
-				<Route path="/game" element={ <Router.Default /> } />
+				<Route path="/game" element={ <Router.Game /> } />
 				<Route path="/test" element={ <Router.Test /> } />
+				
+				<Route path="*" element={ <Router.Default /> } />
 			</Routes>
 		</Context.Provider>
 	);

@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import * as PixiJS from "pixi.js";
 
-import { Base64 } from "../game/util/Base64";
-import { Tessellator } from "../game/lib/tile/Tessellator";
-import { SpriteSheet } from "../game/lib/tile/pixi/SpriteSheet";
+import { Base64 } from "../../game/util/Base64";
+import { Tessellator } from "../../game/lib/tile/Tessellator";
+import { SpriteSheet } from "../../game/lib/tile/pixi/SpriteSheet";
 import { Pixi } from "../game/Pixi";
-import { Score } from "../game/lib/tile/animate/Score";
-import { Track } from "../game/lib/tile/animate/Track";
-import { Entity } from "../game/lib/ecs/Entity";
+import { Score } from "../../game/lib/tile/animate/Score";
+import { Track } from "../../game/lib/tile/animate/Track";
+import { Entity } from "../../game/lib/ecs/Entity";
 
-import { PixiCanvas } from "../components/PixiCanvas";
+import { PixiCanvas } from "../../components/PixiCanvas";
 
 //* Create the Pixi Rendering Engine
 const pixi = new Pixi({

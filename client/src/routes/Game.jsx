@@ -3,7 +3,7 @@ import { Pixi } from "../game/lib/pixi/Pixi";
 
 import { PixiCanvas } from "../components/PixiCanvas";
 
-import { Game } from "./../game/Game";
+import { Game } from "../game/Game";
 
 
 

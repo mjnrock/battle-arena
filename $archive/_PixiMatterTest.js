@@ -2,9 +2,9 @@
 
 import * as PixiJS from "pixi.js";
 import MatterJS from "matter-js";
-import { clamp } from "./game/util/helper";
-import Entity from "./game/lib/ecs/Entity";
-import Position from "./game/data/components/Position";
+import { clamp } from "../client/src/game/util/helper";
+import Entity from "../client/src/game/lib/ecs/Entity";
+import Position from "../client/src/game/data/components/Position";
 
 const entity = new Entity({
 	name: "squirrel",
