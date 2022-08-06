@@ -13,8 +13,8 @@ import { Node } from "./data/entities/realm/Node";
 import { World } from "./data/entities/realm/World";
 import { Realm } from "./data/entities/realm/Realm";
 
+//TODO Move the functions to the Environment class and mount them to the instance
 //#region Initialization and Registration
-//TODO: Move these to a game config file.
 /**
  * Create a wrapper factory that accepts an environment and an
  * array of classes that must contain a .Nomen property.  A object
