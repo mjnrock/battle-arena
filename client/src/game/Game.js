@@ -15,7 +15,38 @@ import { Realm } from "./data/entities/realm/Realm";
 
 //#region Initialization and Registration
 //TODO: Move these to a game config file.
-export function registerSystems(environment) {
+/**
+ * Create a wrapper factory that accepts an environment and an
+ * array of classes that must contain a .Nomen property.  A object
+ * will be return with the shape:
+ * { [ Class.Nomen ]: (qty, ...args) => new Class(...args) }
+ */
+export function registrationFactory(environment, results) {
+	return Object.fromEntries(results.map(e => [
+		/**
+		 * Create an entry object with e.Nomen as the key
+		 */
+		e.Nomen,
+
+		/**
+		 * Wrap the Entity constructor in a factory function
+		 */
+		(qty, ...args) => {
+			const entities = [];
+			for(let i = 0; i < qty; i++) {
+				const next = new e(...args);
+
+				//TODO: Cleanup any Entities from the environment that are no longer valid, as needed.
+				environment.entity.registerWithAttr(next);
+
+				entities.push(next);
+			}
+
+			return entities;
+		},
+	]));
+};
+export function registerSystems(environment, systems) {
 	/**
 	 * * Initialize the Systems here
 	 */
@@ -24,41 +55,15 @@ export function registerSystems(environment) {
 	/**
 	 * * Register the System factories
 	 */
-	const system = [
-		MainLoop,
-	].map(s => [ s.Name, s ]);
-	environment.factory.system.addMany(Object.fromEntries(system));
+	environment.factory.entity.addMany(registrationFactory(environment, systems));
 
 	return environment;
 };
-export function registerEntities(environment) {
-	/**
-	 * STUB
-	 */
-	const initializeRealm = () => {
-		const overworld = new World({
-			size: [ 10, 10 ],
-		});
-		const realm = new Realm({
-			worlds: {
-				overworld,
-			},
-		});
-
-		return realm;
-	};
-	environment.entity.registerWithAttr(initializeRealm());
-	
+export function registerEntities(environment, entities) {
 	/**
 	 * * Register the Entity factories
 	 */
-	const entities = [
-		Squirrel,
-		Node,
-		World,
-		Realm,
-	].map(e => [ e.Nomen, e ]);
-	environment.factory.entity.addMany(Object.fromEntries(entities));
+	environment.factory.entity.addMany(registrationFactory(environment, entities));
 
 	return environment;
 };
@@ -158,8 +163,15 @@ export class Game extends Identity {
 
 	pre() {
 		//TODO: Register / initialize all of the environmental data here
-		registerSystems(this.environment);
-		registerEntities(this.environment);
+		registerSystems(this.environment, [
+			MainLoop,
+		]);
+		registerEntities(this.environment, [
+			Squirrel,
+			Node,
+			World,
+			Realm,
+		]);
 		registerComponents(this.environment);
 
 		return this;
