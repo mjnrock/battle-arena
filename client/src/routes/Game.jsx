@@ -10,6 +10,7 @@ export function Test() {
 
 	useEffect(() => {
 		game.render.ticker.start();
+		console.log(game.render)
 
 		// console.log(game);
 		console.log(game.realm.worlds.overworld.nodes[ "0,0" ]);

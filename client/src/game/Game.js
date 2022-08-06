@@ -151,6 +151,12 @@ export class Game extends Identity {
 
 		//TODO: Bootstrap all of the rendering, input, etc. aspects / data of the game
 
+		//FIXME: this.render is NOT getting called, but it should be
+		this.render.observers.add(this);
+
+		console.log(this.render)
+		console.log(this.render.graphics)
+
 		/**
 		 * Add any additional key / mouse args below.
 		 */
@@ -166,6 +172,22 @@ export class Game extends Identity {
 
 		return this;
 	}
+
+	render() {
+		console.log(223)
+		for(let [ id, node ] of this.realm.worlds.overworld.nodes) {
+			const { x, y } = node.position;
+
+			const graphics = this.render.graphics;
+
+			graphics.beginFill(0xFF0000);
+			graphics.drawRect(0, 0, 1000, 1000);
+			graphics.endFill();
+
+			// this.render.stage.addChild(graphics);
+		}
+	}
+	update() {}
 
 	/**
 	 * A convenience getter for the game's main environment.
