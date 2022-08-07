@@ -233,6 +233,8 @@ export class Game extends Identity {
 		const graphics = this.renderer.graphics;
 
 		//STUB: .tick should be called by the game loop
+		//FIXME: Perform the similar listening for "tick" that this.renderer and this does
+		//TODO: Implement the game loop
 		this.tick();
 
 		const { x, y } = this.realm.players.player.position;
@@ -243,16 +245,29 @@ export class Game extends Identity {
 		graphics.endFill();
 	}
 	tick() {
-		if(this.input.key.isUp) {
+		/**
+		 * Adjust velocities and positions from input controllers
+		 */
+		if(this.input.key.hasUp) {
 			this.realm.players.player.position.vy -= 0.05;
-		} else if(this.input.key.isDown) {
+		} else if(this.input.key.hasDown) {
 			this.realm.players.player.position.vy += 0.05;
 		}
 
-		if(this.input.key.isLeft) {
+		if(this.input.key.hasLeft) {
 			this.realm.players.player.position.vx -= 0.05;
-		} else if(this.input.key.isRight) {
+		} else if(this.input.key.hasRight) {
 			this.realm.players.player.position.vx += 0.05;
+		}
+
+		if(this.input.key.hasShift) {
+			this.realm.players.player.position.vx = 0;
+			this.realm.players.player.position.vy = 0;
+		}
+
+		if(this.input.key.hasCtrl) {
+			this.realm.players.player.position.x = 10;
+			this.realm.players.player.position.y = 10;
 		}
 
 		this.realm.players.player.position.x += this.realm.players.player.position.vx;

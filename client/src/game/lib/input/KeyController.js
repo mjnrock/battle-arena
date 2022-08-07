@@ -31,17 +31,30 @@ export class KeyController extends Identity {
 		console.log(2435342543)
 	}
 
-	get isUp() {
+	get hasUp() {
 		return this.mask & KeyController.MaskFlags.UP;
 	}
-	get isDown() {
+	get hasDown() {
 		return this.mask & KeyController.MaskFlags.DOWN;
 	}
-	get isLeft() {
+	get hasLeft() {
 		return this.mask & KeyController.MaskFlags.LEFT;
 	}
-	get isRight() {
+	get hasRight() {
 		return this.mask & KeyController.MaskFlags.RIGHT;
+	}
+
+	get hasShift() {
+		return this.modifiers & KeyController.ModifierFlags.SHIFT;
+	}
+	get hasCtrl() {
+		return this.modifiers & KeyController.ModifierFlags.CTRL;
+	}
+	get hasAlt() {
+		return this.modifiers & KeyController.ModifierFlags.ALT;
+	}
+	get hasMeta() {
+		return this.modifiers & KeyController.ModifierFlags.META;
 	}
 
 	/**
