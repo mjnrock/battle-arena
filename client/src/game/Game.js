@@ -22,7 +22,7 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 };
 //#endregion Initialization and Registration
 
-
+//TODO: Extract the "Game" part into its own class and the "Battle Arena" part into its own class
 export class Game extends Identity {
 	/**
 	 * Treat the Game class largely as a de-facto Singleton,
@@ -245,6 +245,7 @@ export class Game extends Identity {
 		graphics.endFill();
 	}
 	tick() {
+		//TODO: Bind a basic mouse controller to the game, click to teleport there
 		/**
 		 * Adjust velocities and positions from input controllers
 		 */
