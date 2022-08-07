@@ -12,9 +12,10 @@ import { World } from "./entities/realm/World";
 import { Realm } from "./entities/realm/Realm";
 
 export function loadInputControllers(game, { mouse, key } = {}) {
+	console.log(48592734987)
 	game.input = {
 		key: new KeyController(key),
-		mouse: new MouseController(mouse),
+		// mouse: new MouseController(mouse),
 	};
 
 	return game;
@@ -51,6 +52,13 @@ export class Game extends Identity {
 		 */
 		// this.loop = new MainLoop();
 
+		this.config = {
+			tile: {
+				width: 32,
+				height: 32,
+			},
+		};
+
 		/**
 		 * Create the default environment for the game, holding
 		 * all assets and systems, as the root layer of the game.
@@ -63,7 +71,7 @@ export class Game extends Identity {
 		 * STUB: This is initialized in .post()
 		 * All of the rendering aspects of the game are stored here.
 		 */
-		this.render = {};
+		this.renderer = {};
 
 		/**
 		 * STUB: This is initialized in .init()
@@ -130,7 +138,15 @@ export class Game extends Identity {
 		//TODO: Initialize all of the game data, create worlds, etc.		
 		//TODO: Make a general "game realm initialization" function
 		const [ overworld ] = $E.world(1, {
-			size: [ 10, 10 ],
+			size: [ 32, 24 ],
+			each: ({ alias, node }) => {
+				node.terrain.type = Math.random() > 0.5 ? "grass" : "water";
+
+				return [
+					alias,
+					node,
+				];
+			},
 		});
 
 		//* Create the main realm
@@ -141,53 +157,107 @@ export class Game extends Identity {
 		});
 		this.realm = realm;
 
+		const [ player ] = $E.squirrel(1, {
+			components: {
+				world: {
+					id: overworld.id,
+				},
+			},
+			init: {
+				position: {
+					x: 10,
+					y: 10,
+					vx: 0.01,
+					vy: 0.01,
+				},
+			},
+		});
+
+		realm.players = {
+			player,
+		};
+
 		return this;
 	}
 	post() {
 		/**
 		 * Initialize the Pixi wrapper
 		 */
-		this.render = new Pixi();
-
-		//TODO: Bootstrap all of the rendering, input, etc. aspects / data of the game
-
-		//FIXME: this.render is NOT getting called, but it should be
-		this.render.observers.add(this);
-
-		console.log(this.render)
-		console.log(this.render.graphics)
+		this.renderer = new Pixi();
+		this.renderer.observers.add(this);
 
 		/**
 		 * Add any additional key / mouse args below.
 		 */
 		//FIXME: Commented out temporarily until these are more production-ready (cf. F5/F12 notes)
-		// loadInputControllers(this.environment, {
-		// 	key: {
-		// 		element: window,
-		// 	},
-		// 	mouse: {
-		// 		element: this.render.canvas,
-		// 	},
-		// });
+		loadInputControllers(this, {
+			key: {
+				element: window,
+			},
+			mouse: {
+				element: this.render.canvas,
+			},
+		});
 
 		return this;
 	}
 
 	render() {
-		console.log(223)
+		if(!this.realm) {
+			return;
+		}
+
+		/**
+		 * Draw the Terrain
+		 */
 		for(let [ id, node ] of this.realm.worlds.overworld.nodes) {
+			const graphics = this.renderer.graphics;
 			const { x, y } = node.position;
 
-			const graphics = this.render.graphics;
+			let color = 0xFFFFFF;
+			if(node.terrain.type === "grass") {
+				color = 0x447f52;
+			} else if(node.terrain.type === "water") {
+				color = 0x436d7c;
+			}
 
-			graphics.beginFill(0xFF0000);
-			graphics.drawRect(0, 0, 1000, 1000);
+			graphics.lineStyle(2, 0x000000, 1);
+			graphics.beginFill(color);
+			graphics.drawRect(x * this.config.tile.width, y * this.config.tile.height, this.config.tile.width, this.config.tile.height);
 			graphics.endFill();
-
-			// this.render.stage.addChild(graphics);
 		}
+
+		/**
+		 * Draw the Player
+		 */
+		const graphics = this.renderer.graphics;
+
+		//STUB: .tick should be called by the game loop
+		this.tick();
+
+		const { x, y } = this.realm.players.player.position;
+
+		graphics.lineStyle(2, 0x000000, 1);
+		graphics.beginFill(0xFF0000, 1);
+		graphics.drawRect(x * this.config.tile.width, y * this.config.tile.height, this.config.tile.width, this.config.tile.height);
+		graphics.endFill();
 	}
-	update() {}
+	tick() {
+		if(this.input.key.isUp) {
+			this.realm.players.player.position.vy -= 0.05;
+		} else if(this.input.key.isDown) {
+			this.realm.players.player.position.vy += 0.05;
+		}
+
+		if(this.input.key.isLeft) {
+			this.realm.players.player.position.vx -= 0.05;
+		} else if(this.input.key.isRight) {
+			this.realm.players.player.position.vx += 0.05;
+		}
+
+		this.realm.players.player.position.x += this.realm.players.player.position.vx;
+		this.realm.players.player.position.y += this.realm.players.player.position.vy;
+	}
 
 	/**
 	 * A convenience getter for the game's main environment.

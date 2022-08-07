@@ -5,24 +5,23 @@ import { PixiCanvas } from "../components/PixiCanvas";
 
 import { Game } from "../game/Game";
 
-export function Test() {
-	const game = new Game();
+const game = new Game();
 
+export function GameRoute() {
 	useEffect(() => {
-		game.render.ticker.start();
-		console.log(game.render)
+		game.renderer.ticker.start();
 
 		// console.log(game);
-		console.log(game.realm.worlds.overworld.nodes[ "0,0" ]);
+		// console.log(game.realm.worlds.overworld.nodes[ "0,0" ]);
 
 		return () => {
-			game.render.ticker.stop();
+			game.renderer.ticker.stop();
 		};
 	}, []);
 
 	return (
-		<PixiCanvas view={ game.render.canvas } />
+		<PixiCanvas view={ game.renderer.canvas } />
 	);
 };
 
-export default Test;
+export default Game;

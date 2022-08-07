@@ -27,6 +27,21 @@ export class KeyController extends Identity {
 
 		this.element = null;
 		this.bindElement(element);
+
+		console.log(2435342543)
+	}
+
+	get isUp() {
+		return this.mask & KeyController.MaskFlags.UP;
+	}
+	get isDown() {
+		return this.mask & KeyController.MaskFlags.DOWN;
+	}
+	get isLeft() {
+		return this.mask & KeyController.MaskFlags.LEFT;
+	}
+	get isRight() {
+		return this.mask & KeyController.MaskFlags.RIGHT;
 	}
 
 	/**
