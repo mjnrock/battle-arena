@@ -27,8 +27,6 @@ export class KeyController extends Identity {
 
 		this.element = null;
 		this.bindElement(element);
-
-		console.log(2435342543)
 	}
 
 	get hasUp() {
