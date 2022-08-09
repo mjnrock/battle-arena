@@ -92,7 +92,9 @@ export class MouseController extends Identity {
 		this.path = new Set();
 
 		this.element = null;
-		this.bindElement(element);
+
+		//FIXME: This is commented out until @only/@except is implemented
+		// this.bindElement(element);
 	}
 
 	addPath({ x, y } = {}) {
