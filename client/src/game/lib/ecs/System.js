@@ -1,26 +1,15 @@
 import Identity from "../Identity";
 import Runner from "../../util/relay/Runner";
 
-
 /**
- * A convenience method for running a fn against a collection of entities,
- * passing each entity, along with the args, to the fn.
- */
-export function each(entities, fn, ...args) {
-	const results = [];
-	for(let entity of entities) {
-		results.push(fn(entity, ...args));
-	}
-
-	return results;
-};
-
-/**
- * The System is the primary means of modifying the Component-state
- * on an Entity.  All modifications should be driven by the events
- * system, which will invoke the event-handler of each listener.  As
- * such, the System is intended to be used as a message system, which
- * can be routed by an Environment's .dispatch method.
+ * The System is the primary means of modifying the Component-state on an Entity.  Events are
+ * registered as a Map<type, Runner(type)>, each of which has << this >> as a subscriber.  Because of
+ * the use of Runners, any other listener can be attached to a System invocation.  As such, any
+ * registered event type should have an existing method in this class, or passed within @handlers.
+ * Any function in @handlers will be assigned to the System under this.[ type ] -- if the value is not a function,
+ * the class expects this[ type ] to be a handling method already (value is not used otherwise).
+ * 
+ * Illegal Event Types: [ get, set, add, remove, clear, bind, emit ]
  */
 export class System extends Identity {
 	constructor ({ handlers = {}, id, tags, name } = {}) {
@@ -38,11 +27,27 @@ export class System extends Identity {
 		 */
 		this.events = new Map();
 
+		/**
+		 * Assign any handlers passed in to the System to their corresponding event keys.
+		 * If @handler is not a function, this[ key ] = <fn> should exist already.  A value
+		 * of << false >> will *remove* that event entirely (more relevant to inheritance).
+		 */
 		for(let [ key, handler ] of Object.entries(handlers)) {
+			if(key in [ get, set, add, remove, clear, bind, emit ]) {
+				throw new Error(`Illegal event type: ${ key }.  Internal method uses this name.`);
+			}
+
 			/**
-			 * Add the event to the System, creating a new Runner to handle the event.
+			 * Remove an existing event if << false >> is passed.
 			 */
-			this.add(key);
+			if(handler === false) {
+				this.remove(key);
+			} else {
+				/**
+				 * Add the event to the System, creating a new Runner to handle the event.
+				 */
+				this.add(key);
+			}
 
 			if(typeof handler === "function") {
 				/**
@@ -147,6 +152,19 @@ export class System extends Identity {
 
 		return runner.run(entities, ...args);
 	}
+
+	/**
+	 * A convenience method for running a fn against a collection of entities,
+	 * passing each entity, along with the args, to the fn.
+	 */
+	static Each(entities, fn, ...args) {
+		const results = [];
+		for(let entity of entities) {
+			results.push(fn(entity, ...args));
+		}
+	
+		return results;
+	};
 };
 
 export default System;

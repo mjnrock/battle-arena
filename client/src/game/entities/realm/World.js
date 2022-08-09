@@ -26,6 +26,13 @@ export class World extends Entity {
 		this.reseed(each);
 	}
 
+	get width() {
+		return this.size.width;
+	}
+	get height() {
+		return this.size.height;
+	}
+
 	reseed(each) {
 		this.nodes.clear();
 

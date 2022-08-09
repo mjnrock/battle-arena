@@ -109,7 +109,10 @@ export class MouseController extends Identity {
 	}
 
 	addEvent({ type, x, y, button, modifiers, config, ...opts } = {}) {
-		this.events.set(type, new MouseEventEntry({ type, x, y, button, modifiers, config, ...opts }));
+		const event = new MouseEventEntry({ type, x, y, button, modifiers, config, ...opts });
+		this.events.set(type, event);
+
+		//TODO: Fire the event to listeners
 
 		return this;
 	}

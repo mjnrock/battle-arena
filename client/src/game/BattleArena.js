@@ -8,12 +8,15 @@ import { Realm } from "./entities/realm/Realm";
 import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
+import { Game } from "./Game";
+
 /**
  *? This file is the designated data repository for all of the major game data.
  *? It should perform all of the heavy lifting for the game, and each method will be
  *? bound to the Game for << this >> scoping.
  *
  * Where Game dictates the general flow, BattleArena is the specific data-level implementation.
+ * Basically, all game setup is done here.
  */
 
 
@@ -40,6 +43,10 @@ export function loadInputControllers(game, { mouse, key } = {}) {
  * 	- render
  */
 export const Hooks = {
+	/**
+	 * Perform any initialization tasks for the game, such as registering
+	 * all of the system and entity factories.
+	 */
 	pre() {
 		//TODO: Register / initialize all of the environmental data here
 		this.environment.registerFactorySystems([
@@ -56,6 +63,9 @@ export const Hooks = {
 
 		return this;
 	},
+	/**
+	 * Perform the "main" initialization of the game.
+	 */
 	init() {
 		/**
 		 ** These constants are extracted here to remind of the contents
@@ -108,6 +118,9 @@ export const Hooks = {
 
 		return this;
 	},
+	/**
+	 * Perform any post-init tasks, such as rendering and UI.
+	 */
 	post() {
 		/**
 		 * Initialize the Pixi wrapper
@@ -130,6 +143,11 @@ export const Hooks = {
 
 		return this;
 	},
+
+	/**
+	 * This is the main render loop for the game, called each time the renderer
+	 * invokes its requestAnimationFrame facilitator.
+	 */
 	render() {
 		if(!this.realm) {
 			return;
@@ -172,21 +190,30 @@ export const Hooks = {
 		graphics.drawRect(x * this.config.tile.width, y * this.config.tile.height, this.config.tile.width, this.config.tile.height);
 		graphics.endFill();
 	},
+
+	/**
+	 * This is the main update loop for the game, called each time the game
+	 * performs an update via its main loop.
+	 */
 	tick() {
 		//TODO: Bind a basic mouse controller to the game, click to teleport there
 		/**
 		 * Adjust velocities and positions from input controllers
 		 */
 		if(this.input.key.hasUp) {
-			this.realm.players.player.position.vy -= 0.05;
+			this.realm.players.player.position.vy = -0.05;
 		} else if(this.input.key.hasDown) {
-			this.realm.players.player.position.vy += 0.05;
+			this.realm.players.player.position.vy = 0.05;
+		} else {
+			this.realm.players.player.position.vy = 0;
 		}
 
 		if(this.input.key.hasLeft) {
-			this.realm.players.player.position.vx -= 0.05;
+			this.realm.players.player.position.vx = -0.05;
 		} else if(this.input.key.hasRight) {
-			this.realm.players.player.position.vx += 0.05;
+			this.realm.players.player.position.vx = 0.05;
+		} else {
+			this.realm.players.player.position.vx = 0;
 		}
 
 		if(this.input.key.hasShift) {
@@ -195,8 +222,8 @@ export const Hooks = {
 		}
 
 		if(this.input.key.hasCtrl) {
-			this.realm.players.player.position.x = 10;
-			this.realm.players.player.position.y = 10;
+			this.realm.players.player.position.x = ~~(this.realm.worlds.overworld.width / 2);
+			this.realm.players.player.position.y = ~~(this.realm.worlds.overworld.height / 2);
 		}
 
 		this.realm.players.player.position.x += this.realm.players.player.position.vx;
@@ -204,4 +231,10 @@ export const Hooks = {
 	}
 };
 
-export default Hooks;
+export default function CreateGame(...opts) {
+	return new Game({
+		...opts,
+
+		hooks: Hooks,
+	});
+};

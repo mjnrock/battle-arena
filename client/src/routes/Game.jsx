@@ -1,15 +1,11 @@
 import { useEffect } from "react";
 
-import { Game } from "../game/Game";
-import { Hooks as BattleArena } from "../game/BattleArena";
+import CreateGame from "../game/BattleArena";
 
 import { PixiCanvas } from "../components/PixiCanvas";
 
-const game = new Game({
-	/**
-	 * Overrides:	pre, init, post, update, render
-	 */
-	hooks: BattleArena,
+const game = CreateGame({
+	// ...args,
 });
 
 export function GameRoute() {
@@ -29,4 +25,4 @@ export function GameRoute() {
 	);
 };
 
-export default Game;
+export default GameRoute;

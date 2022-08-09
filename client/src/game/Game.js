@@ -27,9 +27,17 @@ export class Game extends Identity {
 	 * registered -- if you will only be using one instance of the
 	 * game, then you can ignore this parameter entirely.
 	 */
-	constructor ({ id, tags, alias, hooks = {} } = {}) {
+	constructor ({ hooks = {}, config = {}, id, tags, alias } = {}) {
 		super({ id, tags });
 
+		/**
+		 * These hooks should override:
+		 * 	- pre
+		 * 	- init
+		 * 	- post
+		 * 	- update
+		 * 	- render
+		 */
 		for(let [ key, fn ] of Object.entries(hooks)) {
 			this[ key ] = fn.bind(this);
 		}
@@ -44,6 +52,8 @@ export class Game extends Identity {
 				width: 32,
 				height: 32,
 			},
+
+			...config,
 		};
 
 		/**
