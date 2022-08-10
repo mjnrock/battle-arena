@@ -5,6 +5,7 @@ import { Node } from "./entities/realm/Node";
 import { World } from "./entities/realm/World";
 import { Realm } from "./entities/realm/Realm";
 
+import { World as WorldController } from "./controllers/World";
 import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
@@ -51,6 +52,7 @@ export const Hooks = {
 		//TODO: Register / initialize all of the environmental data here
 		this.environment.registerFactorySystems([
 			//STUB: Add all of the system classes here
+			WorldController,
 		]);
 		this.environment.registerFactoryEntities([
 			//STUB: Add all of the entity classes here
@@ -226,8 +228,11 @@ export const Hooks = {
 			this.realm.players.player.position.y = ~~(this.realm.worlds.overworld.height / 2);
 		}
 
-		this.realm.players.player.position.x += this.realm.players.player.position.vx;
-		this.realm.players.player.position.y += this.realm.players.player.position.vy;
+		this.environment.system.world.dispatch("move", this.realm.players.player, {
+			x: this.realm.players.player.position.vx,
+			y: this.realm.players.player.position.vy,
+			isDelta: true,
+		});
 	}
 };
 

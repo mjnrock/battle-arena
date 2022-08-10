@@ -139,10 +139,14 @@ export class System extends Identity {
 	 * Emit an event to the System's Runner at the given event key
 	 */
 	dispatch(event, entities = [], ...args) {
-		const runner = this.events[ event ];
+		const runner = this.events.get(event);
 
 		if(!runner) {
 			return;
+		}
+
+		if(!Array.isArray(entities)) {
+			entities = [ entities ];
 		}
 
 		return runner.run(entities, ...args);
@@ -153,6 +157,10 @@ export class System extends Identity {
 	 * passing each entity, along with the args, to the fn.
 	 */
 	static Each(entities, fn, ...args) {
+		if(!Array.isArray(entities)) {
+			entities = [ entities ];
+		}
+		
 		const results = [];
 		for(let entity of entities) {
 			results.push(fn(entity, ...args));
