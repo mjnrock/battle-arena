@@ -2,17 +2,12 @@ import Identity from "../Identity";
 import Runner from "../../util/relay/Runner";
 
 /**
- * The System is the primary means of modifying the Component-state on an Entity.  Events are
- * registered as a Map<type, Runner(type)>, each of which has << this >> as a subscriber.  Because of
- * the use of Runners, any other listener can be attached to a System invocation.  As such, any
- * registered event type should have an existing method in this class, or passed within @handlers.
- * Any function in @handlers will be assigned to the System under this.[ type ] -- if the value is not a function,
- * the class expects this[ type ] to be a handling method already (value is not used otherwise).
- * 
- * Illegal Event Types: [ get, set, add, remove, clear, bind, emit ]
+ * The System reduces the state of the passed Entity/ies, typically performing work within
+ * a specified component.  That being said, the entire Entity is provided to the System,
+ * allowing it to modify anything and/or do anything it wants.
  */
 export class System extends Identity {
-	constructor ({ handlers = {}, id, tags, name } = {}) {
+	constructor ({ reducers = {}, id, tags, name } = {}) {
 		super({ id, tags });
 
 		/**
@@ -32,15 +27,15 @@ export class System extends Identity {
 		 * If @handler is not a function, this[ key ] = <fn> should exist already.  A value
 		 * of << false >> will *remove* that event entirely (more relevant to inheritance).
 		 */
-		for(let [ key, handler ] of Object.entries(handlers)) {
-			if(key in [ get, set, add, remove, clear, bind, emit ]) {
+		for(let [ key, reducer ] of Object.entries(reducers)) {
+			if(key in [ "get", "set", "add", "remove", "clear", "bind", "dispatch" ]) {
 				throw new Error(`Illegal event type: ${ key }.  Internal method uses this name.`);
 			}
 
 			/**
 			 * Remove an existing event if << false >> is passed.
 			 */
-			if(handler === false) {
+			if(reducer === false) {
 				this.remove(key);
 			} else {
 				/**
@@ -49,12 +44,12 @@ export class System extends Identity {
 				this.add(key);
 			}
 
-			if(typeof handler === "function") {
+			if(typeof reducer === "function") {
 				/**
 				 * If a function is also provided, make it the handler for the event for this System.
 				 * This ensures, in these cases, that a handler is present for the given event.
 				 */
-				this[ key ] = handler;
+				this[ key ] = reducer;
 			}
 		}
 	}
@@ -143,7 +138,7 @@ export class System extends Identity {
 	/**
 	 * Emit an event to the System's Runner at the given event key
 	 */
-	emit(event, entities = [], ...args) {
+	dispatch(event, entities = [], ...args) {
 		const runner = this.events[ event ];
 
 		if(!runner) {
