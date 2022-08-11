@@ -120,32 +120,6 @@ export class Environment extends Identity {
 		};
 	}
 
-	/**
-	 * Resolve the @path to a System instance, invoke .emit on
-	 * that system, passing the results of the bundler, along
-	 * with the arguments provided.
-	 * 
-	 *? This effectively allows for the use of the Environment
-	 *? as a middleware-System-router, utilizing an overridable
-	 *? bundler to customize the dispatch message.
-	 *
-	 * e.g.: ("World.move", $Entity.player, { x: 1, y: -1, delta: true })
-	 */
-	dispatch(path, entities, ...args) {
-		const [ module, event ] = path.split(".");
-		const system = this.system[ module ];
-
-		if(system && module && event) {
-			/**
-			 * The message is the result of the middleware bundler,
-			 * those middleware can perform other work, too.
-			 */
-			const msg = this.middleware(event, entities, ...args);
-
-			return system.emit(event, entities, msg, ...args);
-		}
-	}
-
 	_registrationFactoryHelper(environment, results) {
 		return Object.fromEntries(results.map(e => [
 			/**
@@ -197,6 +171,34 @@ export class Environment extends Identity {
 		}
 
 		this.factory.component.registerMany(this._registrationFactoryHelper(this, components));
+	}
+
+	/**
+	 * Resolve the @path to a System instance, invoke .emit on
+	 * that system, passing the results of the bundler, along
+	 * with the arguments provided.
+	 * 
+	 *? This effectively allows for the use of the Environment
+	 *? as a middleware-System-router, utilizing an overridable
+	 *? bundler to customize the dispatch message.
+	 *
+	 * e.g.: ("World.move", $Entity.player, { x: 1, y: -1, delta: true })
+	 */
+	dispatch(path, entities, ...args) {
+		const [ module, event ] = path.split(":");
+		const system = this.system[ module ];
+
+		if(system && module && event) {
+			/**
+			 * The message is the result of the middleware bundler,
+			 * those middleware can perform other work, too.
+			 */
+			//FIXME: Reconcile the additional @msg argument against a typical System reducer (which often does not expect it).
+			// const msg = this.middleware(event, entities, ...args);
+			// return system.dispatch(event, entities, msg, ...args);
+			
+			return system.dispatch(event, entities, ...args);
+		}
 	}
 };
 

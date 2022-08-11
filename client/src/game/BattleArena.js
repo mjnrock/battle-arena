@@ -228,7 +228,8 @@ export const Hooks = {
 			this.realm.players.player.position.y = ~~(this.realm.worlds.overworld.height / 2);
 		}
 
-		this.environment.system.world.dispatch("move", this.realm.players.player, {
+		// this.environment.system.world.dispatch("move", this.realm.players.player, {
+		this.dispatch("world:move", this.realm.players.player, {
 			x: this.realm.players.player.position.vx,
 			y: this.realm.players.player.position.vy,
 			isDelta: true,

@@ -112,7 +112,7 @@ export class Game extends Identity {
 	 * A convenience getter for the game's main environment.
 	 */
 	get dispatch() {
-		return this.environment.dispatch;
+		return this.environment.dispatch.bind(this.environment);
 	}
 };
 
