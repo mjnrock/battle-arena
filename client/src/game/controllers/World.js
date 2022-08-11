@@ -7,7 +7,11 @@ export class World extends System {
 		super(opts);
 
 		this.add(
+			"join",
+			"leave",
 			"move",
+			"veloc",
+			"inputKeyVeloc",
 		);
 	}
 
@@ -38,6 +42,40 @@ export class World extends System {
 		});
 		
 		return entities;
+	}
+
+	veloc(entities = [], { vx, vy, isDelta }) {
+		System.Each(entities, (entity) => {
+			if(isDelta) {
+				entity.position.vx += vx;
+				entity.position.vy += vy;
+			} else {
+				entity.position.vx = vx;
+				entity.position.vy = vy;
+			}
+		});
+		
+		return entities;
+	}
+
+	inputKeyVeloc(entities = [], { inputKey }) {
+		const [ player ] = entities;
+
+		if(inputKey.hasUp) {
+			player.position.vy = -0.05;
+		} else if(inputKey.hasDown) {
+			player.position.vy = 0.05;
+		} else {
+			player.position.vy = 0;
+		}
+
+		if(inputKey.hasLeft) {
+			player.position.vx = -0.05;
+		} else if(inputKey.hasRight) {
+			player.position.vx = 0.05;
+		} else {
+			player.position.vx = 0;
+		}
 	}
 };
 

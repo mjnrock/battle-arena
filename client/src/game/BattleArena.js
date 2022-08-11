@@ -202,33 +202,24 @@ export const Hooks = {
 		/**
 		 * Adjust velocities and positions from input controllers
 		 */
-		if(this.input.key.hasUp) {
-			this.realm.players.player.position.vy = -0.05;
-		} else if(this.input.key.hasDown) {
-			this.realm.players.player.position.vy = 0.05;
-		} else {
-			this.realm.players.player.position.vy = 0;
-		}
-
-		if(this.input.key.hasLeft) {
-			this.realm.players.player.position.vx = -0.05;
-		} else if(this.input.key.hasRight) {
-			this.realm.players.player.position.vx = 0.05;
-		} else {
-			this.realm.players.player.position.vx = 0;
-		}
+		this.dispatch("world:inputKeyVeloc", this.realm.players.player, {
+			inputKey: this.input.key,
+		});
 
 		if(this.input.key.hasShift) {
-			this.realm.players.player.position.vx = 0;
-			this.realm.players.player.position.vy = 0;
+			this.dispatch("world:veloc", this.realm.players.player, {
+				vx: 0,
+				vy: 0
+			});
 		}
 
 		if(this.input.key.hasCtrl) {
-			this.realm.players.player.position.x = ~~(this.realm.worlds.overworld.width / 2);
-			this.realm.players.player.position.y = ~~(this.realm.worlds.overworld.height / 2);
+			this.dispatch("world:move", this.realm.players.player, {
+				x: ~~(this.realm.worlds.overworld.width / 2),
+				y: ~~(this.realm.worlds.overworld.height / 2)
+			});
 		}
 
-		// this.environment.system.world.dispatch("move", this.realm.players.player, {
 		this.dispatch("world:move", this.realm.players.player, {
 			x: this.realm.players.player.position.vx,
 			y: this.realm.players.player.position.vy,
