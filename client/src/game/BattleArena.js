@@ -202,8 +202,8 @@ export const Hooks = {
 		/**
 		 * Adjust velocities and positions from input controllers
 		 */
-		this.dispatch("world:inputKeyVeloc", this.realm.players.player, {
-			inputKey: this.input.key,
+		this.dispatch("world:ctrlKeyVeloc", this.realm.players.player, {
+			ctrl: this.input.key,
 		});
 
 		if(this.input.key.hasShift) {

@@ -11,7 +11,7 @@ export class World extends System {
 			"leave",
 			"move",
 			"veloc",
-			"inputKeyVeloc",
+			"ctrlKeyVeloc",
 		);
 	}
 
@@ -58,20 +58,20 @@ export class World extends System {
 		return entities;
 	}
 
-	inputKeyVeloc(entities = [], { inputKey }) {
+	ctrlKeyVeloc(entities = [], { ctrl }) {
 		const [ player ] = entities;
 
-		if(inputKey.hasUp) {
+		if(ctrl.hasUp) {
 			player.position.vy = -0.05;
-		} else if(inputKey.hasDown) {
+		} else if(ctrl.hasDown) {
 			player.position.vy = 0.05;
 		} else {
 			player.position.vy = 0;
 		}
 
-		if(inputKey.hasLeft) {
+		if(ctrl.hasLeft) {
 			player.position.vx = -0.05;
-		} else if(inputKey.hasRight) {
+		} else if(ctrl.hasRight) {
 			player.position.vx = 0.05;
 		} else {
 			player.position.vx = 0;
