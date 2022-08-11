@@ -193,11 +193,10 @@ export class Environment extends Identity {
 			 * The message is the result of the middleware bundler,
 			 * those middleware can perform other work, too.
 			 */
-			//FIXME: Reconcile the additional @msg argument against a typical System reducer (which often does not expect it).
-			// const msg = this.middleware(event, entities, ...args);
-			// return system.dispatch(event, entities, msg, ...args);
-			
-			return system.dispatch(event, entities, ...args);
+			//TODO: Reconcile the middleware with the environment/system hand-off.  (i.e. Most Systems do not expect any "general" arguments (e.g. a msg, environment, etc.))
+			const msg = this.middleware(event, entities, ...args);
+
+			return system.dispatch(msg.event, msg.entities, ...msg.args);
 		}
 	}
 };
