@@ -7,8 +7,9 @@ import { PixiCanvas } from "../components/PixiCanvas";
 import { Base64 } from "./../game/util/Base64";
 
 //TODO: Move this somewhere -- it takes a pixel image and redraws it scaled by @factor (i.e. 1 pixel = @factor * pixels)
+//? Maybe this should be a utility function in the game library?
 Base64.DecodeFile("assets/images/squirrel.png").then(canvas => {
-	const factor = 10;
+	const factor = 1;
 	const ctx = canvas.getContext("2d");
 	const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	const data = {};
