@@ -27,6 +27,7 @@ import { Game } from "./Game";
  * 	- mouse
  */
 export function loadInputControllers(game, { mouse, key } = {}) {
+	console.log(mouse)
 	game.input = {
 		key: new KeyController(key),
 		mouse: new MouseController(mouse),
@@ -100,12 +101,9 @@ export const Hooks = {
 
 		const [ player ] = $E.squirrel(1, {
 			components: {
-				world: {
-					id: overworld.id,
-				},
 			},
 			init: {
-				position: {
+				world: {
 					x: 10,
 					y: 10,
 					vx: 0.01,
@@ -139,7 +137,7 @@ export const Hooks = {
 				element: window,
 			},
 			mouse: {
-				element: this.render.canvas,
+				element: this.renderer.canvas,
 			},
 		});
 
@@ -160,7 +158,7 @@ export const Hooks = {
 		 */
 		for(let [ id, node ] of this.realm.worlds.overworld.nodes) {
 			const graphics = this.renderer.graphics;
-			const { x, y } = node.position;
+			const { x, y } = node.world;
 
 			let color = 0xFFFFFF;
 			if(node.terrain.type === "grass") {
@@ -185,7 +183,7 @@ export const Hooks = {
 		//TODO: Implement the game loop
 		this.tick();
 
-		const { x, y } = this.realm.players.player.position;
+		const { x, y } = this.realm.players.player.world;
 
 		graphics.lineStyle(2, 0x000000, 1);
 		graphics.beginFill(0xFF0000, 1);
@@ -202,27 +200,35 @@ export const Hooks = {
 		/**
 		 * Adjust velocities and positions from input controllers
 		 */
-		this.dispatch("world:ctrlKeyVeloc", this.realm.players.player, {
-			ctrl: this.input.key,
-		});
+		this.dispatch("world:inputKeyVeloc", this.realm.players.player, this.input.key);
 
 		if(this.input.key.hasShift) {
 			this.dispatch("world:veloc", this.realm.players.player, {
 				vx: 0,
-				vy: 0
+				vy: 0,
 			});
 		}
 
-		if(this.input.key.hasCtrl) {
+		if(this.input.key.hasCtrl || this.input.mouse.hasRight) {
 			this.dispatch("world:move", this.realm.players.player, {
 				x: ~~(this.realm.worlds.overworld.width / 2),
-				y: ~~(this.realm.worlds.overworld.height / 2)
+				y: ~~(this.realm.worlds.overworld.height / 2),
+			});
+		}
+
+		if(this.input.mouse.hasLeft) {
+			let tx = ~~(this.input.mouse.current.x / this.config.tile.width),
+				ty = ~~(this.input.mouse.current.y / this.config.tile.height);
+
+			this.dispatch("world:move", this.realm.players.player, {
+				x: tx,
+				y: ty,
 			});
 		}
 
 		this.dispatch("world:move", this.realm.players.player, {
-			x: this.realm.players.player.position.vx,
-			y: this.realm.players.player.position.vy,
+			x: this.realm.players.player.world.vx,
+			y: this.realm.players.player.world.vy,
 			isDelta: true,
 		});
 	}

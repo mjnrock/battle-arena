@@ -1,13 +1,13 @@
 import { Entity } from "./../lib/ecs/Entity";
 
 import { game } from "./../components/game";
-import { position } from "./../components/position";
+import { world } from "./../components/world";
 
 export class Squirrel extends Entity {
 	static Nomen = "squirrel";
 	static Components = [
 		game,
-		position,
+		world,
 	];
 
 	constructor ({ components = [], id, tags, init = {} } = {}) {

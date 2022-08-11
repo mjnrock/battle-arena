@@ -1,6 +1,5 @@
 import * as PixiJS from "pixi.js";
 
-import MouseController from "../input/MouseController";
 import Runner from "../../util/relay/Runner";
 
 /**

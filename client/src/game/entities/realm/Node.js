@@ -1,12 +1,12 @@
 import { Entity } from "./../../lib/ecs/Entity";
 
-import { position } from "./../../components/position";
+import { world } from "./../../components/world";
 import { terrain } from "./../../components/terrain";
 
 export class Node extends Entity {
 	static Nomen = "node";
 	static Components = [
-		position,
+		world,
 		terrain,
 	];
 

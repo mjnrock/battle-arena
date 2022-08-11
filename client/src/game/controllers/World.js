@@ -11,20 +11,26 @@ export class World extends System {
 			"leave",
 			"move",
 			"veloc",
-			"ctrlKeyVeloc",
+			"inputKeyVeloc",
 		);
 	}
 
 	join(entities = [], world) {
 		System.Each(entities, (entity) => {
-			//TODO: Add Entities to World, and add World to Entities
+			//TODO: Add Entities to World
+			entity.world = this;			
 		});
 		
 		return entities;
 	}
 	leave(entities = [], world) {
 		System.Each(entities, (entity) => {
-			//TODO: Remove Entities from World, and remove World from Entities
+			//TODO: Remove Entities from World
+			entity.world = null;
+			entity.x = null;
+			entity.y = null;
+			entity.vx = null;
+			entity.vy = null;
 		});
 		
 		return entities;
@@ -33,11 +39,11 @@ export class World extends System {
 	move(entities = [], { x, y, isDelta }) {
 		System.Each(entities, (entity) => {
 			if(isDelta) {
-				entity.position.x += x;
-				entity.position.y += y;
+				entity.world.x += x;
+				entity.world.y += y;
 			} else {
-				entity.position.x = x;
-				entity.position.y = y;
+				entity.world.x = x;
+				entity.world.y = y;
 			}
 		});
 		
@@ -47,34 +53,34 @@ export class World extends System {
 	veloc(entities = [], { vx, vy, isDelta }) {
 		System.Each(entities, (entity) => {
 			if(isDelta) {
-				entity.position.vx += vx;
-				entity.position.vy += vy;
+				entity.world.vx += vx;
+				entity.world.vy += vy;
 			} else {
-				entity.position.vx = vx;
-				entity.position.vy = vy;
+				entity.world.vx = vx;
+				entity.world.vy = vy;
 			}
 		});
 		
 		return entities;
 	}
 
-	ctrlKeyVeloc(entities = [], { ctrl }) {
+	inputKeyVeloc(entities = [], keyCtrl) {
 		const [ player ] = entities;
 
-		if(ctrl.hasUp) {
-			player.position.vy = -0.05;
-		} else if(ctrl.hasDown) {
-			player.position.vy = 0.05;
+		if(keyCtrl.hasUp) {
+			player.world.vy = -0.05;
+		} else if(keyCtrl.hasDown) {
+			player.world.vy = 0.05;
 		} else {
-			player.position.vy = 0;
+			player.world.vy = 0;
 		}
 
-		if(ctrl.hasLeft) {
-			player.position.vx = -0.05;
-		} else if(ctrl.hasRight) {
-			player.position.vx = 0.05;
+		if(keyCtrl.hasLeft) {
+			player.world.vx = -0.05;
+		} else if(keyCtrl.hasRight) {
+			player.world.vx = 0.05;
 		} else {
-			player.position.vx = 0;
+			player.world.vx = 0;
 		}
 	}
 };

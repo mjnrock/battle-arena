@@ -42,7 +42,8 @@ export class World extends Entity {
 				let alias = `${ w },${ h }`,
 					node = new Node({
 						init: {
-							position: {
+							world: {
+								world: this,
 								x: w,
 								y: h,
 							},

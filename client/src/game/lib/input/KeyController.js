@@ -19,11 +19,23 @@ export class KeyController extends Identity {
 		META: 2 << 3,
 	};
 
-	constructor ({ element, ...rest } = {}) {
+	static ExludedKeys = [
+		"F5",
+		"F11",
+		"F12",
+	];
+
+	constructor ({ element, config = {}, ...rest } = {}) {
 		super({ ...rest });
 
 		this.mask = 0;
 		this.modifiers = 0;
+
+		this.config = {
+			excludedKeys: KeyController.ExludedKeys,
+
+			...config,
+		};
 
 		this.element = null;
 		this.bindElement(element);
@@ -61,7 +73,7 @@ export class KeyController extends Identity {
 	bindElement(element) {
 		this.element = element;
 
-		for (let key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
+		for(let key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
 			if(key.substring(0, 2) === "on") {
 				this.element[ key.toLowerCase() ] = e => this[ key ].call(this, e);
 			}
@@ -70,7 +82,7 @@ export class KeyController extends Identity {
 		return this;
 	}
 	unbindElement() {
-		for (let key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
+		for(let key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
 			if(key.substring(0, 2) === "on") {
 				this.element[ key.toLowerCase() ] = null;
 			}
@@ -141,7 +153,10 @@ export class KeyController extends Identity {
 	}
 
 	onKeyDown(e) {
-		e.preventDefault();
+		if(!this.config.excludedKeys.includes(e.code)) {
+			e.preventDefault();
+		}
+
 		this.updateMask(e, true);
 
 		// this.addEvent({
@@ -153,7 +168,10 @@ export class KeyController extends Identity {
 		return this;
 	}
 	onKeyUp(e) {
-		e.preventDefault();
+		if(!this.config.excludedKeys.includes(e.code)) {
+			e.preventDefault();
+		}
+
 		this.updateMask(e, false);
 
 		// this.addEvent({

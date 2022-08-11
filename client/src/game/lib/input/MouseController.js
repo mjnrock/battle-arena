@@ -91,10 +91,15 @@ export class MouseController extends Identity {
 		this.events = new Map();
 		this.path = new Set();
 
+		this.current = {
+			x: 0,
+			y: 0,
+			lastUpdate: null,
+		};
+
 		this.element = null;
 
-		//FIXME: This is commented out until @only/@except is implemented
-		// this.bindElement(element);
+		this.bindElement(element);
 	}
 
 	addPath({ x, y } = {}) {
@@ -201,6 +206,29 @@ export class MouseController extends Identity {
 		return this;
 	}
 
+	get hasLeft() {
+		return this.mask & MouseController.MaskFlags.LEFT;
+	}
+	get hasMiddle() {
+		return this.mask & MouseController.MaskFlags.MIDDLE;
+	}
+	get hasRight() {
+		return this.mask & MouseController.MaskFlags.RIGHT;
+	}
+
+	get hasShift() {
+		return this.modifiers & MouseController.ModifierFlags.SHIFT;
+	}
+	get hasCtrl() {
+		return this.modifiers & MouseController.ModifierFlags.CTRL;
+	}
+	get hasAlt() {
+		return this.modifiers & MouseController.ModifierFlags.ALT;
+	}
+	get hasMeta() {
+		return this.modifiers & MouseController.ModifierFlags.META;
+	}
+
 	onMouseDown(e) {
 		e.preventDefault();
 		this.updateMask(e, true);
@@ -233,6 +261,10 @@ export class MouseController extends Identity {
 		e.preventDefault();
 
 		console.log(e.type, e.clientX, e.clientY);
+
+		this.current.x = e.clientX;
+		this.current.y = e.clientY;
+		this.current.lastUpdate = Date.now();
 
 		// this.addEvent({
 		// 	type: "move",

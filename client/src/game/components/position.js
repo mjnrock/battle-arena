@@ -1,4 +1,4 @@
-export function position({ x = 0, y = 0, vx = 0, vy = 0 } = {}) {
+export function world({ x = 0, y = 0, vx = 0, vy = 0 } = {}) {
 	return {
 		x,
 		y,
@@ -7,4 +7,4 @@ export function position({ x = 0, y = 0, vx = 0, vy = 0 } = {}) {
 	};
 };
 
-export default position;
+export default world;
