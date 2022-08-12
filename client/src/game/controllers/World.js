@@ -1,14 +1,16 @@
 import { System } from "./../lib/ecs/System";
+import Helper from "./../util/helper";
 
 export class World extends System {
 	static Nomen = "world";
-	
-	constructor({ ...opts } = {}) {
+
+	constructor ({ ...opts } = {}) {
 		super(opts);
 
 		this.add(
 			"join",
 			"leave",
+			"displace",
 			"move",
 			"veloc",
 			"inputKeyVeloc",
@@ -18,9 +20,9 @@ export class World extends System {
 	join(entities = [], world) {
 		System.Each(entities, (entity) => {
 			//TODO: Add Entities to World
-			entity.world = this;			
+			entity.world = this;
 		});
-		
+
 		return entities;
 	}
 	leave(entities = [], world) {
@@ -32,7 +34,7 @@ export class World extends System {
 			entity.vx = null;
 			entity.vy = null;
 		});
-		
+
 		return entities;
 	}
 
@@ -46,10 +48,23 @@ export class World extends System {
 				entity.world.y = y;
 			}
 		});
-		
+
 		return entities;
 	}
 
+	displace(entities = [], { dt }) {
+		System.Each(entities, (entity) => {
+			// Move in 1 direction only, favor Y
+			if(entity.world.vx && entity.world.vy) {
+				entity.world.vx = 0;
+			}
+
+			entity.world.x += (entity.world.vx * dt);
+			entity.world.y += (entity.world.vy * dt);
+		});
+
+		return entities;
+	}
 	veloc(entities = [], { vx, vy, isDelta }) {
 		System.Each(entities, (entity) => {
 			if(isDelta) {
@@ -60,7 +75,7 @@ export class World extends System {
 				entity.world.vy = vy;
 			}
 		});
-		
+
 		return entities;
 	}
 

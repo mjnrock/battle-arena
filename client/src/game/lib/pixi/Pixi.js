@@ -1,6 +1,8 @@
-import * as PixiJS from "pixi.js";
+import * as PIXI from "pixi.js";
 
 import Runner from "../../util/relay/Runner";
+
+export const PixiJS = PIXI;
 
 /**
  * This is the main render wrapper class.  All rendering should be done through this class,

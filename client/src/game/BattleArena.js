@@ -1,4 +1,4 @@
-import { Pixi } from "./lib/pixi/Pixi";
+import { Pixi, PixiJS } from "./lib/pixi/Pixi";
 
 import { Squirrel } from "./entities/Squirrel";
 import { Node } from "./entities/realm/Node";
@@ -10,6 +10,8 @@ import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
 import { Game } from "./Game";
+
+//FIXME: Pass the TIME ARGUMENTS to .render and .tick
 
 /**
  *? This file is the designated data repository for all of the major game data.
@@ -41,7 +43,7 @@ export function loadInputControllers(game, { mouse, key } = {}) {
  * 	- pre
  * 	- init
  * 	- post
- * 	- update
+ * 	- tick
  * 	- render
  */
 export const Hooks = {
@@ -167,7 +169,9 @@ export const Hooks = {
 				color = 0x436d7c;
 			}
 
-			graphics.lineStyle(2, 0x000000, 1);
+			//* Color the grid lines
+			graphics.lineStyle(2, 0x000000, 0.1);
+			//* Color the terrain grid
 			graphics.beginFill(color);
 			graphics.drawRect(x * this.config.tile.width, y * this.config.tile.height, this.config.tile.width, this.config.tile.height);
 			graphics.endFill();
@@ -185,7 +189,8 @@ export const Hooks = {
 
 		const { x, y } = this.realm.players.player.world;
 
-		graphics.lineStyle(2, 0x000000, 1);
+		//* Color the player
+		graphics.lineStyle(2, 0x000000, 0.25);
 		graphics.beginFill(0xFF0000, 1);
 		graphics.drawRect(x * this.config.tile.width, y * this.config.tile.height, this.config.tile.width, this.config.tile.height);
 		graphics.endFill();
@@ -226,10 +231,9 @@ export const Hooks = {
 			});
 		}
 
-		this.dispatch("world:move", this.realm.players.player, {
-			x: this.realm.players.player.world.vx,
-			y: this.realm.players.player.world.vy,
-			isDelta: true,
+		this.dispatch("world:displace", this.realm.players.player, {
+			//STUB: The actual value should be passed to .tick from the game loop
+			dt: 1,
 		});
 	}
 };

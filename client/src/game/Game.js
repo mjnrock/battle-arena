@@ -35,7 +35,7 @@ export class Game extends Identity {
 		 * 	- pre
 		 * 	- init
 		 * 	- post
-		 * 	- update
+		 * 	- tick
 		 * 	- render
 		 */
 		for(let [ key, fn ] of Object.entries(hooks)) {
