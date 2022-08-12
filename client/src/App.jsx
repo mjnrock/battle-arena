@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 
 // import Router from "./routes/package";
 import { GameRoute } from "./routes/Game";
+import { Test as TestRoute } from "./routes/Test";
 
 import "./assets/css/reset.css";
 import "./assets/css/main.css";
@@ -13,7 +14,7 @@ export function App() {
 	return (
 		<Routes>
 			<Route path="/game" element={ <GameRoute /> } />
-			{/* <Route path="/test" element={ <Router.Test /> } /> */}
+			<Route path="/test" element={ <TestRoute /> } />
 			
 			{/* <Route path="*" element={ <Router.Default /> } /> */}
 		</Routes>

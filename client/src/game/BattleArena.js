@@ -143,6 +143,9 @@ export const Hooks = {
 			},
 		});
 
+		this.loop.events.tick.add(this);
+		this.loop.start();
+
 		return this;
 	},
 
@@ -181,12 +184,6 @@ export const Hooks = {
 		 * Draw the Player
 		 */
 		const graphics = this.renderer.graphics;
-
-		//STUB: .tick should be called by the game loop
-		//FIXME: Perform the similar listening for "tick" that this.renderer and this does
-		//TODO: Implement the game loop
-		this.tick();
-
 		const { x, y } = this.realm.players.player.world;
 
 		//* Color the player
@@ -200,7 +197,7 @@ export const Hooks = {
 	 * This is the main update loop for the game, called each time the game
 	 * performs an update via its main loop.
 	 */
-	tick() {
+	tick({ dt, now } = {}) {
 		//TODO: Bind a basic mouse controller to the game, click to teleport there
 		/**
 		 * Adjust velocities and positions from input controllers
@@ -232,8 +229,8 @@ export const Hooks = {
 		}
 
 		this.dispatch("world:displace", this.realm.players.player, {
-			//STUB: The actual value should be passed to .tick from the game loop
-			dt: 1,
+			now,
+			dt,
 		});
 	}
 };

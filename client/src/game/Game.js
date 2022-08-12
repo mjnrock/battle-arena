@@ -1,6 +1,8 @@
+import { Ticker } from "./util/Ticker";
+
+import { Environment } from "./lib/ecs/Environment";
 import { Identity } from "./lib/Identity";
 import { Registry } from "./lib/Registry";
-import { Environment } from "./lib/ecs/Environment";
 
 /**
  * This is the root Game object.  It should be hooked by an external
@@ -42,12 +44,9 @@ export class Game extends Identity {
 			this[ key ] = fn.bind(this);
 		}
 
-		/**
-		 * This controls the timing of updates and renders
-		 */
-		// this.loop = new MainLoop();
-
 		this.config = {
+			fps: 24,
+
 			tile: {
 				width: 32,
 				height: 32,
@@ -74,6 +73,13 @@ export class Game extends Identity {
 		 * STUB: This is initialized in .init()
 		 */
 		this.realm = {};
+
+		/**
+		 * The main loop for the game.
+		 */
+		this.loop = new Ticker({
+			fps: this.config.fps,
+		});
 
 		/**
 		 * STUB: This is initialized in .post()

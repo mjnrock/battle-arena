@@ -59,6 +59,9 @@ export class World extends System {
 				entity.world.vx = 0;
 			}
 
+			let margin = 0.05;
+			let scalar = 20;
+
 			entity.world.x += (entity.world.vx * dt);
 			entity.world.y += (entity.world.vy * dt);
 		});
@@ -82,18 +85,19 @@ export class World extends System {
 	inputKeyVeloc(entities = [], keyCtrl) {
 		const [ player ] = entities;
 
+		const { speed } = player.world;
 		if(keyCtrl.hasUp) {
-			player.world.vy = -0.05;
+			player.world.vy = -speed;
 		} else if(keyCtrl.hasDown) {
-			player.world.vy = 0.05;
+			player.world.vy = speed;
 		} else {
 			player.world.vy = 0;
 		}
 
 		if(keyCtrl.hasLeft) {
-			player.world.vx = -0.05;
+			player.world.vx = -speed;
 		} else if(keyCtrl.hasRight) {
-			player.world.vx = 0.05;
+			player.world.vx = speed;
 		} else {
 			player.world.vx = 0;
 		}
