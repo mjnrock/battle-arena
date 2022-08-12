@@ -164,4 +164,63 @@ export const Base64 = {
 	}
 };
 
+/**
+ * This will take a canvas and convert it into a larger canvas with
+ * [ width, height ] = [ width * @factor, height * @factor ].  It will
+ * then re-write each pixel to scale it to the new canvas.
+ * 
+ * Example: If @factor is 3, then each pixel would be re-written
+ * as a 3x3-pixel rectangle, and the canvas would be 3x as large,
+ * maintaining the original aspect ratio.
+ * 
+ * NOTE: This is most useful for scaling bit-level images, such as
+ * 32x32 sprites to maintain the "look" of pixel art, but without the
+ * blurring as you zoom.
+ */
+export function PixelScaleCanvas(source, factor = 1) {
+	const canvas = document.createElement("canvas");
+	const data = {};
+	
+	let ctx = source.getContext("2d");
+	let imgData = ctx.getImageData(0, 0, source.width, source.height);	
+	for(let i = 0; i < imgData.data.length; i += 4) {
+		const r = imgData.data[ i ];
+		const g = imgData.data[ i + 1 ];
+		const b = imgData.data[ i + 2 ];
+		const a = imgData.data[ i + 3 ];
+		
+		const index = i / 4;
+		data[ index ] = {
+			index,
+			x: (index % source.width),
+			y: Math.floor(index / source.width),
+			r,
+			g,
+			b,
+			a,
+			avg: (r + g + b) / 3,
+		};
+	}
+	
+	ctx = canvas.getContext("2d");
+	canvas.width = source.width * factor;
+	canvas.height = source.height * factor;
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	function writeZone({ x, y, r, g, b, a }) {
+		const color = `rgba(${ r }, ${ g }, ${ b }, ${ a })`;
+		
+		ctx.fillStyle = color;
+		ctx.fillRect(x * factor, y * factor, factor, factor);
+	}
+
+	for(let pixel of Object.values(data)) {
+		let { x, y, r, g, b, a } = pixel;
+
+		writeZone(pixel);
+	}
+
+	return canvas;
+};
+
 export default Base64;
