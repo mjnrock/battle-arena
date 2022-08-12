@@ -1,4 +1,5 @@
-import Identity from "../Identity";
+import { Identity } from "../Identity";
+import { GroupRunner } from "./../../util/relay/GroupRunner";
 
 //TODO: Create an only/except list for event listening (e.g. @only = [ "MouseUp", "MouseDown", "ContextMenu" ], @except = [ "MouseMove" ])
 //? Maybe create a list of events in the .config with a boolean flag whether it should fire those events or not and @only/@except T/F those entries

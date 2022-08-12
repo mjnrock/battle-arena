@@ -143,7 +143,7 @@ export const Hooks = {
 			},
 		});
 
-		this.loop.events.tick.add(this);
+		this.loop.events.add("tick", this);
 		this.loop.start();
 
 		return this;

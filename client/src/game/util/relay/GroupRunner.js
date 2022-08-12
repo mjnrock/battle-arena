@@ -14,14 +14,14 @@ export class GroupRunner {
 			 * If an array of names is passed, create runners for them.
 			 */
 			names.forEach(name => this.runners.set(name, new Runner(name)));
-		} else if(typeof names === "object" && Object.keys(listeners).length) {
+		} else if(typeof names === "object" && Object.keys(names).length) {
 			/**
 			 * If an object of names and listeners is passed, create runners for them
 			 * and add the listeners.
 			 */
-			Object.keys(listeners).forEach(name => {
+			Object.keys(names).forEach(name => {
 				const runner = new Runner(name);
-				const listeners = listeners[ name ];
+				const listeners = names[ name ];
 
 				if(Array.isArray(listeners)) {
 					/**

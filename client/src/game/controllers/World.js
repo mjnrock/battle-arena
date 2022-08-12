@@ -58,9 +58,8 @@ export class World extends System {
 			if(entity.world.vx && entity.world.vy) {
 				entity.world.vx = 0;
 			}
-
-			let margin = 0.05;
-			let scalar = 20;
+			
+			//TODO: Displace Entities while keeping them within the tile paths
 
 			entity.world.x += (entity.world.vx * dt);
 			entity.world.y += (entity.world.vy * dt);

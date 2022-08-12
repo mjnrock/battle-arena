@@ -1,16 +1,16 @@
 
 import { Identity } from "../lib/Identity";
-import { Runner } from "./relay/Runner";
+import { GroupRunner } from "./relay/GroupRunner";
 
 export class Ticker extends Identity {
 	constructor ({ fps = 24, begin, tick, end, ...opts } = {}) {
 		super({ ...opts });
 
-		this.events = {
-			begin: new Runner("begin"),
-			tick: new Runner("tick"),
-			end: new Runner("end"),
-		};
+		this.events = new GroupRunner([
+			"begin",
+			"tick",
+			"end",
+		]);
 
 		this.startedAt = null;
 		this.lastUpdate = 0;
@@ -18,13 +18,13 @@ export class Ticker extends Identity {
 		this.fps = fps;
 
 		if(begin) {
-			this.events.begin.add(begin);
+			this.events.add("begin", begin);
 		}
 		if(tick) {
-			this.events.tick.add(tick);
+			this.events.add("tick", tick);
 		}
 		if(end) {
-			this.events.end.add(end);
+			this.events.add("end", end);
 		}
 	}
 
@@ -36,7 +36,7 @@ export class Ticker extends Identity {
 		this.ticks = 0;
 		this.startedAt = Date.now();
 
-		this.events.begin.run({
+		this.events.run("begin", {
 			startedAt: this.startedAt,
 			fps: this.fps,
 		});
@@ -52,7 +52,7 @@ export class Ticker extends Identity {
 
 			++this.ticks;
 			
-			this.events.tick.run({
+			this.events.run("tick", {
 				now,
 				dt,
 				lastUpdate: this.lastUpdate,
@@ -69,7 +69,7 @@ export class Ticker extends Identity {
 		clearInterval(this.loop);
 
 		this.startedAt = null;
-		this.events.end.run();
+		this.events.run("end", );
 
 		return this;
 	}

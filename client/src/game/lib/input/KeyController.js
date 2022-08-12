@@ -1,4 +1,5 @@
-import Identity from "../Identity";
+import { Identity } from "../Identity";
+import { GroupRunner } from "./../../util/relay/GroupRunner";
 
 //TODO: Allow configurable keys to not be intercepted (e.g. @bypass = [ "F5", "F12" ])
 //TODO: Create an only/except list for event listening (e.g. @only = [ "KeyUp", "KeyDown" ], @except = [ "KeyPress" ])
