@@ -1,4 +1,4 @@
-import { Pixi, PixiJS } from "./lib/pixi/Pixi";
+import { Pixi } from "./lib/pixi/Pixi";
 
 import { Squirrel } from "./entities/Squirrel";
 import { Node } from "./entities/realm/Node";
@@ -11,7 +11,9 @@ import { MouseController } from "./lib/input/MouseController";
 
 import { Game } from "./Game";
 
-//FIXME: Pass the TIME ARGUMENTS to .render and .tick
+//FIXME: Pass the TIME ARGUMENTS to .render
+
+//TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 
 /**
  *? This file is the designated data repository for all of the major game data.

@@ -6,15 +6,6 @@ export class World extends System {
 
 	constructor ({ ...opts } = {}) {
 		super(opts);
-
-		this.add(
-			"join",
-			"leave",
-			"displace",
-			"move",
-			"veloc",
-			"inputKeyVeloc",
-		);
 	}
 
 	join(entities = [], world) {
@@ -62,7 +53,7 @@ export class World extends System {
 			//TODO: Displace the entity in alignment with momentum for tilegrid nudges (also requires using CENTER of shape, not TOPLEFT)
 			let margin = 0.05,
 				scalar = 20,
-				nudge = 0;	// 0 = no nudge, 0.5 = middle of tile
+				nudge = 0;	// 0 = nudge within tile, 0.5 = nudge to middle of tile
 
 			if(entity.world.vx) {
 				if(entity.world.vx > 0) {
@@ -72,7 +63,7 @@ export class World extends System {
 				}
 
 				let div = Helper.floor(entity.world.y, scalar) % 1;
-				
+
 				if(Helper.near(div, nudge, margin, scalar) || Helper.near(div, -nudge, margin, scalar)) {
 					entity.world.y = ~~entity.world.y + nudge;
 					entity.world.vy = 0;
@@ -86,9 +77,9 @@ export class World extends System {
 				} else if(entity.world.vy < 0) {
 					entity.world.facing = 90;
 				}
-				
+
 				let div = Helper.floor(entity.world.x, scalar) % 1;
-				
+
 				if(Helper.near(div, nudge, margin, scalar) || Helper.near(div, -nudge, margin, scalar)) {
 					entity.world.x = ~~entity.world.x + nudge;
 					entity.world.vx = 0;

@@ -7,13 +7,13 @@ import Runner from "../../util/relay/Runner";
  * allowing it to modify anything and/or do anything it wants.
  */
 export class System extends Identity {
-	constructor ({ reducers = {}, id, tags, name } = {}) {
+	constructor ({ reducers = {}, id, tags, nomen } = {}) {
 		super({ id, tags });
 
 		/**
 		 * The name of the System and the name of the Component key it expects to find
 		 */
-		this.name = name;
+		this.nomen = nomen || this.constructor.Nomen;
 
 		/**
 		 * The System subscribes itself to the Runners, receiving the payload when .emitted to the .handler[ event ] Runner.
@@ -52,14 +52,31 @@ export class System extends Identity {
 				this[ key ] = reducer;
 			}
 		}
+
+		/**
+		 * This is equivalent to calling .add on all custom events
+		 */
+		this._addMethods();
+	}
+
+	/**
+	 * Automatically .add any events that are present on the descendent System.
+	 * This avoids having to manually .add each event to the System during instantiation.
+	 */
+	_addMethods() {
+		for(let key of Reflect.ownKeys(this.constructor.prototype)) {
+			if(key !== "constructor") {
+				this.add(key)
+			}
+		}
 	}
 
 	/**
 	 * Get the Component from the Entity
 	 */
 	get(entity) {
-		if(entity.has(this.name)) {
-			return entity.get(this.name);
+		if(entity.has(this.nomen)) {
+			return entity.get(this.nomen);
 		}
 
 		return false;
@@ -68,7 +85,7 @@ export class System extends Identity {
 	 * Invoke Entity.update on the Entity, passing the new data
 	 */
 	set(entity, data) {
-		entity.update(this.name, data);
+		entity.update(this.nomen, data);
 
 		return entity;
 	}

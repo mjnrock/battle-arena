@@ -155,7 +155,11 @@ export class Environment extends Identity {
 		for(let [ id, factory ] of this.factory.system) {
 			const [ system ] = factory(1, ...args);
 
+			/**
+			 * This will become the "selection key" for this system.
+			 */
 			this.system.registerWithAlias(system, system.constructor.Nomen);
+			// this.system.registerWithAlias(system, system.constructor.name);
 		}
 	}
 	registerFactoryEntities(entities) {
