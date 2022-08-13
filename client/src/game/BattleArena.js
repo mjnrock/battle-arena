@@ -12,6 +12,7 @@ import { MouseController } from "./lib/input/MouseController";
 import { Game } from "./Game";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
+//? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
 
 /**
  *? This file is the designated data repository for all of the major game data.
@@ -29,11 +30,13 @@ import { Game } from "./Game";
  * 	- mouse
  */
 export function loadInputControllers(game, { mouse, key } = {}) {
-	console.log(mouse)
 	game.input = {
 		key: new KeyController(key),
 		mouse: new MouseController(mouse),
 	};
+
+	//? Intercept events from the input controllers by listening for events
+	game.input.key.events.on(KeyController.EventTypes.KEY_DOWN, e => console.log(e));
 
 	return game;
 };
