@@ -21,6 +21,7 @@ export class KeyController extends Identity {
 		DOWN: 2 << 1,
 		LEFT: 2 << 2,
 		RIGHT: 2 << 3,
+		WASD: 2 << 4,
 	};
 
 	static ModifierFlags = {
@@ -213,6 +214,10 @@ export class KeyController extends Identity {
 			} else if(code === "ArrowRight" || code === "KeyD") {
 				this.mask |= KeyController.MaskFlags.RIGHT;
 			}
+
+			if(code === "KeyW" || code === "KeyA" || code === "KeyS" || code === "KeyD") {
+				this.mask |= KeyController.MaskFlags.WASD;
+			}
 		} else {
 			if(code === "ArrowUp" || code === "KeyW") {
 				this.mask &= ~KeyController.MaskFlags.UP;
@@ -223,13 +228,15 @@ export class KeyController extends Identity {
 			} else if(code === "ArrowRight" || code === "KeyD") {
 				this.mask &= ~KeyController.MaskFlags.RIGHT;
 			}
+
+			if(code === "KeyW" || code === "KeyA" || code === "KeyS" || code === "KeyD") {
+				this.mask &= ~KeyController.MaskFlags.WASD;
+			}
 		}
 
 		this.emit(KeyController.EventTypes.KEY_MASK, this.mask);
 
 		this.updateModifiers(e);
-
-		console.log(e.type, e.code, this.mask);
 
 		return this;
 	}

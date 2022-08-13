@@ -5,7 +5,7 @@ import { Node } from "./entities/realm/Node";
 import { World } from "./entities/realm/World";
 import { Realm } from "./entities/realm/Realm";
 
-import { World as WorldController } from "./controllers/World";
+import { World as SysWorld } from "./systems/World";
 import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
@@ -35,8 +35,12 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 		mouse: new MouseController(mouse),
 	};
 
+	/**
+	 * Bind all event listeners here
+	 */
 	//? Intercept events from the input controllers by listening for events
-	game.input.key.events.on(KeyController.EventTypes.KEY_DOWN, e => console.log(e));
+	// game.input.key.events.on(KeyController.EventTypes.KEY_DOWN, (e, self) => console.log(e));
+	// game.input.mouse.events.on(MouseController.EventTypes.MOUSE_MOVE, (e, self) => console.log(e));
 
 	return game;
 };
@@ -58,7 +62,7 @@ export const Hooks = {
 		//TODO: Register / initialize all of the environmental data here
 		this.environment.registerFactorySystems([
 			//STUB: Add all of the system classes here
-			WorldController,
+			SysWorld,
 		]);
 		this.environment.registerFactoryEntities([
 			//STUB: Add all of the entity classes here
@@ -136,7 +140,6 @@ export const Hooks = {
 		/**
 		 * Add any additional key / mouse args below.
 		 */
-		//FIXME: Commented out temporarily until these are more production-ready (cf. F5/F12 notes)
 		loadInputControllers(this, {
 			key: {
 				element: window,
