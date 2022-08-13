@@ -1,79 +1,21 @@
+import { GroupRunner } from "../../util/relay/GroupRunner";
 import { Identity } from "../Identity";
-import { GroupRunner } from "./../../util/relay/GroupRunner";
-
-//TODO: Create an only/except list for event listening (e.g. @only = [ "MouseUp", "MouseDown", "ContextMenu" ], @except = [ "MouseMove" ])
-//? Maybe create a list of events in the .config with a boolean flag whether it should fire those events or not and @only/@except T/F those entries
-
-export class MouseEventEntry {
-	constructor ({ type, x, y, button, modifiers, config, ...opts } = {}) {
-		this.type = type;
-		this.x = x;
-		this.y = y;
-
-		this.button = button;
-		this.modifiers = modifiers;
-		this.config = {
-			distanceThreshold: 50,
-
-			...config,
-		};
-
-		this.opts = opts;
-		this.timestamp = Date.now();
-	}
-
-	distance(x, y) {
-		return Math.sqrt(Math.pow(x - this.x, 2) + Math.pow(y - this.y, 2));
-	}
-	hasDistanceOf(x, y, threshold = this.config.distanceThreshold, { lt = false, lte = false, gt = false, gte = true } = {}) {
-		const distance = this.distance(x, y);
-
-		if(gte) {
-			return distance >= threshold;
-		} else if(gt) {
-			return distance > threshold;
-		} else if(lt) {
-			return distance < threshold;
-		} else if(lte) {
-			return distance <= threshold;
-		}
-
-		return distance === threshold;
-	}
-};
-
-export class MousePositionEntry {
-	constructor ({ x, y, ...opts } = {}) {
-		this.x = x;
-		this.y = y;
-
-		this.opts = opts;
-		this.timestamp = Date.now();
-	}
-};
+import { Events } from "../../util/relay/Events";
 
 export class MouseController extends Identity {
+	static EventTypes = {
+		MOUSE_MASK: "mousemask",
+		MOUSE_MODIFIER: "mousemodifier",
+		MOUSE_DOWN: "mousedown",
+		MOUSE_UP: "mouseup",
+		MOUSE_MOVE: "mousemove",
+		CONTEXT_MENU: "contextmenu",
+	};
+
 	static MaskFlags = {
 		LEFT: 2 << 0,
 		MIDDLE: 2 << 1,
-		RIGHT: 2 << 2,
-
-		// WHEEL: 2 << 3,
-		// MOVE: 2 << 4,
-		// DOWN: 2 << 5,
-		// UP: 2 << 6,
-		// ENTER: 2 << 7,
-		// LEAVE: 2 << 8,
-		// OVER: 2 << 9,
-		// OUT: 2 << 10,
-		// HOVER: 2 << 11,
-		// DRAG: 2 << 12,
-		// DRAG_START: 2 << 13,
-		// DRAG_END: 2 << 14,
-		// DRAG_OVER: 2 << 15,
-		// DRAG_OUT: 2 << 16,
-		// DRAG_ENTER: 2 << 17,
-		// DRAG_LEAVE: 2 << 18,
+		RIGHT: 2 << 3,
 	};
 
 	static ModifierFlags = {
@@ -83,50 +25,109 @@ export class MouseController extends Identity {
 		META: 2 << 3,
 	};
 
-	constructor ({ element, ...rest } = {}) {
+	constructor ({ element, config = {}, ...rest } = {}) {
 		super({ ...rest });
+
+		this.state = {};
 
 		this.mask = 0;
 		this.modifiers = 0;
+		this.handlers = new GroupRunner({
+			onMouseDown: this,
+			onMouseUp: this,
+			onMouseMove: this,
+			onContextMenu: this,
+		});
+		this.events = new Events();
 
-		this.events = new Map();
-		this.path = new Set();
+		/**
+		 * Create an object where all events are enabled by default
+		 */
+		// let _events = Object.fromEntries(Object.values(KeyController.EventTypes).map(value => [ value, true ]));
 
-		this.current = {
-			x: 0,
-			y: 0,
-			lastUpdate: null,
+		this.config = {
+			excludedKeys: MouseController.ExludedKeys,
+			events: {
+				[ MouseController.EventTypes.MOUSE_UP ]: true,
+				[ MouseController.EventTypes.MOUSE_DOWN ]: true,
+				[ MouseController.EventTypes.MOUSE_MOVE ]: true,
+				[ MouseController.EventTypes.MOUSE_MASK ]: false,
+				[ MouseController.EventTypes.MOUSE_MODIFIER ]: false,
+				[ MouseController.EventTypes.CONTEXT_MENU ]: true,
+			},
+
+			...config,
 		};
 
 		this.element = null;
-
 		this.bindElement(element);
 	}
 
-	addPath({ x, y } = {}) {
-		this.path.add(new MousePositionEntry({ x, y }));
 
-		return this;
+	getState() {
+		return this.state;
 	}
-	clearPath() {
-		this.path.clear();
+	setState(state) {
+		this.state = state;
 
-		return this;
+		return this.state;
+	}
+	mergeState(state = {}) {
+		this.state = {
+			...this.state,
+			...state,
+		};
+
+		return this.state;
 	}
 
-	addEvent({ type, x, y, button, modifiers, config, ...opts } = {}) {
-		const event = new MouseEventEntry({ type, x, y, button, modifiers, config, ...opts });
-		this.events.set(type, event);
 
-		//TODO: Fire the event to listeners
-
-		return this;
+	/**
+	 * Assert that a given event is enabled in the config
+	 */
+	assert(event) {
+		return this.config.events[ event ] === true;
 	}
-	clearEvents() {
-		this.events.clear();
+	/**
+	 * Dis/Enable the event listener for a given event type, optionally
+	 * assigning the truthiness via @value instead of toggling it.
+	 */
+	toggle(event, value) {
+		if(event in this.config.events) {
+			if(value === void 0) {
+				this.config.events[ event ] = !this.config.events[ event ];
+			} else {
+				this.config.events[ event ] = value;
+			}
+		}
 
-		return this;
+		return this.config.events[ event ];
 	}
+
+
+	get hasLeft() {
+		return this.mask & MouseController.MaskFlags.LEFT;
+	}
+	get hasMiddle() {
+		return this.mask & MouseController.MaskFlags.MIDDLE;
+	}
+	get hasRight() {
+		return this.mask & MouseController.MaskFlags.RIGHT;
+	}
+
+	get hasShift() {
+		return this.modifiers & MouseController.ModifierFlags.SHIFT;
+	}
+	get hasCtrl() {
+		return this.modifiers & MouseController.ModifierFlags.CTRL;
+	}
+	get hasAlt() {
+		return this.modifiers & MouseController.ModifierFlags.ALT;
+	}
+	get hasMeta() {
+		return this.modifiers & MouseController.ModifierFlags.META;
+	}
+
 
 	/**
 	 * Bind any event handler that has a defined handler in this class
@@ -134,18 +135,43 @@ export class MouseController extends Identity {
 	bindElement(element) {
 		this.element = element;
 
-		for (let key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
+		for(let key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
 			if(key.substring(0, 2) === "on") {
-				this.element[ key.toLowerCase() ] = e => this[ key ].call(this, e);
+				let type = key.toLowerCase(),
+					handler = e => {
+						/**
+						 * Only fire the handler if the event is enabled in the config
+						 */
+						if(this.assert(type)) {
+							this.handlers.run(key, e);
+						}
+					}
+
+				/**
+				 * If the element follows the EventEmitter interface, add an event listener,
+				 * else assign the event listener
+				 */
+				if("addEventListener" in this.element) {
+					type = type.substring(2);
+					this.element.addEventListener(type, handler);
+				} else {
+					this.element[ type ] = handler;
+				}
 			}
 		}
 
 		return this;
 	}
 	unbindElement() {
-		for (let key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
-			if(key.substring(0, 2) === "on") {
-				this.element[ key.toLowerCase() ] = null;
+		if("removeAllListeners" in this.element) {
+			this.element.removeAllListeners();
+		} else {
+			for(let key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
+				if(key.substring(0, 2) === "on") {
+					const type = key.toLowerCase();
+
+					this.element[ type ] = null;
+				}
 			}
 		}
 
@@ -153,6 +179,7 @@ export class MouseController extends Identity {
 
 		return this;
 	}
+
 
 	updateMask(e, add = true) {
 		const { button } = e;
@@ -204,90 +231,61 @@ export class MouseController extends Identity {
 			this.modifiers &= ~MouseController.ModifierFlags.META;
 		}
 
+		this.emit(MouseController.EventTypes.MOUSE_MODIFIER, this.modifiers);
+
 		return this;
 	}
 
-	get hasLeft() {
-		return this.mask & MouseController.MaskFlags.LEFT;
-	}
-	get hasMiddle() {
-		return this.mask & MouseController.MaskFlags.MIDDLE;
-	}
-	get hasRight() {
-		return this.mask & MouseController.MaskFlags.RIGHT;
+
+	/**
+	 * Pass the event to the handlers, alongside any additional @args
+	 */
+	emit(type, e, ...args) {
+		if(this.assert(type)) {
+			return this.events.emit(type, e, ...args);
+		}
 	}
 
-	get hasShift() {
-		return this.modifiers & MouseController.ModifierFlags.SHIFT;
-	}
-	get hasCtrl() {
-		return this.modifiers & MouseController.ModifierFlags.CTRL;
-	}
-	get hasAlt() {
-		return this.modifiers & MouseController.ModifierFlags.ALT;
-	}
-	get hasMeta() {
-		return this.modifiers & MouseController.ModifierFlags.META;
-	}
 
+	//#region Event Handlers
 	onMouseDown(e) {
 		e.preventDefault();
+
 		this.updateMask(e, true);
 
-		console.log(e.type, e.clientX, e.clientY);
-
-		// this.addEvent({
-		// 	type: "down",
-		// 	x: e.clientX,
-		// 	y: e.clientY,
-		// });
+		this.emit(MouseController.EventTypes.MOUSE_DOWN, e, this);
 
 		return this;
 	}
 	onMouseUp(e) {
 		e.preventDefault();
+
 		this.updateMask(e, false);
 
-		console.log(e.type, e.clientX, e.clientY);
-
-		// this.addEvent({
-		// 	type: "up",
-		// 	x: e.clientX,
-		// 	y: e.clientY,
-		// });
+		this.emit(MouseController.EventTypes.MOUSE_UP, e, this);
 
 		return this;
 	}
 	onMouseMove(e) {
 		e.preventDefault();
 
-		console.log(e.type, e.clientX, e.clientY);
+		this.state.pointer = {};
+		this.state.pointer.x = e.clientX;
+		this.state.pointer.y = e.clientY;
+		this.state.pointer.lastUpdate = Date.now();
 
-		this.current.x = e.clientX;
-		this.current.y = e.clientY;
-		this.current.lastUpdate = Date.now();
-
-		// this.addEvent({
-		// 	type: "move",
-		// 	x: e.clientX,
-		// 	y: e.clientY,
-		// });
+		this.emit(MouseController.EventTypes.MOUSE_MOVE, e, this);
 
 		return this;
 	}
 	onContextMenu(e) {
 		e.preventDefault();
 
-		console.log(e.type, e.clientX, e.clientY);
-
-		// this.addEvent({
-		// 	type: "contextmenu",
-		// 	x: e.clientX,
-		// 	y: e.clientY,
-		// });
+		this.emit(MouseController.EventTypes.CONTEXT_MENU, e, this);
 
 		return this;
 	}
+	//#endregion Event Handlers
 };
 
 export default MouseController;

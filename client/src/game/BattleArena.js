@@ -222,8 +222,8 @@ export const Hooks = {
 		}
 
 		if(this.input.mouse.hasLeft) {
-			let tx = ~~(this.input.mouse.current.x / this.config.tile.width),
-				ty = ~~(this.input.mouse.current.y / this.config.tile.height);
+			let tx = ~~(this.input.mouse.state.pointer.x / this.config.tile.width),
+				ty = ~~(this.input.mouse.state.pointer.y / this.config.tile.height);
 
 			this.dispatch("world:move", this.realm.players.player, {
 				x: tx,

@@ -1,4 +1,4 @@
-import GroupRunner from "../../util/relay/GroupRunner";
+import { GroupRunner } from "../../util/relay/GroupRunner";
 import { Identity } from "../Identity";
 import { Events } from "./../../util/relay/Events";
 
@@ -60,7 +60,7 @@ export class KeyController extends Identity {
 		 * Create an object where all events are enabled by default
 		 */
 		// let _events = Object.fromEntries(Object.values(KeyController.EventTypes).map(value => [ value, true ]));
-		
+
 		this.config = {
 			excludedKeys: KeyController.ExludedKeys,
 			events: {
@@ -282,9 +282,7 @@ export class KeyController extends Identity {
 
 		this.updateMask(e, true);
 
-		//TODO: Perform all the state-updating work here
-
-		this.emit(KeyController.EventTypes.KEY_DOWN, e);
+		this.emit(KeyController.EventTypes.KEY_DOWN, e, this);
 
 		return this;
 	}
@@ -295,9 +293,7 @@ export class KeyController extends Identity {
 
 		this.updateMask(e, false);
 
-		//TODO: Perform all the state-updating work here
-
-		this.emit(KeyController.EventTypes.KEY_UP, e);
+		this.emit(KeyController.EventTypes.KEY_UP, e, this);
 
 		return this;
 	}
@@ -308,9 +304,7 @@ export class KeyController extends Identity {
 
 		this.updateMask(e, false);
 
-		//TODO: Perform all the state-updating work here
-
-		this.emit(KeyController.EventTypes.KEY_PRESS, e);
+		this.emit(KeyController.EventTypes.KEY_PRESS, e, this);
 
 		return this;
 	}
