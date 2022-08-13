@@ -1,4 +1,4 @@
-export function world({ world, x = 0, y = 0, vx = 0, vy = 0, speed = 2.5 } = {}) {
+export function world({ world, x = 0, y = 0, vx = 0, vy = 0, speed = 2.5, facing = 0 } = {}) {
 	return {
 		world,
 		x,
@@ -6,6 +6,7 @@ export function world({ world, x = 0, y = 0, vx = 0, vy = 0, speed = 2.5 } = {})
 		vx,
 		vy,
 		speed,
+		facing,
 	};
 };
 
