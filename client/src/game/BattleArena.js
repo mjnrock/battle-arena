@@ -11,8 +11,6 @@ import { MouseController } from "./lib/input/MouseController";
 
 import { Game } from "./Game";
 
-//FIXME: Pass the TIME ARGUMENTS to .render
-
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 
 /**
@@ -155,7 +153,7 @@ export const Hooks = {
 	 * This is the main render loop for the game, called each time the renderer
 	 * invokes its requestAnimationFrame facilitator.
 	 */
-	render() {
+	render({ dt } = {}) {
 		if(!this.realm) {
 			return;
 		}

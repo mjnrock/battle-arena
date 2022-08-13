@@ -347,7 +347,11 @@ export class Pixi {
 		const now = Date.now();
 		this.graphics.clear();
 		
-		this.observers.run(dt, this);
+		this.observers.run({
+			dt,
+			now,
+			pixi: this,
+		});
 
 		this.renderer.render(this.stage);
 
