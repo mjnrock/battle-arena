@@ -5,6 +5,8 @@ import { Node } from "./entities/realm/Node";
 import { World } from "./entities/realm/World";
 import { Realm } from "./entities/realm/Realm";
 
+import { Circle } from "./util/shape/Circle";
+
 import { World as SysWorld } from "./systems/World";
 import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
@@ -39,7 +41,12 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 	 * Bind all event listeners here
 	 */
 	//? Intercept events from the input controllers by listening for events
-	// game.input.key.events.on(KeyController.EventTypes.KEY_DOWN, (e, self) => console.log(e));
+	game.input.key.events.on(KeyController.EventTypes.KEY_PRESS, (e, self) => {
+		if(e.code === "KeyC") {
+			console.log(game.realm.players.player.world);
+			console.log(game.realm.players.player.world.model);
+		}
+	});
 	// game.input.mouse.events.on(MouseController.EventTypes.MOUSE_MOVE, (e, self) => console.log(e));
 
 	return game;
@@ -113,6 +120,11 @@ export const Hooks = {
 			},
 			init: {
 				world: {
+					model: new Circle({
+						x: 0.5,
+						y: 0.5,
+						r: 0.5,
+					}),
 					x: 10,
 					y: 10,
 					vx: 0.01,
@@ -190,12 +202,13 @@ export const Hooks = {
 		 * Draw the Player
 		 */
 		const graphics = this.renderer.graphics;
-		const { x, y } = this.realm.players.player.world;
+		let { x, y } = this.realm.players.player.world;
+		[ x, y ] = this.realm.players.player.world.model.pos(x, y);
 
 		//* Color the player
 		graphics.lineStyle(2, 0x000000, 0.25);
 		graphics.beginFill(0xFF0000, 1);
-		graphics.drawRect(x * this.config.tile.width, y * this.config.tile.height, this.config.tile.width, this.config.tile.height);
+		graphics.drawCircle(x * this.config.tile.width, y * this.config.tile.height, this.realm.players.player.world.model.radius * this.config.tile.width);
 		graphics.endFill();
 	},
 

@@ -45,62 +45,65 @@ export class World extends System {
 
 	displace(entities = [], { dt }) {
 		System.Each(entities, (entity) => {
+			let { x, y, vx, vy, facing, speed } = entity.world;
+			let mx = Math.sign(vx);
+			let my = Math.sign(vy);
+
 			// Move in 1 direction only, favor Y
-			if(entity.world.vx && entity.world.vy) {
-				entity.world.vx = 0;
+			if(vx && vy) {
+				vx = 0;
 			}
 
-			//TODO: Displace the entity in alignment with momentum for tilegrid nudges (also requires using CENTER of shape, not TOPLEFT)
+			//TODO: Displace the entity in alignment with momentum for tilegrid nudges (requires: CENTER of shape, not TOPLEFT (currently))
+			//IDEA: Use the Pathfinding system and the KEY MASK and velocity to move the entity (e.g. RIGHT -> [ 1, 0 ] = Destination while MASK -- on destination, repeat, on MASK end delete destination, 0 velocity)
+			//IDEA: Store and use the change in @facing to maintain momemntum (e.g. going DOWN, won't RIGHT until next right is available)
 			let margin = 0.05,
 				scalar = 20,
 				nudge = 0;	// 0 = nudge within tile, 0.5 = nudge to middle of tile
 
-			if(entity.world.vx) {
-				if(entity.world.vx > 0) {
-					entity.world.facing = 0;
-				} else if(entity.world.vx < 0) {
-					entity.world.facing = 180;
+			if(vx) {
+				if(vx > 0) {
+					facing = 0;
+				} else if(vx < 0) {
+					facing = 180;
 				}
 
-				let div = Helper.floor(entity.world.y, scalar) % 1;
+				let div = Helper.floor(y, scalar) % 1;
+				console.log(div)
 
 				if(Helper.near(div, nudge, margin, scalar) || Helper.near(div, -nudge, margin, scalar)) {
-					entity.world.y = ~~entity.world.y + nudge;
-					entity.world.vy = 0;
+					y = ~~y + nudge;
+					vy = 0;
 				} else {
-					entity.world.vy = Math.sign(entity.world.vx) * entity.world.speed;
-					entity.world.vx = 0;
+					vy = -mx * speed;
+					vx = 0;
 				}
-			} else if(entity.world.vy) {
-				if(entity.world.vy > 0) {
-					entity.world.facing = 270;
-				} else if(entity.world.vy < 0) {
-					entity.world.facing = 90;
+			} else if(vy) {
+				if(vy > 0) {
+					facing = 270;
+				} else if(vy < 0) {
+					facing = 90;
 				}
 
-				let div = Helper.floor(entity.world.x, scalar) % 1;
+				let div = Helper.floor(x, scalar) % 1;
 
 				if(Helper.near(div, nudge, margin, scalar) || Helper.near(div, -nudge, margin, scalar)) {
-					entity.world.x = ~~entity.world.x + nudge;
-					entity.world.vx = 0;
+					x = ~~x + nudge;
+					vx = 0;
 				} else {
-					entity.world.vx = Math.sign(entity.world.vy) * entity.world.speed;
-					entity.world.vy = 0;
+					vx = -my * speed;
+					vy = 0;
 				}
 			}
 
-			// if(entity.world.vx) {
-			// 	if(entity.world.vx > 0) {
-			// 		if()
-			// 	} else {
-			// 		entity.world.x += entity.world.vx * dt;
-			// 	}
-			// } else if(entity.world.vy) {
+			x += (vx * dt);
+			y += (vy * dt);
 
-			// }
-
-			entity.world.x += (entity.world.vx * dt);
-			entity.world.y += (entity.world.vy * dt);
+			entity.world.x = x;
+			entity.world.y = y;
+			entity.world.vx = vx;
+			entity.world.vy = vy;
+			entity.world.facing = facing;
 		});
 
 		return entities;

@@ -53,7 +53,6 @@ export class KeyController extends Identity {
 		this.handlers = new GroupRunner({
 			onKeyDown: this,
 			onKeyUp: this,
-			onKeyPress: this,
 		});
 		this.events = new Events();
 
@@ -67,7 +66,7 @@ export class KeyController extends Identity {
 			events: {
 				[ KeyController.EventTypes.KEY_UP ]: true,
 				[ KeyController.EventTypes.KEY_DOWN ]: true,
-				[ KeyController.EventTypes.KEY_PRESS ]: false,
+				[ KeyController.EventTypes.KEY_PRESS ]: true,
 				[ KeyController.EventTypes.KEY_MASK ]: false,
 				[ KeyController.EventTypes.KEY_MODIFIER ]: false,
 				[ KeyController.EventTypes.KEY_CHORD ]: false,
@@ -301,16 +300,6 @@ export class KeyController extends Identity {
 		this.updateMask(e, false);
 
 		this.emit(KeyController.EventTypes.KEY_UP, e, this);
-
-		return this;
-	}
-	onKeyPress(e) {
-		if(!this.config.excludedKeys.includes(e.code)) {
-			e.preventDefault();
-		}
-
-		this.updateMask(e, false);
-
 		this.emit(KeyController.EventTypes.KEY_PRESS, e, this);
 
 		return this;
