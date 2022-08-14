@@ -1,4 +1,4 @@
-import { Pixi } from "./lib/pixi/Pixi";
+import { Pixi, PixiJS } from "./lib/pixi/Pixi";
 
 import { Squirrel } from "./entities/Squirrel";
 import { Node } from "./entities/realm/Node";
@@ -12,6 +12,9 @@ import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
 import { Game } from "./Game";
+import Camera from "./lib/pixi/Camera";
+import { View } from "./lib/pixi/View";
+import Layer from "./lib/pixi/Layer";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 //? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
@@ -149,6 +152,71 @@ export const Hooks = {
 		this.renderer = new Pixi();
 		this.renderer.observers.add(this);
 
+
+		//TODO: Move the Camera/View initialization to an external function/file
+		this.camera = new Camera({
+			ref: this,
+			x: 0,
+			y: 0,
+			width: this.renderer.width,
+			height: this.renderer.height,
+		});
+
+		this.views = {
+			current: new View({
+				mount: this.renderer.stage,
+				layers: {
+					terrain: new Layer({
+						render: (camera, ...args) => {
+							const game = camera.ref;
+							const graphics = game.views.current.container;
+
+							/**
+							 * Draw the Terrain
+							 */
+							for(let [ id, node ] of game.realm.worlds.overworld.nodes) {
+								const { x, y } = node.world;
+
+								let color = 0xFFFFFF;
+								if(node.terrain.type === "grass") {
+									color = 0x447f52;
+								} else if(node.terrain.type === "water") {
+									color = 0x436d7c;
+								}
+
+								//* Color the grid lines
+								graphics.lineStyle(2, 0x000000, 0.1);
+								//* Color the terrain grid
+								graphics.beginFill(color);
+								graphics.drawRect(x * game.config.tile.width, y * game.config.tile.height, game.config.tile.width, game.config.tile.height);
+								graphics.endFill();
+							}
+						},
+					}),
+					entity: new Layer({
+						render: (camera, ...args) => {
+							const game = camera.ref;
+							const graphics = game.views.current.container;
+
+							//TODO Draw all of the entities
+
+							/**
+							 * Draw the Player
+							 */
+							let { x, y } = game.realm.players.player.world;
+							[ x, y ] = game.realm.players.player.world.model.pos(x, y);
+
+							//* Color the player
+							graphics.lineStyle(2, 0x000000, 0.25);
+							graphics.beginFill(0xFF0000, 1);
+							graphics.drawCircle(x * game.config.tile.width, y * game.config.tile.height, game.realm.players.player.world.model.radius * game.config.tile.width);
+							graphics.endFill();
+						},
+					}),
+				},
+			}),
+		};
+
 		/**
 		 * Add any additional key / mouse args below.
 		 */
@@ -172,44 +240,7 @@ export const Hooks = {
 	 * invokes its requestAnimationFrame facilitator.
 	 */
 	render({ dt } = {}) {
-		if(!this.realm) {
-			return;
-		}
-
-		/**
-		 * Draw the Terrain
-		 */
-		for(let [ id, node ] of this.realm.worlds.overworld.nodes) {
-			const graphics = this.renderer.graphics;
-			const { x, y } = node.world;
-
-			let color = 0xFFFFFF;
-			if(node.terrain.type === "grass") {
-				color = 0x447f52;
-			} else if(node.terrain.type === "water") {
-				color = 0x436d7c;
-			}
-
-			//* Color the grid lines
-			graphics.lineStyle(2, 0x000000, 0.1);
-			//* Color the terrain grid
-			graphics.beginFill(color);
-			graphics.drawRect(x * this.config.tile.width, y * this.config.tile.height, this.config.tile.width, this.config.tile.height);
-			graphics.endFill();
-		}
-
-		/**
-		 * Draw the Player
-		 */
-		const graphics = this.renderer.graphics;
-		let { x, y } = this.realm.players.player.world;
-		[ x, y ] = this.realm.players.player.world.model.pos(x, y);
-
-		//* Color the player
-		graphics.lineStyle(2, 0x000000, 0.25);
-		graphics.beginFill(0xFF0000, 1);
-		graphics.drawCircle(x * this.config.tile.width, y * this.config.tile.height, this.realm.players.player.world.model.radius * this.config.tile.width);
-		graphics.endFill();
+		this.views.current.render(this.camera, { dt });
 	},
 
 	/**

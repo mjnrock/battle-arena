@@ -1,6 +1,9 @@
 import { v4 as uuid, validate } from "uuid";
 
 export class Identity {
+	static Registry = new Map();
+	static HasRegistration = false;
+
 	static Comparators = {
 		/**
 		 * Single-comparison evaluators
@@ -124,6 +127,13 @@ export class Identity {
 	constructor ({ id, tags = [] } = {}) {
 		this.id = id || uuid();
 		this.tags = new Set(tags);
+
+		if(Identity.HasRegistration) {
+			Identity.Registry.set(this.id, this);
+		}
+		if(this.constructor.HasRegistration) {
+			this.constructor.Registry.set(this.id, this);
+		}
 	}
 
 	toObject() {

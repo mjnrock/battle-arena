@@ -23,14 +23,6 @@ export class Pixi {
 			height: height || window.innerHeight,
 
 			/**
-			 * Store the current container and overlay from their respective Maps.
-			 */
-			current: {
-				container: "default",
-				overlay: "default",
-			},
-
-			/**
 			 * This will contain the initialized MouseController.
 			 * TODO: Generalize this to input controllers and refactor accordingly.
 			 */
@@ -68,17 +60,10 @@ export class Pixi {
 		});
 
 		/**
-		 * The main containers for the renderer.
-		 * This is a map of [ name, PIXI.Container ] entries.
+		 * The main stage for the renderer.  All work should be done by manipulating
+		 * the children of the stage using the Layer and View proxies. 
 		 */
-		this.containers = new Map();
-
-		/**
-		 * These are PIXI.Graphics objects that are used to draw on the screen.
-		 * This is a map of [ name, PIXI.Graphics ] entries.  When added, these
-		 * will always be attached to the current container.
-		 */
-		this.overlays = new Map();
+		this.stage = new PixiJS.Container();
 
 		//TODO Load textures with this.loader, map them to Entities; add/remove them to the stage, as appropriate
 		//TODO Move the resource manager to a separate class, but create a link between these for rendering
@@ -127,12 +112,6 @@ export class Pixi {
 		self.config.renderListener = self.render.bind(self);
 		self.ticker.add(self.config.renderListener);
 		self.stop();
-
-		/**
-		 * Add a default stage (PIXI.Container) and graphics (PIXI.Graphics) to the renderer.
-		 */
-		self.addContainer("default");
-		self.addOverlay("default");
 
 		/**
 		 * Bind the mouse controller to the canvas to take over mouse events.
@@ -259,85 +238,6 @@ export class Pixi {
 	}
 
 	/**
-	 * A getter for the current container, specified in the config.
-	 */
-	get stage() {
-		return this.containers.get(this.config.current.container);
-	}
-	/**
-	 * Add a new container to the registry, to be used as a stage.
-	 */
-	addContainer(name, container) {
-		container = container || new PixiJS.Container();
-
-		this.containers.set(name, container);
-
-		return container;
-	}
-	/**
-	 * Remove a container from the registry.
-	 */
-	removeContainer(name) {
-		const container = this.containers.get(name);
-		
-		if(container) {
-			return this.containers.delete(name);
-		}
-
-		return false;
-	}
-	/**
-	 * Change the current stage to the specified name.
-	 */
-	useContainer(name = "default") {
-		this.config.current.container = name;
-
-		return this;
-	}
-	
-	/**
-	 * A getter for the current overlay, specified in the config.
-	 */
-	get graphics() {
-		return this.overlays.get(this.config.current.overlay);
-	}
-	/**
-	 * Add a new overlay to the registry, to be used as a graphics overlay.
-	 */
-	addOverlay(name, overlay) {
-		overlay = overlay || new PixiJS.Graphics();
-
-		this.overlays.set(name, overlay);
-
-		this.stage.addChild(overlay);
-
-		return overlay;
-	}
-	/**
-	 * Remove an overlay from the registry.
-	 */
-	removeOverlay(name) {
-		const overlay = this.overlays.get(name);
-		
-		if(overlay) {
-			this.stage.removeChild(overlay);
-
-			return this.overlays.delete(name);
-		}
-
-		return false;
-	}
-	/**
-	 * Change the current overlay to the specified name.
-	 */
-	useOverlay(name = "default") {
-		this.config.current.overlay = name;
-
-		return this;
-	}
-
-
-	/**
 	 * This is the main render loop for the PixiJS renderer.
 	 * Invoke this function to redraw the scene.
 	 * 
@@ -345,8 +245,7 @@ export class Pixi {
 	 */
 	render(dt) {
 		const now = Date.now();
-		this.graphics.clear();
-		
+
 		this.observers.run({
 			dt,
 			now,
