@@ -79,7 +79,9 @@ export function createLayerTerrain(game) {
 				graphics.lineStyle(2, 0x000000, 0.1);
 				//* Color the terrain grid
 				graphics.beginFill(color);
-				graphics.drawRect(x * gameRef.config.tile.width, y * gameRef.config.tile.height, gameRef.config.tile.width, gameRef.config.tile.height);
+				// graphics.drawRect(x * gameRef.config.tile.width , y * gameRef.config.tile.height, gameRef.config.tile.width, gameRef.config.tile.height);
+				//TODO: Create a Game-wide offset sync to: center rendering on screen, normalize mouse events to that offset, etc. (cf. the 250)
+				graphics.drawRect(x * gameRef.config.tile.width + 250, y * gameRef.config.tile.height + 250, gameRef.config.tile.width, gameRef.config.tile.height);
 				graphics.endFill();
 			}
 		},
@@ -115,8 +117,8 @@ export function loadViews(game) {
 				mount: game.renderer.stage,
 				camera: new Camera({
 					ref: game,
-					x: 0,
-					y: 0,
+					x: game.renderer.width / 4,
+					y: game.renderer.height / 4,
 					width: game.renderer.width,
 					height: game.renderer.height,
 				}),
@@ -127,6 +129,12 @@ export function loadViews(game) {
 			}),
 		},
 	});
+
+	//? Show/hide the PIXI.Container
+	// if(Math.random() > 0.5) {
+	// 	//NOTE: Look into .pivot/.anchor properties in PIXI
+	// 	game.views.current.container.visible = false;
+	// }
 
 	return game.views;
 }
