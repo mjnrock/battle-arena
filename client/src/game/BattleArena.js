@@ -12,9 +12,10 @@ import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
 import { Game } from "./Game";
-import Camera from "./lib/pixi/Camera";
+import { Camera } from "./lib/pixi/Camera";
 import { View } from "./lib/pixi/View";
-import Layer from "./lib/pixi/Layer";
+import { Layer } from "./lib/pixi/Layer";
+import { Collection } from "./util/Collection";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 //? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
@@ -55,6 +56,81 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 	return game;
 };
 
+export function createLayerTerrain(game) {
+	return new Layer({
+		render: (camera, ...args) => {
+			const gameRef = camera.ref;
+			const graphics = gameRef.views.current.container;
+
+			/**
+			 * Draw the Terrain
+			 */
+			for(let [ id, node ] of gameRef.realm.worlds.overworld.nodes) {
+				const { x, y } = node.world;
+
+				let color = 0xFFFFFF;
+				if(node.terrain.type === "grass") {
+					color = 0x447f52;
+				} else if(node.terrain.type === "water") {
+					color = 0x436d7c;
+				}
+
+				//* Color the grid lines
+				graphics.lineStyle(2, 0x000000, 0.1);
+				//* Color the terrain grid
+				graphics.beginFill(color);
+				graphics.drawRect(x * gameRef.config.tile.width, y * gameRef.config.tile.height, gameRef.config.tile.width, gameRef.config.tile.height);
+				graphics.endFill();
+			}
+		},
+	});
+};
+export function createLayerEntity(game) {
+	return new Layer({
+		render: (camera, ...args) => {
+			const gameRef = camera.ref;
+			const graphics = gameRef.views.current.container;
+
+			//TODO Draw all of the entities
+
+			/**
+			 * Draw the Player
+			 */
+			let { x, y } = gameRef.realm.players.player.world;
+			[ x, y ] = gameRef.realm.players.player.world.model.pos(x, y);
+
+			//* Color the player
+			graphics.lineStyle(2, 0x000000, 0.25);
+			graphics.beginFill(0xFF0000, 1);
+			graphics.drawCircle(x * gameRef.config.tile.width, y * gameRef.config.tile.height, gameRef.realm.players.player.world.model.radius * gameRef.config.tile.width);
+			graphics.endFill();
+		},
+	});
+};
+export function loadViews(game) {
+	game.views = new Collection({
+		current: "gameplay",
+		items: {
+			gameplay: new View({
+				mount: game.renderer.stage,
+				camera: new Camera({
+					ref: game,
+					x: 0,
+					y: 0,
+					width: game.renderer.width,
+					height: game.renderer.height,
+				}),
+				layers: {
+					terrain: createLayerTerrain(game),
+					entity: createLayerEntity(game),
+				},
+			}),
+		},
+	});
+
+	return game.views;
+}
+
 /**
  ** This is the main data consolidator for the game.  It should contain:
  * 	- pre
@@ -85,6 +161,7 @@ export const Hooks = {
 
 		return this;
 	},
+
 	/**
 	 * Perform the "main" initialization of the game.
 	 */
@@ -142,6 +219,7 @@ export const Hooks = {
 
 		return this;
 	},
+
 	/**
 	 * Perform any post-init tasks, such as rendering and UI.
 	 */
@@ -152,70 +230,10 @@ export const Hooks = {
 		this.renderer = new Pixi();
 		this.renderer.observers.add(this);
 
-
-		//TODO: Move the Camera/View initialization to an external function/file
-		this.camera = new Camera({
-			ref: this,
-			x: 0,
-			y: 0,
-			width: this.renderer.width,
-			height: this.renderer.height,
-		});
-
-		this.views = {
-			current: new View({
-				mount: this.renderer.stage,
-				layers: {
-					terrain: new Layer({
-						render: (camera, ...args) => {
-							const game = camera.ref;
-							const graphics = game.views.current.container;
-
-							/**
-							 * Draw the Terrain
-							 */
-							for(let [ id, node ] of game.realm.worlds.overworld.nodes) {
-								const { x, y } = node.world;
-
-								let color = 0xFFFFFF;
-								if(node.terrain.type === "grass") {
-									color = 0x447f52;
-								} else if(node.terrain.type === "water") {
-									color = 0x436d7c;
-								}
-
-								//* Color the grid lines
-								graphics.lineStyle(2, 0x000000, 0.1);
-								//* Color the terrain grid
-								graphics.beginFill(color);
-								graphics.drawRect(x * game.config.tile.width, y * game.config.tile.height, game.config.tile.width, game.config.tile.height);
-								graphics.endFill();
-							}
-						},
-					}),
-					entity: new Layer({
-						render: (camera, ...args) => {
-							const game = camera.ref;
-							const graphics = game.views.current.container;
-
-							//TODO Draw all of the entities
-
-							/**
-							 * Draw the Player
-							 */
-							let { x, y } = game.realm.players.player.world;
-							[ x, y ] = game.realm.players.player.world.model.pos(x, y);
-
-							//* Color the player
-							graphics.lineStyle(2, 0x000000, 0.25);
-							graphics.beginFill(0xFF0000, 1);
-							graphics.drawCircle(x * game.config.tile.width, y * game.config.tile.height, game.realm.players.player.world.model.radius * game.config.tile.width);
-							graphics.endFill();
-						},
-					}),
-				},
-			}),
-		};
+		/**
+		 * Initialize the Views, Layers, and Cameras
+		 */
+		loadViews(this);
 
 		/**
 		 * Add any additional key / mouse args below.
@@ -235,12 +253,13 @@ export const Hooks = {
 		return this;
 	},
 
+
 	/**
 	 * This is the main render loop for the game, called each time the renderer
 	 * invokes its requestAnimationFrame facilitator.
 	 */
 	render({ dt } = {}) {
-		this.views.current.render(this.camera, { dt });
+		this.views.current.render({ dt });
 	},
 
 	/**

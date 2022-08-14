@@ -69,7 +69,6 @@ export class World extends System {
 				}
 
 				let div = Helper.floor(y, scalar) % 1;
-				console.log(div)
 
 				if(Helper.near(div, nudge, margin, scalar) || Helper.near(div, -nudge, margin, scalar)) {
 					y = ~~y + nudge;

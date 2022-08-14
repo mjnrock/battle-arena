@@ -1,8 +1,10 @@
 import Layer from "./Layer";
 
 export class View extends Layer {
-	constructor ({ layers = [], container, render, view, mount, ...opts } = {}) {
+	constructor ({ camera, layers = [], container, render, view, mount, ...opts } = {}) {
 		super({ container, render, ...opts });
+
+		this.camera = camera;
 
 		this.layers = new Map();
 		this.view = [];
@@ -80,14 +82,14 @@ export class View extends Layer {
 	 * unless you need more complex rendering logic than an
 	 * ordered layer list.
 	 */
-	render(camera, { dt, ...rest } = {}) {
+	render({ dt, ...rest } = {}) {
 		this.container.clear();
 
 		this.view.forEach(key => {
 			let layer = this.layers.get(key);
 
 			if(layer) {
-				layer.render(camera, { dt, ...rest });
+				layer.render(this.camera, { dt, ...rest });
 			}
 		});
 	}
