@@ -2,6 +2,8 @@ import { GroupRunner } from "../../util/relay/GroupRunner";
 import { Identity } from "../Identity";
 import { Events } from "../../util/relay/Events";
 
+//TODO: Maintain the current mouse position
+
 export class MouseController extends Identity {
 	static EventTypes = {
 		MOUSE_MASK: "mousemask",
