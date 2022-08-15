@@ -8,6 +8,8 @@ import Identity from "../Identity";
  * cascade to each of its child Layers.  The Layer expects to receive a Vista object, which
  * will -- at a minimum -- contain any information necessary to dictate what qualifies to be
  * rendered.  While it expects a proper Vista object, it is not required to receive one.
+ * 
+ * NOTE: All position information is pixel-based.
  */
 export class Layer extends Identity {
 	constructor ({ container, render, ...opts } = {}) {

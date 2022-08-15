@@ -76,6 +76,8 @@ export class Game extends Identity {
 
 		/**
 		 * The main loop for the game.
+		 * The rendering loop is handled internally by Pixi (add an
+		 * observer to the renderer if you want to hook that invocation).
 		 */
 		this.loop = new Ticker({
 			fps: this.config.fps,

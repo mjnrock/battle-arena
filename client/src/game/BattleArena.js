@@ -16,6 +16,7 @@ import { Vista } from "./lib/pixi/Vista";
 import { View } from "./lib/pixi/View";
 import { Layer } from "./lib/pixi/Layer";
 import { Collection } from "./util/Collection";
+import { ViewPort } from "./lib/pixi/ViewPort";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 //? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
@@ -47,8 +48,7 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 	//? Intercept events from the input controllers by listening for events
 	game.input.key.events.on(KeyController.EventTypes.KEY_PRESS, (e, self) => {
 		if(e.code === "KeyC") {
-			console.log(game.realm.players.player.world);
-			console.log(game.realm.players.player.world.model);
+			console.table(game.realm.players.player.world);
 		}
 	});
 	// game.input.mouse.events.on(MouseController.EventTypes.MOUSE_MOVE, (e, self) => console.log(e));
@@ -60,29 +60,33 @@ export function createLayerTerrain(game) {
 	return new Layer({
 		render: (vista, ...args) => {
 			const gameRef = vista.ref;
-			const graphics = gameRef.views.current.container;
+			// const graphics = gameRef.views.current.container;
+			const graphics = gameRef.viewport.views.current.container;
 
 			/**
 			 * Draw the Terrain
 			 */
 			for(let [ id, node ] of gameRef.realm.worlds.overworld.nodes) {
-				const { x, y } = node.world;
+				const { x: tx, y: ty } = node.world;
 
-				let color = 0xFFFFFF;
-				if(node.terrain.type === "grass") {
-					color = 0x447f52;
-				} else if(node.terrain.type === "water") {
-					color = 0x436d7c;
+				/**
+				 * Use << Vista.test >> to determine if the node is within the viewport
+				 */
+				if(vista.test(tx, ty, gameRef.config.tile.width, gameRef.config.tile.height)) {
+					let color = 0xFFFFFF;
+					if(node.terrain.type === "grass") {
+						color = 0x447f52;
+					} else if(node.terrain.type === "water") {
+						color = 0x436d7c;
+					}
+
+					//* Color the grid lines
+					graphics.lineStyle(2, 0x000000, 0.1);
+					//* Color the terrain grid
+					graphics.beginFill(color);
+					graphics.drawRect(tx * gameRef.config.tile.width , ty * gameRef.config.tile.height, gameRef.config.tile.width, gameRef.config.tile.height);
+					graphics.endFill();
 				}
-
-				//* Color the grid lines
-				graphics.lineStyle(2, 0x000000, 0.1);
-				//* Color the terrain grid
-				graphics.beginFill(color);
-				// graphics.drawRect(x * gameRef.config.tile.width , y * gameRef.config.tile.height, gameRef.config.tile.width, gameRef.config.tile.height);
-				//TODO: Create a Game-wide offset sync to: center rendering on screen, normalize mouse events to that offset, etc. (cf. the 250)
-				graphics.drawRect(x * gameRef.config.tile.width + 250, y * gameRef.config.tile.height + 250, gameRef.config.tile.width, gameRef.config.tile.height);
-				graphics.endFill();
 			}
 		},
 	});
@@ -91,7 +95,8 @@ export function createLayerEntity(game) {
 	return new Layer({
 		render: (vista, ...args) => {
 			const gameRef = vista.ref;
-			const graphics = gameRef.views.current.container;
+			// const graphics = gameRef.views.current.container;
+			const graphics = gameRef.viewport.views.current.container;
 
 			//TODO Draw all of the entities
 
@@ -109,18 +114,18 @@ export function createLayerEntity(game) {
 		},
 	});
 };
-export function loadViews(game) {
-	//TODO: Add the ViewPort and refactored View/Layer/Vista functionality
-	
-	game.views = new Collection({
+export function createViews(game) {
+	return new Collection({
 		current: "gameplay",
 		items: {
 			gameplay: new View({
 				mount: game.renderer.stage,
 				vista: new Vista({
 					ref: game,
-					x: game.renderer.width / 4,
-					y: game.renderer.height / 4,
+					// x: game.renderer.width / 4,
+					// y: game.renderer.height / 4,
+					x: 0,
+					y: 0,
 					width: game.renderer.width,
 					height: game.renderer.height,
 				}),
@@ -131,14 +136,6 @@ export function loadViews(game) {
 			}),
 		},
 	});
-
-	//? Show/hide the PIXI.Container
-	// if(Math.random() > 0.5) {
-	// 	//NOTE: Look into .pivot/.anchor properties in PIXI
-	// 	game.views.current.container.visible = false;
-	// }
-
-	return game.views;
 }
 
 /**
@@ -210,6 +207,7 @@ export const Hooks = {
 			},
 			init: {
 				world: {
+					world: overworld,
 					model: new Circle({
 						x: 0.5,
 						y: 0.5,
@@ -241,9 +239,21 @@ export const Hooks = {
 		this.renderer.observers.add(this);
 
 		/**
-		 * Initialize the Views, Layers, and Cameras
+		 * Initialize the ViewPort, Views, and Layers
 		 */
-		loadViews(this);
+		console.log(`%c [BATTLE ARENA]: %cWhile the ViewPort appears offset, it is not implemented robustly -- complete the hierarchical associations both at the ECS side and the PIXI side.`, 'background: #ff66a5; padding:5px; color: #fff', 'background: #a363d5; padding:5px; color: #fff');
+		//! IMPORTANT: PIXI object hierarchy needs to be built out FIRST (i.e. Entity hierarchies mapped to their respective PIXI containers and any local .render() functions)
+		//TODO: This is getting there, but RENDERING HIERARCHY needs to be built out properly before continuing this path
+		let nudge = 200;
+		this.viewport = new ViewPort({
+			mount: this.renderer.stage,
+			views: createViews(this),
+
+			x: 0 + nudge,
+			y: 0 + nudge,
+			width: this.renderer.width - nudge,
+			height: this.renderer.height - nudge,
+		});
 
 		/**
 		 * Add any additional key / mouse args below.
@@ -269,7 +279,8 @@ export const Hooks = {
 	 * invokes its requestAnimationFrame facilitator.
 	 */
 	render({ dt } = {}) {
-		this.views.current.render({ dt });
+		this.viewport.render({ dt });
+		// this.views.current.render({ dt });c
 	},
 
 	/**

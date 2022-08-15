@@ -6,6 +6,8 @@ import Layer from "./Layer";
  * that will be performed by its child Layers.
  * 
  * In its current form, there should be only one View per ViewPort.
+ * 
+ * NOTE: All position information is pixel-based.
  */
 export class View extends Layer {
 	constructor ({ vista, layers = [], container, render, view, mount, ...opts } = {}) {
@@ -89,14 +91,17 @@ export class View extends Layer {
 	 * unless you need more complex rendering logic than an
 	 * ordered layer list.
 	 */
-	render({ dt, ...rest } = {}) {
+	render(vista, { dt, ...rest } = {}) {
 		this.container.clear();
 
 		this.view.forEach(key => {
 			let layer = this.layers.get(key);
 
 			if(layer) {
-				layer.render(this.vista, { dt, ...rest });
+				// layer.render(this.vista, { dt, ...rest });
+
+				vista.ref = this.vista.ref;
+				layer.render(vista, { dt, ...rest });
 			}
 		});
 	}

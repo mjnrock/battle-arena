@@ -12,6 +12,8 @@ export const PixiJS = PIXI;
  * 
  * The entire chain of rendering should be: * 
  **		(1) Pixi -> (1) ViewPort -> (1*) View -> { (1) Vista, (1+) Layers }
+ * 
+ * NOTE: All position information is pixel-based.
  */
 export class Pixi {
 	constructor ({ width, height, observers = [] } = {}) {
@@ -151,9 +153,15 @@ export class Pixi {
 	 */
 	get size() {
 		return [
-			this.config.width,
-			this.config.height,
+			this.canvas.width,
+			this.canvas.height,
 		];
+	}
+	get width() {
+		return this.canvas.width;
+	}
+	get height() {
+		return this.canvas.height;
 	}
 	/**
 	 * Get the current bounds of the canvas.
