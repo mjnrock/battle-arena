@@ -72,6 +72,7 @@ export function createLayerTerrain(game) {
 				/**
 				 * Use << Vista.test >> to determine if the node is within the viewport
 				 */
+				//TODO: This demonstrates the use of Vista.test, but the results should use the .visible/.renderable properties of the underlying PIXI objects
 				if(vista.test(tx, ty, gameRef.config.tile.width, gameRef.config.tile.height)) {
 					let color = 0xFFFFFF;
 					if(node.terrain.type === "grass") {
