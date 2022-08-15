@@ -13,7 +13,7 @@ import { Vista } from "./Vista";
  * NOTE: All position information is pixel-based.
  */
 export class ViewPort extends Identity {
-	constructor ({ x, y, width, height, views, container, mount, ...opts } = {}) {
+	constructor ({ x, y, width, height, views, container, mount, ref, ...opts } = {}) {
 		super({ ...opts });
 
 		/**
@@ -25,8 +25,7 @@ export class ViewPort extends Identity {
 		 * The clipping object that will be used to clip the PIXI rendering area
 		 */
 		this.vista = new Vista({
-			ref: this,
-
+			ref,
 			x,
 			y,
 			width,

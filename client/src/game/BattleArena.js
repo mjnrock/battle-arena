@@ -85,7 +85,7 @@ export function createLayerTerrain(game) {
 					graphics.lineStyle(2, 0x000000, 0.1);
 					//* Color the terrain grid
 					graphics.beginFill(color);
-					graphics.drawRect(tx * gameRef.config.tile.width , ty * gameRef.config.tile.height, gameRef.config.tile.width, gameRef.config.tile.height);
+					graphics.drawRect(tx * gameRef.config.tile.width, ty * gameRef.config.tile.height, gameRef.config.tile.width, gameRef.config.tile.height);
 					graphics.endFill();
 				}
 			}
@@ -104,36 +104,56 @@ export function createLayerEntity(game) {
 			/**
 			 * Draw the Player
 			 */
-			let { x, y } = gameRef.realm.players.player.world;
-			[ x, y ] = gameRef.realm.players.player.world.model.pos(x, y);
+			//TODO: This demonstrates the use of Vista.test, but the results should use the .visible/.renderable properties of the underlying PIXI objects
+			let { x: tx, y: ty } = gameRef.realm.players.player.world;
+			[ tx, ty ] = gameRef.realm.players.player.world.model.pos(tx, ty);
 
-			//* Color the player
-			graphics.lineStyle(2, 0x000000, 0.25);
-			graphics.beginFill(0xFF0000, 1);
-			graphics.drawCircle(x * gameRef.config.tile.width, y * gameRef.config.tile.height, gameRef.realm.players.player.world.model.radius * gameRef.config.tile.width);
-			graphics.endFill();
+			if(vista.test(tx, ty, gameRef.config.tile.width, gameRef.config.tile.height)) {
+				//* Color the player
+				graphics.lineStyle(2, 0x000000, 0.25);
+				graphics.beginFill(0xFF0000, 1);
+				graphics.drawCircle(tx * gameRef.config.tile.width, ty * gameRef.config.tile.height, gameRef.realm.players.player.world.model.radius * gameRef.config.tile.width);
+				graphics.endFill();
+			}
 		},
 	});
 };
 export function createViews(game) {
 	return new Collection({
+		/**
+		 * This should map to an existing key in items below
+		 */
 		current: "gameplay",
+
+		/**
+		 * All of the potential Views that could be selected to be used
+		 */
 		items: {
 			gameplay: new View({
+				/**
+				 * The parent PIXI object
+				 */
 				mount: game.renderer.stage,
+
+				/**
+				 * The child Layers
+				 */
+				layers: {
+					terrain: createLayerTerrain(game),
+					entity: createLayerEntity(game),
+				},
+
+				/**
+				 * The Vista constraint object
+				 */
 				vista: new Vista({
 					ref: game,
-					// x: game.renderer.width / 4,
-					// y: game.renderer.height / 4,
+					
 					x: 0,
 					y: 0,
 					width: game.renderer.width,
 					height: game.renderer.height,
 				}),
-				layers: {
-					terrain: createLayerTerrain(game),
-					entity: createLayerEntity(game),
-				},
 			}),
 		},
 	});
@@ -243,10 +263,13 @@ export const Hooks = {
 		 * Initialize the ViewPort, Views, and Layers
 		 */
 		console.log(`%c [BATTLE ARENA]: %cWhile the ViewPort appears offset, it is not implemented robustly -- complete the hierarchical associations both at the ECS side and the PIXI side.`, 'background: #ff66a5; padding:5px; color: #fff', 'background: #a363d5; padding:5px; color: #fff');
+		//? View.vista and ViewPort.vista are not implemented robustly -- when offset, View is using ViewPort's vista, which is a STUB
+		//? ALL clipping should be done with a ViewPort that is centered to the screen, regardless of size
 		//! IMPORTANT: PIXI object hierarchy needs to be built out FIRST (i.e. Entity hierarchies mapped to their respective PIXI containers and any local .render() functions)
 		//TODO: This is getting there, but RENDERING HIERARCHY needs to be built out properly before continuing this path
 		let nudge = 200;
 		this.viewport = new ViewPort({
+			ref: this,
 			mount: this.renderer.stage,
 			views: createViews(this),
 

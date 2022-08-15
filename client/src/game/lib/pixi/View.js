@@ -13,7 +13,8 @@ export class View extends Layer {
 	constructor ({ vista, layers = [], container, render, view, mount, ...opts } = {}) {
 		super({ container, render, ...opts });
 
-		this.vista = vista;
+		//STUB: Currently, commenting this out will use the ViewPort's vista -- this is a temporary fix and will show clipping as a result
+		// this.vista = vista;
 
 		this.layers = new Map();
 		this.view = [];
@@ -100,8 +101,7 @@ export class View extends Layer {
 			if(layer) {
 				// layer.render(this.vista, { dt, ...rest });
 
-				vista.ref = this.vista.ref;
-				layer.render(vista, { dt, ...rest });
+				layer.render(this.vista || vista, { dt, ...rest });
 			}
 		});
 	}
