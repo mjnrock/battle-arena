@@ -12,7 +12,7 @@ import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
 import { Game } from "./Game";
-import { Camera } from "./lib/pixi/Camera";
+import { Vista } from "./lib/pixi/Vista";
 import { View } from "./lib/pixi/View";
 import { Layer } from "./lib/pixi/Layer";
 import { Collection } from "./util/Collection";
@@ -58,8 +58,8 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 
 export function createLayerTerrain(game) {
 	return new Layer({
-		render: (camera, ...args) => {
-			const gameRef = camera.ref;
+		render: (vista, ...args) => {
+			const gameRef = vista.ref;
 			const graphics = gameRef.views.current.container;
 
 			/**
@@ -89,8 +89,8 @@ export function createLayerTerrain(game) {
 };
 export function createLayerEntity(game) {
 	return new Layer({
-		render: (camera, ...args) => {
-			const gameRef = camera.ref;
+		render: (vista, ...args) => {
+			const gameRef = vista.ref;
 			const graphics = gameRef.views.current.container;
 
 			//TODO Draw all of the entities
@@ -110,12 +110,14 @@ export function createLayerEntity(game) {
 	});
 };
 export function loadViews(game) {
+	//TODO: Add the ViewPort and refactored View/Layer/Vista functionality
+	
 	game.views = new Collection({
 		current: "gameplay",
 		items: {
 			gameplay: new View({
 				mount: game.renderer.stage,
-				camera: new Camera({
+				vista: new Vista({
 					ref: game,
 					x: game.renderer.width / 4,
 					y: game.renderer.height / 4,

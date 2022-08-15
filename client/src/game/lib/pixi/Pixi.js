@@ -9,6 +9,9 @@ export const PixiJS = PIXI;
  * loading assets, creating sprites, and rendering the scene.  The asset loader is also present,
  * and should be the single source of truth for loaded assets.  This class does NOT contain
  * a game loop, but instead relies on external invocation of the .render method.
+ * 
+ * The entire chain of rendering should be: * 
+ **		(1) Pixi -> (1) ViewPort -> (1*) View -> { (1) Vista, (1+) Layers }
  */
 export class Pixi {
 	constructor ({ width, height, observers = [] } = {}) {
@@ -21,12 +24,6 @@ export class Pixi {
 			 */
 			width: width || window.innerWidth,
 			height: height || window.innerHeight,
-
-			/**
-			 * This will contain the initialized MouseController.
-			 * TODO: Generalize this to input controllers and refactor accordingly.
-			 */
-			mouse: null,
 
 			/**
 			 * Cache the canvas' context information
@@ -114,13 +111,6 @@ export class Pixi {
 		self.stop();
 
 		/**
-		 * Bind the mouse controller to the canvas to take over mouse events.
-		 */
-		// self.config.mouse = new MouseController({
-		// 	element: self.canvas,
-		// });
-
-		/**
 		 * Add a resize listener to the window and resize the renderer.
 		 */
 		self.config.resizeListener = self.resizeToViewport.bind(self);
@@ -154,13 +144,6 @@ export class Pixi {
 	 */
 	deconstructor() {
 		Pixi.Destroy(this);
-	}
-
-	/**
-	 * A convenience getter for the MouseController
-	 */
-	get mouse() {
-		return this.config.mouse;
 	}
 
 	/**

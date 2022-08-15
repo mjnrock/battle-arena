@@ -107,7 +107,7 @@ export class Environment extends Identity {
 	}
 
 	/**
-	 * The middleware packing function whenever there is a dispatch.
+	 * The middleware packing function whenever there is a .dispatch.
 	 * This is intended to be overridden, but will suffice as is, even
 	 * if it is not.
 	 */

@@ -1,10 +1,17 @@
 import Layer from "./Layer";
 
+/**
+ * Within a ViewPort, the View is the actual data class that is mounted or unmounted
+ * from the ViewPort.  The View is responsible for actually invoking the rendering
+ * that will be performed by its child Layers.
+ * 
+ * In its current form, there should be only one View per ViewPort.
+ */
 export class View extends Layer {
-	constructor ({ camera, layers = [], container, render, view, mount, ...opts } = {}) {
+	constructor ({ vista, layers = [], container, render, view, mount, ...opts } = {}) {
 		super({ container, render, ...opts });
 
-		this.camera = camera;
+		this.vista = vista;
 
 		this.layers = new Map();
 		this.view = [];
@@ -89,7 +96,7 @@ export class View extends Layer {
 			let layer = this.layers.get(key);
 
 			if(layer) {
-				layer.render(this.camera, { dt, ...rest });
+				layer.render(this.vista, { dt, ...rest });
 			}
 		});
 	}
