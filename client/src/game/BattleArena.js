@@ -254,7 +254,7 @@ export const Hooks = {
 	 */
 	post() {
 		/**
-		 * Initialize the Pixi wrapper
+		 * Initialize the Pixi wrapper, add Game as a listener (will invoke .render)
 		 */
 		this.renderer = new Pixi();
 		this.renderer.observers.add(this);

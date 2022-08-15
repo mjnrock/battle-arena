@@ -10,6 +10,7 @@ export class World extends Entity {
 			height,
 		}),
 		nodes: Registry,
+		entities: Registry,
 	};
 
 	constructor ({ size = [ 10, 10 ], nodes = {}, entities = {}, each, ...rest } = {}) {

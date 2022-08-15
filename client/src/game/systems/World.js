@@ -8,22 +8,54 @@ export class World extends System {
 		super(opts);
 	}
 
-	join(entities = [], world) {
+	join(entities = [], { world, x, y } = {}) {
 		System.Each(entities, (entity) => {
-			//TODO: Add Entities to World
-			entity.world = this;
+			const next = {
+				world,
+				x,
+				y,
+			};
+
+			/**
+			 * Add the entity to the world
+			 */
+			world.entities.add(entity);
+
+			//TODO: Deal with the ANIMATION object associations/consequences of this (e.g. add/remove child of PIXI)
+			//? Maybe dispatch to the Animation system to add the entity to the world? (<< this.env.dispatch >> should exist on instantiation)
+
+			entity.world = {
+				...entity.world,
+				...next,
+			};
 		});
 
 		return entities;
 	}
-	leave(entities = [], world) {
+	leave(entities = [], { world }) {
 		System.Each(entities, (entity) => {
-			//TODO: Remove Entities from World
-			entity.world = null;
-			entity.x = null;
-			entity.y = null;
-			entity.vx = null;
-			entity.vy = null;
+			if(entity.world.world === world) {
+				const next = {
+					world: null,
+					x: null,
+					y: null,
+					vx: null,
+					vy: null,
+				};
+
+				/**
+				 * Remove the entity from the world
+				 */
+				world.entities.remove(entity.id);
+
+				//TODO: Deal with the ANIMATION object associations/consequences of this (e.g. add/remove child of PIXI)
+				//? Maybe dispatch to the Animation system to remove the entity to the world? (<< this.env.dispatch >> should exist on instantiation)
+
+				entity.world = {
+					...entity.world,
+					...next,
+				};
+			}
 		});
 
 		return entities;
