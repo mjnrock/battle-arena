@@ -12,6 +12,7 @@ import { Registry } from "../Registry";
  * is meant to resolve singularly (e.g. "this particular entity").
  */
 export class Environment extends Identity {
+
 	constructor ({ id, tags, middleware, state = {} } = {}) {
 		super({ id, tags });
 
@@ -44,17 +45,20 @@ export class Environment extends Identity {
 			component: new Registry(),
 		};
 
+
+		let sysKeyEnv = "env";
 		/**
-		 * Add a trivial classifier that attaches the environment to the system.
+		 * Add a trivial classifier that attaches the environment to the system
+		 * under the property [ sysKeyEnv ].
 		 */
 		this.system.registerClassifiers(
-			Registry.Middleware.AttachRef(this, "env"),
+			Registry.Middleware.AttachRef(this, sysKeyEnv),
 		);
-		/**
+		/**	
 		 * Add a trivial classifier that attaches the environment to the entity.
 		 */
 		this.entity.registerClassifiers(
-			Registry.Middleware.AttachRef(this, "env"),
+			Registry.Middleware.AttachRef(this, sysKeyEnv),
 		);
 
 		/**
