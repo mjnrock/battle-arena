@@ -262,7 +262,7 @@ export const Hooks = {
 		/**
 		 * Initialize the ViewPort, Views, and Layers
 		 */
-		//FIXME: Setup and use the Entity.animation property to determine which/if Sprite should be rendered
+		//FIXME: Setup and use the Entity.animation component to determine which/if Sprite should be rendered (load images first from file system)
 		console.log(`%c [BATTLE ARENA]: %cWhile the ViewPort appears offset, it is not implemented robustly -- complete the hierarchical associations both at the ECS side and the PIXI side.`, 'background: #ff66a5; padding:5px; color: #fff', 'background: #a363d5; padding:5px; color: #fff');
 		//? View.vista and ViewPort.vista are not implemented robustly -- when offset, View is using ViewPort's vista, which is a STUB
 		//? ALL clipping should be done with a ViewPort that is centered to the screen, regardless of size
