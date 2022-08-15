@@ -14,7 +14,7 @@ export class View extends Layer {
 		super({ container, render, ...opts });
 
 		//STUB: Currently, commenting this out will use the ViewPort's vista -- this is a temporary fix and will show clipping as a result
-		// this.vista = vista;
+		this.vista = vista;
 
 		this.layers = new Map();
 		this.view = [];
