@@ -15,6 +15,7 @@ export class MapSet {
 			},
 			set(target, key, value) {
 				target[ key ] = value;
+				
 				return true;
 			},
 		});
