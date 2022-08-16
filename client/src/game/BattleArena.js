@@ -281,6 +281,7 @@ export const Hooks = {
 		 * 
 		 * TODO: Ensure that children are position-offset viz. the parent PIXI object
 		 * TODO: Build out the render hierarchy for PIXI objects
+		 * TODO: Build a System that un/mounts all children from the Entity.animate component whenever a View is changed
 		 */
 		this.viewport = new ViewPort({
 			ref: this,
