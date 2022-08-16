@@ -46,19 +46,18 @@ export class Environment extends Identity {
 		};
 
 
-		let sysKeyEnv = "env";
 		/**
 		 * Add a trivial classifier that attaches the environment to the system
 		 * under the property [ sysKeyEnv ].
 		 */
 		this.system.registerClassifiers(
-			Registry.Middleware.AttachRef(this, sysKeyEnv),
+			Registry.Middleware.AttachRef(this, "env"),
 		);
 		/**	
 		 * Add a trivial classifier that attaches the environment to the entity.
 		 */
 		this.entity.registerClassifiers(
-			Registry.Middleware.AttachRef(this, sysKeyEnv),
+			Registry.Middleware.AttachRef(this, "env"),
 		);
 
 		/**

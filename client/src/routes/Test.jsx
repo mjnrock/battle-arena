@@ -1,32 +1,84 @@
-import { Node } from "./../game/util/node/Node";
-import { Network } from "./../game/util/node/Network";
+import { Reducible, $Reducible } from "../game/util/composable/Reducible";
+import { Eventable, $Eventable } from "../game/util/composable/Eventable";
+import { Subscribable, $Subscribable } from "../game/util/composable/Subscribable";
+import { Watchable, $Watchable } from "../game/util/composable/Watchable";
+import { Observable, $Observable } from "../game/util/composable/Observable";
+import { MapSet } from "./../game/util/MapSet";
 
-// const n01 = new Node({
-// 	type: Node.EnumType.NAMESPACE,
-// 	state: "leaf",
-// 	events: {
-// 		pulse: () => console.log("MOOOOSE"),
+// const ms = new MapSet({
+// 	test: () => 1,
+// 	bob: [
+// 		1, 2, 3,
+// 	],
+// 	cat: new Set([ 7, 5 ]),
+// });
+
+// console.log(ms)
+
+// for(let [ k, v ] of ms) {
+// 	console.log(k, v)
+// }
+
+// const r = new Reducible({
+// 	reducers: {
+// 		test: [
+// 			() => 1234,
+// 			(a) => a + 564,
+// 		]
+// 	},
+// 	effects: {
+// 		test: () => console.log("82934792834723"),
 // 	},
 // });
-// const n1 = new Node();
-// const n0 = new Node({
-// 	type: Node.EnumType.NAMESPACE,
-// 	state: "root",
+// // r.cats = "meow"
+// // const rc = $Reducible(r);
+
+// console.log(r)
+// // console.log(rc)
+
+// // r.reducers.add("test", () => 1234);
+
+// console.log(r.state)
+// r.dispatch("test");
+// console.log(r.state)
+
+// const e = new Eventable({
 // 	events: {
-// 		pulse: () => console.log("MEOWWW"),
+// 		test: [
+// 			() => console.log("test"),
+// 			() => console.log("test2"),
+// 			() => console.log("test3"),
+// 		],
+// 	}
+// });
+
+// console.log(e)
+
+// e.emit("test");
+
+// const w = new Watchable({
+// 	watchers: {
+// 		cat: (...args) => console.log("MEOWWW", ...args),
 // 	},
-// 	children: [
-// 		n01,
+// });
+// w.cat = 567;
+
+// console.log(w)
+
+// const o = new Observable({
+// 	observers: [
+// 		(...args) => console.log("MEOWWW", ...args),
 // 	],
 // });
+// o.dog = 567;
 
-// n01.events.on("pulse", (...args) => console.log("FIRED", args));
-// n0.run(123, 123, 123, 123);
-// console.log(n0);
+// let a = o.dog;
 
-// const network = new Network();
-// network.add("circuit", n0);
-// network.run("circuit", Date.now());
+// o.dog = 123;
+
+// console.log(o)
+
+// delete o.dog;
 
 export function Test() {
 	return (
