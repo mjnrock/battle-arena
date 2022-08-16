@@ -5,6 +5,24 @@ import { Identity } from "../../lib/Identity";
  */
 export const $Observable = (self) => new Proxy(Object.assign(self, {
 	/**
+	 * What the Observable will be watching
+	 */
+	observe: {
+		/**
+		 * The list of properties to watch (use an empty array to watch all)
+		 */
+		props: [],
+
+		/**
+		 * By default, don't emit "READ" signals
+		 */
+		READ: false,
+		INSERT: true,
+		UPDATE: true,
+		DELETE: true,
+	},
+
+	/**
 	 * The list of subscribers
 	 */
 	observers: new Set(),
@@ -23,7 +41,9 @@ export const $Observable = (self) => new Proxy(Object.assign(self, {
 	get(target, prop) {
 		const result = Reflect.get(target, prop);
 
-		target.signal("READ", prop, result);
+		if(target.observe.READ && (target.observe.props.includes(prop) || target.observe.props.length === 0)) {
+			target.signal("READ", prop, result);
+		}
 
 		return result;
 	},
@@ -32,7 +52,11 @@ export const $Observable = (self) => new Proxy(Object.assign(self, {
 		const result = Reflect.set(target, prop, value);
 
 		if(oldValue !== value) {
-			target.signal(oldValue === void 0 ? "INSERT" : "UPDATE", prop, value, oldValue);
+			let op = oldValue === void 0 ? "INSERT" : "UPDATE";
+
+			if(target.observe[ op ] && (target.observe.props.includes(prop) || target.observe.props.length === 0)) {
+				target.signal(op, prop, value, oldValue);
+			}
 		}
 
 		return result;
@@ -41,7 +65,9 @@ export const $Observable = (self) => new Proxy(Object.assign(self, {
 		const oldValue = target[ prop ];
 		const result = Reflect.deleteProperty(target, prop);
 
-		target.signal("DELETE", prop, void 0, oldValue);
+		if(target.observe.DELETE && (target.observe.props.includes(prop) || target.observe.props.length === 0)) {
+			target.signal("DELETE", prop, void 0, oldValue);
+		}
 
 		return result;
 	}

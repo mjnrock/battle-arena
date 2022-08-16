@@ -56,14 +56,14 @@ import { MapSet } from "./../game/util/MapSet";
 
 // e.emit("test");
 
-// const w = new Watchable({
-// 	watchers: {
-// 		cat: (...args) => console.log("MEOWWW", ...args),
-// 	},
-// });
-// w.cat = 567;
+const w = new Watchable({
+	watchers: {
+		cat: (...args) => console.log("MEOWWW", ...args),
+	},
+});
+w.cat = 567;
 
-// console.log(w)
+console.log(w)
 
 // const o = new Observable({
 // 	observers: [

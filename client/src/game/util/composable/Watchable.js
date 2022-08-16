@@ -6,6 +6,11 @@ import { MapSet } from "../MapSet";
  */
 export const $Watchable = (self) => new Proxy(Object.assign(self, {
 	/**
+	 * The list of props to watch (use an array to watch all)
+	 */
+	watch: [],
+
+	/**
 	 * The list of subscribers
 	 */
 	watchers: new MapSet(),
@@ -15,11 +20,13 @@ export const $Watchable = (self) => new Proxy(Object.assign(self, {
 		const result = Reflect.set(target, prop, value);
 
 		if(oldValue !== value) {
-			const watchers = target.watchers.get(prop);
+			if(target.watch.includes(prop) || target.watch.length === 0) {
+				const watchers = target.watchers.get(prop);
 
-			if(watchers) {
-				for(let watcher of watchers) {
-					watcher(prop, value, oldValue);
+				if(watchers) {
+					for(let watcher of watchers) {
+						watcher(prop, value, oldValue);
+					}
 				}
 			}
 		}
@@ -30,20 +37,22 @@ export const $Watchable = (self) => new Proxy(Object.assign(self, {
 		const oldValue = target[ prop ];
 		const result = Reflect.deleteProperty(target, prop);
 
-		const watchers = target.watchers.get(prop);
-		if(watchers) {
-			for(let watcher of watchers) {
-				watcher(prop, void 0, oldValue);
+		if(target.watch.includes(prop) || target.watch.length === 0) {
+			const watchers = target.watchers.get(prop);
+			if(watchers) {
+				for(let watcher of watchers) {
+					watcher(prop, void 0, oldValue);
+				}
 			}
 		}
 
 		return result;
-	}
+	},
 });
 
 /**
  * Like Observable, use the Watchable when you only want to subscribe to
- * "change" notifications of an object.  This will fire when a "set" or
+ * "change" notifications of an object.  This will only fire when a "set" or
  * "delete" operation occurs.
  */
 export class Watchable extends Identity {
