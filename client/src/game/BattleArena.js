@@ -146,6 +146,7 @@ export function createViews(game) {
 				/**
 				 * The Perspective constraint object
 				 */
+				//TODO: ULtimately, this should flag in/visible to the PIXI object from w/e scope it's in (ViewPort, Layer, etc.)
 				perspective: new Perspective({
 					ref: game,
 
@@ -274,7 +275,7 @@ export const Hooks = {
 		//FIXME: Setup and use the Entity.animation component to determine which/if Sprite should be rendered (load images first from file system)
 		console.log(`%c [BATTLE ARENA]: %cWhile the ViewPort appears offset, it is not implemented robustly -- complete the hierarchical associations both at the ECS side and the PIXI side.`, 'background: #ff66a5; padding:5px; color: #fff', 'background: #a363d5; padding:5px; color: #fff');
 		
-		let nudge = 250;
+		let nudge = 320;
 		/**
 		 * Setup the ViewPort and crop the perspective to (a portion of) the world
 		 * 
@@ -348,6 +349,9 @@ export const Hooks = {
 		if(this.input.mouse.hasLeft) {
 			let tx = ~~(this.input.mouse.state.pointer.x / this.config.tile.width),
 				ty = ~~(this.input.mouse.state.pointer.y / this.config.tile.height);
+
+			tx -= ~~(this.viewport.perspective.x / this.config.tile.width);
+			ty -= ~~(this.viewport.perspective.y / this.config.tile.height);
 
 			this.dispatch("world:move", this.realm.players.player, {
 				x: tx,

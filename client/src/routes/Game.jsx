@@ -27,15 +27,7 @@ export function GameRoute() {
 	}, []);
 
 	return (
-		<>
-			<div>IMPORTANT: Rendering offsets are currently a WIP, critically missing:</div>
-			<ul>
-				<li>PIXI parent-child position awareness, for localized offsets</li>
-				<li>Mouse events are not relatively oriented</li>
-			</ul>
-			
-			<PixiCanvas view={ game.renderer.canvas } />
-		</>
+		<PixiCanvas view={ game.renderer.canvas } />
 	);
 };
 

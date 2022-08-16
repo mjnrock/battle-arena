@@ -4,6 +4,8 @@ import Runner from "../../util/relay/Runner";
 
 export const PixiJS = PIXI;
 
+//TODO: Should probably make this relative to the DOM element's position, rather than the screen
+
 /**
  * This is the main render wrapper class.  All rendering should be done through this class,
  * loading assets, creating sprites, and rendering the scene.  The asset loader is also present,
@@ -56,6 +58,7 @@ export class Pixi {
 			height: this.config.height,
 			resolution: window.devicePixelRatio || 1,
 			autoDensity: true,
+			antialias: true,
 		});
 
 		/**
