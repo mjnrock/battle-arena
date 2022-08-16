@@ -43,6 +43,11 @@ export class Perspective extends Identiy {
 	 * Take a TILE POSITION and convert it to a PIXEL POSITION (@tw, @th) to test against the viewport constraints
 	 */
 	test(x, y) {
+		if(typeof x === "object") {
+			y = x.y;
+			x = x.x;
+		}
+		
 		let { x: vx, y: vy, width: vw, height: vh } = this.viewport(true);
 
 		return x >= vx
