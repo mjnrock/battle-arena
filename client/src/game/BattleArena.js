@@ -13,8 +13,9 @@ import { MouseController } from "./lib/input/MouseController";
 
 import { Game } from "./Game";
 import { Perspective } from "./lib/pixi/Perspective";
-import { View } from "./lib/pixi/View";
 import { Layer } from "./lib/pixi/Layer";
+import { View } from "./lib/pixi/View";
+import { ViewPort } from "./lib/pixi/ViewPort";
 import { Collection } from "./util/Collection";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
@@ -60,7 +61,7 @@ export function createLayerTerrain(game) {
 		render: (perspective, ...args) => {
 			const gameRef = perspective.ref;
 			// const graphics = gameRef.views.current.container;
-			const graphics = gameRef.viewport.current.container;
+			const graphics = gameRef.viewport.views.current.container;
 
 			/**
 			 * Draw the Terrain
@@ -97,7 +98,7 @@ export function createLayerEntity(game) {
 		render: (perspective, ...args) => {
 			const gameRef = perspective.ref;
 			// const graphics = gameRef.views.current.container;
-			const graphics = gameRef.viewport.current.container;
+			const graphics = gameRef.viewport.views.current.container;
 
 			//TODO Draw all of the entities
 
@@ -134,11 +135,6 @@ export function createViews(game) {
 		 */
 		items: {
 			gameplay: new View({
-				/**
-				 * The parent PIXI object
-				 */
-				mount: game.renderer.stage,
-
 				/**
 				 * The child Layers
 				 */
@@ -278,28 +274,23 @@ export const Hooks = {
 		//FIXME: Setup and use the Entity.animation component to determine which/if Sprite should be rendered (load images first from file system)
 		console.log(`%c [BATTLE ARENA]: %cWhile the ViewPort appears offset, it is not implemented robustly -- complete the hierarchical associations both at the ECS side and the PIXI side.`, 'background: #ff66a5; padding:5px; color: #fff', 'background: #a363d5; padding:5px; color: #fff');
 		
-		//! IMPORTANT: PIXI object hierarchy needs to be built out FIRST (i.e. Entity hierarchies mapped to their respective PIXI containers and any local .render() functions)
-		//TODO: This is getting there, but RENDERING HIERARCHY needs to be built out properly before continuing this path
-			//* createViews() mounts this.renderer.stage to the View -- modify this if you want to use a ViewPort intermediary
-		this.viewport = createViews(this);
+		let nudge = 250;
+		/**
+		 * Setup the ViewPort and crop the perspective to (a portion of) the world
+		 * 
+		 * TODO: Ensure that children are position-offset viz. the parent PIXI object
+		 * TODO: Build out the render hierarchy for PIXI objects
+		 */
+		this.viewport = new ViewPort({
+			ref: this,
+			mount: this.renderer.stage,
+			views: createViews(this),
 
-		
-		//FIXME: Utilize Pixi's local offsets for children
-		//TODO: Use a more robust solution than timeout
-		//* The Container has no children at this point in callstack, so width and height are 0 -- thus the timeout shim
-		setTimeout(() => {
-			// Example to set the view to the middle of the screen
-			this.viewport.current.container.x = this.renderer.width / 2 - this.viewport.current.container.width / 2;
-			this.viewport.current.container.y = this.renderer.height / 2 - this.viewport.current.container.height / 2;
-			// this.viewport.current.container.pivot.x = this.viewport.current.container.width / 2;
-			// this.viewport.current.container.pivot.y = this.viewport.current.container.height / 2;
-
-			//* Definitely need something that "resize" could invoke; also "resize" don't fire on page load
-			// window.addEventListener("resize", () => {			
-			// 	this.viewport.current.container.x = this.renderer.width / 2 - this.viewport.current.container.width / 2;
-			// 	this.viewport.current.container.y = this.renderer.height / 2 - this.viewport.current.container.height / 2;
-			// });
-		}, 100);
+			x: 0 + nudge,
+			y: 0 + nudge,
+			width: this.renderer.stage.width - nudge * 2,
+			height: this.renderer.stage.height - nudge * 2,
+		});
 
 		/**
 		 * Add any additional key / mouse args below.
@@ -325,7 +316,7 @@ export const Hooks = {
 	 * invokes its requestAnimationFrame facilitator.
 	 */
 	render({ dt } = {}) {
-		this.viewport.current.render({ dt });
+		this.viewport.views.current.render({ dt });
 		// this.views.current.render({ dt });c
 	},
 

@@ -33,6 +33,7 @@ export function GameRoute() {
 				<li>PIXI parent-child position awareness, for localized offsets</li>
 				<li>Mouse events are not relatively oriented</li>
 			</ul>
+			
 			<PixiCanvas view={ game.renderer.canvas } />
 		</>
 	);
