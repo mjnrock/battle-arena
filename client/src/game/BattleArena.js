@@ -12,11 +12,10 @@ import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
 import { Game } from "./Game";
-import { Vista } from "./lib/pixi/Vista";
+import { Perspective } from "./lib/pixi/Perspective";
 import { View } from "./lib/pixi/View";
 import { Layer } from "./lib/pixi/Layer";
 import { Collection } from "./util/Collection";
-import { ViewPort } from "./lib/pixi/ViewPort";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 //? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
@@ -58,22 +57,23 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 
 export function createLayerTerrain(game) {
 	return new Layer({
-		render: (vista, ...args) => {
-			const gameRef = vista.ref;
+		render: (perspective, ...args) => {
+			const gameRef = perspective.ref;
 			// const graphics = gameRef.views.current.container;
-			const graphics = gameRef.viewport.views.current.container;
+			const graphics = gameRef.viewport.current.container;
 
 			/**
 			 * Draw the Terrain
 			 */
 			for(let [ id, node ] of gameRef.realm.worlds.overworld.nodes) {
-				const { x: tx, y: ty } = node.world;
+				let { x: tx, y: ty } = node.world;
+				[ tx, ty ] = [ tx * gameRef.config.tile.width, ty * gameRef.config.tile.height ];
 
 				/**
-				 * Use << Vista.test >> to determine if the node is within the viewport
+				 * Use << Perspective.test >> to determine if the node is within the viewport
 				 */
-				//TODO: This demonstrates the use of Vista.test, but the results should use the .visible/.renderable properties of the underlying PIXI objects
-				if(vista.test(tx, ty, gameRef.config.tile.width, gameRef.config.tile.height)) {
+				//TODO: This demonstrates the use of Perspective.test, but the results should use the .visible/.renderable properties of the underlying PIXI objects
+				if(perspective.test(tx, ty)) {
 					let color = 0xFFFFFF;
 					if(node.terrain.type === "grass") {
 						color = 0x447f52;
@@ -85,7 +85,7 @@ export function createLayerTerrain(game) {
 					graphics.lineStyle(2, 0x000000, 0.1);
 					//* Color the terrain grid
 					graphics.beginFill(color);
-					graphics.drawRect(tx * gameRef.config.tile.width, ty * gameRef.config.tile.height, gameRef.config.tile.width, gameRef.config.tile.height);
+					graphics.drawRect(tx, ty, gameRef.config.tile.width, gameRef.config.tile.height);
 					graphics.endFill();
 				}
 			}
@@ -94,32 +94,36 @@ export function createLayerTerrain(game) {
 };
 export function createLayerEntity(game) {
 	return new Layer({
-		render: (vista, ...args) => {
-			const gameRef = vista.ref;
+		render: (perspective, ...args) => {
+			const gameRef = perspective.ref;
 			// const graphics = gameRef.views.current.container;
-			const graphics = gameRef.viewport.views.current.container;
+			const graphics = gameRef.viewport.current.container;
 
 			//TODO Draw all of the entities
 
 			/**
 			 * Draw the Player
 			 */
-			//TODO: This demonstrates the use of Vista.test, but the results should use the .visible/.renderable properties of the underlying PIXI objects
+			//TODO: This demonstrates the use of Perspective.test, but the results should use the .visible/.renderable properties of the underlying PIXI objects
 			let { x: tx, y: ty } = gameRef.realm.players.player.world;
 			[ tx, ty ] = gameRef.realm.players.player.world.model.pos(tx, ty);
+			[ tx, ty ] = [ tx * gameRef.config.tile.width, ty * gameRef.config.tile.height ];
 
-			if(vista.test(tx, ty, gameRef.config.tile.width, gameRef.config.tile.height)) {
+			if(perspective.test(tx, ty)) {
 				//* Color the player
 				graphics.lineStyle(2, 0x000000, 0.25);
 				graphics.beginFill(0xFF0000, 1);
-				graphics.drawCircle(tx * gameRef.config.tile.width, ty * gameRef.config.tile.height, gameRef.realm.players.player.world.model.radius * gameRef.config.tile.width);
+				graphics.drawCircle(tx, ty, gameRef.realm.players.player.world.model.radius * gameRef.config.tile.width);
 				graphics.endFill();
 			}
 		},
 	});
 };
 export function createViews(game) {
-	return new Collection({
+	/**
+	 * Create the View collection
+	 */
+	const collection = new Collection({
 		/**
 		 * This should map to an existing key in items below
 		 */
@@ -144,19 +148,28 @@ export function createViews(game) {
 				},
 
 				/**
-				 * The Vista constraint object
+				 * The Perspective constraint object
 				 */
-				vista: new Vista({
+				perspective: new Perspective({
 					ref: game,
-					
-					x: 0,
-					y: 0,
-					width: game.renderer.width,
-					height: game.renderer.height,
+
+					x: game.config.tile.width * 0,
+					y: game.config.tile.height * 0,
+					width: game.config.tile.width * 25,
+					height: game.config.tile.height * 15,
 				}),
 			}),
 		},
 	});
+
+	/**
+	 * Make all non-current Views invisible
+	 */
+	for(let [ key, item ] of collection) {
+		item.container.visible = key === collection._current;
+	}
+
+	return collection;
 }
 
 /**
@@ -264,21 +277,29 @@ export const Hooks = {
 		 */
 		//FIXME: Setup and use the Entity.animation component to determine which/if Sprite should be rendered (load images first from file system)
 		console.log(`%c [BATTLE ARENA]: %cWhile the ViewPort appears offset, it is not implemented robustly -- complete the hierarchical associations both at the ECS side and the PIXI side.`, 'background: #ff66a5; padding:5px; color: #fff', 'background: #a363d5; padding:5px; color: #fff');
-		//? View.vista and ViewPort.vista are not implemented robustly -- when offset, View is using ViewPort's vista, which is a STUB
-		//? ALL clipping should be done with a ViewPort that is centered to the screen, regardless of size
+		
 		//! IMPORTANT: PIXI object hierarchy needs to be built out FIRST (i.e. Entity hierarchies mapped to their respective PIXI containers and any local .render() functions)
 		//TODO: This is getting there, but RENDERING HIERARCHY needs to be built out properly before continuing this path
-		let nudge = 200;
-		this.viewport = new ViewPort({
-			ref: this,
-			mount: this.renderer.stage,
-			views: createViews(this),
+			//* createViews() mounts this.renderer.stage to the View -- modify this if you want to use a ViewPort intermediary
+		this.viewport = createViews(this);
 
-			x: 0 + nudge,
-			y: 0 + nudge,
-			width: this.renderer.width - nudge,
-			height: this.renderer.height - nudge,
-		});
+		
+		//FIXME: Utilize Pixi's local offsets for children
+		//TODO: Use a more robust solution than timeout
+		//* The Container has no children at this point in callstack, so width and height are 0 -- thus the timeout shim
+		setTimeout(() => {
+			// Example to set the view to the middle of the screen
+			this.viewport.current.container.x = this.renderer.width / 2 - this.viewport.current.container.width / 2;
+			this.viewport.current.container.y = this.renderer.height / 2 - this.viewport.current.container.height / 2;
+			// this.viewport.current.container.pivot.x = this.viewport.current.container.width / 2;
+			// this.viewport.current.container.pivot.y = this.viewport.current.container.height / 2;
+
+			//* Definitely need something that "resize" could invoke; also "resize" don't fire on page load
+			// window.addEventListener("resize", () => {			
+			// 	this.viewport.current.container.x = this.renderer.width / 2 - this.viewport.current.container.width / 2;
+			// 	this.viewport.current.container.y = this.renderer.height / 2 - this.viewport.current.container.height / 2;
+			// });
+		}, 100);
 
 		/**
 		 * Add any additional key / mouse args below.
@@ -304,7 +325,7 @@ export const Hooks = {
 	 * invokes its requestAnimationFrame facilitator.
 	 */
 	render({ dt } = {}) {
-		this.viewport.render({ dt });
+		this.viewport.current.render({ dt });
 		// this.views.current.render({ dt });c
 	},
 

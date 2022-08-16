@@ -1,20 +1,17 @@
 import Layer from "./Layer";
 
 /**
- * Within a ViewPort, the View is the actual data class that is mounted or unmounted
- * from the ViewPort.  The View is responsible for actually invoking the rendering
+ * The View is responsible for actually invoking the rendering
  * that will be performed by its child Layers.
- * 
- * In its current form, there should be only one View per ViewPort.
  * 
  * NOTE: All position information is pixel-based.
  */
 export class View extends Layer {
-	constructor ({ vista, layers = [], container, render, view, mount, ...opts } = {}) {
+	constructor ({ perspective, layers = [], container, render, view, mount, ...opts } = {}) {
 		super({ container, render, ...opts });
 
-		//STUB: Currently, commenting this out will use the ViewPort's vista -- this is a temporary fix and will show clipping as a result
-		this.vista = vista;
+		//STUB: Currently, commenting this out will use the ViewPort's perspective -- this is a temporary fix and will show clipping as a result
+		this.perspective = perspective;
 
 		this.layers = new Map();
 		this.view = [];
@@ -92,16 +89,14 @@ export class View extends Layer {
 	 * unless you need more complex rendering logic than an
 	 * ordered layer list.
 	 */
-	render(vista, { dt, ...rest } = {}) {
+	render({ dt, ...rest } = {}) {
 		this.container.clear();
 
 		this.view.forEach(key => {
 			let layer = this.layers.get(key);
 
 			if(layer) {
-				// layer.render(this.vista, { dt, ...rest });
-
-				layer.render(this.vista || vista, { dt, ...rest });
+				layer.render(this.perspective, { dt, ...rest });
 			}
 		});
 	}

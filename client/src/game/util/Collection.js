@@ -72,8 +72,8 @@ export class Collection {
 		Array.from(this.items.entries()).forEach(([ key, value ]) => fn(key, value, ...args));
 	}
 
-	get [ Symbol.iterator ]() {
-		return this.items[ Symbol.iterator ];
+	[ Symbol.iterator ]() {
+		return this.items.entries();
 	}
 
 	get size() {

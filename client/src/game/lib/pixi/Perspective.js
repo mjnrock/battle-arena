@@ -1,18 +1,18 @@
-import Identity from "../Identity";
+import Identiy from "../Identity";
 
 /**
- * The Vista is a "View Constraint" that expects to look at some direct state
+ * The Perspective is a "View Constraint" that expects to look at some direct state
  * object (e.g. Game, World) and create a boundary that a View can use to render a
  * more specific subset of the state (e.g. the immediate area around the player).
  * 
  * NOTE: All position information is pixel-based.
  */
-export class Vista extends Identity {
+export class Perspective extends Identiy {
 	constructor ({ ref, x, y, width, height, scale = 1.0, subject, ...opts } = {}) {
 		super({ ...opts });
 
 		/**
-		 * This would typically be the World or Game, depending on the context
+		 * This would ypically be the World or Game, depending on the context
 		 */
 		this.ref = ref;
 
@@ -42,14 +42,14 @@ export class Vista extends Identity {
 	/**
 	 * Take a TILE POSITION and convert it to a PIXEL POSITION (@tw, @th) to test against the viewport constraints
 	 */
-	test(x, y, tw = 1, th = 1) {
+	test(x, y) {
 		let { x: vx, y: vy, width: vw, height: vh } = this.viewport(true);
 
-		x *= tw;
-		y *= th;
-
-		return (x >= vx && x <= vx + vw && y >= vy && y <= vy + vh);
+		return x >= vx
+			&& x < vx + vw
+			&& y >= vy
+			&& y < vy + vh;
 	}
 };
 
-export default Vista;
+export default Perspective;

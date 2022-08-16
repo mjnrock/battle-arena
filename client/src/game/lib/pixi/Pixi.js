@@ -11,7 +11,7 @@ export const PixiJS = PIXI;
  * a game loop, but instead relies on external invocation of the .render method.
  * 
  * The entire chain of rendering should be: * 
- **		(1) Pixi -> (1) ViewPort -> (1*) View -> { (1) Vista, (1+) Layers }
+ **		(1) Pixi -> (1*) View -> { (1) Perspective, (1+) Layers }
  * 
  * NOTE: All position information is pixel-based.
  */
