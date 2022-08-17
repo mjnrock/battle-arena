@@ -59,7 +59,15 @@ export class ViewPort extends Identity {
 		this.container.addChild(this.views.current.container);
 	}
 
-	getLayer(key, getContainer = false) {
+	/**
+	 * By default, get the requested layer from the current view.
+	 * If @view is a string, get the layer from that view.
+	 */
+	getLayer(key, getContainer = false, view) {
+		if(typeof view === "string") {
+			return this.views.get(view).getLayer(key, getContainer);
+		}
+
 		return this.views.current.getLayer(key, getContainer);
 	}
 

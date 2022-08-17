@@ -5,6 +5,7 @@ import { Node } from "./entities/realm/Node";
 import { World } from "./entities/realm/World";
 import { Realm } from "./entities/realm/Realm";
 
+import { Base64 } from "./util/Base64";
 import { Circle } from "./util/shape/Circle";
 
 import { World as SysWorld } from "./systems/World";
@@ -18,6 +19,7 @@ import { Layer } from "./lib/pixi/Layer";
 import { View } from "./lib/pixi/View";
 import { ViewPort } from "./lib/pixi/ViewPort";
 import { Collection } from "./util/Collection";
+import { Registry } from "./lib/Registry";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 //? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
@@ -30,6 +32,17 @@ import { Collection } from "./util/Collection";
  * Where Game dictates the general flow, BattleArena is the specific data-level implementation.
  * Basically, all game setup is done here.
  */
+
+
+export function loadAssets(game) {
+	const registry = new Registry();
+
+	//TODO: Load all of the Sprites and Textures here
+
+	game.assets = registry;
+
+	return registry;
+};
 
 
 /**
@@ -281,12 +294,14 @@ export const Hooks = {
 		this.renderer = new Pixi();
 		this.renderer.observers.add(this);
 
+		loadAssets(this);
+
 		/**
 		 * Initialize the ViewPort, Views, and Layers
 		 */
 		//FIXME: Setup and use the Entity.animation component to determine which/if Sprite should be rendered (load images first from file system)
 		console.log(`%c [BATTLE ARENA]: %cWhile the ViewPort appears offset, it is not implemented robustly -- complete the hierarchical associations both at the ECS side and the PIXI side.`, 'background: #ff66a5; padding:5px; color: #fff', 'background: #a363d5; padding:5px; color: #fff');
-		
+
 		let nudge = 320;
 		/**
 		 * Setup the ViewPort and crop the perspective to (a portion of) the world

@@ -90,6 +90,11 @@ export class Game extends Identity {
 		this.realm = {};
 
 		/**
+		 * STUB: This is initialized in .post()
+		 */
+		this.assets = {};
+
+		/**
 		 * The main loop for the game.
 		 * The rendering loop is handled internally by Pixi (add an
 		 * observer to the renderer if you want to hook that invocation).
