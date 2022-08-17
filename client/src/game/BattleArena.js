@@ -47,6 +47,8 @@ export async function loadAssets(game) {
 		"entity_squirrel": "assets/images/squirrel.png",
 		"entity_bunny": "assets/images/bunny.png",
 		"entity_bear": "assets/images/bear.png",
+		"terrain_water": "assets/images/water.png",
+		"terrain_grass": "assets/images/grass.png",
 	}).then(map => {
 		for(let [ alias, canvas ] of Object.entries(map)) {
 			registry.registerWithAlias(canvas, alias);
@@ -239,6 +241,7 @@ export const Hooks = {
 				if(entity.animation) {
 					
 					//TODO: This is basically a copy and paste -- refactor/reasses these classes and build this out
+					//TODO: Load terrain images, tessellate and attach to an entity
 
 					const tessellator = Tessellator.FromCanvas({
 						alias: "squirrel",
