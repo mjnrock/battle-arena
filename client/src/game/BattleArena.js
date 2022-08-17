@@ -135,19 +135,19 @@ export function createLayerEntity(game) {
 			/**
 			 * Draw the Player
 			 */
-			//TODO: This demonstrates the use of Perspective.test, but the results should use the .visible/.renderable properties of the underlying PIXI objects
-			let { x: tx, y: ty } = gameRef.realm.players.player.world;
-			[ tx, ty ] = gameRef.realm.players.player.world.model.pos(tx, ty);
+			const player = gameRef.realm.players.player;
+			let { x: tx, y: ty } = player.world;
+			[ tx, ty ] = player.world.model.pos(tx, ty);
 			[ tx, ty ] = [ tx * gameRef.config.tile.width, ty * gameRef.config.tile.height ];
 
-			if(perspective.test(tx, ty)) {				
-				const player = gameRef.realm.players.player;
-				if(player.animation.track) {
-					player.animation.sprite.texture = player.animation.track.current;
-
-					player.animation.sprite.x = player.world.x * gameRef.config.tile.width;
-					player.animation.sprite.y = player.world.y * gameRef.config.tile.height;
-				}
+			if(perspective.test(tx, ty) && player.animation.track) {
+				player.animation.sprite.visible = true;
+				player.animation.sprite.texture = player.animation.track.current;
+				
+				player.animation.sprite.x = player.world.x * gameRef.config.tile.width;
+				player.animation.sprite.y = player.world.y * gameRef.config.tile.height;
+			} else {
+				player.animation.sprite.visible = false;
 			}
 		},
 	});
@@ -236,7 +236,7 @@ export const Hooks = {
 			for(let [ uuid, entity ] of this.environment.entity) {
 				if(entity.animation) {
 					
-					//TODO: This is basically a copy and paste -- refactor and build this out
+					//TODO: This is basically a copy and paste -- refactor/reasses these classes and build this out
 
 					const tessellator = Tessellator.FromCanvas({
 						alias: "squirrel",
@@ -253,10 +253,10 @@ export const Hooks = {
 					// console.log(spritesheet.toObject());
 
 					const squirrelScore = Score.FromArray([
-						[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
-						[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
 						[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
+						[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
 						[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
+						[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
 					]);
 
 					const track = Track.Create({
@@ -335,11 +335,11 @@ export const Hooks = {
 			player,
 		};
 
-		//FIXME: The player is not actually *in* the world, as the hierarchy is not implemented
+		//FIXME: Create a small timeout until everything is completed, otherwise it will error
 		setTimeout(() => {
 			this.dispatch("world:join", player, { world: overworld, x: 10, y: 10 });
 			// console.log(Game.Get().viewport.views.current.layers.get("entity").container);
-		}, 1000);
+		}, 100);
 
 		return this.post();
 	},
