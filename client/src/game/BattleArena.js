@@ -88,7 +88,7 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 
 export function createLayerTerrain(game) {
 	return new Layer({
-		render: (perspective, ...args) => {
+		render: (perspective, { dt, now }) => {
 			const gameRef = perspective.ref;
 			// const graphics = gameRef.views.current.container;
 			const graphics = gameRef.viewport.views.current.container;
@@ -100,27 +100,39 @@ export function createLayerTerrain(game) {
 				let { x: tx, y: ty } = node.world;
 				[ tx, ty ] = [ tx * gameRef.config.tile.width, ty * gameRef.config.tile.height ];
 
-				/**
-				 * Use << Perspective.test >> to determine if the node is within the viewport
-				 */
-				//TODO: This demonstrates the use of Perspective.test, but the results should use the .visible/.renderable properties of the underlying PIXI objects
-				if(perspective.test(tx, ty)) {
-					//TODO: Load all of the sprites into a registry (terrain.grass, entity.squirrel, etc.)
-					//TODO: Use the Terrain sprite to draw the terrain
-					let color = 0xFFFFFF;
-					if(node.terrain.type === "grass") {
-						color = 0x447f52;
-					} else if(node.terrain.type === "water") {
-						color = 0x436d7c;
-					}
+				if(perspective.test(tx, ty) && node.animation.track) {
+					node.animation.sprite.visible = true;
 
-					//* Color the grid lines
-					graphics.lineStyle(2, 0x000000, 0.1);
-					//* Color the terrain grid
-					graphics.beginFill(color);
-					graphics.drawRect(tx, ty, gameRef.config.tile.width, gameRef.config.tile.height);
-					graphics.endFill();
+					node.animation.track.next(now);
+					node.animation.sprite.texture = node.animation.track.current;
+
+					node.animation.sprite.x = node.world.x * gameRef.config.tile.width;
+					node.animation.sprite.y = node.world.y * gameRef.config.tile.height;
+				} else {
+					node.animation.sprite.visible = false;
 				}
+
+				// /**
+				//  * Use << Perspective.test >> to determine if the node is within the viewport
+				//  */
+				// //TODO: This demonstrates the use of Perspective.test, but the results should use the .visible/.renderable properties of the underlying PIXI objects
+				// if(perspective.test(tx, ty)) {
+				// 	//TODO: Load all of the sprites into a registry (terrain.grass, entity.squirrel, etc.)
+				// 	//TODO: Use the Terrain sprite to draw the terrain
+				// 	let color = 0xFFFFFF;
+				// 	if(node.terrain.type === "grass") {
+				// 		color = 0x447f52;
+				// 	} else if(node.terrain.type === "water") {
+				// 		color = 0x436d7c;
+				// 	}
+
+				// 	//* Color the grid lines
+				// 	graphics.lineStyle(2, 0x000000, 0.1);
+				// 	//* Color the terrain grid
+				// 	graphics.beginFill(color);
+				// 	graphics.drawRect(tx, ty, gameRef.config.tile.width, gameRef.config.tile.height);
+				// 	graphics.endFill();
+				// }
 			}
 		},
 	});
@@ -147,7 +159,7 @@ export function createLayerEntity(game) {
 
 				player.animation.track.next(now);
 				player.animation.sprite.texture = player.animation.track.current;
-				
+
 				player.animation.sprite.x = player.world.x * gameRef.config.tile.width;
 				player.animation.sprite.y = player.world.y * gameRef.config.tile.height;
 			} else {
@@ -239,7 +251,7 @@ export const Hooks = {
 
 			for(let [ uuid, entity ] of this.environment.entity) {
 				if(entity.animation) {
-					
+
 					//TODO: This is basically a copy and paste -- refactor/reasses these classes and build this out
 					//TODO: Load terrain images, tessellate and attach to an entity
 
@@ -270,10 +282,10 @@ export const Hooks = {
 						autoPlay: true,
 					});
 
-					console.log(tessellator);
-					console.log(spritesheet);
-					console.log(squirrelScore);
-					console.log(track);
+					// console.log(tessellator);
+					// console.log(spritesheet);
+					// console.log(squirrelScore);
+					// console.log(track);
 
 					entity.animation.sprite.texture = track.current;
 					entity.animation.track = track;
@@ -300,7 +312,55 @@ export const Hooks = {
 		const [ overworld ] = $E.world(1, {
 			size: [ 32, 24 ],
 			each: ({ alias, node }) => {
-				node.terrain.type = Math.random() > 0.5 ? "grass" : "water";
+				setTimeout(() => {
+					node.terrain.type = Math.random() > 0.5 ? "grass" : "water";
+
+					/**
+					 * Register the Node with the Environment
+					 */
+					this.environment.entity.register(node);
+
+					const grassTessel = Tessellator.FromCanvas({
+						alias: "grass",
+						canvas: this.assets.terrain_grass,
+						algorithm: Tessellator.Algorithms.GridBased,
+						args: [ { tw: 32, th: 32 } ],
+					});
+					const waterTessel = Tessellator.FromCanvas({
+						alias: "water",
+						canvas: this.assets.terrain_water,
+						algorithm: Tessellator.Algorithms.GridBased,
+						args: [ { tw: 32, th: 32 } ],
+					});
+
+					const grassSpritesheet = new SpriteSheet({
+						tileset: grassTessel.tileset,
+					});
+					const waterSpritesheet = new SpriteSheet({
+						tileset: waterTessel.tileset,
+					});
+
+					//FIXME: These nested .toObjects do not work properly -- figure out which work and fix the others
+					// console.log(spritesheet.toObject());
+
+					const grassScore = Score.FromArray([
+						[ "grass.normal.north.0" ],
+					]);
+					const waterScore = Score.FromArray([
+						[ "water.normal.north.0", "water.normal.north.1", "water.normal.north.2", "water.normal.north.3" ],
+					]);
+
+					const track = Track.Create({
+						score: node.terrain.type === "grass" ? grassScore : waterScore,
+						spritesheet: node.terrain.type === "grass" ? grassSpritesheet : waterSpritesheet,
+						autoPlay: true,
+					});
+
+					node.animation.sprite.texture = track.current;
+					node.animation.track = track;
+
+					this.viewport.getLayer("terrain", true).addChild(node.animation.sprite);
+				}, 500)
 
 				return [
 					alias,
@@ -318,8 +378,6 @@ export const Hooks = {
 		this.realm = realm;
 
 		const [ player ] = $E.squirrel(1, {
-			components: {
-			},
 			init: {
 				world: {
 					world: overworld,
