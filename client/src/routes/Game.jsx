@@ -16,12 +16,13 @@ const game = CreateGame({
 
 export function GameRoute() {
 	useEffect(() => {
+		//TODO: Have Game emit a "complete" event when it's done loading everything to kick-off the React part
+		game.loop.events.add("tick", game);
+		game.loop.start();
 		game.renderer.ticker.start();
-
-		// console.log(game);
-		// console.log(game.realm.worlds.overworld.nodes[ "0,0" ]);
-
+		
 		return () => {
+			game.loop.stop();
 			game.renderer.ticker.stop();
 		};
 	}, []);

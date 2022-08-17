@@ -114,10 +114,9 @@ export class Game extends Identity {
 
 		/**
 		 * Invoke all the creation hooks
+		 * .pre() invokes .init(), and .init() invokes .post()
 		 */
-		this.pre()
-			.init()
-			.post();
+		this.pre();
 
 		/**
 		 * Create a default Game instance, if one does not exist,

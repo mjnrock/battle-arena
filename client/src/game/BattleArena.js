@@ -21,6 +21,11 @@ import { ViewPort } from "./lib/pixi/ViewPort";
 import { Collection } from "./util/Collection";
 import { Registry } from "./lib/Registry";
 
+import { Tessellator } from "./lib/tile/Tessellator";
+import { SpriteSheet } from "./lib/tile/pixi/SpriteSheet";
+import { Score } from "./lib/tile/animate/Score";
+import { Track } from "./lib/tile/animate/Track";
+
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 //? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
 
@@ -34,14 +39,23 @@ import { Registry } from "./lib/Registry";
  */
 
 
-export function loadAssets(game) {
+export async function loadAssets(game) {
 	const registry = new Registry();
 
 	//TODO: Load all of the Sprites and Textures here
+	return await Base64.DecodeFiles({
+		"entity_squirrel": "assets/images/squirrel.png",
+		"entity_bunny": "assets/images/bunny.png",
+		"entity_bear": "assets/images/bear.png",
+	}).then(map => {
+		for(let [ alias, canvas ] of Object.entries(map)) {
+			registry.registerWithAlias(canvas, alias);
+		}
 
-	game.assets = registry;
+		game.assets = registry;
 
-	return registry;
+		return game.assets;
+	});
 };
 
 
@@ -126,12 +140,14 @@ export function createLayerEntity(game) {
 			[ tx, ty ] = gameRef.realm.players.player.world.model.pos(tx, ty);
 			[ tx, ty ] = [ tx * gameRef.config.tile.width, ty * gameRef.config.tile.height ];
 
-			if(perspective.test(tx, ty)) {
-				//* Color the player
-				graphics.lineStyle(2, 0x000000, 0.25);
-				graphics.beginFill(0xFF0000, 1);
-				graphics.drawCircle(tx, ty, gameRef.realm.players.player.world.model.radius * gameRef.config.tile.width);
-				graphics.endFill();
+			if(perspective.test(tx, ty)) {				
+				const player = gameRef.realm.players.player;
+				if(player.animation.track) {
+					player.animation.sprite.texture = player.animation.track.current;
+
+					player.animation.sprite.x = player.world.x * gameRef.config.tile.width;
+					player.animation.sprite.y = player.world.y * gameRef.config.tile.height;
+				}
 			}
 		},
 	});
@@ -214,7 +230,53 @@ export const Hooks = {
 		]);
 		this.environment.registerFactoryComponents([]);
 
-		return this;
+		loadAssets(this).then(assets => {
+			// this.init();
+
+			for(let [ uuid, entity ] of this.environment.entity) {
+				if(entity.animation) {
+					
+					//TODO: This is basically a copy and paste -- refactor and build this out
+
+					const tessellator = Tessellator.FromCanvas({
+						alias: "squirrel",
+						canvas: assets.entity_squirrel,
+						algorithm: Tessellator.Algorithms.GridBased,
+						args: [ { tw: 32, th: 32 } ],
+					});
+
+					const spritesheet = new SpriteSheet({
+						tileset: tessellator.tileset,
+					});
+
+					//FIXME: These nested .toObjects do not work properly -- figure out which work and fix the others
+					// console.log(spritesheet.toObject());
+
+					const squirrelScore = Score.FromArray([
+						[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
+						[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
+						[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
+						[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
+					]);
+
+					const track = Track.Create({
+						score: squirrelScore,
+						spritesheet,
+						autoPlay: true,
+					});
+
+					console.log(tessellator);
+					console.log(spritesheet);
+					console.log(squirrelScore);
+					console.log(track);
+
+					entity.animation.sprite.texture = track.current;
+					entity.animation.track = track;
+				}
+			}
+		});
+
+		return this.init();
 	},
 
 	/**
@@ -276,12 +338,10 @@ export const Hooks = {
 		//FIXME: The player is not actually *in* the world, as the hierarchy is not implemented
 		setTimeout(() => {
 			this.dispatch("world:join", player, { world: overworld, x: 10, y: 10 });
-			console.log(Game.Get().viewport.views.current.layers.get("entity").container);
+			// console.log(Game.Get().viewport.views.current.layers.get("entity").container);
 		}, 1000);
 
-		console.log(overworld)
-
-		return this;
+		return this.post();
 	},
 
 	/**
@@ -293,8 +353,6 @@ export const Hooks = {
 		 */
 		this.renderer = new Pixi();
 		this.renderer.observers.add(this);
-
-		loadAssets(this);
 
 		/**
 		 * Initialize the ViewPort, Views, and Layers
@@ -332,9 +390,6 @@ export const Hooks = {
 				element: this.renderer.canvas,
 			},
 		});
-
-		this.loop.events.add("tick", this);
-		this.loop.start();
 
 		return this;
 	},

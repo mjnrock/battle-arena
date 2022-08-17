@@ -1,5 +1,5 @@
 import { Identity } from "./../../Identity";
-import { Invoker } from "../../relay/Invoker";
+import { Invoker } from "./../../../util/relay/Invoker";
 
 /**
  * When in delta-mode, the Timer expects to be fed a delta-time in milliseconds.  In practice, this
@@ -49,7 +49,6 @@ export class Timer extends Identity {
 		this.reset(cadence);
 		this.parseListeners(listeners);
 
-		console.log("START", start)
 		if(start) {
 			this.start(start);
 		}

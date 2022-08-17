@@ -53,7 +53,7 @@ export class TileSet extends Tile {
 			...rest,
 		});
 
-		this.tiles.addWithAlias(tile, alias);
+		this.tiles.registerWithAlias(tile, alias);
 
 		return tile;
 	}
@@ -65,7 +65,7 @@ export class TileSet extends Tile {
 		return this;
 	}
 	addTile(tile, alias) {
-		this.tiles.addWithAlias(tile, alias);
+		this.tiles.registerWithAlias(tile, alias);
 
 		return this;
 	}
