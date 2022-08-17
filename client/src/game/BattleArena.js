@@ -125,7 +125,7 @@ export function createLayerTerrain(game) {
 };
 export function createLayerEntity(game) {
 	return new Layer({
-		render: (perspective, ...args) => {
+		render: (perspective, { dt, now }) => {
 			const gameRef = perspective.ref;
 			// const graphics = gameRef.views.current.container;
 			const graphics = gameRef.viewport.views.current.container;
@@ -142,6 +142,8 @@ export function createLayerEntity(game) {
 
 			if(perspective.test(tx, ty) && player.animation.track) {
 				player.animation.sprite.visible = true;
+
+				player.animation.track.next(now);
 				player.animation.sprite.texture = player.animation.track.current;
 				
 				player.animation.sprite.x = player.world.x * gameRef.config.tile.width;
@@ -253,10 +255,10 @@ export const Hooks = {
 					// console.log(spritesheet.toObject());
 
 					const squirrelScore = Score.FromArray([
-						[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
 						[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
-						[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
 						[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
+						[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
+						[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
 					]);
 
 					const track = Track.Create({
@@ -399,8 +401,8 @@ export const Hooks = {
 	 * This is the main render loop for the game, called each time the renderer
 	 * invokes its requestAnimationFrame facilitator.
 	 */
-	render({ dt } = {}) {
-		this.viewport.views.current.render({ dt });
+	render({ dt, now } = {}) {
+		this.viewport.views.current.render({ dt, now });
 		// this.views.current.render({ dt });c
 	},
 
