@@ -1,5 +1,6 @@
 import { System } from "./../lib/ecs/System";
 import Helper from "./../util/helper";
+import { Game } from "./../Game";
 
 export class World extends System {
 	static Nomen = "world";
@@ -21,8 +22,10 @@ export class World extends System {
 			 */
 			world.entities.add(entity);
 
-			//TODO: Deal with the ANIMATION object associations/consequences of this (e.g. add/remove child of PIXI)
-			//? Maybe dispatch to the Animation system to add the entity to the world? (<< this.env.dispatch >> should exist on instantiation)
+			/**
+			 * Add the entity into the render context
+			 */
+			this.env.dispatch("animation:attach", entity, this.game.viewport.getLayer("entity", true));
 
 			entity.world = {
 				...entity.world,
@@ -48,8 +51,10 @@ export class World extends System {
 				 */
 				world.entities.remove(entity.id);
 
-				//TODO: Deal with the ANIMATION object associations/consequences of this (e.g. add/remove child of PIXI)
-				//? Maybe dispatch to the Animation system to remove the entity to the world? (<< this.env.dispatch >> should exist on instantiation)
+				/**
+				 * Remove the entity from the render context
+				 */
+				this.env.dispatch("animation:detach", entity, this.game.viewport.getLayer("entity", true));
 
 				entity.world = {
 					...entity.world,

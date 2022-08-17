@@ -202,7 +202,7 @@ export class Environment extends Identity {
 			 */
 			//TODO: Reconcile the middleware with the environment/system hand-off.  (i.e. Most Systems do not expect any "general" arguments (e.g. a msg, environment, etc.))
 			const msg = this.middleware(event, entities, ...args);
-
+			
 			return system.dispatch(msg.event, msg.entities, ...msg.args);
 		}
 	}

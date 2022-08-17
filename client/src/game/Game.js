@@ -20,8 +20,20 @@ export class Game extends Identity {
 	 * Create a standard getter, using a Singleton pattern as
 	 * the default return value.
 	 */
+	/** */
 	static Get(key = "default") {
 		return this.Instances[ key ];
+	}
+	/**
+	 * Extend .Get to grab the ViewPort's *current* View and 
+	 * select @layer from it.  This is primarily a convenience
+	 * method for animation-related dispatching for layer drawing.
+	 * In some sense, this is the "".Get-equivalent" for rendering.
+	 */
+	static GetViewLayer(layerName, forPixi = false, key = "default") {
+		const game = Game.Get(key);
+		
+		return game.viewport.getLayer(layerName, forPixi);
 	}
 
 	/**
@@ -62,6 +74,9 @@ export class Game extends Identity {
 		 * as well as their respective factories.
 		 */
 		this.environment = new Environment();
+		this.environment.system.registerClassifiers(
+			Registry.Middleware.AttachRef(this, "game"),
+		);
 
 		/**
 		 * STUB: This is initialized in .post()
@@ -114,6 +129,8 @@ export class Game extends Identity {
 		} else {
 			Game.Instances.registerWithAlias(this, alias);
 		}
+
+		this.__alias = alias;
 	}
 
 	/**

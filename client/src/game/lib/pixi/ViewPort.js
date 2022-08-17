@@ -59,6 +59,10 @@ export class ViewPort extends Identity {
 		this.container.addChild(this.views.current.container);
 	}
 
+	getLayer(key, getContainer = false) {
+		return this.views.current.getLayer(key, getContainer);
+	}
+
 	/**
 	 * Attach the .container to a PIXI.Container parent
 	 */

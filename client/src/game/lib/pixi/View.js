@@ -27,6 +27,15 @@ export class View extends Layer {
 		}
 	}
 
+	getLayer(key, getContainer = false) {
+		let layer = this.layers.get(key);
+		if(layer && getContainer) {
+			return layer.container;
+		}
+
+		return layer;
+	}
+
 	resetView() {
 		this.view = Array.from(this.layers.keys());
 	}

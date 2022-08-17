@@ -8,6 +8,7 @@ import { Realm } from "./entities/realm/Realm";
 import { Circle } from "./util/shape/Circle";
 
 import { World as SysWorld } from "./systems/World";
+import { Animation as SysAnimation } from "./systems/Animation";
 import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
@@ -75,6 +76,8 @@ export function createLayerTerrain(game) {
 				 */
 				//TODO: This demonstrates the use of Perspective.test, but the results should use the .visible/.renderable properties of the underlying PIXI objects
 				if(perspective.test(tx, ty)) {
+					//TODO: Load all of the sprites into a registry (terrain.grass, entity.squirrel, etc.)
+					//TODO: Use the Terrain sprite to draw the terrain
 					let color = 0xFFFFFF;
 					if(node.terrain.type === "grass") {
 						color = 0x447f52;
@@ -187,6 +190,7 @@ export const Hooks = {
 		this.environment.registerFactorySystems([
 			//STUB: Add all of the system classes here
 			SysWorld,
+			SysAnimation,
 		]);
 		this.environment.registerFactoryEntities([
 			//STUB: Add all of the entity classes here
@@ -255,6 +259,14 @@ export const Hooks = {
 		realm.players = {
 			player,
 		};
+
+		//FIXME: The player is not actually *in* the world, as the hierarchy is not implemented
+		setTimeout(() => {
+			this.dispatch("world:join", player, { world: overworld, x: 10, y: 10 });
+			console.log(Game.Get().viewport.views.current.layers.get("entity").container);
+		}, 1000);
+
+		console.log(overworld)
 
 		return this;
 	},
