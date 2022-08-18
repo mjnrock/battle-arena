@@ -146,6 +146,8 @@ export function createLayerEntity(game) {
 
 			//TODO Draw all of the entities
 
+			//FIXME: Perspective HEIGHT/WIDTH does not seem to be correct (w/h may not take into account the tw/th normalization?)
+
 			/**
 			 * Draw the Player
 			 */

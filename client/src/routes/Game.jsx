@@ -85,6 +85,7 @@ export function GameRoute() {
 			justifyContent: "center",
 			alignItems: "center",
 			fontSize: "5em",
+			fontFamily: "monospace",
 		}}>Loading...</div>;
 	}
 
