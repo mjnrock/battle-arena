@@ -14,6 +14,7 @@ import { Base64, PixelScaleCanvas } from "./../game/util/Base64";
 const game = CreateGame({
 	// ...args,
 });
+let farr = [];
 
 export function GameRoute() {
 	useEffect(() => {
@@ -42,7 +43,18 @@ export function GameRoute() {
 		});
 		const fps = new PixiJS.Text(0, skewStyle);
 		game.renderer.stage.addChild(fps);
-		game.renderer.ticker.add(() => fps.text = ~~game.renderer.ticker.FPS);
+		game.renderer.ticker.add(() => {
+			farr.push(~~game.renderer.ticker.FPS);
+
+			if (farr.length > 250) {
+				farr.shift();
+			}
+
+			/**
+			 * Display the AVG FPS over the last 250 frames
+			 */
+			fps.text = ~~(farr.reduce((a, v) => a + v, 0) / farr.length);
+		});
 
 		return () => {
 			game.loop.stop();
