@@ -1,9 +1,6 @@
 import { Identity } from "../../Identity";
 import { Timer } from "./Timer";
 
-/**
- * ? To build this out, invoke .Create and pass an equal-measure-score and a lookup spritesheet.
- */
 export class Track extends Identity {
 	constructor ({ sprites, cadence, id, tags, ...timer } = {}) {
 		super({ id, tags });
@@ -42,34 +39,26 @@ export class Track extends Identity {
 	/**
 	 * Create a processed Track, based on the given spritesheet and score.
 	 */
-	static Create({ score, spritesheet, autoPlay = false } = {}) {
-		const cadence = score.cadence.reduce((acc, step) => {
-			acc = [ ...acc, step ];
-
-			return acc;
-		}, []);
+	static Create({ score, spritesheet, autoPlay = false, writeback = false } = {}) {
 		const notes = [];
-
-		let i = 0;
-		score.each(note => {
+		score.each((note, i) => {
 			/**
-			 * Update the Note to contain the actual PIXI.Texture,
-			 * instead of the alias.
+			 * Optionally write the SpriteSheet's version of the Note (e.g. Texture) *back* into the Note.ref
 			 */
-			note.ref = spritesheet.get(note.ref);
+			if(writeback === true && typeof note.ref === "string") {
+				note.ref = spritesheet.get(note.ref);
+			}
 
 			/**
 			 * Add the note data to the notes array.
 			 * [ index, duration, Texture ]
 			 */
-			notes.push([ i, cadence[ i ], note.ref ]);
-
-			i += 1;
+			notes.push([ i, score.cadence[ i ], spritesheet.get(note.ref) ]);
 		});
 
 		return new Track({
 			sprites: notes,
-			cadence,
+			cadence: [ ...score.cadence ],
 			start: autoPlay,
 		});
 	}

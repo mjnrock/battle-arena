@@ -388,16 +388,15 @@ export const Hooks = {
 			tileset: tessellator.tileset,
 		});
 
+		const squirrelScore = Score.FromArray([
+			[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
+			[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
+			[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
+			[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
+		]);
+
 		let now = Date.now();
 		for(let entity of [ player, ...rest ]) {
-
-			const squirrelScore = Score.FromArray([
-				[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
-				[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
-				[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
-				[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
-			]);
-
 			const track = Track.Create({
 				score: squirrelScore,
 				spritesheet,
@@ -479,6 +478,7 @@ export default function CreateGame({ ...opts } = {}) {
 
 		//TODO: This changes the *renderer* scale, but really it should pixel-scale up the sprites beforehand to maintain resolution (during asset loading, using the Base64 scale utility and renormalizing tile size -- 32x32 -> 128x128)
 		config: {
+			// scale: 1,
 			scale: 2.5,
 		},
 		hooks: Hooks,
