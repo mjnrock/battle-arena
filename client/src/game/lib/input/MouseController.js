@@ -2,7 +2,7 @@ import { GroupRunner } from "../../util/relay/GroupRunner";
 import { Identity } from "../Identity";
 import { Events } from "../../util/relay/Events";
 
-//TODO: Maintain the current mouse position
+//FIXME: Scroll does not work
 
 export class MouseController extends Identity {
 	static EventTypes = {
@@ -10,6 +10,7 @@ export class MouseController extends Identity {
 		MOUSE_MODIFIER: "mousemodifier",
 		MOUSE_DOWN: "mousedown",
 		MOUSE_UP: "mouseup",
+		MOUSE_SCROLL: "mousescroll",
 		MOUSE_MOVE: "mousemove",
 		CONTEXT_MENU: "contextmenu",
 	};
@@ -37,6 +38,7 @@ export class MouseController extends Identity {
 		this.handlers = new GroupRunner({
 			onMouseDown: this,
 			onMouseUp: this,
+			onScroll: this,
 			onMouseMove: this,
 			onContextMenu: this,
 		});
@@ -52,6 +54,7 @@ export class MouseController extends Identity {
 			events: {
 				[ MouseController.EventTypes.MOUSE_UP ]: true,
 				[ MouseController.EventTypes.MOUSE_DOWN ]: true,
+				[ MouseController.EventTypes.MOUSE_SCROLL ]: true,
 				[ MouseController.EventTypes.MOUSE_MOVE ]: true,
 				[ MouseController.EventTypes.MOUSE_MASK ]: false,
 				[ MouseController.EventTypes.MOUSE_MODIFIER ]: false,
@@ -265,6 +268,17 @@ export class MouseController extends Identity {
 		this.updateMask(e, false);
 
 		this.emit(MouseController.EventTypes.MOUSE_UP, e, this);
+
+		return this;
+	}
+	onScroll(e) {
+		console.log(e);
+		e.preventDefault();
+
+		this.updateMask(e, false);
+
+
+		this.emit(MouseController.EventTypes.MOUSE_SCROLL, e, this);
 
 		return this;
 	}

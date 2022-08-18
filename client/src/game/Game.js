@@ -64,6 +64,7 @@ export class Game extends Identity {
 				width: 32,
 				height: 32,
 			},
+			scale: 1.0,
 
 			/**
 			 * pre, init, post, complete

@@ -96,8 +96,7 @@ export class Timer extends Identity {
 		if(this.config.isDelta) {
 			ts = ts || Date.now();
 
-			// const remainder = ts % this.config.duration;
-			const remainder = (ts - Timer.CoreTime) % this.config.duration;
+			const remainder = (ts - this.config.start) % this.config.duration;
 
 			//TODO Build a BinaryTree to find the correct index
 			let index = 0;

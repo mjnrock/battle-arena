@@ -89,16 +89,12 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 export function createLayerTerrain(game) {
 	return new Layer({
 		render: (perspective, { dt, now }) => {
-			const gameRef = perspective.ref;
-			// const graphics = gameRef.views.current.container;
-			const graphics = gameRef.viewport.views.current.container;
-
 			/**
 			 * Draw the Terrain
 			 */
-			for(let [ id, node ] of gameRef.realm.worlds.overworld.nodes) {
+			for(let [ id, node ] of game.realm.worlds.overworld.nodes) {
 				let { x: tx, y: ty } = node.world;
-				[ tx, ty ] = [ tx * gameRef.config.tile.width, ty * gameRef.config.tile.height ];
+				[ tx, ty ] = [ tx * game.config.tile.width, ty * game.config.tile.height ];
 
 				if(perspective.test(tx, ty) && node.animation.track) {
 					node.animation.sprite.visible = true;
@@ -106,33 +102,11 @@ export function createLayerTerrain(game) {
 					node.animation.track.next(now);
 					node.animation.sprite.texture = node.animation.track.current;
 
-					node.animation.sprite.x = node.world.x * gameRef.config.tile.width;
-					node.animation.sprite.y = node.world.y * gameRef.config.tile.height;
+					node.animation.sprite.x = node.world.x * game.config.tile.width;
+					node.animation.sprite.y = node.world.y * game.config.tile.height;
 				} else {
 					node.animation.sprite.visible = false;
 				}
-
-				// /**
-				//  * Use << Perspective.test >> to determine if the node is within the viewport
-				//  */
-				// //TODO: This demonstrates the use of Perspective.test, but the results should use the .visible/.renderable properties of the underlying PIXI objects
-				// if(perspective.test(tx, ty)) {
-				// 	//TODO: Load all of the sprites into a registry (terrain.grass, entity.squirrel, etc.)
-				// 	//TODO: Use the Terrain sprite to draw the terrain
-				// 	let color = 0xFFFFFF;
-				// 	if(node.terrain.type === "grass") {
-				// 		color = 0x447f52;
-				// 	} else if(node.terrain.type === "water") {
-				// 		color = 0x436d7c;
-				// 	}
-
-				// 	//* Color the grid lines
-				// 	graphics.lineStyle(2, 0x000000, 0.1);
-				// 	//* Color the terrain grid
-				// 	graphics.beginFill(color);
-				// 	graphics.drawRect(tx, ty, gameRef.config.tile.width, gameRef.config.tile.height);
-				// 	graphics.endFill();
-				// }
 			}
 		},
 	});
@@ -140,34 +114,26 @@ export function createLayerTerrain(game) {
 export function createLayerEntity(game) {
 	return new Layer({
 		render: (perspective, { dt, now }) => {
-			const gameRef = perspective.ref;
-			// const graphics = gameRef.views.current.container;
-			const graphics = gameRef.viewport.views.current.container;
-
-			//TODO Draw all of the entities
-
-			//FIXME: Perspective HEIGHT/WIDTH does not seem to be correct (w/h may not take into account the tw/th normalization?)
-
 			/**
-			 * Draw the Player
+			 * Draw the Entities
 			 */
-			const player = gameRef.realm.players.player;
-			let { x: tx, y: ty } = player.world;
-			[ tx, ty ] = player.world.model.pos(tx, ty);
-			[ tx, ty ] = [ tx * gameRef.config.tile.width, ty * gameRef.config.tile.height ];
+			for(let [ uuid, entity ] of game.realm.worlds.overworld.entities) {
+				let { x: tx, y: ty } = entity.world;
+				[ tx, ty ] = entity.world.model.pos(tx, ty);
+				[ tx, ty ] = [ tx * game.config.tile.width, ty * game.config.tile.height ];
 
-			// console.log(perspective.test(tx, ty), player.animation.track)
+				//FIXME: Perspective HEIGHT/WIDTH does not seem to be correct (w/h may not take into account the tw/th normalization?)
+				if(perspective.test(tx, ty) && entity.animation.track) {
+					entity.animation.sprite.visible = true;
 
-			if(perspective.test(tx, ty) && player.animation.track) {
-				player.animation.sprite.visible = true;
+					entity.animation.track.next(now);
+					entity.animation.sprite.texture = entity.animation.track.current;
 
-				player.animation.track.next(now);
-				player.animation.sprite.texture = player.animation.track.current;
-
-				player.animation.sprite.x = player.world.x * gameRef.config.tile.width;
-				player.animation.sprite.y = player.world.y * gameRef.config.tile.height;
-			} else {
-				player.animation.sprite.visible = false;
+					entity.animation.sprite.x = entity.world.x * game.config.tile.width;
+					entity.animation.sprite.y = entity.world.y * game.config.tile.height;
+				} else {
+					entity.animation.sprite.visible = false;
+				}
 			}
 		},
 	});
@@ -270,7 +236,7 @@ export const Hooks = {
 		//FIXME: Setup and use the Entity.animation component to determine which/if Sprite should be rendered (load images first from file system)
 		console.log(`%c [BATTLE ARENA]: %cWhile the ViewPort appears offset, it is not implemented robustly -- complete the hierarchical associations both at the ECS side and the PIXI side.`, 'background: #ff66a5; padding:5px; color: #fff', 'background: #a363d5; padding:5px; color: #fff');
 
-		let nudge = 320;
+		let nudge = 0;
 		/**
 		 * Setup the ViewPort and crop the perspective to (a portion of) the world
 		 * 
@@ -288,6 +254,9 @@ export const Hooks = {
 			width: this.renderer.stage.width - nudge * 2,
 			height: this.renderer.stage.height - nudge * 2,
 		});
+
+		this.renderer.stage.scale.x = this.config.scale;
+		this.renderer.stage.scale.y = this.config.scale;
 
 		/**
 		 * Add any additional key / mouse args below.
@@ -319,8 +288,7 @@ export const Hooks = {
 		const { system: systems, entity: entities, factory } = this.environment;
 		const { system: $S, entity: $E, component: $C } = factory;
 
-		//TODO: Initialize all of the game data, create worlds, etc.		
-		//TODO: Make a general "game realm initialization" function
+		//TODO: Create an EdgeMask evaluator for the World terrain
 		const [ overworld ] = $E.world(1, {
 			size: [ 32, 24 ],
 			each: ({ alias, node }) => {
@@ -380,6 +348,7 @@ export const Hooks = {
 		});
 
 		//* Create the main realm
+		//TODO: Make .worlds a Collection
 		const [ realm ] = $E.realm(1, {
 			worlds: {
 				overworld,
@@ -387,7 +356,7 @@ export const Hooks = {
 		});
 		this.realm = realm;
 
-		const [ player ] = $E.squirrel(1, {
+		const [ player, ...rest ] = $E.squirrel(100, {
 			init: {
 				world: {
 					world: overworld,
@@ -407,8 +376,6 @@ export const Hooks = {
 		realm.players = {
 			player,
 		};
-		
-		this.dispatch("world:join", player, { world: overworld, x: 10, y: 10 });
 
 		const tessellator = Tessellator.FromCanvas({
 			alias: "squirrel",
@@ -421,21 +388,30 @@ export const Hooks = {
 			tileset: tessellator.tileset,
 		});
 
-		const squirrelScore = Score.FromArray([
-			[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
-			[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
-			[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
-			[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
-		]);
+		let now = Date.now();
+		for(let entity of [ player, ...rest ]) {
 
-		const track = Track.Create({
-			score: squirrelScore,
-			spritesheet,
-			autoPlay: true,
-		});
+			const squirrelScore = Score.FromArray([
+				[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
+				[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
+				[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
+				[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
+			]);
 
-		player.animation.sprite.texture = track.current;
-		player.animation.track = track;
+			const track = Track.Create({
+				score: squirrelScore,
+				spritesheet,
+				autoPlay: true,
+			});
+
+			//STUB: Add some randomness to the squirrels' animation cycle "start"
+			track.timer.config.start = now + (Math.random() < 0.5 ? -1 : 1 ) * Math.random() * 1000;
+
+			entity.animation.track = track;
+			entity.animation.sprite.texture = track.current;
+
+			this.dispatch("world:join", entity, { world: overworld, x: ~~(Math.random() * overworld.width), y: ~~(Math.random() * overworld.height) });
+		}
 
 		this.config.bootstrap.emit("post", Date.now());
 		this.config.bootstrap.emit("complete", this, Date.now());
@@ -474,14 +450,15 @@ export const Hooks = {
 				x: ~~(this.realm.worlds.overworld.width / 2),
 				y: ~~(this.realm.worlds.overworld.height / 2),
 			});
+
+			if(this.input.mouse.hasLeft) {
+
+			}
 		}
 
 		if(this.input.mouse.hasLeft) {
-			let tx = ~~(this.input.mouse.state.pointer.x / this.config.tile.width),
-				ty = ~~(this.input.mouse.state.pointer.y / this.config.tile.height);
-
-			tx -= ~~(this.viewport.perspective.x / this.config.tile.width);
-			ty -= ~~(this.viewport.perspective.y / this.config.tile.height);
+			let tx = ~~(this.input.mouse.state.pointer.x / this.renderer.stage.scale.x / this.config.tile.width),
+				ty = ~~(this.input.mouse.state.pointer.y / this.renderer.stage.scale.y / this.config.tile.height);
 
 			this.dispatch("world:move", this.realm.players.player, {
 				x: tx,
@@ -500,6 +477,9 @@ export default function CreateGame({ ...opts } = {}) {
 	const game = new Game({
 		...opts,
 
+		config: {
+			scale: 2.5,
+		},
 		hooks: Hooks,
 	});
 
