@@ -154,6 +154,8 @@ export function createLayerEntity(game) {
 			[ tx, ty ] = player.world.model.pos(tx, ty);
 			[ tx, ty ] = [ tx * gameRef.config.tile.width, ty * gameRef.config.tile.height ];
 
+			// console.log(perspective.test(tx, ty), player.animation.track)
+
 			if(perspective.test(tx, ty) && player.animation.track) {
 				player.animation.sprite.visible = true;
 
@@ -246,168 +248,14 @@ export const Hooks = {
 		]);
 		this.environment.registerFactoryComponents([]);
 
-		loadAssets(this).then(assets => {
-			// this.init();
-
-			for(let [ uuid, entity ] of this.environment.entity) {
-				if(entity.animation) {
-
-					//TODO: This is basically a copy and paste -- refactor/reasses these classes and build this out
-					//TODO: Load terrain images, tessellate and attach to an entity
-
-					const tessellator = Tessellator.FromCanvas({
-						alias: "squirrel",
-						canvas: assets.entity_squirrel,
-						algorithm: Tessellator.Algorithms.GridBased,
-						args: [ { tw: 32, th: 32 } ],
-					});
-
-					const spritesheet = new SpriteSheet({
-						tileset: tessellator.tileset,
-					});
-
-					const squirrelScore = Score.FromArray([
-						[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
-						[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
-						[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
-						[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
-					]);
-
-					const track = Track.Create({
-						score: squirrelScore,
-						spritesheet,
-						autoPlay: true,
-					});
-
-					// console.log(tessellator);
-					// console.log(spritesheet);
-					// console.log(squirrelScore);
-					// console.log(track);
-
-					entity.animation.sprite.texture = track.current;
-					entity.animation.track = track;
-				}
-			}
-		});
-
-		return this.init();
+		this.config.bootstrap.emit("pre", Date.now());
+		this.init();
 	},
 
 	/**
 	 * Perform the "main" initialization of the game.
 	 */
 	init() {
-		/**
-		 ** These constants are extracted here to remind of the contents
-		 ** and purpose of the environment.
-		 */
-		const { system: systems, entity: entities, factory } = this.environment;
-		const { system: $S, entity: $E, component: $C } = factory;
-
-		//TODO: Initialize all of the game data, create worlds, etc.		
-		//TODO: Make a general "game realm initialization" function
-		const [ overworld ] = $E.world(1, {
-			size: [ 32, 24 ],
-			each: ({ alias, node }) => {
-				setTimeout(() => {
-					node.terrain.type = Math.random() > 0.5 ? "grass" : "water";
-
-					/**
-					 * Register the Node with the Environment
-					 */
-					this.environment.entity.register(node);
-
-					const grassTessel = Tessellator.FromCanvas({
-						alias: "grass",
-						canvas: this.assets.terrain_grass,
-						algorithm: Tessellator.Algorithms.GridBased,
-						args: [ { tw: 32, th: 32 } ],
-					});
-					const waterTessel = Tessellator.FromCanvas({
-						alias: "water",
-						canvas: this.assets.terrain_water,
-						algorithm: Tessellator.Algorithms.GridBased,
-						args: [ { tw: 32, th: 32 } ],
-					});
-
-					const grassSpritesheet = new SpriteSheet({
-						tileset: grassTessel.tileset,
-					});
-					const waterSpritesheet = new SpriteSheet({
-						tileset: waterTessel.tileset,
-					});
-
-					//FIXME: These nested .toObjects do not work properly -- figure out which work and fix the others
-					// console.log(spritesheet.toObject());
-
-					const grassScore = Score.FromArray([
-						[ "grass.normal.north.0" ],
-					]);
-					const waterScore = Score.FromArray([
-						[ "water.normal.north.0", "water.normal.north.1", "water.normal.north.2", "water.normal.north.3" ],
-					]);
-
-					const track = Track.Create({
-						score: node.terrain.type === "grass" ? grassScore : waterScore,
-						spritesheet: node.terrain.type === "grass" ? grassSpritesheet : waterSpritesheet,
-						autoPlay: true,
-					});
-
-					node.animation.sprite.texture = track.current;
-					node.animation.track = track;
-
-					this.viewport.getLayer("terrain", true).addChild(node.animation.sprite);
-				}, 500)
-
-				return [
-					alias,
-					node,
-				];
-			},
-		});
-
-		//* Create the main realm
-		const [ realm ] = $E.realm(1, {
-			worlds: {
-				overworld,
-			},
-		});
-		this.realm = realm;
-
-		const [ player ] = $E.squirrel(1, {
-			init: {
-				world: {
-					world: overworld,
-					model: new Circle({
-						x: 0.5,
-						y: 0.5,
-						r: 0.5,
-					}),
-					x: 10,
-					y: 10,
-					vx: 0.01,
-					vy: 0.01,
-				},
-			},
-		});
-
-		realm.players = {
-			player,
-		};
-
-		//FIXME: Create a small timeout until everything is completed, otherwise it will error
-		setTimeout(() => {
-			this.dispatch("world:join", player, { world: overworld, x: 10, y: 10 });
-			// console.log(Game.Get().viewport.views.current.layers.get("entity").container);
-		}, 100);
-
-		return this.post();
-	},
-
-	/**
-	 * Perform any post-init tasks, such as rendering and UI.
-	 */
-	post() {
 		/**
 		 * Initialize the Pixi wrapper, add Game as a listener (will invoke .render)
 		 */
@@ -451,7 +299,144 @@ export const Hooks = {
 			},
 		});
 
-		return this;
+
+		loadAssets(this).then(assets => {
+			this.config.bootstrap.emit("init", Date.now());
+			this.post();
+		});
+	},
+
+	/**
+	 * Perform any post-init tasks, such as rendering and UI.
+	 */
+	post() {
+		/**
+		 ** These constants are extracted here to remind of the contents
+		 ** and purpose of the environment.
+		 */
+		const { system: systems, entity: entities, factory } = this.environment;
+		const { system: $S, entity: $E, component: $C } = factory;
+
+		//TODO: Initialize all of the game data, create worlds, etc.		
+		//TODO: Make a general "game realm initialization" function
+		const [ overworld ] = $E.world(1, {
+			size: [ 32, 24 ],
+			each: ({ alias, node }) => {
+				node.terrain.type = Math.random() > 0.5 ? "grass" : "water";
+
+				/**
+				 * Register the Node with the Environment
+				 */
+				this.environment.entity.register(node);
+
+				const grassTessel = Tessellator.FromCanvas({
+					alias: "grass",
+					canvas: this.assets.terrain_grass,
+					algorithm: Tessellator.Algorithms.GridBased,
+					args: [ { tw: 32, th: 32 } ],
+				});
+				const waterTessel = Tessellator.FromCanvas({
+					alias: "water",
+					canvas: this.assets.terrain_water,
+					algorithm: Tessellator.Algorithms.GridBased,
+					args: [ { tw: 32, th: 32 } ],
+				});
+
+				const grassSpritesheet = new SpriteSheet({
+					tileset: grassTessel.tileset,
+				});
+				const waterSpritesheet = new SpriteSheet({
+					tileset: waterTessel.tileset,
+				});
+
+				//FIXME: These nested .toObjects do not work properly -- figure out which work and fix the others
+				// console.log(spritesheet.toObject());
+
+				const grassScore = Score.FromArray([
+					[ "grass.normal.north.0" ],
+				]);
+				const waterScore = Score.FromArray([
+					[ "water.normal.north.0", "water.normal.north.1", "water.normal.north.2", "water.normal.north.3" ],
+				]);
+
+				const track = Track.Create({
+					score: node.terrain.type === "grass" ? grassScore : waterScore,
+					spritesheet: node.terrain.type === "grass" ? grassSpritesheet : waterSpritesheet,
+					autoPlay: true,
+				});
+
+				node.animation.sprite.texture = track.current;
+				node.animation.track = track;
+
+				this.viewport.getLayer("terrain", true).addChild(node.animation.sprite);
+
+				return [
+					alias,
+					node,
+				];
+			},
+		});
+
+		//* Create the main realm
+		const [ realm ] = $E.realm(1, {
+			worlds: {
+				overworld,
+			},
+		});
+		this.realm = realm;
+
+		const [ player ] = $E.squirrel(1, {
+			init: {
+				world: {
+					world: overworld,
+					model: new Circle({
+						x: 0.5,
+						y: 0.5,
+						r: 0.5,
+					}),
+					x: 10,
+					y: 10,
+					vx: 0.01,
+					vy: 0.01,
+				},
+			},
+		});
+
+		realm.players = {
+			player,
+		};
+		
+		this.dispatch("world:join", player, { world: overworld, x: 10, y: 10 });
+
+		const tessellator = Tessellator.FromCanvas({
+			alias: "squirrel",
+			canvas: this.assets.entity_squirrel,
+			algorithm: Tessellator.Algorithms.GridBased,
+			args: [ { tw: 32, th: 32 } ],
+		});
+
+		const spritesheet = new SpriteSheet({
+			tileset: tessellator.tileset,
+		});
+
+		const squirrelScore = Score.FromArray([
+			[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
+			[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
+			[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
+			[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
+		]);
+
+		const track = Track.Create({
+			score: squirrelScore,
+			spritesheet,
+			autoPlay: true,
+		});
+
+		player.animation.sprite.texture = track.current;
+		player.animation.track = track;
+
+		this.config.bootstrap.emit("post", Date.now());
+		this.config.bootstrap.emit("complete", this, Date.now());
 	},
 
 
@@ -509,10 +494,12 @@ export const Hooks = {
 	}
 };
 
-export default function CreateGame(...opts) {
-	return new Game({
+export default function CreateGame({ ...opts } = {}) {
+	const game = new Game({
 		...opts,
 
 		hooks: Hooks,
 	});
+
+	return game;
 };

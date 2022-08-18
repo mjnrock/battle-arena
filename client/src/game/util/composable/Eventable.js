@@ -16,12 +16,26 @@ export const $Eventable = (self) => Object.assign(self, {
 	 * Emit an event to all listeners
 	 */
 	emit(event, ...args) {
-		const handlers = this.events.get(event);
 		const results = [];
-
+		
+		/**
+		 * Activate handlers specific to that event
+		 */
+		const handlers = this.events.get(event);
 		if(handlers) {
 			for(let handler of handlers) {
-				results.push(handler(this.state, ...args));
+				results.push(handler(event, ...args));
+			}
+		}
+
+		/**
+		 * If any global handlers are present, activate them.
+		 * NOTE: These results are ignored.
+		 */
+		const globals = this.events.get("*");
+		if(globals) {
+			for(let handler of globals) {
+				handler(event, ...args);
 			}
 		}
 

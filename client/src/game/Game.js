@@ -3,6 +3,7 @@ import { Ticker } from "./util/Ticker";
 import { Environment } from "./lib/ecs/Environment";
 import { Identity } from "./lib/Identity";
 import { Registry } from "./lib/Registry";
+import Eventable from "./util/composable/Eventable";
 
 /**
  * This is the root Game object.  It should be hooked by an external
@@ -41,7 +42,7 @@ export class Game extends Identity {
 	 * registered -- if you will only be using one instance of the
 	 * game, then you can ignore this parameter entirely.
 	 */
-	constructor ({ hooks = {}, config = {}, id, tags, alias } = {}) {
+	constructor ({ hooks = {}, bootstrap = {}, config = {}, id, tags, alias } = {}) {
 		super({ id, tags });
 
 		/**
@@ -63,6 +64,11 @@ export class Game extends Identity {
 				width: 32,
 				height: 32,
 			},
+
+			/**
+			 * pre, init, post, complete
+			 */
+			bootstrap: new Eventable({ events: bootstrap }),
 
 			...config,
 		};
