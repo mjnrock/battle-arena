@@ -477,6 +477,7 @@ export default function CreateGame({ ...opts } = {}) {
 	const game = new Game({
 		...opts,
 
+		//TODO: This changes the *renderer* scale, but really it should pixel-scale up the sprites beforehand to maintain resolution (during asset loading, using the Base64 scale utility and renormalizing tile size -- 32x32 -> 128x128)
 		config: {
 			scale: 2.5,
 		},
