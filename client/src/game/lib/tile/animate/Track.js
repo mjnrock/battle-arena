@@ -76,3 +76,40 @@ export class Track extends Identity {
 };
 
 export default Track;
+
+
+/**
+ * * EXAMPLE
+ * 
+ * const tessellator = Tessellator.FromCanvas({
+		alias: "squirrel",
+		canvas: assets.entity_squirrel,
+		algorithm: Tessellator.Algorithms.GridBased,
+		args: [ { tw: 32, th: 32 } ],
+	});
+
+	const spritesheet = new SpriteSheet({
+		tileset: tessellator.tileset,
+	});
+
+	const squirrelScore = Score.FromArray([
+		[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
+		[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
+		[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
+		[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
+	]);
+
+	const track = Track.Create({
+		score: squirrelScore,
+		spritesheet,
+		autoPlay: true,
+	});
+
+	// console.log(tessellator);
+	// console.log(spritesheet);
+	// console.log(squirrelScore);
+	// console.log(track);
+
+	entity.animation.sprite.texture = track.current;
+	entity.animation.track = track;
+ */

@@ -266,9 +266,6 @@ export const Hooks = {
 						tileset: tessellator.tileset,
 					});
 
-					//FIXME: These nested .toObjects do not work properly -- figure out which work and fix the others
-					// console.log(spritesheet.toObject());
-
 					const squirrelScore = Score.FromArray([
 						[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
 						[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
