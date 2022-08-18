@@ -454,8 +454,6 @@ export const Hooks = {
 			},
 		});
 
-		// this.renderer.ticker.add(() => console.log(this.renderer.ticker.FPS))
-
 		return this;
 	},
 
