@@ -1,16 +1,10 @@
 import * as PixiJS from "pixi.js";
 import { useState, useEffect } from "react";
 
+import Game from "../game/Game";
 import CreateGame from "../game/BattleArena";
 
 import { PixiCanvas } from "../components/PixiCanvas";
-
-import { Base64, PixelScaleCanvas } from "./../game/util/Base64";
-import Game from "../game/Game";
-
-// Base64.DecodeFile("assets/images/squirrel.png").then(canvas => {
-// 	console.log(PixelScaleCanvas(canvas, 20).toDataURL());
-// });
 
 /**
  * FPS Array
@@ -20,10 +14,19 @@ export function GameRoute() {
 	const [ game, setGame ] = useState();
 
 	useEffect(() => {
+		/**
+		 * IFF default singleton has not been created, create it.
+		 */
 		if(!Game.Get()) {
 			CreateGame({
 				bootstrap: {
-					complete: (event, g, ...args) => setGame(g),
+					complete: (event, g, ...args) => {
+						g.loop.events.add("tick", g);
+						g.loop.start();
+						g.renderer.ticker.start();
+
+						setGame(g);
+					}
 				},
 			});
 		}
@@ -33,10 +36,6 @@ export function GameRoute() {
 		if(!game) {
 			return;
 		}
-		
-		game.loop.events.add("tick", game);
-		game.loop.start();
-		game.renderer.ticker.start();
 
 		/**
 		 * Write the FPS to the screen each draw
@@ -61,7 +60,7 @@ export function GameRoute() {
 		game.renderer.ticker.add(() => {
 			logFPS.push(~~game.renderer.ticker.FPS);
 
-			if (logFPS.length > 250) {
+			if(logFPS.length > 250) {
 				logFPS.shift();
 			}
 
@@ -70,15 +69,10 @@ export function GameRoute() {
 			 */
 			fps.text = ~~(logFPS.reduce((a, v) => a + v, 0) / logFPS.length);
 		});
-
-		return () => {
-			game.loop.stop();
-			game.renderer.ticker.stop();
-		};
 	}, [ game ]);
 
 	if(!game) {
-		return <div style={{
+		return <div style={ {
 			width: "100%",
 			height: "100vh",
 			display: "flex",
@@ -86,7 +80,7 @@ export function GameRoute() {
 			alignItems: "center",
 			fontSize: "5em",
 			fontFamily: "monospace",
-		}}>Loading...</div>;
+		} }>Loading...</div>;
 	}
 
 	return (

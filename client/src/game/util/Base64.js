@@ -133,7 +133,11 @@ export const Base64 = {
 			try {
 				const promises = [];
 
-				if(Identity.Comparators.IsStrictObject(paths)) {
+				if(Identity.Comparators.IsString(paths)) {
+					promises.push(new Promise((resolve) => {
+						Base64.DecodeFile(paths, allowAnonymous).then(canvas => resolve([ paths, canvas ]));
+					}));
+				} else if(Identity.Comparators.IsStrictObject(paths)) {
 					for(let [ alias, path ] of Object.entries(paths)) {
 						promises.push(new Promise((resolve) => {
 							Base64.DecodeFile(path, allowAnonymous).then(canvas => resolve([ alias, canvas ]));

@@ -3,6 +3,7 @@ import { Identity } from "../Identity";
 import { Events } from "../../util/relay/Events";
 
 //FIXME: Scroll does not work
+//TODO: Build in an "offset" config property that offsets *all* X,Y coordinates -- primarily used for situations where the .element is not in the 0,0 window-position
 
 export class MouseController extends Identity {
 	static EventTypes = {
