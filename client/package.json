@@ -1,0 +1,56 @@
+{
+	"name": "client",
+	"version": "0.1.0",
+	"private": false,
+	"dependencies": {
+		"@lespantsfancy/relay": "^0.2.6",
+		"@testing-library/jest-dom": "^5.14.1",
+		"@testing-library/react": "^13.0.0",
+		"@testing-library/user-event": "^13.2.1",
+		"esm": "^3.2.25",
+		"is-base64": "^1.1.0",
+		"mainloop.js": "^1.0.4",
+		"matter-js": "^0.18.0",
+		"pixi.js": "^6.4.2",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"react-router-dom": "6",
+		"react-scripts": "^5.0.1",
+		"uuid": "^8.3.2",
+		"web-vitals": "^2.1.0"
+	},
+	"browser": {
+		"crypto": false
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "cls && node -r esm src/tests/index.js",
+		"agency": "cls && node -r esm src/lib/@agency/tests/esm/index.js",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": [
+			"react-app",
+			"react-app/jest"
+		],
+		"rules": {
+			"no-unused-vars": "off",
+			"no-extend-native": "off",
+			"import/no-anonymous-default-export": "off",
+			"react-hooks/exhaustive-deps": "off"
+		}
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	}
+}

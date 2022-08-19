@@ -1,0 +1,8 @@
+☐ Figure out how to instantiate Entities (e.g. Node, World, etc.) to map Systems properly
+☐ Meta-Game wrapper (Context?)
+	☐ Create global registry
+	☐ Add all meta-game components here
+		☐ Game
+		☐ Networking
+		☐ Persistence
+		☐ etc.
