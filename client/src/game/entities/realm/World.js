@@ -3,7 +3,7 @@ import { Registry } from "./../../lib/Registry";
 import { Node } from "./Node";
 
 export class World extends Entity {
-	static Nomen = "world";
+	static Alias = "world";
 	static Components = {
 		size: (width, height) => ({
 			width,
@@ -15,7 +15,7 @@ export class World extends Entity {
 
 	constructor ({ size = [ 10, 10 ], nodes = {}, entities = {}, each, ...rest } = {}) {
 		super({
-			nomen: World.Nomen,
+			alias: World.Alias,
 			init: {
 				size,
 				nodes,

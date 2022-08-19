@@ -6,7 +6,7 @@ import { terrain } from "./../../components/terrain";
 import { animation } from "./../../components/animation";
 
 export class Node extends Entity {
-	static Nomen = "node";
+	static Alias = "node";
 	static Components = {
 		world,
 		terrain,
@@ -16,7 +16,7 @@ export class Node extends Entity {
 
 	constructor ({ ...rest } = {}) {
 		super({
-			nomen: Node.Nomen,
+			alias: Node.Alias,
 			...rest,
 		});
 	}

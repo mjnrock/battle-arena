@@ -126,9 +126,9 @@ export class Environment extends Identity {
 	_registrationFactoryHelper(environment, results) {
 		return Object.fromEntries(results.map(e => [
 			/**
-			 * Create an entry object with e.Nomen as the key
+			 * Create an entry object with e.Alias as the key
 			 */
-			e.Nomen,
+			e.Alias,
 
 			/**
 			 * Wrap the Entity constructor in a factory function
@@ -161,7 +161,7 @@ export class Environment extends Identity {
 			/**
 			 * This will become the "selection key" for this system.
 			 */
-			this.system.registerWithAlias(system, system.constructor.Nomen);
+			this.system.registerWithAlias(system, system.constructor.Alias);
 			// this.system.registerWithAlias(system, system.constructor.name);
 		}
 	}

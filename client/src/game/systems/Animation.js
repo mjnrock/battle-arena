@@ -1,7 +1,7 @@
 import { System } from "../lib/ecs/System";
 
 export class Animation extends System {
-	static Nomen = "animation";
+	static Alias = "animation";
 
 	constructor ({ ...opts } = {}) {
 		super(opts);

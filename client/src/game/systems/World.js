@@ -3,7 +3,7 @@ import Helper from "./../util/helper";
 import { Game } from "./../Game";
 
 export class World extends System {
-	static Nomen = "world";
+	static Alias = "world";
 
 	constructor ({ ...opts } = {}) {
 		super(opts);

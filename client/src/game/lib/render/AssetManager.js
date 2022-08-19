@@ -16,7 +16,7 @@ export class AssetManager extends Identity {
 		/**
 		 * Contains all of the { alias: spritesheet<canvas> } pairs.
 		 */
-		this.canvasSpriteSheet = null;
+		this.canvases = null;
 
 		/**
 		 * The tessellations to be used for spritesheets.
@@ -31,6 +31,8 @@ export class AssetManager extends Identity {
 		 * The scores to be used for track creation.
 		 */
 		this.scores = null;
+
+		//TODO: Create an actual asset initialization for the Game using this new class to help maintain it
 	}
 
 	//#region Initialization Methods
@@ -42,7 +44,7 @@ export class AssetManager extends Identity {
 	 * (paths = [], allowAnonymous = false)
 	 */
 	async loadCanvasSpriteSheet(paths = {}) {
-		this.canvasSpriteSheet = await Base64.DecodeFiles(paths).then(map => {
+		this.canvases = await Base64.DecodeFiles(paths).then(map => {
 			const registry = new Registry();
 
 			for(let [ alias, canvas ] of Object.entries(map)) {
@@ -73,7 +75,7 @@ export class AssetManager extends Identity {
 			fromCanvasArgs = [ fromCanvasArgs ];
 		}
 
-		//TODO: Tessellations should be able to be selected by the alias to pull from the current canvasSpriteSheet registry.
+		//TODO: Tessellations should be able to be selected by the alias to pull from the current .canvases registry.
 
 		for(let args of fromCanvasArgs) {
 			const tessellation = Tile.Tessellator.FromCanvas(args);

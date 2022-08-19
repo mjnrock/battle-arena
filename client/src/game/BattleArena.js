@@ -319,9 +319,6 @@ export const Hooks = {
 					tileset: waterTessel.tileset,
 				});
 
-				//FIXME: These nested .toObjects do not work properly -- figure out which work and fix the others
-				// console.log(spritesheet.toObject());
-
 				const grassScore = Score.FromArray([
 					[ "grass.normal.north.0" ],
 				]);

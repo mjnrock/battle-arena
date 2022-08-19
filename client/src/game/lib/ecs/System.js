@@ -7,13 +7,13 @@ import Runner from "../../util/relay/Runner";
  * allowing it to modify anything and/or do anything it wants.
  */
 export class System extends Identity {
-	constructor ({ reducers = {}, id, tags, nomen } = {}) {
+	constructor ({ reducers = {}, id, tags, alias } = {}) {
 		super({ id, tags });
 
 		/**
 		 * The name of the System and the name of the Component key it expects to find
 		 */
-		this.nomen = nomen || this.constructor.Nomen;
+		this.alias = alias || this.constructor.Alias;
 
 		/**
 		 * The System subscribes itself to the Runners, receiving the payload when .emitted to the .handler[ event ] Runner.
@@ -75,8 +75,8 @@ export class System extends Identity {
 	 * Get the Component from the Entity
 	 */
 	get(entity) {
-		if(entity.has(this.nomen)) {
-			return entity.get(this.nomen);
+		if(entity.has(this.alias)) {
+			return entity.get(this.alias);
 		}
 
 		return false;
@@ -85,7 +85,7 @@ export class System extends Identity {
 	 * Invoke Entity.update on the Entity, passing the new data
 	 */
 	set(entity, data) {
-		entity.update(this.nomen, data);
+		entity.update(this.alias, data);
 
 		return entity;
 	}

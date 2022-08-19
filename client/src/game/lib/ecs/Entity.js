@@ -11,16 +11,16 @@ import Identity from "../Identity";
  * array to prevent function evaluation in those cases.
  */
 export class Entity extends Identity {
-	static Nomen = "entity";
+	static Alias = "entity";
 	static Components = {};
 
-	constructor ({ components = {}, nomen, id, tags, init = {} } = {}) {
+	constructor ({ components = {}, alias, id, tags, init = {} } = {}) {
 		super([], { id, tags });
 
 		/**
 		 * A class-unique name for the Entity
 		 */
-		this.nomen = nomen || this.constructor.Nomen;
+		this.alias = alias || this.constructor.Alias;
 
 		/**
 		 * Register all of the components and seed them with data from @init

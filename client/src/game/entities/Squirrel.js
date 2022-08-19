@@ -5,7 +5,7 @@ import { world } from "./../components/world";
 import { animation } from "./../components/animation";
 
 export class Squirrel extends Entity {
-	static Nomen = "squirrel";
+	static Alias = "squirrel";
 	static Components = [
 		game,
 		world,
@@ -14,7 +14,7 @@ export class Squirrel extends Entity {
 
 	constructor ({ components = [], id, tags, init = {} } = {}) {
 		super({
-			nomen: Squirrel.Nomen,
+			alias: Squirrel.Alias,
 			components,
 			id,
 			tags,
