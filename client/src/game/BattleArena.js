@@ -238,6 +238,9 @@ export const Hooks = {
 		//TODO: Create an EdgeMask evaluator for the World terrain
 
 		this.assets = new AssetManager();
+		/**
+		 * Load all of the assets needed for the game
+		 */
 		await this.assets.loadCanvasSpriteSheet({
 			"entity_squirrel": "assets/images/squirrel.png",
 			"entity_bunny": "assets/images/bunny.png",
@@ -250,6 +253,9 @@ export const Hooks = {
 			 */
 			({ canvas }) => PixelScaleCanvas(canvas, this.config.tile.width / 32),
 		]);
+		/**
+		 * Create all of the tessellations from the loaded canvases
+		 */
 		await this.assets.loadTessellations([
 			{
 				alias: "grass",
@@ -270,18 +276,23 @@ export const Hooks = {
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 		]);
+
+		/**
+		 * While the position-scores should probably be the dominant usage method, the sprite-specific
+		 * versions are still 1st class citizens behind the scenes ([ [ "grass.normal.north.0" ], ... ]).
+		 */
 		await this.assets.loadScoresFromArray({
-			grass: [
-				[ "grass.normal.north.0" ],
+			stationary: [
+				[ "0,0" ],
 			],
-			water: [
-				[ "water.normal.north.0", "water.normal.north.1", "water.normal.north.2", "water.normal.north.3" ],
+			x4: [
+				[ "0,0", "1,0", "2,0", "3,0" ],
 			],
-			squirrel: [
-				[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
-				[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
-				[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
-				[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
+			rotate: [
+				[ "0,0", "1,0" ],
+				[ "0,1", "1,1" ],
+				[ "0,2", "1,2" ],
+				[ "0,3", "1,3" ],
 			],
 		});
 
@@ -312,9 +323,9 @@ export const Hooks = {
 
 				let track;
 				if(node.terrain.type === "grass") {
-					track = this.assets.createTrack("grass", "grass");
+					track = this.assets.createTrack("stationary", "grass");
 				} else {
-					track = this.assets.createTrack("water", "water");
+					track = this.assets.createTrack("x4", "water");
 				}
 
 				node.animation.sprite.texture = track.current;
@@ -361,7 +372,7 @@ export const Hooks = {
 
 		let now = Date.now();
 		for(let entity of [ player, ...rest ]) {
-			const track = this.assets.createTrack("squirrel", "squirrel");
+			const track = this.assets.createTrack("rotate", "squirrel");
 
 			//STUB: Add some randomness to the squirrels' animation cycle "start"
 			track.timer.config.start = now + (Math.random() < 0.5 ? -1 : 1) * Math.random() * 1000;

@@ -24,7 +24,13 @@ export class SpriteSheet extends Identity {
 		this.tileset.tiles.forEach(tile => {
 			const texture = new PixiJS.Texture(this.baseTexture, new PixiJS.Rectangle(tile.offset.x, tile.offset.y, tile.offset.width, tile.offset.height));
 
-			this.textures.set(tile.alias, texture);
+			if(Array.isArray(tile.alias)) {
+				tile.alias.forEach(alias => {
+					this.textures.set(alias, texture);
+				});
+			} else {
+				this.textures.set(tile.alias, texture);
+			}
 		});
 	}
 

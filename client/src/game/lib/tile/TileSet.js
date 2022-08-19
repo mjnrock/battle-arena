@@ -41,7 +41,12 @@ export class TileSet extends Tile {
 		if(typeof tx === "number" && typeof ty === "number") {
 			x = tx * this.config.tw;
 			y = ty * this.config.th;
+		} else {
+			tx = ~~(x / this.config.tw);
+			ty = ~~(y / this.config.th);
 		}
+
+		alias = [ alias, `${ tx },${ ty }` ];
 
 		const tile = new Tile({
 			alias,
