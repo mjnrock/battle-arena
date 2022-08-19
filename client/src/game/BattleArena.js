@@ -237,7 +237,12 @@ export const Hooks = {
 
 		//TODO: Create an EdgeMask evaluator for the World terrain
 
+		/**
+		 * Initialize the AssetManager to maintain a registry of assets
+		 * and facilitate all of the loading processes.
+		 */
 		this.assets = new AssetManager();
+
 		/**
 		 * Load all of the assets needed for the game
 		 */
@@ -253,6 +258,7 @@ export const Hooks = {
 			 */
 			({ canvas }) => PixelScaleCanvas(canvas, this.config.tile.width / 32),
 		]);
+
 		/**
 		 * Create all of the tessellations from the loaded canvases
 		 */
@@ -288,7 +294,7 @@ export const Hooks = {
 			x4: [
 				[ "0,0", "1,0", "2,0", "3,0" ],
 			],
-			rotate: [
+			rotate360: [
 				[ "0,0", "1,0" ],
 				[ "0,1", "1,1" ],
 				[ "0,2", "1,2" ],
@@ -372,7 +378,7 @@ export const Hooks = {
 
 		let now = Date.now();
 		for(let entity of [ player, ...rest ]) {
-			const track = this.assets.createTrack("rotate", "squirrel");
+			const track = this.assets.createTrack("rotate360", "squirrel");
 
 			//STUB: Add some randomness to the squirrels' animation cycle "start"
 			track.timer.config.start = now + (Math.random() < 0.5 ? -1 : 1) * Math.random() * 1000;
