@@ -234,6 +234,7 @@ export const Hooks = {
 			},
 		});
 
+		//TODO: Create an EdgeMask evaluator for the World terrain
 
 		this.assets = new AssetManager();
 		await this.assets.loadCanvasSpriteSheet({
@@ -243,22 +244,6 @@ export const Hooks = {
 			"terrain_water": "assets/images/water.png",
 			"terrain_grass": "assets/images/grass.png",
 		});
-
-		this.config.bootstrap.emit("init", Date.now());
-		this.post();
-	},
-
-	/**
-	 * Perform any post-init tasks, such as rendering and UI.
-	 */
-	async post() {
-		/**
-		 ** These constants are extracted here to remind of the contents
-		 ** and purpose of the environment.
-		 */
-		const { system: systems, entity: entities, factory } = this.environment;
-		const { system: $S, entity: $E, component: $C } = factory;
-
 		await this.assets.loadTessellations([
 			{
 				alias: "grass",
@@ -279,7 +264,6 @@ export const Hooks = {
 				args: [ { tw: 32, th: 32 } ],
 			},
 		]);
-
 		await this.assets.loadScoresFromArray({
 			grass: [
 				[ "grass.normal.north.0" ],
@@ -295,7 +279,21 @@ export const Hooks = {
 			],
 		});
 
-		//TODO: Create an EdgeMask evaluator for the World terrain
+		this.config.bootstrap.emit("init", Date.now());
+		this.post();
+	},
+
+	/**
+	 * Perform any post-init tasks, such as rendering and UI.
+	 */
+	async post() {
+		/**
+		 ** These constants are extracted here to remind of the contents
+		 ** and purpose of the environment.
+		 */
+		const { system: systems, entity: entities, factory } = this.environment;
+		const { system: $S, entity: $E, component: $C } = factory;
+
 		const [ overworld ] = $E.world(1, {
 			size: [ 32, 24 ],
 			each: ({ alias, node }) => {
@@ -357,9 +355,6 @@ export const Hooks = {
 
 		let now = Date.now();
 		for(let entity of [ player, ...rest ]) {
-			/**
-			 * (score, spritesheet, opts)
-			 */
 			const track = this.assets.createTrack("squirrel", "squirrel");
 
 			//STUB: Add some randomness to the squirrels' animation cycle "start"
