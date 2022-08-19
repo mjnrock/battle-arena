@@ -8,17 +8,19 @@ export const EnumTerrainType = {
 };
 
 export const EnumEdgeFlag = {
-	NONE: 0,
 	TOP: 2 << 0,
 	BOTTOM: 2 << 1,
 	LEFT: 2 << 2,
 	RIGHT: 2 << 3,
+	TOP_LEFT: 2 << 4,
+	TOP_RIGHT: 2 << 5,
+	BOTTOM_LEFT: 2 << 6,
+	BOTTOM_RIGHT: 2 << 7,
 };
-EnumEdgeFlag.TOP_LEFT = EnumEdgeFlag.TOP | EnumEdgeFlag.LEFT;
-EnumEdgeFlag.TOP_RIGHT = EnumEdgeFlag.TOP | EnumEdgeFlag.RIGHT;
-EnumEdgeFlag.BOTTOM_LEFT = EnumEdgeFlag.BOTTOM | EnumEdgeFlag.LEFT;
-EnumEdgeFlag.BOTTOM_RIGHT = EnumEdgeFlag.BOTTOM | EnumEdgeFlag.RIGHT;
-EnumEdgeFlag.ALL = EnumEdgeFlag.TOP | EnumEdgeFlag.BOTTOM | EnumEdgeFlag.LEFT | EnumEdgeFlag.RIGHT;
+EnumEdgeFlag.NONE = 0;
+EnumEdgeFlag.ALL_4 = EnumEdgeFlag.TOP | EnumEdgeFlag.BOTTOM | EnumEdgeFlag.LEFT | EnumEdgeFlag.RIGHT;
+EnumEdgeFlag.ALL_4X = EnumEdgeFlag.TOP_LEFT | EnumEdgeFlag.TOP_RIGHT | EnumEdgeFlag.BOTTOM_LEFT | EnumEdgeFlag.BOTTOM_RIGHT;
+EnumEdgeFlag.ALL = EnumEdgeFlag.ALL_4 | EnumEdgeFlag.ALL_4D;
 
 export function terrain({ type = EnumTerrainType.VOID, speed = 1, meta = {}, edges = EnumEdgeFlag.NONE } = {}) {
 	return {

@@ -6,6 +6,8 @@ import { World } from "./entities/realm/World";
 import { Realm } from "./entities/realm/Realm";
 import { Circle } from "./util/shape/Circle";
 
+import { EnumEdgeFlag } from "./components/terrain";
+
 
 import { World as SysWorld } from "./systems/World";
 import { Animation as SysAnimation } from "./systems/Animation";
@@ -168,12 +170,12 @@ export const Hooks = {
 	async pre() {
 		//TODO: Register / initialize all of the environmental data here
 		this.environment.registerFactorySystems([
-			//STUB: Add all of the system classes here
+			//NOTE: Add all of the system classes here
 			SysWorld,
 			SysAnimation,
 		]);
 		this.environment.registerFactoryEntities([
-			//STUB: Add all of the entity classes here
+			//NOTE: Add all of the entity classes here
 			Squirrel,
 			Node,
 			World,
@@ -252,6 +254,7 @@ export const Hooks = {
 			"entity_bear": "assets/images/bear.png",
 			"terrain_water": "assets/images/water.png",
 			"terrain_grass": "assets/images/grass.png",
+			"terrain_grass_edge": "assets/images/edge-grass.png",
 		}, [
 			/**
 			 * Upsize pixel-scale all of the canvases for better resolution (e.g. 128 -> 4x)
@@ -266,6 +269,12 @@ export const Hooks = {
 			{
 				alias: "grass",
 				canvas: this.assets.canvases.terrain_grass,
+				algorithm: AssetManager.Algorithms.GridBased,
+				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
+			},
+			{
+				alias: "grass_edge",
+				canvas: this.assets.canvases.terrain_grass_edge,
 				algorithm: AssetManager.Algorithms.GridBased,
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
@@ -323,6 +332,7 @@ export const Hooks = {
 		const [ overworld ] = $E.world(1, {
 			size: [ 32, 24 ],
 			each: ({ alias, node }) => {
+				node.alias = alias;
 				node.terrain.type = Math.random() > 0.5 ? "grass" : "water";
 
 				/**
@@ -348,6 +358,46 @@ export const Hooks = {
 				];
 			},
 		});
+
+		function getNeighbors(node) {
+			const coords = {
+				TOP_LEFT: [ node.world.x - 1, node.world.y - 1 ],
+				TOP: [ node.world.x, node.world.y - 1 ],
+				TOP_RIGHT: [ node.world.x + 1, node.world.y - 1 ],
+				LEFT: [ node.world.x - 1, node.world.y ],
+				NONE: [ node.world.x, node.world.y ],
+				RIGHT: [ node.world.x + 1, node.world.y ],
+				BOTTOM_LEFT: [ node.world.x - 1, node.world.y + 1 ],
+				BOTTOM: [ node.world.x, node.world.y + 1 ],
+				BOTTOM_RIGHT: [ node.world.x + 1, node.world.y + 1 ],
+			};
+
+			let nodes = Object.fromEntries(Object.entries(coords).map(([ alias, [ x, y ] ]) => {
+				const node = overworld.nodes[ `${ x },${ y }` ];
+
+				return [ alias, node || false ];
+			}));
+
+			return nodes;
+		}
+
+		for(let x = 0; x < overworld.width; x++) {
+			for(let y = 0; y < overworld.height; y++) {
+				const node = overworld.nodes[ `${ x },${ y }` ];
+
+				if(node.terrain.type !== "grass") {
+					const neighbors = getNeighbors(node);
+
+					for(let [ key, neighbor ] of Object.entries(neighbors)) {
+						if(neighbor) {
+							node.terrain.edges |= EnumEdgeFlag[ key ];
+						}
+					}
+
+					console.log(node)
+				}
+			}
+		}
 
 		const [ player, ...rest ] = $E.squirrel(100, {
 			init: {
