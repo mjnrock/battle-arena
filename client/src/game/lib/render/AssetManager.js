@@ -23,7 +23,7 @@ export class AssetManager extends Identity {
 		/**
 		 * The tessellations to be used for spritesheets.
 		 */
-		this.tessellations = null;		
+		this.tessellations = null;
 		/**
 		 * The spritesheets to be used for Scoring.
 		 */
@@ -41,15 +41,18 @@ export class AssetManager extends Identity {
 	/**
 	 * This expects @paths to conform with Base64.DecodeFiles() and will return
 	 * a (optionally aliased) Registry of { alias: spritesheet<canvas> } pairs to
-	 * be used by for tessellation.
-	 * 
-	 * (paths = [], allowAnonymous = false)
+	 * be used by for tessellation.  If needed, a @middleware reducer array stack can
+	 * be passed to modify the *canvas* before it is registered (e.g. scaling, filters, etc.).
 	 */
-	async loadCanvasSpriteSheet(paths = {}) {
-		this.canvases = await Base64.DecodeFiles(paths).then(map => {
+	async loadCanvasSpriteSheet(paths = {}, middleware = [], allowAnonymous = false) {
+		this.canvases = await Base64.DecodeFiles(paths, allowAnonymous).then(map => {
 			const registry = new Registry();
 
 			for(let [ alias, canvas ] of Object.entries(map)) {
+				for(let fn of middleware) {
+					canvas = fn({ canvas, alias, paths, self: this }) || canvas;
+				}
+
 				registry.registerWithAlias(canvas, alias);
 			}
 

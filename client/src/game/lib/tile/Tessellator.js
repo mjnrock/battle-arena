@@ -19,6 +19,7 @@ import { TileSet } from "./TileSet";
 export class Tessellator {
 	static Algorithms = {
 		GridBased: (self, { tw, th } = {}) => {
+			// console.info(self.source.width, tw, self.source.height, th, self.source.width % tw, self.source.height % th)
 			if(self.source.width % tw !== 0 || self.source.height % th !== 0) {
 				throw new Error("Source image dimensions must be evenly divisible by tile dimensions.");
 			}

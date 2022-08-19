@@ -21,6 +21,7 @@ import { Collection } from "./util/Collection";
 import { Registry } from "./lib/Registry";
 
 import { AssetManager } from "./lib/render/AssetManager";
+import { PixelScaleCanvas } from "./util/Base64";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 //? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
@@ -243,25 +244,30 @@ export const Hooks = {
 			"entity_bear": "assets/images/bear.png",
 			"terrain_water": "assets/images/water.png",
 			"terrain_grass": "assets/images/grass.png",
-		});
+		}, [
+			/**
+			 * Upsize pixel-scale all of the canvases for better resolution (e.g. 128 -> 4x)
+			 */
+			({ canvas }) => PixelScaleCanvas(canvas, this.config.tile.width / 32),
+		]);
 		await this.assets.loadTessellations([
 			{
 				alias: "grass",
 				canvas: this.assets.canvases.terrain_grass,
 				algorithm: AssetManager.Algorithms.GridBased,
-				args: [ { tw: 32, th: 32 } ],
+				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 			{
 				alias: "water",
 				canvas: this.assets.canvases.terrain_water,
 				algorithm: AssetManager.Algorithms.GridBased,
-				args: [ { tw: 32, th: 32 } ],
+				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 			{
 				alias: "squirrel",
 				canvas: this.assets.canvases.entity_squirrel,
 				algorithm: AssetManager.Algorithms.GridBased,
-				args: [ { tw: 32, th: 32 } ],
+				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 		]);
 		await this.assets.loadScoresFromArray({
@@ -429,10 +435,11 @@ export default function CreateGame({ ...opts } = {}) {
 	const game = new Game({
 		...opts,
 
-		//TODO: This changes the *renderer* scale, but really it should pixel-scale up the sprites beforehand to maintain resolution (during asset loading, using the Base64 scale utility and renormalizing tile size -- 32x32 -> 128x128)
 		config: {
-			// scale: 1,
-			scale: 2.5,
+			tile: {
+				width: 128,
+				height: 128,
+			},
 		},
 		hooks: Hooks,
 	});

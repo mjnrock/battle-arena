@@ -61,8 +61,8 @@ export class Game extends Identity {
 			fps: 24,
 
 			tile: {
-				width: 32,
-				height: 32,
+				width: 128,
+				height: 128,
 			},
 			scale: 1.0,
 
