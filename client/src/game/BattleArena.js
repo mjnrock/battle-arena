@@ -284,8 +284,9 @@ export const Hooks = {
 		]);
 
 		/**
-		 * While the position-scores should probably be the dominant usage method, the sprite-specific
-		 * versions are still 1st class citizens behind the scenes ([ [ "grass.normal.north.0" ], ... ]).
+		 * While the position-scores should probably be the dominant usage method, the specific-naming
+		 * versions are still 1st class citizens behind the scenes ([ [ "grass.normal.north.0" ], ... ])
+		 * and could be similarly generalized with the appropriate naming convention.
 		 */
 		await this.assets.loadScoresFromArray({
 			stationary: [
@@ -316,6 +317,8 @@ export const Hooks = {
 		 */
 		const { system: systems, entity: entities, factory } = this.environment;
 		const { system: $S, entity: $E, component: $C } = factory;
+
+		//TODO: Reevaluate the Factory setup -- it feels clunky
 
 		const [ overworld ] = $E.world(1, {
 			size: [ 32, 24 ],
