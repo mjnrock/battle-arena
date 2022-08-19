@@ -1,4 +1,4 @@
-export function world({ world, model, x = 0, y = 0, vx = 0, vy = 0, ax = 0, ay = 0, speed = 2.5, facing = 0 } = {}) {
+export function world({ world, model, x = 0, y = 0, vx = 0, vy = 0, ax = 0, ay = 0, speed = 1.5, facing = 0 } = {}) {
 	return {
 		/**
 		 * This should either be a reference to the world or a UUID to find it
