@@ -13,9 +13,9 @@ export class World extends Entity {
 		entities: Registry,
 	};
 
-	constructor ({ size = [ 10, 10 ], nodes = {}, entities = {}, each, ...rest } = {}) {
+	constructor ({ size = [ 10, 10 ], nodes = {}, entities = {}, each, alias, ...rest } = {}) {
 		super({
-			alias: World.Alias,
+			alias: alias || World.Alias,
 			init: {
 				size,
 				nodes,

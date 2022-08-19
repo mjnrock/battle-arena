@@ -12,9 +12,9 @@ export class Squirrel extends Entity {
 		animation,
 	];
 
-	constructor ({ components = [], id, tags, init = {} } = {}) {
+	constructor ({ components = [], id, tags, alias, init = {} } = {}) {
 		super({
-			alias: Squirrel.Alias,
+			alias: alias || Squirrel.Alias,
 			components,
 			id,
 			tags,

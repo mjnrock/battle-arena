@@ -7,9 +7,9 @@ export class Realm extends Entity {
 		worlds: Registry,
 	};
 
-	constructor ({ worlds = {}, each, ...rest } = {}) {
+	constructor ({ worlds = {}, each, alias, ...rest } = {}) {
 		super({
-			alias: Realm.Alias,
+			alias: alias || Realm.Alias,
 			init: {
 				worlds,
 			},

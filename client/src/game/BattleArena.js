@@ -4,9 +4,8 @@ import { Squirrel } from "./entities/Squirrel";
 import { Node } from "./entities/realm/Node";
 import { World } from "./entities/realm/World";
 import { Realm } from "./entities/realm/Realm";
-
-import { Base64 } from "./util/Base64";
 import { Circle } from "./util/shape/Circle";
+
 
 import { World as SysWorld } from "./systems/World";
 import { Animation as SysAnimation } from "./systems/Animation";
@@ -21,45 +20,10 @@ import { ViewPort } from "./lib/pixi/ViewPort";
 import { Collection } from "./util/Collection";
 import { Registry } from "./lib/Registry";
 
-import { Tessellator } from "./lib/tile/Tessellator";
-import { SpriteSheet } from "./lib/tile/pixi/SpriteSheet";
-import { Score } from "./lib/tile/animate/Score";
-import { Track } from "./lib/tile/animate/Track";
+import { AssetManager } from "./lib/render/AssetManager";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 //? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
-
-/**
- *? This file is the designated data repository for all of the major game data.
- *? It should perform all of the heavy lifting for the game, and each method will be
- *? bound to the Game for << this >> scoping.
- *
- * Where Game dictates the general flow, BattleArena is the specific data-level implementation.
- * Basically, all game setup is done here.
- */
-
-
-export async function loadAssets(game) {
-	const registry = new Registry();
-
-	//TODO: Load all of the Sprites and Textures here
-	return await Base64.DecodeFiles({
-		"entity_squirrel": "assets/images/squirrel.png",
-		"entity_bunny": "assets/images/bunny.png",
-		"entity_bear": "assets/images/bear.png",
-		"terrain_water": "assets/images/water.png",
-		"terrain_grass": "assets/images/grass.png",
-	}).then(map => {
-		for(let [ alias, canvas ] of Object.entries(map)) {
-			registry.registerWithAlias(canvas, alias);
-		}
-
-		game.assets = registry;
-
-		return game.assets;
-	});
-};
-
 
 /**
  ** This is the main input trap for the game.  It should contain:
@@ -200,7 +164,7 @@ export const Hooks = {
 	 * Perform any initialization tasks for the game, such as registering
 	 * all of the system and entity factories.
 	 */
-	pre() {
+	async pre() {
 		//TODO: Register / initialize all of the environmental data here
 		this.environment.registerFactorySystems([
 			//STUB: Add all of the system classes here
@@ -223,7 +187,7 @@ export const Hooks = {
 	/**
 	 * Perform the "main" initialization of the game.
 	 */
-	init() {
+	async init() {
 		/**
 		 * Initialize the Pixi wrapper, add Game as a listener (will invoke .render)
 		 */
@@ -271,22 +235,65 @@ export const Hooks = {
 		});
 
 
-		loadAssets(this).then(assets => {
-			this.config.bootstrap.emit("init", Date.now());
-			this.post();
+		this.assets = new AssetManager();
+		await this.assets.loadCanvasSpriteSheet({
+			"entity_squirrel": "assets/images/squirrel.png",
+			"entity_bunny": "assets/images/bunny.png",
+			"entity_bear": "assets/images/bear.png",
+			"terrain_water": "assets/images/water.png",
+			"terrain_grass": "assets/images/grass.png",
 		});
+
+		this.config.bootstrap.emit("init", Date.now());
+		this.post();
 	},
 
 	/**
 	 * Perform any post-init tasks, such as rendering and UI.
 	 */
-	post() {
+	async post() {
 		/**
 		 ** These constants are extracted here to remind of the contents
 		 ** and purpose of the environment.
 		 */
 		const { system: systems, entity: entities, factory } = this.environment;
 		const { system: $S, entity: $E, component: $C } = factory;
+
+		await this.assets.loadTessellations([
+			{
+				alias: "grass",
+				canvas: this.assets.canvases.terrain_grass,
+				algorithm: AssetManager.Algorithms.GridBased,
+				args: [ { tw: 32, th: 32 } ],
+			},
+			{
+				alias: "water",
+				canvas: this.assets.canvases.terrain_water,
+				algorithm: AssetManager.Algorithms.GridBased,
+				args: [ { tw: 32, th: 32 } ],
+			},
+			{
+				alias: "squirrel",
+				canvas: this.assets.canvases.entity_squirrel,
+				algorithm: AssetManager.Algorithms.GridBased,
+				args: [ { tw: 32, th: 32 } ],
+			},
+		]);
+
+		await this.assets.loadScoresFromArray({
+			grass: [
+				[ "grass.normal.north.0" ],
+			],
+			water: [
+				[ "water.normal.north.0", "water.normal.north.1", "water.normal.north.2", "water.normal.north.3" ],
+			],
+			squirrel: [
+				[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
+				[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
+				[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
+				[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
+			],
+		});
 
 		//TODO: Create an EdgeMask evaluator for the World terrain
 		const [ overworld ] = $E.world(1, {
@@ -299,38 +306,12 @@ export const Hooks = {
 				 */
 				this.environment.entity.register(node);
 
-				const grassTessel = Tessellator.FromCanvas({
-					alias: "grass",
-					canvas: this.assets.terrain_grass,
-					algorithm: Tessellator.Algorithms.GridBased,
-					args: [ { tw: 32, th: 32 } ],
-				});
-				const waterTessel = Tessellator.FromCanvas({
-					alias: "water",
-					canvas: this.assets.terrain_water,
-					algorithm: Tessellator.Algorithms.GridBased,
-					args: [ { tw: 32, th: 32 } ],
-				});
-
-				const grassSpritesheet = new SpriteSheet({
-					tileset: grassTessel.tileset,
-				});
-				const waterSpritesheet = new SpriteSheet({
-					tileset: waterTessel.tileset,
-				});
-
-				const grassScore = Score.FromArray([
-					[ "grass.normal.north.0" ],
-				]);
-				const waterScore = Score.FromArray([
-					[ "water.normal.north.0", "water.normal.north.1", "water.normal.north.2", "water.normal.north.3" ],
-				]);
-
-				const track = Track.Create({
-					score: node.terrain.type === "grass" ? grassScore : waterScore,
-					spritesheet: node.terrain.type === "grass" ? grassSpritesheet : waterSpritesheet,
-					autoPlay: true,
-				});
+				let track;
+				if(node.terrain.type === "grass") {
+					track = this.assets.createTrack("grass", "grass");
+				} else {
+					track = this.assets.createTrack("water", "water");
+				}
 
 				node.animation.sprite.texture = track.current;
 				node.animation.track = track;
@@ -374,34 +355,15 @@ export const Hooks = {
 			player,
 		};
 
-		const tessellator = Tessellator.FromCanvas({
-			alias: "squirrel",
-			canvas: this.assets.entity_squirrel,
-			algorithm: Tessellator.Algorithms.GridBased,
-			args: [ { tw: 32, th: 32 } ],
-		});
-
-		const spritesheet = new SpriteSheet({
-			tileset: tessellator.tileset,
-		});
-
-		const squirrelScore = Score.FromArray([
-			[ "squirrel.normal.north.0", "squirrel.normal.north.1" ],
-			[ "squirrel.normal.east.0", "squirrel.normal.east.1" ],
-			[ "squirrel.normal.south.0", "squirrel.normal.south.1" ],
-			[ "squirrel.normal.west.0", "squirrel.normal.west.1" ],
-		]);
-
 		let now = Date.now();
 		for(let entity of [ player, ...rest ]) {
-			const track = Track.Create({
-				score: squirrelScore,
-				spritesheet,
-				autoPlay: true,
-			});
+			/**
+			 * (score, spritesheet, opts)
+			 */
+			const track = this.assets.createTrack("squirrel", "squirrel");
 
 			//STUB: Add some randomness to the squirrels' animation cycle "start"
-			track.timer.config.start = now + (Math.random() < 0.5 ? -1 : 1 ) * Math.random() * 1000;
+			track.timer.config.start = now + (Math.random() < 0.5 ? -1 : 1) * Math.random() * 1000;
 
 			entity.animation.track = track;
 			entity.animation.sprite.texture = track.current;
@@ -420,7 +382,6 @@ export const Hooks = {
 	 */
 	render({ dt, now } = {}) {
 		this.viewport.views.current.render({ dt, now });
-		// this.views.current.render({ dt });c
 	},
 
 	/**

@@ -14,9 +14,9 @@ export class Node extends Entity {
 		entities: Registry,
 	};
 
-	constructor ({ ...rest } = {}) {
+	constructor ({ alias, ...rest } = {}) {
 		super({
-			alias: Node.Alias,
+			alias: alias || Node.Alias,
 			...rest,
 		});
 	}

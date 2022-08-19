@@ -30,7 +30,11 @@ export class Track extends Identity {
 	}
 
 	get current() {
-		return this.sprites[ this.timer.current ][ 2 ];
+		try {
+			return this.sprites[ this.timer.current ][ 2 ];
+		} catch(e) {
+			throw new Error(`Your Track threw a null-pointer exception because it has no Measures -- check your initializations.`);
+		}
 	}
 	next(time) {
 		return this.timer.next(time);

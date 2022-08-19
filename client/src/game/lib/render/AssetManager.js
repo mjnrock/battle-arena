@@ -10,6 +10,8 @@ import Tile from "../tile/package";
  * to be completed **after** the AssetManager is initialized.
  */
 export class AssetManager extends Identity {
+	static Algorithms = Tile.Tessellator.Algorithms;
+
 	constructor ({ ...opts } = {}) {
 		super({ ...opts });
 
@@ -77,14 +79,14 @@ export class AssetManager extends Identity {
 
 		//TODO: Tessellations should be able to be selected by the alias to pull from the current .canvases registry.
 
-		for(let args of fromCanvasArgs) {
-			const tessellation = Tile.Tessellator.FromCanvas(args);
-			this.tessellations.registerWithAlias(tessellation, args.alias);
+		for(let argsObj of fromCanvasArgs) {
+			const tessellation = Tile.Tessellator.FromCanvas(argsObj);
+			this.tessellations.registerWithAlias(tessellation, argsObj.alias);
 
 			const spritesheet = new Tile.Pixi.SpriteSheet({
 				tileset: tessellation.tileset,
 			});
-			this.spritesheets.registerWithAlias(spritesheet, args.alias);
+			this.spritesheets.registerWithAlias(spritesheet, argsObj.alias);
 		}
 
 		return this;
@@ -97,10 +99,6 @@ export class AssetManager extends Identity {
 		this.scores = new Registry();
 
 		for(let [ alias, args ] of Object.entries(scoreObj)) {
-			if(!Array.isArray(args)) {
-				args = [ args ];
-			}
-
 			const score = new Tile.Animate.Score(...args);
 			this.scores.registerWithAlias(score, alias);
 		}
@@ -128,13 +126,13 @@ export class AssetManager extends Identity {
 
 
 	//#region Begin Convenience/Facilitation Methods
-	createTrack(score, spritesheet, opts = {}) {		
+	createTrack(scoreAlias, spritesheetAlias, opts = {}) {
 		return Tile.Animate.Track.Create({
 			//TODO: Load the score from the registry
-			score: score,
+			score: this.scores[ scoreAlias ],
 
 			//TODO: Load the spritesheet from the registry
-			spritesheet: spritesheet,
+			spritesheet: this.spritesheets[ spritesheetAlias ],
 			autoPlay: true,
 
 			...opts,
