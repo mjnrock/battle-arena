@@ -12,7 +12,7 @@ export class World extends System {
 	join(entities = [], { world, x, y } = {}) {
 		System.Each(entities, (entity) => {
 			const next = {
-				world,
+				world: world.id,
 				x,
 				y,
 			};
@@ -37,7 +37,7 @@ export class World extends System {
 	}
 	leave(entities = [], { world }) {
 		System.Each(entities, (entity) => {
-			if(entity.world.world === world) {
+			if(entity.world.world === world.id) {
 				const next = {
 					world: null,
 					x: null,

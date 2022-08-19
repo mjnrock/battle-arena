@@ -1,10 +1,10 @@
 import { Entity } from "./../../lib/ecs/Entity";
-import { Registry } from "./../../lib/Registry";
+import { Collection } from "./../../util/Collection";
 
 export class Realm extends Entity {
 	static Alias = "realm";
 	static Components = {
-		worlds: Registry,
+		worlds: Collection,
 	};
 
 	constructor ({ worlds = {}, each, alias, ...rest } = {}) {

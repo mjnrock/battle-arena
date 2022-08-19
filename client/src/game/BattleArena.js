@@ -57,7 +57,7 @@ export function createLayerTerrain(game) {
 			/**
 			 * Draw the Terrain
 			 */
-			for(let [ id, node ] of game.realm.worlds.overworld.nodes) {
+			for(let [ id, node ] of game.realm.worlds.current.nodes) {
 				let { x: tx, y: ty } = node.world;
 				[ tx, ty ] = [ tx * game.config.tile.width, ty * game.config.tile.height ];
 
@@ -82,7 +82,7 @@ export function createLayerEntity(game) {
 			/**
 			 * Draw the Entities
 			 */
-			for(let [ uuid, entity ] of game.realm.worlds.overworld.entities) {
+			for(let [ uuid, entity ] of game.realm.worlds.current.entities) {
 				let { x: tx, y: ty } = entity.world;
 				[ tx, ty ] = entity.world.model.pos(tx, ty);
 				[ tx, ty ] = [ tx * game.config.tile.width, ty * game.config.tile.height ];
@@ -346,19 +346,10 @@ export const Hooks = {
 			},
 		});
 
-		//* Create the main realm
-		//TODO: Make .worlds a Collection
-		const [ realm ] = $E.realm(1, {
-			worlds: {
-				overworld,
-			},
-		});
-		this.realm = realm;
-
 		const [ player, ...rest ] = $E.squirrel(100, {
 			init: {
 				world: {
-					world: overworld,
+					world: overworld.id,
 					model: new Circle({
 						x: 0.5,
 						y: 0.5,
@@ -372,9 +363,20 @@ export const Hooks = {
 			},
 		});
 
+		const [ realm ] = $E.realm(1, {
+			worlds: {	// Collection
+				items: {
+					overworld,
+				},
+				current: "overworld",
+			},
+		});
+
 		realm.players = {
 			player,
 		};
+
+		this.realm = realm;
 
 		let now = Date.now();
 		for(let entity of [ player, ...rest ]) {
@@ -386,7 +388,7 @@ export const Hooks = {
 			entity.animation.track = track;
 			entity.animation.sprite.texture = track.current;
 
-			this.dispatch("world:join", entity, { world: overworld, x: ~~(Math.random() * overworld.width), y: ~~(Math.random() * overworld.height) });
+			this.dispatch("world:join", entity, { world: this.realm.worlds.current, x: ~~(Math.random() * this.realm.worlds.current.width), y: ~~(Math.random() * this.realm.worlds.current.height) });
 		}
 
 		this.config.bootstrap.emit("post", Date.now());
@@ -422,8 +424,8 @@ export const Hooks = {
 
 		if(this.input.key.hasCtrl || this.input.mouse.hasRight) {
 			this.dispatch("world:move", this.realm.players.player, {
-				x: ~~(this.realm.worlds.overworld.width / 2),
-				y: ~~(this.realm.worlds.overworld.height / 2),
+				x: ~~(this.realm.worlds.current.width / 2),
+				y: ~~(this.realm.worlds.current.height / 2),
 			});
 
 			if(this.input.mouse.hasLeft) {
