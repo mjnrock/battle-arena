@@ -8,7 +8,12 @@ import { Test as TestRoute } from "./routes/Test";
 import "./assets/css/reset.css";
 import "./assets/css/main.css";
 
-//FIXME: Currently if there are multiple Game instances, the event handlers won't figure correctly
+/**
+ * ! IMPORTANT !
+ * Future Matt, you should **really** consider starting from scratch and refamiliarize yourself with
+ * the Entity, Component, and System architecture herein.  Also look at the `composables` folder, and
+ * the utility concepts like `Registry`, `Identity`, and `MapSet`.
+ */
 
 export function App() {
 	return (
