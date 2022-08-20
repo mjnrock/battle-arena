@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 
-import { Identity } from "../Identity";
+import { Identity } from "../../util/Identity";
 import { Perspective } from "./Perspective";
 
 /**

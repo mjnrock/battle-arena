@@ -1,5 +1,5 @@
 import { Entity } from "./../../lib/ecs/Entity";
-import { Registry } from "./../../lib/Registry";
+import { Registry } from "./../../util/Registry";
 
 import { world } from "./../../components/world";
 import { terrain } from "./../../components/terrain";

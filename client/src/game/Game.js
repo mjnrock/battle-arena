@@ -1,8 +1,8 @@
 import { Ticker } from "./util/Ticker";
 
 import { Environment } from "./lib/ecs/Environment";
-import { Identity } from "./lib/Identity";
-import { Registry } from "./lib/Registry";
+import { Identity } from "./util/Identity";
+import { Registry } from "./util/Registry";
 import Eventable from "./util/composable/Eventable";
 
 /**

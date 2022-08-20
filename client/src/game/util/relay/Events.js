@@ -1,4 +1,4 @@
-import { Identity } from "./../../lib/Identity";
+import { Identity } from "../Identity";
 
 export class Events extends Identity {
 	constructor (events, { ...rest } = {}) {

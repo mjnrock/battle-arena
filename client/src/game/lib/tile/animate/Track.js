@@ -1,4 +1,4 @@
-import { Identity } from "../../Identity";
+import { Identity } from "../../../util/Identity";
 import { Timer } from "./Timer";
 
 export class Track extends Identity {

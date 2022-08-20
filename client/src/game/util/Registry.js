@@ -1,5 +1,5 @@
 import { validate } from "uuid";
-import { Identity } from "./Identity";
+import { Identity } from "../util/Identity";
 
 export class RegistryEntry extends Identity {
 	static Type = {

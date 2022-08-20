@@ -1,6 +1,6 @@
 // import Relay from "@lespantsfancy/relay";
-import { Identity } from "../Identity";
-import { Registry } from "../Registry";
+import { Identity } from "../../util/Identity";
+import { Registry } from "../../util/Registry";
 
 /**
  * The Environment is a kindred-spirit of the Registry, but instead provides a

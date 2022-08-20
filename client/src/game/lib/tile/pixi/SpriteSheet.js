@@ -1,6 +1,6 @@
 import * as PixiJS from "pixi.js";
 
-import { Identity } from "../../Identity";
+import { Identity } from "../../../util/Identity";
 
 /**
  * This is the main PIXI wrapper class that will convert a TileSet

@@ -1,4 +1,4 @@
-import { Identity } from "../../lib/Identity";
+import { Identity } from "../../util/Identity";
 
 /**
  * This is the main composition object for an Watchable.

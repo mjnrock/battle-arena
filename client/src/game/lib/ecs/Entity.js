@@ -1,4 +1,4 @@
-import Identity from "../Identity";
+import Identity from "../../util/Identity";
 
 /**
  * Within an Entity descendant, the Components property is a map of component names to component generators.

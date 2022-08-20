@@ -1,5 +1,5 @@
 
-import { Identity } from "../lib/Identity";
+import { Identity } from "./Identity";
 import { GroupRunner } from "./relay/GroupRunner";
 
 export class Ticker extends Identity {

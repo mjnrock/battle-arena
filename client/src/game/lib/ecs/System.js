@@ -1,4 +1,4 @@
-import Identity from "../Identity";
+import Identity from "../../util/Identity";
 import Runner from "../../util/relay/Runner";
 
 /**

@@ -1,4 +1,4 @@
-import { Identity } from "./../../Identity";
+import { Identity } from "../../../util/Identity";
 import { Invoker } from "./../../../util/relay/Invoker";
 
 /**

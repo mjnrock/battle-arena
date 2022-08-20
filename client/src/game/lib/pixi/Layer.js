@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 
-import Identity from "../Identity";
+import Identity from "../../util/Identity";
 
 /**
  * The Layer performs the actual rask of rendering data.  It will typically receive

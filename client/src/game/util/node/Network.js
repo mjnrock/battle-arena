@@ -1,4 +1,4 @@
-import { Identity } from "../../lib/Identity";
+import { Identity } from "../../util/Identity";
 import { Events } from "../relay/Events";
 
 export class Network extends Identity {

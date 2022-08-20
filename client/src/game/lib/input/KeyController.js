@@ -1,5 +1,5 @@
 import { GroupRunner } from "../../util/relay/GroupRunner";
-import { Identity } from "../Identity";
+import { Identity } from "../../util/Identity";
 import { Events } from "./../../util/relay/Events";
 
 //TODO: Allow configurable keys to not be intercepted (e.g. @bypass = [ "F5", "F12" ])

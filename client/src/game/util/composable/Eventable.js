@@ -1,4 +1,4 @@
-import { Identity } from "../../lib/Identity";
+import { Identity } from "../Identity";
 import { MapSet } from "../MapSet";
 
 /**

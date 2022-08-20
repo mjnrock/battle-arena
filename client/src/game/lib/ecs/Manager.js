@@ -1,4 +1,4 @@
-import Registry from "../Registry";
+import Registry from "../../util/Registry";
 import Entity from "./Entity";
 import System from "./System";
 

@@ -1,5 +1,5 @@
-import { Identity } from "../Identity";
-import { Registry } from "../Registry";
+import { Identity } from "../../util/Identity";
+import { Registry } from "../../util/Registry";
 
 import { Base64 } from "../../util/Base64";
 import Tile from "../tile/package";

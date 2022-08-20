@@ -1,6 +1,6 @@
 //TODO Newer JS syntax is not supported in a node-fetch dependency
 import isBase64 from "is-base64";
-import Identity from "../lib/Identity";
+import Identity from "./Identity";
 // import nodeFetch from "node-fetch";
 
 // const envFetch = nodeFetch || fetch;

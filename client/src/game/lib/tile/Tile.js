@@ -1,5 +1,5 @@
 import { Base64 } from "../../util/Base64";
-import { Identity } from "../Identity";
+import { Identity } from "../../util/Identity";
 import { Rectangle } from "./shapes/Rectangle";
 
 /**

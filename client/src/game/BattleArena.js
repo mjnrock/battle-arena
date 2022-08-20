@@ -20,7 +20,7 @@ import { Layer } from "./lib/pixi/Layer";
 import { View } from "./lib/pixi/View";
 import { ViewPort } from "./lib/pixi/ViewPort";
 import { Collection } from "./util/Collection";
-import { Registry } from "./lib/Registry";
+import { Registry } from "./util/Registry";
 
 import { AssetManager } from "./lib/render/AssetManager";
 import { PixelScaleCanvas } from "./util/Base64";
@@ -394,7 +394,8 @@ export const Hooks = {
 						}
 					}
 
-					console.log(node)
+					// console.log(node)
+					// console.log(node.terrain.edges)
 				}
 			}
 		}

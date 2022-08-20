@@ -1,4 +1,4 @@
-import Identity from "../../lib/Identity";
+import Identity from "../../util/Identity";
 
 //STUB: This is only partially complete
 

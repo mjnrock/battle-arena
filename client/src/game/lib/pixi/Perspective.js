@@ -1,4 +1,4 @@
-import Identiy from "../Identity";
+import Identiy from "../../util/Identity";
 
 /**
  * The Perspective is a "View Constraint" that expects to look at some direct state

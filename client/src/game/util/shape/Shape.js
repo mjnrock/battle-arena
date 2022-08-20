@@ -1,4 +1,4 @@
-import Identity from "../../lib/Identity";
+import Identity from "../Identity";
 
 export class Shape extends Identity {
 	constructor({ x, y, theta, ...opts } = {}) {

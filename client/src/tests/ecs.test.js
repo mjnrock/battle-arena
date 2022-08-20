@@ -2,7 +2,7 @@ import Console from "./../game/util/Console";
 import Entity from "../game/lib/ecs/Entity";
 import System from "../game/lib/ecs/System";
 import Manager from "../game/lib/ecs/Manager";
-import Registry from "../game/lib/Registry";
+import Registry from "../game/util/Registry";
 
 Console.NewContext();
 
