@@ -16,6 +16,7 @@ export class Layer extends Identity {
 		super({ ...opts });
 
 		this.container = container || new PIXI.Graphics();
+		this.overlay = new PIXI.Graphics();
 
 		if(typeof render === "function") {
 			this.render = render;
@@ -27,6 +28,7 @@ export class Layer extends Identity {
 	 */
 	mount(parent) {
 		parent.addChild(this.container);
+		parent.addChild(this.overlay);
 
 		return this;
 	}
@@ -35,6 +37,7 @@ export class Layer extends Identity {
 	 */
 	unmount(parent) {
 		parent.removeChild(this.container);
+		parent.removeChild(this.overlay);
 
 		return this;
 	}

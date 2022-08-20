@@ -6,8 +6,8 @@ import { World } from "./entities/realm/World";
 import { Realm } from "./entities/realm/Realm";
 import { Circle } from "./util/shape/Circle";
 
+import { Bitwise } from "./util/Bitwise";
 import { EnumEdgeFlag } from "./components/terrain";
-
 
 import { World as SysWorld } from "./systems/World";
 import { Animation as SysAnimation } from "./systems/Animation";
@@ -20,7 +20,6 @@ import { Layer } from "./lib/pixi/Layer";
 import { View } from "./lib/pixi/View";
 import { ViewPort } from "./lib/pixi/ViewPort";
 import { Collection } from "./util/Collection";
-import { Registry } from "./util/Registry";
 
 import { AssetManager } from "./lib/render/AssetManager";
 import { PixelScaleCanvas } from "./util/Base64";
@@ -54,8 +53,87 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 };
 
 export function createLayerTerrain(game) {
-	return new Layer({
+	function drawEdgeMask(graphics, node) {
+		let [ tw, th ] = [ game.config.tile.width, game.config.tile.height ],
+		[ w, h ] = [ 15, 15 ];
+
+		//* Begin the N, S, E, W edges
+		graphics.beginFill(0x000000, 0.1);
+
+		if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.LEFT)) {
+			graphics.drawRect(node.world.x * tw - w / 2, node.world.y * th, w, th);
+		}
+
+		if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.RIGHT)) {
+			graphics.drawRect(node.world.x * tw + tw - w + w / 2, node.world.y * th, w, th);
+		}
+
+		if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.TOP)) {
+			graphics.drawRect(node.world.x * tw, node.world.y * th - h / 2, tw, h);
+		}
+
+		if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.BOTTOM)) {
+			graphics.drawRect(node.world.x * tw, node.world.y * th + th - h + h / 2, tw, h);
+		}
+
+		graphics.endFill();
+		[ w, h ] = [ 25, 25 ];
+
+		//* Double-pass the N, S, E, W edges with bigger, but lighter strokes for blending
+		graphics.beginFill(0x000000, 0.05);
+
+		if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.LEFT)) {
+			graphics.drawRect(node.world.x * tw - w / 2, node.world.y * th, w, th);
+		}
+
+		if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.RIGHT)) {
+			graphics.drawRect(node.world.x * tw + tw - w + w / 2, node.world.y * th, w, th);
+		}
+
+		if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.TOP)) {
+			graphics.drawRect(node.world.x * tw, node.world.y * th - h / 2, tw, h);
+		}
+
+		if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.BOTTOM)) {
+			graphics.drawRect(node.world.x * tw, node.world.y * th + th - h + h / 2, tw, h);
+		}
+
+		graphics.endFill();
+
+		//* Begin the NW, NE, SE, SW edges
+		// graphics.beginFill(0x0000FF, 0.5);
+
+		// let radius = 10;
+		// if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.TOP_LEFT)) {
+		// 	graphics.drawRect(node.world.x * tw, node.world.y * th, radius, radius);
+		// 	// graphics.drawCircle(node.world.x * tw + radius, node.world.y * th + radius, radius);
+		// }
+
+		// if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.TOP_RIGHT)) {
+		// 	graphics.drawRect(node.world.x * tw + tw - radius, node.world.y * th, radius, radius);
+		// 	// graphics.drawCircle(node.world.x * tw + tw - radius, node.world.y * th + radius, radius);
+		// }
+
+		// if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.BOTTOM_LEFT)) {
+		// 	graphics.drawRect(node.world.x * tw, node.world.y * th + th - radius, radius, radius);
+		// 	// graphics.drawCircle(node.world.x * tw + radius, node.world.y * th + th - radius, radius);
+		// }
+
+		// if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.BOTTOM_RIGHT)) {
+		// 	graphics.drawRect(node.world.x * tw + tw - radius, node.world.y * th + th - radius, radius, radius);
+		// 	// graphics.drawCircle(node.world.x * tw + tw - radius, node.world.y * th + th - radius, radius);
+		// }
+
+		// graphics.endFill();
+	}
+
+	const layer = new Layer({
 		render: (perspective, { dt, now }) => {
+			/**
+			 * Clear the overlay graphics, if any
+			 */
+			layer.overlay.clear();
+
 			/**
 			 * Draw the Terrain
 			 */
@@ -71,16 +149,25 @@ export function createLayerTerrain(game) {
 
 					node.animation.sprite.x = node.world.x * game.config.tile.width;
 					node.animation.sprite.y = node.world.y * game.config.tile.height;
+
+					drawEdgeMask(layer.overlay, node);
 				} else {
 					node.animation.sprite.visible = false;
 				}
 			}
 		},
 	});
+
+	return layer;
 };
 export function createLayerEntity(game) {
-	return new Layer({
+	const layer = new Layer({
 		render: (perspective, { dt, now }) => {
+			/**
+			 * Clear the overlay graphics, if any
+			 */
+			layer.overlay.clear();
+			
 			/**
 			 * Draw the Entities
 			 */
@@ -104,6 +191,8 @@ export function createLayerEntity(game) {
 			}
 		},
 	});
+
+	return layer;
 };
 export function createViews(game) {
 	/**
@@ -381,21 +470,29 @@ export const Hooks = {
 			return nodes;
 		}
 
+		let types = [ "grass" ];
 		for(let x = 0; x < overworld.width; x++) {
 			for(let y = 0; y < overworld.height; y++) {
 				const node = overworld.nodes[ `${ x },${ y }` ];
 
-				if(node.terrain.type !== "grass") {
+				//NOTE: Because this checks the neighbors bidirectionally, any action will be performed **twice**
+				// As such, if you use this, either maintain a "analyzed nodes" list (currently STUB w/ half the application values)
+				// const neighbors = getNeighbors(node);
+				// for(let [ key, neighbor ] of Object.entries(neighbors)) {
+				// 	if(neighbor && neighbor.terrain.type !== node.terrain.type) {
+				// 		node.terrain.edges |= EnumEdgeFlag[ key ];
+				// 	}
+				// }
+
+				//? Alternative approach:
+				if(!types.includes(node.terrain.type)) {
 					const neighbors = getNeighbors(node);
 
 					for(let [ key, neighbor ] of Object.entries(neighbors)) {
-						if(neighbor) {
+						if(neighbor && types.includes(neighbor.terrain.type)) {
 							node.terrain.edges |= EnumEdgeFlag[ key ];
 						}
 					}
-
-					// console.log(node)
-					// console.log(node.terrain.edges)
 				}
 			}
 		}
