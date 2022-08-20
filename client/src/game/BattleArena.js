@@ -437,13 +437,16 @@ export const Hooks = {
 			},
 		});
 
+		/**
+		 * Get a keyed-node list of neighbors, with enumerator keys for each neighbor, and `false` when no neighbor exists.
+		 */
 		function getNeighbors(node) {
 			const coords = {
 				TOP_LEFT: [ node.world.x - 1, node.world.y - 1 ],
 				TOP: [ node.world.x, node.world.y - 1 ],
 				TOP_RIGHT: [ node.world.x + 1, node.world.y - 1 ],
 				LEFT: [ node.world.x - 1, node.world.y ],
-				NONE: [ node.world.x, node.world.y ],
+				// NONE: [ node.world.x, node.world.y ],
 				RIGHT: [ node.world.x + 1, node.world.y ],
 				BOTTOM_LEFT: [ node.world.x - 1, node.world.y + 1 ],
 				BOTTOM: [ node.world.x, node.world.y + 1 ],
@@ -459,6 +462,9 @@ export const Hooks = {
 			return nodes;
 		}
 
+		/**
+		 * Calculate the edge masks for terrain
+		 */
 		let types = [ "grass" ];
 		for(let x = 0; x < overworld.width; x++) {
 			for(let y = 0; y < overworld.height; y++) {
