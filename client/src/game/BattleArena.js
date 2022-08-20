@@ -180,8 +180,8 @@ export function createLayerEntity(game) {
 					entity.animation.track.next(now);
 					entity.animation.sprite.texture = entity.animation.track.current;
 
-					entity.animation.sprite.x = entity.world.x * game.config.tile.width;
-					entity.animation.sprite.y = entity.world.y * game.config.tile.height;
+					entity.animation.sprite.x = entity.world.x * game.config.tile.width + (game.config.tile.width * 0.5);
+					entity.animation.sprite.y = entity.world.y * game.config.tile.height + (game.config.tile.height * 0.5);
 				} else {
 					entity.animation.sprite.visible = false;
 				}
@@ -543,6 +543,9 @@ export const Hooks = {
 			entity.animation.sprite.texture = track.current;
 
 			this.dispatch("world:join", entity, { world: this.realm.worlds.current, x: ~~(Math.random() * this.realm.worlds.current.width), y: ~~(Math.random() * this.realm.worlds.current.height) });
+
+			entity.animation.sprite.anchor.x = 0.5;
+			entity.animation.sprite.anchor.y = 0.5;
 		}
 
 		this.config.bootstrap.emit("post", Date.now());

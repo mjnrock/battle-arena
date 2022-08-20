@@ -1,6 +1,6 @@
 import { System } from "./../lib/ecs/System";
+
 import Helper from "./../util/helper";
-import { Game } from "./../Game";
 
 export class World extends System {
 	static Alias = "world";
@@ -99,12 +99,6 @@ export class World extends System {
 				nudge = 0;	// 0 = nudge within tile, 0.5 = nudge to middle of tile
 
 			if(vx) {
-				if(vx > 0) {
-					facing = 0;
-				} else if(vx < 0) {
-					facing = 180;
-				}
-
 				let div = Helper.floor(y, scalar) % 1;
 
 				if(Helper.near(div, nudge, margin, scalar) || Helper.near(div, -nudge, margin, scalar)) {
@@ -114,13 +108,13 @@ export class World extends System {
 					vy = -mx * speed;
 					vx = 0;
 				}
-			} else if(vy) {
-				if(vy > 0) {
-					facing = 270;
-				} else if(vy < 0) {
-					facing = 90;
-				}
 
+				if(vx > 0) {
+					facing = 0;
+				} else if(vx < 0) {
+					facing = 180;
+				}
+			} else if(vy) {
 				let div = Helper.floor(x, scalar) % 1;
 
 				if(Helper.near(div, nudge, margin, scalar) || Helper.near(div, -nudge, margin, scalar)) {
@@ -129,6 +123,12 @@ export class World extends System {
 				} else {
 					vx = -my * speed;
 					vy = 0;
+				}
+				
+				if(vy > 0) {
+					facing = 270;
+				} else if(vy < 0) {
+					facing = 90;
 				}
 			}
 
