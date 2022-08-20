@@ -54,12 +54,19 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 
 export function createLayerTerrain(game) {
 	function drawEdgeMask(graphics, node) {
+		/**
+		 * Future proofs against resolution scaling
+		 */
+		let factor = game.config.tile.width / 32;
 		let passes = [
-			[ 15, 15 ],
-			[ 25, 25 ],
-			[ 35, 35 ],
+			[ factor * 3, factor * 3 ],
+			[ factor * 5, factor * 5 ],
+			[ factor * 7, factor * 7 ],
 		];
 
+		/**
+		 * Iterate each of the shading passes, drawing the relevant edges
+		 */
 		let i = 0;
 		for(let [ w, h ] of passes) {
 			let [ tw, th ] = [ game.config.tile.width, game.config.tile.height ];
@@ -149,6 +156,7 @@ export function createLayerTerrain(game) {
 
 	return layer;
 };
+
 export function createLayerEntity(game) {
 	const layer = new Layer({
 		render: (perspective, { dt, now }) => {
