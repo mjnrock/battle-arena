@@ -1,5 +1,4 @@
 import { Identity } from "../../lib/Identity";
-import { MapSet } from "../MapSet";
 
 /**
  * This is the main composition object for an Watchable.
@@ -13,7 +12,7 @@ export const $Watchable = (self) => new Proxy(Object.assign(self, {
 	/**
 	 * The list of subscribers
 	 */
-	watchers: new MapSet(),
+	watchers: new Set(),
 }), {
 	set(target, prop, value) {
 		const oldValue = target[ prop ];
@@ -21,12 +20,8 @@ export const $Watchable = (self) => new Proxy(Object.assign(self, {
 
 		if(oldValue !== value) {
 			if(target.watch.includes(prop) || target.watch.length === 0) {
-				const watchers = target.watchers.get(prop);
-
-				if(watchers) {
-					for(let watcher of watchers) {
-						watcher(prop, value, oldValue);
-					}
+				for(let watcher of target.watchers) {
+					watcher(prop, value, oldValue);
 				}
 			}
 		}
@@ -38,11 +33,8 @@ export const $Watchable = (self) => new Proxy(Object.assign(self, {
 		const result = Reflect.deleteProperty(target, prop);
 
 		if(target.watch.includes(prop) || target.watch.length === 0) {
-			const watchers = target.watchers.get(prop);
-			if(watchers) {
-				for(let watcher of watchers) {
-					watcher(prop, void 0, oldValue);
-				}
+			for(let watcher of target.watchers) {
+				watcher(prop, void 0, oldValue);
 			}
 		}
 

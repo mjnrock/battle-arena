@@ -27,15 +27,15 @@ export const $Reducible = (self) => Object.assign(self, {
 	 * using this.state as the base.  This is intended to be
 	 * used when this.state is the primary interest.
 	 */
-	dispatch(event, ...args) {
-		const reducers = this.reducers.get(event);
+	dispatch(action, ...args) {
+		const reducers = this.reducers.get(action);
 
 		if(reducers) {
 			for(let reducer of reducers) {
 				this.state = reducer(this.state, ...args);
 			}
 			
-			const effects = this.effects.get(event);
+			const effects = this.effects.get(action);
 			if(effects) {
 				effects.forEach(effect => {
 					effect(this.state, ...args);
@@ -52,13 +52,13 @@ export const $Reducible = (self) => Object.assign(self, {
 	 * in situations where the Reducible is acting in a proxy-like
 	 * or system-like capacity.
 	 */
-	trigger(target, event, ...args) {
-		const reducer = this.reducers.get(event);
+	trigger(target, action, ...args) {
+		const reducer = this.reducers.get(action);
 
 		if(reducer) {
 			target.state = reducer(target.state, ...args);
 			
-			const effects = this.effects.get(event);
+			const effects = this.effects.get(action);
 			if(effects) {
 				effects.forEach(effect => {
 					effect(target.state, ...args);
