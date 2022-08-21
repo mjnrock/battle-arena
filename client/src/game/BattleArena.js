@@ -44,7 +44,7 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 	//? Intercept events from the input controllers by listening for events
 	game.input.key.events.on(KeyController.EventTypes.KEY_PRESS, (e, self) => {
 		if(e.code === "KeyC") {
-			console.table(game.realm.players.player.world);
+			console.table(game.realm.players.current.world);
 		}
 	});
 	// game.input.mouse.events.on(MouseController.EventTypes.MOUSE_MOVE, (e, self) => console.log(e));
@@ -526,9 +526,12 @@ export const Hooks = {
 			},
 		});
 
-		realm.players = {
-			player,
-		};
+		realm.players = new Collection({
+			current: "p1",
+			items: {
+				p1: player,
+			},
+		});
 
 		this.realm = realm;
 
@@ -570,17 +573,17 @@ export const Hooks = {
 		/**
 		 * Adjust velocities and positions from input controllers
 		 */
-		this.dispatch("world:inputKeyVeloc", this.realm.players.player, this.input.key);
+		this.dispatch("world:inputKeyVeloc", this.realm.players.current, this.input.key);
 
 		if(this.input.key.hasShift) {
-			this.dispatch("world:veloc", this.realm.players.player, {
+			this.dispatch("world:veloc", this.realm.players.current, {
 				vx: 0,
 				vy: 0,
 			});
 		}
 
 		if(this.input.key.hasCtrl || this.input.mouse.hasRight) {
-			this.dispatch("world:move", this.realm.players.player, {
+			this.dispatch("world:move", this.realm.players.current, {
 				x: ~~(this.realm.worlds.current.width / 2),
 				y: ~~(this.realm.worlds.current.height / 2),
 			});
@@ -594,13 +597,13 @@ export const Hooks = {
 			let tx = ~~(this.input.mouse.state.pointer.x / this.renderer.stage.scale.x / this.config.tile.width),
 				ty = ~~(this.input.mouse.state.pointer.y / this.renderer.stage.scale.y / this.config.tile.height);
 
-			this.dispatch("world:move", this.realm.players.player, {
+			this.dispatch("world:move", this.realm.players.current, {
 				x: tx,
 				y: ty,
 			});
 		}
 
-		this.dispatch("world:displace", this.realm.players.player, {
+		this.dispatch("world:displace", this.realm.players.current, {
 			now,
 			dt,
 		});
