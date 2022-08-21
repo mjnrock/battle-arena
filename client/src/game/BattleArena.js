@@ -95,28 +95,28 @@ export function createLayerTerrain(game) {
 
 			//* Begin the NW, NE, SE, SW edges
 			// graphics.beginFill(0x0000FF, 0.5);
-	
+
 			// let radius = 10;
 			// if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.TOP_LEFT)) {
 			// 	graphics.drawRect(node.world.x * tw, node.world.y * th, radius, radius);
 			// 	// graphics.drawCircle(node.world.x * tw + radius, node.world.y * th + radius, radius);
 			// }
-	
+
 			// if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.TOP_RIGHT)) {
 			// 	graphics.drawRect(node.world.x * tw + tw - radius, node.world.y * th, radius, radius);
 			// 	// graphics.drawCircle(node.world.x * tw + tw - radius, node.world.y * th + radius, radius);
 			// }
-	
+
 			// if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.BOTTOM_LEFT)) {
 			// 	graphics.drawRect(node.world.x * tw, node.world.y * th + th - radius, radius, radius);
 			// 	// graphics.drawCircle(node.world.x * tw + radius, node.world.y * th + th - radius, radius);
 			// }
-	
+
 			// if(Bitwise.has(node.terrain.edges, EnumEdgeFlag.BOTTOM_RIGHT)) {
 			// 	graphics.drawRect(node.world.x * tw + tw - radius, node.world.y * th + th - radius, radius, radius);
 			// 	// graphics.drawCircle(node.world.x * tw + tw - radius, node.world.y * th + th - radius, radius);
 			// }
-	
+
 			// graphics.endFill();
 
 			++i;
@@ -164,7 +164,7 @@ export function createLayerEntity(game) {
 			 * Clear the overlay graphics, if any
 			 */
 			layer.overlay.clear();
-			
+
 			/**
 			 * Draw the Entities
 			 */
@@ -218,13 +218,15 @@ export function createViews(game) {
 				 * The Perspective constraint object
 				 */
 				//TODO: ULtimately, this should flag in/visible to the PIXI object from w/e scope it's in (ViewPort, Layer, etc.)
+				//FIXME: ViewPorts should be a Grid where Views occupy x,y,w,h positions
+				//TODO: Create a Grid class that keeps track of a Grid and its children with relative grid positions
 				perspective: new Perspective({
 					ref: game,
 
-					x: game.config.tile.width * 0,
-					y: game.config.tile.height * 0,
-					width: game.config.tile.width * 25,
-					height: game.config.tile.height * 15,
+					x: game.config.tile.width * -1,
+					y: game.config.tile.height * -1,
+					width: window.innerWidth + (game.config.tile.width * 2),
+					height: window.innerHeight + (game.config.tile.height * 2),
 				}),
 			}),
 		},
@@ -561,6 +563,20 @@ export const Hooks = {
 	 * invokes its requestAnimationFrame facilitator.
 	 */
 	render({ dt, now } = {}) {
+		/**
+		 * Process all of the attached listeners to the Entities' game render loop
+		 */
+		for(let [ uuid, entity ] of this.realm.worlds.current.entities) {
+			if(entity.game) {
+				entity.game.draw.run({
+					dt,
+					now,
+					game: this,
+					subject: entity,
+				});
+			}
+		}
+
 		this.viewport.views.current.render({ dt, now });
 	},
 
@@ -569,7 +585,22 @@ export const Hooks = {
 	 * performs an update via its main loop.
 	 */
 	tick({ dt, now } = {}) {
+		/**
+		 * Process all of the attached listeners to the Entities' game update loop
+		 */
+		for(let [ uuid, entity ] of this.realm.worlds.current.entities) {
+			if(entity.game) {
+				entity.game.update.run({
+					dt,
+					now,
+					game: this,
+					subject: entity,
+				});
+			}
+		}
+
 		//TODO: Bind a basic mouse controller to the game, click to teleport there
+
 		/**
 		 * Adjust velocities and positions from input controllers
 		 */
@@ -587,10 +618,6 @@ export const Hooks = {
 				x: ~~(this.realm.worlds.current.width / 2),
 				y: ~~(this.realm.worlds.current.height / 2),
 			});
-
-			if(this.input.mouse.hasLeft) {
-
-			}
 		}
 
 		if(this.input.mouse.hasLeft) {

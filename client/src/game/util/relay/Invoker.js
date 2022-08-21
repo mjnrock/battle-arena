@@ -1,10 +1,10 @@
 import { Identity } from "../Identity";
 
 export class Invoker extends Identity {
-	constructor ({ ...rest } = {}) {
+	constructor (listeners = [], { ...rest } = {}) {
 		super({ ...rest })
 
-		this.listeners = new Set();
+		this.listeners = new Set(listeners);
 	}
 
 	add(listener) {
@@ -37,6 +37,16 @@ export class Invoker extends Identity {
 		const results = Array.from(this.listeners).map(listener => listener(...args));
 
 		return results;
+	}
+	
+	async arun(...args) {
+		const results = Array.from(this.listeners).map(listener => {
+			return new Promise((resolve, reject) => {
+				resolve(listener(...args));
+			});
+		});
+
+		return Promise.all(results);
 	}
 
 	copy() {

@@ -3,6 +3,7 @@ import { Entity } from "../lib/ecs/Entity";
 import { game } from "../components/game";
 import { world } from "../components/world";
 import { animation } from "../components/animation";
+import { ai } from "../components/ai";
 
 export class Creature extends Entity {
 	static Alias = "creature";
@@ -10,6 +11,7 @@ export class Creature extends Entity {
 		game,
 		world,
 		animation,
+		ai,
 	];
 
 	constructor ({ components = [], id, tags, alias, init = {} } = {}) {

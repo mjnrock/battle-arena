@@ -10,7 +10,6 @@ export class View extends Layer {
 	constructor ({ perspective, layers = [], container, render, view, mount, ...opts } = {}) {
 		super({ container, render, ...opts });
 
-		//STUB: Currently, commenting this out will use the ViewPort's perspective -- this is a temporary fix and will show clipping as a result
 		this.perspective = perspective;
 
 		this.layers = new Map();
