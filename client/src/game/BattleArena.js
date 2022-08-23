@@ -23,6 +23,8 @@ import { Collection } from "./util/Collection";
 
 import { AssetManager } from "./lib/render/AssetManager";
 import { PixelScaleCanvas } from "./util/Base64";
+import { Path } from "./lib/pathing/Path";
+import { Dice } from "./util/Dice";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 //? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
@@ -44,7 +46,7 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 	//? Intercept events from the input controllers by listening for events
 	game.input.key.events.on(KeyController.EventTypes.KEY_PRESS, (e, self) => {
 		if(e.code === "KeyC") {
-			console.table(game.realm.players.current.world);
+			console.log(game.realm.players.current);
 		}
 	});
 	// game.input.mouse.events.on(MouseController.EventTypes.MOUSE_MOVE, (e, self) => console.log(e));
@@ -519,6 +521,7 @@ export const Hooks = {
 			},
 		});
 
+
 		const [ realm ] = $E.realm(1, {
 			worlds: {	// Collection
 				items: {
@@ -551,6 +554,18 @@ export const Hooks = {
 
 			entity.animation.sprite.anchor.x = 0.5;
 			entity.animation.sprite.anchor.y = 0.5;
+
+			//TODO: This sets up an initial Path, but it the Cooldown/NextPath logic is not implemented yet
+			//FIXME: Something is happening during the path movement that is causing the Squirrels to hump the ground repeatedly (probably caught in a temporary loop)
+			const [ tx, ty ] = [
+				Dice.random(0, overworld.width - 1),
+				Dice.random(0, overworld.height - 1),
+			];
+			const path = Path.FindPath(overworld, [ entity.world.x, entity.world.y ], [ tx, ty ]);
+
+			if(path instanceof Path) {
+				entity.ai.wayfinder.set(path);
+			}
 		}
 
 		this.config.bootstrap.emit("post", Date.now());
@@ -585,6 +600,10 @@ export const Hooks = {
 	 * performs an update via its main loop.
 	 */
 	tick({ dt, now } = {}) {
+		if(dt > 1) {
+			return;
+		}
+
 		/**
 		 * Process all of the attached listeners to the Entities' game update loop
 		 */
@@ -595,6 +614,11 @@ export const Hooks = {
 					now,
 					game: this,
 					subject: entity,
+				});
+
+				this.dispatch("world:displace", entity, {
+					now,
+					dt,
 				});
 			}
 		}
@@ -629,11 +653,6 @@ export const Hooks = {
 				y: ty,
 			});
 		}
-
-		this.dispatch("world:displace", this.realm.players.current, {
-			now,
-			dt,
-		});
 	}
 };
 
