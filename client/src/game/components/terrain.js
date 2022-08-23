@@ -22,7 +22,7 @@ EnumEdgeFlag.ALL_4 = EnumEdgeFlag.TOP | EnumEdgeFlag.BOTTOM | EnumEdgeFlag.LEFT 
 EnumEdgeFlag.ALL_4X = EnumEdgeFlag.TOP_LEFT | EnumEdgeFlag.TOP_RIGHT | EnumEdgeFlag.BOTTOM_LEFT | EnumEdgeFlag.BOTTOM_RIGHT;
 EnumEdgeFlag.ALL = EnumEdgeFlag.ALL_4 | EnumEdgeFlag.ALL_4D;
 
-export function terrain({ type = EnumTerrainType.VOID, speed = 1, meta = {}, edges = EnumEdgeFlag.NONE } = {}) {
+export function terrain({ type = EnumTerrainType.VOID, cost = 1, meta = {}, edges = EnumEdgeFlag.NONE } = {}) {
 	return {
 		/**
 		 * The EnumTerrainType of the terrain
@@ -30,9 +30,9 @@ export function terrain({ type = EnumTerrainType.VOID, speed = 1, meta = {}, edg
 		type: type,
 
 		/**
-		 * The default speed of the terrain, which is used as the base speed for an entity traveling on this terrain
+		 * The default cost of the terrain, which is used as the base cost for an entity traveling on this terrain
 		 */
-		speed: speed,
+		cost: cost,
 
 		/**
 		 * The meta data of the terrain

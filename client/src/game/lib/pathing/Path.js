@@ -140,6 +140,10 @@ export class Path {
     }
 };
 
+/**
+ * Here @world is the entity World, not the component world, as it needs the Node/Terrain data
+ * to appropriately calculate the path.
+ */
 export function FindPath(world, origin, destination, { algorithm = AStar } = {}) {
     //!GRID-NUDGE
     origin = origin.map(v => ~~v);

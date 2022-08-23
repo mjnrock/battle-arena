@@ -15,7 +15,6 @@ export function findPath(world, start = [], goal = []) {
 
     cost_so_far[ start.toString() ] = 0;
 
-	//TODO: Determine how to deal with @world here and replace: 1) .isWithinBOunds, 2) .cost, 3) .adjacent -- maybe a System?
     if(world.isWithinBounds(...goal) && world.cost(...goal) !== Infinity) {
         while (!frontier.isEmpty) {
             let [ current ] = frontier.pop();   // Grab lowest cost option

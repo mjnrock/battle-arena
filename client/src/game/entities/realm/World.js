@@ -11,6 +11,13 @@ export class World extends Entity {
 		}),
 		nodes: Registry,
 		entities: Registry,
+
+		//TODO: Figure out this kind of stuff
+		config: (config = {}) => ({
+			spawn: [ 0, 0 ],
+
+			...config,
+		}),
 	};
 
 	constructor ({ size = [ 10, 10 ], nodes = {}, entities = {}, each, alias, ...rest } = {}) {
@@ -67,6 +74,56 @@ export class World extends Entity {
 				}
 			}
 		}
+	}
+
+	node(x, y) {
+		return this.nodes[ `${ ~~x },${ ~~y }` ];
+	}
+	isWithinBounds(x, y) {
+		return x >= 0 && (x <= this.width - 1)
+			&& y >= 0 && (y <= this.height - 1);
+	}
+	adjacent(x, y, addDiagonals = false) {
+		//!GRID-NUDGE
+		let [ xn, yn ] = [ ~~x, ~~y ];
+
+		let dirs = [
+			[ 0, -1 ],
+			[ 1, 0 ],
+			[ 0, 1 ],
+			[ -1, 0 ],
+		];
+
+		if(addDiagonals) {
+			dirs = [
+				...dirs,
+
+				[ 1, -1 ],
+				[ 1, 1 ],
+				[ -1, 1 ],
+				[ -1, -1 ],
+			]
+		}
+
+		const neighs = [];
+		for(let [ dx, dy ] of dirs) {
+			if((xn + dx >= 0) && (xn + dx < this.width) && (yn + dy >= 0) && (yn + dy < this.height)) {
+				neighs.push([
+					xn + dx,
+					yn + dy,
+				]);
+			}
+		}
+
+		return neighs;
+	}
+	cost(x, y) {
+		const node = this.node(x, y);
+		if(!node) {
+			return Infinity;
+		}
+
+		return node.terrain.cost;
 	}
 };
 
