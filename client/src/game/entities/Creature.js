@@ -22,8 +22,6 @@ export class Creature extends Entity {
 			tags,
 			init,
 		});
-
-		this.ai.wayfinder.entity = this;
 	}
 };
 

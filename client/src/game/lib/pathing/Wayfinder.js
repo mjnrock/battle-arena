@@ -1,9 +1,7 @@
-import Helper from "../../util/helper";
 import Path, { EnumPathStatus } from "./Path";
 
 export class Wayfinder {
-    constructor(entity, paths = []) {
-        this.entity = entity;
+    constructor(paths = []) {
         this.paths = paths;
     }
 
@@ -61,8 +59,22 @@ export class Wayfinder {
 
         return this;
     }
+    empty() {
+        this.paths.forEach(p => p.status = EnumPathStatus.INTERRUPTED);
+        this.paths = [];
 
-    drop() {
+        return this;
+    }
+
+	/**
+	 * This uses the current position of @entity
+	 */
+    drop(current = []) {
+		/**
+		 * Really here to allow for { x, y } objects to be passed, too
+		 */
+		const [ x, y ] = Path.NormalizePoint(current);
+
         if(!this.current.isActive) {
             this.paths.shift();
 
@@ -73,65 +85,25 @@ export class Wayfinder {
             const [ nx, ny ] = this.current.next;
 
             // If entity gets more than 1 tile away from the next tile, empty
-            if(this.entity.world.x < nx - 1 || this.entity.world.x > nx + 1 || this.entity.world.y < ny - 1 || this.entity.world.y > ny + 1) {
+            if(x < nx - 1 || x > nx + 1 || y < ny - 1 || y > ny + 1) {
                 this.empty();
             }
         }
 
         return false;
     }
-    empty() {
-        this.paths.forEach(p => p.status = EnumPathStatus.INTERRUPTED);
-        this.paths = [];
-
-        return this;
-    }
-
-    waypoint(world, x, y) {
-        const [ dx, dy ] = this.last.destination || [ this.entity.world.x, this.entity.world.y ];
+	/**
+	 * This uses the current position of @entity
+	 */
+    waypoint(current = [], world, x, y) {
+		/**
+		 * Really here to allow for { x, y } objects to be passed, too
+		 */
+		const [ cx, cy ] = Path.NormalizePoint(current);
+        const [ dx, dy ] = this.last.destination || [ cx, cy ];
 
         this.add(Path.FindPath(world, [ dx, dy ], [ x, y ]));
     }
-
-	//FIXME: This doesn't feel like the right place for this.
-	process() {
-		const { x, y } = this.entity.world;
-
-		let Vx = this.entity.world.vx,
-			Vy = this.entity.world.vy;
-
-		if(this.hasPath) {
-			this.current.test(x, y);
-
-			let [ nx, ny ] = this.current.current;
-
-			if(nx === void 0 || ny === void 0) {
-				[ nx, ny ] = [ x, y ];
-			}
-
-			Vx = Helper.round(-(x - nx), 10);
-			Vy = Helper.round(-(y - ny), 10);
-
-			//NOTE  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
-			//FIXME @this.entity.world.speed >= 3 overshoots the tile, causing jitters.  Overcompensated movement must be discretized and applied sequentially to each progressive step in the Path.
-			let factor = 1;
-			if(Vx < 0) {
-				Vx = -factor * this.entity.world.speed;
-			} else if(Vx > 0) {
-				Vx = factor * this.entity.world.speed;
-			}
-			if(Vy < 0) {
-				Vy = -factor * this.entity.world.speed;
-			} else if(Vy > 0) {
-				Vy = factor * this.entity.world.speed;
-			}
-		} else {
-			this.drop();
-		}
-            
-		this.entity.world.vx = Vx;
-		this.entity.world.vy = Vy;
-	}
 };
 
 export default Wayfinder;

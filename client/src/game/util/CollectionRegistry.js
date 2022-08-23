@@ -10,7 +10,10 @@ export class Collection {
 		/**
 		 * The list of items in the Collection
 		 */
+		// this.items = new Map();
 		this.items = new Registry(items);
+		// this.add(items);
+		console.log(this.current)
 
 
 		/**
@@ -31,6 +34,7 @@ export class Collection {
 		return this.items[ key ];
 	}
 	set(item, key) {
+		// this.items.set(key, item);
 		this.items.registerWithAlias(item, key);
 
 		return this;

@@ -11,6 +11,7 @@ import { EnumEdgeFlag } from "./components/terrain";
 
 import { World as SysWorld } from "./systems/World";
 import { Animation as SysAnimation } from "./systems/Animation";
+import { AI as SysAI } from "./systems/AI";
 import { KeyController } from "./lib/input/KeyController";
 import { MouseController } from "./lib/input/MouseController";
 
@@ -234,11 +235,12 @@ export function createViews(game) {
 		},
 	});
 
+
 	/**
 	 * Make all non-current Views invisible
 	 */
 	for(let [ key, item ] of collection) {
-		item.container.visible = key === collection._current;
+		item.container.visible = item === collection.current;
 	}
 
 	return collection;
@@ -263,6 +265,7 @@ export const Hooks = {
 			//NOTE: Add all of the system classes here
 			SysWorld,
 			SysAnimation,
+			SysAI,
 		]);
 		this.environment.registerFactoryEntities([
 			//NOTE: Add all of the entity classes here
@@ -521,7 +524,6 @@ export const Hooks = {
 			},
 		});
 
-
 		const [ realm ] = $E.realm(1, {
 			worlds: {	// Collection
 				items: {
@@ -557,15 +559,15 @@ export const Hooks = {
 
 			//TODO: This sets up an initial Path, but it the Cooldown/NextPath logic is not implemented yet
 			//FIXME: Something is happening during the path movement that is causing the Squirrels to hump the ground repeatedly (probably caught in a temporary loop)
-			const [ tx, ty ] = [
-				Dice.random(0, overworld.width - 1),
-				Dice.random(0, overworld.height - 1),
-			];
-			const path = Path.FindPath(overworld, [ entity.world.x, entity.world.y ], [ tx, ty ]);
+			// const [ tx, ty ] = [
+			// 	Dice.random(0, overworld.width - 1),
+			// 	Dice.random(0, overworld.height - 1),
+			// ];
+			// const path = Path.FindPath(overworld, [ entity.world.x, entity.world.y ], [ tx, ty ]);
 
-			if(path instanceof Path) {
-				entity.ai.wayfinder.set(path);
-			}
+			// if(path instanceof Path) {
+			// 	entity.ai.wayfinder.set(path);
+			// }
 		}
 
 		this.config.bootstrap.emit("post", Date.now());

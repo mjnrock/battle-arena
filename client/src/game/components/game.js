@@ -1,4 +1,3 @@
-import Game from "../Game";
 import Invoker from "../util/relay/Invoker";
 
 export function game({ key, update, render } = {}) {
@@ -13,7 +12,10 @@ export function game({ key, update, render } = {}) {
 		 */
 		update: new Invoker([
 			({ dt, now, game, subject }) => {
-				subject.ai.process({ dt, now, game, subject });
+				game.dispatch("ai:wayfind", subject, {
+					world: game.realm.worlds.get(subject.world.world),
+					dt,
+				});
 
 				return true;
 			},

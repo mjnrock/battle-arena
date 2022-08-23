@@ -56,7 +56,9 @@ export class Registry extends Identity {
 
 				return key;
 			} else {
-				return this.Encoders.Default(self)(new RegistryEntry(entryOrValue, RegistryEntry.Type.VALUE, { id: validate(id) ? id : void 0, config }));
+				const key = id || (typeof entryOrValue === "object" && "id" in entryOrValue) ? entryOrValue.id : void 0;
+
+				return this.Encoders.Default(self)(new RegistryEntry(entryOrValue, RegistryEntry.Type.VALUE, { id: validate(key) ? key : void 0, config }));
 			}
 		},
 		TypeOf: (primitive) => (self) => (entryOrValue, id, config) => {
@@ -331,7 +333,7 @@ export class Registry extends Identity {
 
 		return null;
 	}
-	
+
 	getPool(name, asRegistry = false) {
 		const pool = this.get(name);
 
@@ -586,6 +588,18 @@ export class Registry extends Identity {
 		}
 
 		return results;
+	}
+	get corpus() {
+		const results = [];
+		for(let [ id, entry ] of this._entries.entries()) {
+			if(entry.isValueType) {
+				results.push([ id, entry.value ]);
+			} else if(entry.isAliasType) {
+				results.push([ id, this._entries.get(entry.value).value ]);
+			}
+		}
+
+		return Object.entries(Object.fromEntries(results))[ Symbol.iterator ]();
 	}
 
 	/**

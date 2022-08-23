@@ -5,26 +5,17 @@ import { Wayfinder } from "../lib/pathing/Wayfinder";
  * when ai.process is called.  This is meant to act as a single point-of-entry
  * for all AI processing.
  */
-export function ai({ wayfinder, process } = {}) {
+export function ai({ entity, wayfinder } = {}) {
 	const state = {
+		/**
+		 * The entity that this AI commands
+		 */
+		ref: entity,
+
 		/**
 		 * The wayfinding algorithms to use when finding a path
 		 */
 		wayfinder: wayfinder || new Wayfinder(),
-
-		/**
-		 * A method for invoking the all child controllers .process() method
-		 */
-		process: process || function (...args) {
-			for(let key of Object.keys(state)) {
-				if(key !== "process") {
-					let fn = state[ key ].process;
-					if(typeof fn === "function") {
-						fn.call(state[ key ], ...args);
-					}
-				}
-			}
-		},
 	};
 
 	return state;
