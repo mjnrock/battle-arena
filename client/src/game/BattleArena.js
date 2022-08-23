@@ -26,6 +26,7 @@ import { AssetManager } from "./lib/render/AssetManager";
 import { PixelScaleCanvas } from "./util/Base64";
 import { Path } from "./lib/pathing/Path";
 import { Dice } from "./util/Dice";
+import Helper from "./util/helper";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 //? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
@@ -48,6 +49,13 @@ export function loadInputControllers(game, { mouse, key } = {}) {
 	game.input.key.events.on(KeyController.EventTypes.KEY_PRESS, (e, self) => {
 		if(e.code === "KeyC") {
 			console.log(game.realm.players.current);
+		} else if(e.code === "F3") {
+			game.config.SHOW_DEBUG = !game.config.SHOW_DEBUG;
+
+			//STUB: This needs to be formalized -- when Debug toggles off, the debug layers should be hidden
+			for(let [ uuid, entity ] of game.realm.worlds.current.entities) {
+				entity.animation.debug.visible = game.config.SHOW_DEBUG;
+			}
 		}
 	});
 	// game.input.mouse.events.on(MouseController.EventTypes.MOUSE_MOVE, (e, self) => console.log(e));
@@ -194,6 +202,75 @@ export function createLayerEntity(game) {
 
 	return layer;
 };
+
+export function createLayerDebug(game) {
+	const layer = new Layer({
+		render: (perspective, { dt, now }) => {
+			if(!game.config.SHOW_DEBUG) {
+				return;
+			}
+			/**
+			 * Clear the overlay graphics, if any
+			 */
+			layer.overlay.clear();
+
+			//FIXME: I don't like the idea of attaching the debug graphics to the entity like this (see F3 press code)
+
+			/**
+			 * Draw the Entities
+			 */
+			for(let [ uuid, entity ] of game.realm.worlds.current.entities) {
+				let { x: tx, y: ty } = entity.world;
+				[ tx, ty ] = entity.world.model.pos(tx, ty);
+				[ tx, ty ] = [ tx * game.config.tile.width, ty * game.config.tile.height ];
+
+				if(!entity.animation.debug) {
+					entity.animation.debug = new PixiJS.Graphics();
+
+					const text = new PixiJS.Text(uuid, new PixiJS.TextStyle({
+						fontFamily: "monospace",
+						fill: [ "#ffffff" ],
+						align: "center",
+						fontSize: 16,
+					}));
+
+					text.x += game.config.tile.width / 2;
+					text.y -= game.config.tile.height / 2;
+
+					entity.animation.debug.addChild(text);
+
+					entity.animation.sprite.addChild(entity.animation.debug);
+				} else {
+					entity.animation.debug.visible = false;
+				}
+
+				//FIXME: Perspective HEIGHT/WIDTH does not seem to be correct (w/h may not take into account the tw/th normalization?)
+				if(perspective.test(tx, ty)) {
+					entity.animation.debug.visible = true;
+
+					// entity.animation.debug.beginFill(0x000000);
+					// entity.animation.debug.drawRect(game.config.tile.width / 2, -game.config.tile.height / 2, game.config.tile.width * 2/3, game.config.tile.height);
+					// entity.animation.debug.endFill();
+
+					const [ text ] = entity.animation.debug.children;
+					text.text = "";
+					text.text += "\r\n" + `${ entity.world.facing }°`
+					text.text += "\r\n" + `[${ Helper.round(entity.world.x, 10).toFixed(1) } ${ Helper.round(entity.world.y, 10).toFixed(1) }]`;
+					text.text += "\r\n" + `(${ Helper.round(entity.world.vx, 10).toFixed(1) } ${ Helper.round(entity.world.vy, 10).toFixed(1) })`;
+					let [ x_dest, y_dest ] = [
+						~~((entity.ai.wayfinder.current || {}).destination || [])[ 0 ] || null,
+						~~((entity.ai.wayfinder.current || {}).destination || [])[ 1 ] || null,
+					];
+					text.text += "\r\n" + (x_dest ? `{${ x_dest } ${ y_dest }}` : "");
+
+				}
+			}
+		},
+	});
+
+	return layer;
+};
+
 export function createViews(game) {
 	/**
 	 * Create the View collection
@@ -215,6 +292,7 @@ export function createViews(game) {
 				layers: {
 					terrain: createLayerTerrain(game),
 					entity: createLayerEntity(game),
+					debug: createLayerDebug(game),
 				},
 
 				/**
@@ -559,15 +637,15 @@ export const Hooks = {
 
 			//TODO: This sets up an initial Path, but it the Cooldown/NextPath logic is not implemented yet
 			//FIXME: Something is happening during the path movement that is causing the Squirrels to hump the ground repeatedly (probably caught in a temporary loop)
-			// const [ tx, ty ] = [
-			// 	Dice.random(0, overworld.width - 1),
-			// 	Dice.random(0, overworld.height - 1),
-			// ];
-			// const path = Path.FindPath(overworld, [ entity.world.x, entity.world.y ], [ tx, ty ]);
+			const [ tx, ty ] = [
+				Dice.random(0, overworld.width - 1),
+				Dice.random(0, overworld.height - 1),
+			];
+			const path = Path.FindPath(overworld, [ entity.world.x, entity.world.y ], [ tx, ty ]);
 
-			// if(path instanceof Path) {
-			// 	entity.ai.wayfinder.set(path);
-			// }
+			if(path instanceof Path) {
+				entity.ai.wayfinder.set(path);
+			}
 		}
 
 		this.config.bootstrap.emit("post", Date.now());

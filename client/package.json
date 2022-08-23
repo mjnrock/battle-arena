@@ -38,7 +38,8 @@
 			"no-unused-vars": "off",
 			"no-extend-native": "off",
 			"import/no-anonymous-default-export": "off",
-			"react-hooks/exhaustive-deps": "off"
+			"react-hooks/exhaustive-deps": "off",
+			"no-useless-concat": "off"
 		}
 	},
 	"browserslist": {

@@ -30,36 +30,32 @@ export class AI extends System {
 				Vx = Helper.round(-(x - nx), 10);
 				Vy = Helper.round(-(y - ny), 10);
 
-				//NOTE  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
-				//FIXME Squirrels hump the ground during some point in the AI wayfinding process
+				//FIXME Squirrels hump the ground during some point in the AI wayfinding process -- most likely culprit is at integer transition points (e.g. 1.9 <-> 2.0) [0.1 step is 1 / Helper.round(..., 10) ]
+
 				let factor = 1;
 				if(Vx < 0) {
 					Vx = -factor * entity.world.speed;
 				} else if(Vx > 0) {
 					Vx = factor * entity.world.speed;
-				} else {
-					Vx = 0;
 				}
 
 				if(Vy < 0) {
 					Vy = -factor * entity.world.speed;
 				} else if(Vy > 0) {
 					Vy = factor * entity.world.speed;
-				} else {
-					Vy = 0;
 				}
 			} else {
-				entity.ai.wayfinder.drop(entity.world);
+				entity.ai.wayfinder.drop([ x, y ]);
 
-				const [ tx, ty ] = [
-					Dice.random(0, world.width - 1),
-					Dice.random(0, world.height - 1),
-				];
-				const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
+				// const [ tx, ty ] = [
+				// 	Dice.random(0, world.width - 1),
+				// 	Dice.random(0, world.height - 1),
+				// ];
+				// const path = Path.FindPath(world, [ entity.world.x, entity.world.y ], [ tx, ty ]);
 
-				if(path instanceof Path) {
-					entity.ai.wayfinder.set(path);
-				}
+				// if(path instanceof Path) {
+				// 	entity.ai.wayfinder.set(path);
+				// }
 			}
 
 			entity.world.vx = Vx;

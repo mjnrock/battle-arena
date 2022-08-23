@@ -85,9 +85,9 @@ export class Wayfinder {
             const [ nx, ny ] = this.current.next;
 
             // If entity gets more than 1 tile away from the next tile, empty
-            // if(x < nx - 1 || x > nx + 1 || y < ny - 1 || y > ny + 1) {
-            //     this.empty();
-            // }
+            if(x < nx - 1 || x > nx + 1 || y < ny - 1 || y > ny + 1) {
+                this.empty();
+            }
         }
 
         return false;
