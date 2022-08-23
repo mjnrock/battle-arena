@@ -8,6 +8,7 @@ export const EnumPathStatus = {
 	COMPLETED: 3,
 };
 
+//TODO: Add subscriptions to event changes
 export class Path {
 	static Precision = 10;
 

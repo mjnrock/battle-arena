@@ -31,17 +31,22 @@ export class AI extends System {
 				Vy = Helper.round(-(y - ny), 10);
 
 				//NOTE  Tween manipulation would go here (e.g. a bounce effect), instead of unitizing
-				//FIXME @entity.world.speed >= 3 overshoots the tile, causing jitters.  Overcompensated movement must be discretized and applied sequentially to each progressive step in the Path.
+				//FIXME Squirrels hump the ground during some point in the AI wayfinding process
 				let factor = 1;
 				if(Vx < 0) {
 					Vx = -factor * entity.world.speed;
 				} else if(Vx > 0) {
 					Vx = factor * entity.world.speed;
+				} else {
+					Vx = 0;
 				}
+
 				if(Vy < 0) {
 					Vy = -factor * entity.world.speed;
 				} else if(Vy > 0) {
 					Vy = factor * entity.world.speed;
+				} else {
+					Vy = 0;
 				}
 			} else {
 				entity.ai.wayfinder.drop(entity.world);

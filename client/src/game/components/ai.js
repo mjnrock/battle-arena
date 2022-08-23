@@ -5,13 +5,8 @@ import { Wayfinder } from "../lib/pathing/Wayfinder";
  * when ai.process is called.  This is meant to act as a single point-of-entry
  * for all AI processing.
  */
-export function ai({ entity, wayfinder } = {}) {
+export function ai({ wayfinder } = {}) {
 	const state = {
-		/**
-		 * The entity that this AI commands
-		 */
-		ref: entity,
-
 		/**
 		 * The wayfinding algorithms to use when finding a path
 		 */
