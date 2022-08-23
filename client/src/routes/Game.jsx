@@ -3,54 +3,16 @@ import React, { useState, useEffect } from "react";
 
 import Game from "../game/Game";
 import CreateGame from "../game/BattleArena";
-import { Registry } from "./../game/util/Registry";
 
 import { PixiCanvas } from "../components/PixiCanvas";
-
-export const Context = React.createContext({
-	/**
-	 * This will be populated with the GPS result
-	 */
-	geolocation: {},
-
-	/**
-	 * This will be a collection of (optionally aliases) geofencing polygons
-	 */
-	geofences: new Registry(),
-});
-
-export function useGeolocation() {
-	if(!window.navigator.geolocation) {
-		throw new Error("Geolocation is not supported");
-	}
-
-
-	const ctx = React.useContext(Context);
-	const [ position, setPosition ] = React.useState(false);
-	const refresh = () => window.navigator.geolocation.getCurrentPosition(pos => {
-		ctx.geolocation = pos;
-
-		setPosition(pos);
-	});
-	// }, err => { }, { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true });
-
-	React.useEffect(refresh, []);
-
-	return [ position, refresh ];
-}
 
 /**
  * FPS Array
  */
 let logFPS = [];
+//TODO: Bind resize events to the renderer
 export function GameRoute() {
-	// const { geolocation } = React.useContext(Context);
 	const [ game, setGame ] = useState();
-
-	// const [ position, refresh ] = useGeolocation();
-
-	// console.log(position)
-	// console.log(geolocation)
 
 	useEffect(() => {
 		/**
@@ -124,7 +86,6 @@ export function GameRoute() {
 
 	return (
 		<>
-			{/* <button onClick={ refresh }>Get Position ( position )</button> */}
 			<PixiCanvas view={ game.renderer.canvas } />
 		</>
 	);
