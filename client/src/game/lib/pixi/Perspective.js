@@ -8,7 +8,7 @@ import Identiy from "../../util/Identity";
  * NOTE: All position information is pixel-based.
  */
 export class Perspective extends Identiy {
-	constructor ({ ref, x, y, width, height, scale = 1.0, subject, ...opts } = {}) {
+	constructor ({ ref, x, y, width, height, scale = 1.0, ...opts } = {}) {
 		super({ ...opts });
 
 		/**
@@ -22,8 +22,6 @@ export class Perspective extends Identiy {
 		this.height = height;
 
 		this.scale = scale;
-
-		this.subject = subject;
 	}
 
 	viewport(asObject = false) {

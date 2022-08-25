@@ -1,3 +1,4 @@
+import Events from "../../util/relay/Events";
 import Layer from "./Layer";
 
 /**
@@ -7,10 +8,15 @@ import Layer from "./Layer";
  * NOTE: All position information is pixel-based.
  */
 export class View extends Layer {
-	constructor ({ perspective, layers = [], container, render, view, mount, ...opts } = {}) {
+	constructor ({ perspective, layers = [], subject, observe, container, render, view, mount, ...opts } = {}) {
 		super({ container, render, ...opts });
 
 		this.perspective = perspective;
+		this.subject = subject;
+
+		this.events = new Events({
+			observe: observe || this.observe.bind(this),
+		});
 
 		this.layers = new Map();
 		this.view = [];
@@ -90,6 +96,11 @@ export class View extends Layer {
 		return this;
 	}
 
+	observe() {
+		this.perspective.x = this.subject.world.x * 128;
+		this.perspective.y = this.subject.world.y * 128;
+	}
+
 	/**
 	 * This will simply iterate all visible child-layers and 
 	 * invoke their respective .render methods.
@@ -99,6 +110,10 @@ export class View extends Layer {
 	 */
 	render({ dt, ...rest } = {}) {
 		this.container.clear();
+
+		if(this.subject) {
+			this.events.emit("observe");
+		}
 
 		this.view.forEach(key => {
 			let layer = this.layers.get(key);

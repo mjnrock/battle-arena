@@ -176,6 +176,9 @@ export function createLayerEntity(game) {
 			 */
 			layer.overlay.clear();
 
+			console.log(game.viewport.views.current.subject.world.x, game.viewport.views.current.subject.world.y);
+			console.log(game.viewport.views.current.perspective.x, game.viewport.views.current.perspective.y);
+
 			/**
 			 * Draw the Entities
 			 */
@@ -619,6 +622,8 @@ export const Hooks = {
 		});
 
 		this.realm = realm;
+
+		this.viewport.views.current.subject = this.realm.players.current;
 
 		let now = Date.now();
 		for(let entity of [ player, ...rest ]) {

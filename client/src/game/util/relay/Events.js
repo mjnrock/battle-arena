@@ -1,7 +1,7 @@
 import { Identity } from "../Identity";
 
 export class Events extends Identity {
-	constructor (events, { ...rest } = {}) {
+	constructor (events = {}, { ...rest } = {}) {
 		super({ ...rest })
 
 		this.events = new Map();
