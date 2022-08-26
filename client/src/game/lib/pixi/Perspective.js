@@ -48,6 +48,9 @@ export class Perspective extends Identiy {
 		
 		let { x: vx, y: vy, width: vw, height: vh } = this.viewport(true);
 
+		x += vw / 2;
+		y += vh / 2;
+
 		return x >= vx
 			&& x < vx + vw
 			&& y >= vy

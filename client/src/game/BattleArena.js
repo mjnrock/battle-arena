@@ -298,12 +298,17 @@ export function createViews(game) {
 					debug: createLayerDebug(game),
 				},
 
+				observe() {
+					this.perspective.x = this.subject.world.x * game.config.tile.width;
+					this.perspective.y = this.subject.world.y * game.config.tile.height;
+			
+					this.container.x = -this.perspective.x + this.perspective.width / 2 - game.config.tile.width * 2;
+					this.container.y = -this.perspective.y + this.perspective.height / 2 - game.config.tile.height * 2;
+				},
+
 				/**
 				 * The Perspective constraint object
 				 */
-				//TODO: ULtimately, this should flag in/visible to the PIXI object from w/e scope it's in (ViewPort, Layer, etc.)
-				//FIXME: ViewPorts should be a Grid where Views occupy x,y,w,h positions
-				//TODO: Create a Grid class that keeps track of a Grid and its children with relative grid positions
 				perspective: new Perspective({
 					ref: game,
 

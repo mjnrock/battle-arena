@@ -15,7 +15,7 @@ export class View extends Layer {
 		this.subject = subject;
 
 		this.events = new Events({
-			observe: observe || this.observe.bind(this),
+			observe: observe.bind(this) || this.observe.bind(this),
 		});
 
 		this.layers = new Map();
@@ -94,11 +94,6 @@ export class View extends Layer {
 		parent.removeChild(this.container);
 
 		return this;
-	}
-
-	observe() {
-		this.perspective.x = this.subject.world.x * 128;
-		this.perspective.y = this.subject.world.y * 128;
 	}
 
 	/**
