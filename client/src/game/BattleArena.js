@@ -27,6 +27,7 @@ import { PixelScaleCanvas } from "./util/Base64";
 import { Path } from "./lib/pathing/Path";
 import { Dice } from "./util/Dice";
 import Helper from "./util/helper";
+import Bunny from "./entities/Bunny";
 
 //TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
 //? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
@@ -176,9 +177,6 @@ export function createLayerEntity(game) {
 			 */
 			layer.overlay.clear();
 
-			console.log(game.viewport.views.current.subject.world.x, game.viewport.views.current.subject.world.y);
-			console.log(game.viewport.views.current.perspective.x, game.viewport.views.current.perspective.y);
-
 			/**
 			 * Draw the Entities
 			 */
@@ -187,7 +185,6 @@ export function createLayerEntity(game) {
 				[ tx, ty ] = entity.world.model.pos(tx, ty);
 				[ tx, ty ] = [ tx * game.config.tile.width, ty * game.config.tile.height ];
 
-				//FIXME: Perspective HEIGHT/WIDTH does not seem to be correct (w/h may not take into account the tw/th normalization?)
 				if(perspective.test(tx, ty) && entity.animation.track) {
 					entity.animation.sprite.visible = true;
 
@@ -217,7 +214,7 @@ export function createLayerDebug(game) {
 			 */
 			layer.overlay.clear();
 
-			//FIXME: I don't like the idea of attaching the debug graphics to the entity like this (see F3 press code)
+			//FIXME: I don't like the idea of attaching the debug graphics to the entity like this (see F3 press code) -- maybe create a separate nodal network
 
 			/**
 			 * Draw the Entities
@@ -247,13 +244,9 @@ export function createLayerDebug(game) {
 					entity.animation.debug.visible = false;
 				}
 
-				//FIXME: Perspective HEIGHT/WIDTH does not seem to be correct (w/h may not take into account the tw/th normalization?)
 				if(perspective.test(tx, ty)) {
 					entity.animation.debug.visible = true;
-
-					// entity.animation.debug.beginFill(0x000000);
-					// entity.animation.debug.drawRect(game.config.tile.width / 2, -game.config.tile.height / 2, game.config.tile.width * 2/3, game.config.tile.height);
-					// entity.animation.debug.endFill();
+					entity.animation.debug.clear();
 
 					const [ text ] = entity.animation.debug.children;
 					text.text = "";
@@ -266,6 +259,13 @@ export function createLayerDebug(game) {
 					];
 					text.text += "\r\n" + (x_dest ? `{${ x_dest } ${ y_dest }}` : "");
 
+					entity.animation.debug.lineStyle(2, 0x00FF00);
+					entity.animation.debug.drawRing(
+						entity.world.model.radius * game.config.tile.width * 2,
+						entity.world.model.radius * game.config.tile.height * 2,
+						entity.world.model.x * game.config.tile.width,
+						entity.world.model.y * game.config.tile.height
+					);
 				}
 			}
 		},
@@ -301,9 +301,14 @@ export function createViews(game) {
 				observe() {
 					this.perspective.x = this.subject.world.x * game.config.tile.width;
 					this.perspective.y = this.subject.world.y * game.config.tile.height;
-			
+
 					this.container.x = -this.perspective.x + this.perspective.width / 2 - game.config.tile.width * 2;
 					this.container.y = -this.perspective.y + this.perspective.height / 2 - game.config.tile.height * 2;
+
+					game.config.viewport.offset = {
+						x: this.container.x,
+						y: this.container.y,
+					};
 				},
 
 				/**
@@ -356,6 +361,7 @@ export const Hooks = {
 		this.environment.registerFactoryEntities([
 			//NOTE: Add all of the entity classes here
 			Squirrel,
+			Bunny,
 			Node,
 			World,
 			Realm,
@@ -466,6 +472,12 @@ export const Hooks = {
 			{
 				alias: "squirrel",
 				canvas: this.assets.canvases.entity_squirrel,
+				algorithm: AssetManager.Algorithms.GridBased,
+				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
+			},
+			{
+				alias: "bunny",
+				canvas: this.assets.canvases.entity_bunny,
 				algorithm: AssetManager.Algorithms.GridBased,
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
@@ -593,13 +605,29 @@ export const Hooks = {
 			}
 		}
 
-		const [ player, ...rest ] = $E.squirrel(100, {
+		const [ ...squirrels ] = $E.squirrel(50, {
 			init: {
 				world: {
 					world: overworld.id,
 					model: new Circle({
-						x: 0.5,
-						y: 0.5,
+						x: 0,
+						y: 0.2,
+						r: 0.25,
+					}),
+					x: 10,
+					y: 10,
+					vx: 0.01,
+					vy: 0.01,
+				},
+			},
+		});
+		const [ player, ...bunnies ] = $E.bunny(50, {
+			init: {
+				world: {
+					world: overworld.id,
+					model: new Circle({
+						x: 0,
+						y: 0,
 						r: 0.5,
 					}),
 					x: 10,
@@ -628,17 +656,22 @@ export const Hooks = {
 
 		this.realm = realm;
 
+		console.log(this.realm.players.current)
+
 		this.viewport.views.current.subject = this.realm.players.current;
 
 		let now = Date.now();
-		for(let entity of [ player, ...rest ]) {
-			const track = this.assets.createTrack("rotate360", "squirrel");
+		for(let entity of [ player, ...squirrels, ...bunnies ]) {
+			const [ trSquirrel, trBunny ] = this.assets.createTracks([
+				[ "rotate360", "squirrel" ],
+				[ "rotate360", "bunny" ],
+			]);
 
 			//STUB: Add some randomness to the squirrels' animation cycle "start"
-			track.timer.config.start = now + (Math.random() < 0.5 ? -1 : 1) * Math.random() * 1000;
+			trSquirrel.timer.config.start = now + (Math.random() < 0.5 ? -1 : 1) * Math.random() * 1000;
 
-			entity.animation.track = track;
-			entity.animation.sprite.texture = track.current;
+			entity.animation.track = entity.alias === "squirrel" ? trSquirrel : trBunny;
+			entity.animation.sprite.texture = entity.animation.track.current;
 
 			this.dispatch("world:join", entity, { world: this.realm.worlds.current, x: ~~(Math.random() * this.realm.worlds.current.width), y: ~~(Math.random() * this.realm.worlds.current.height) });
 
@@ -761,3 +794,24 @@ export default function CreateGame({ ...opts } = {}) {
 
 	return game;
 };
+
+//#region Extensions
+PixiJS.Graphics.prototype.drawRing = function(w, h, cx = 0, cy = 0) {
+	var lx = cx - w * 0.5;
+	var rx = cx + w * 0.5;
+	var ty = cy - h * 0.5;
+	var by = cy + h * 0.5;
+
+	var magic = 0.551915024494; 
+	var xmagic = magic * w * 0.5;
+	var ymagic = h * magic * 0.5;
+
+	this.moveTo(cx, ty);
+	this.bezierCurveTo(cx + xmagic, ty, rx, cy - ymagic, rx, cy);
+	this.bezierCurveTo(rx, cy + ymagic, cx + xmagic, by, cx, by);
+	this.bezierCurveTo(cx - xmagic, by, lx, cy + ymagic, lx, cy);
+	this.bezierCurveTo(lx, cy - ymagic, cx - xmagic, ty, cx, ty);
+
+	return this;
+};
+//#endregion Extensions

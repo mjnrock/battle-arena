@@ -71,6 +71,13 @@ export class Game extends Identity {
 			 */
 			bootstrap: new Eventable({ events: bootstrap }),
 
+			viewport: {
+				offset: {
+					x: 0,
+					y: 0,
+				},
+			},
+
 			SHOW_DEBUG: true,
 
 			...config,

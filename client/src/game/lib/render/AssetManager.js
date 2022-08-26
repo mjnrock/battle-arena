@@ -141,6 +141,9 @@ export class AssetManager extends Identity {
 			...opts,
 		});
 	}
+	createTracks(createTrackArgs = []) {
+		return createTrackArgs.map(args => this.createTrack(...args));
+	}
 	//#endregion Begin Convenience/Facilitation Methods
 };
 

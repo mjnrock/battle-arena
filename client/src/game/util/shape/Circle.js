@@ -1,7 +1,7 @@
 import Shape from "./Shape";
 
 export class Circle extends Shape {
-	constructor ({ x, y, r, d, ...opts } = {}) {
+	constructor ({ x = 0, y = 0, r, d, ...opts } = {}) {
 		super({ x, y, ...opts });
 
 		/**
