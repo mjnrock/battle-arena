@@ -605,7 +605,7 @@ export const Hooks = {
 			}
 		}
 
-		const [ ...squirrels ] = $E.squirrel(50, {
+		const [ player, ...squirrels ] = $E.squirrel(50, {
 			init: {
 				world: {
 					world: overworld.id,
@@ -621,14 +621,14 @@ export const Hooks = {
 				},
 			},
 		});
-		const [ player, ...bunnies ] = $E.bunny(50, {
+		const [ ...bunnies ] = $E.bunny(50, {
 			init: {
 				world: {
 					world: overworld.id,
 					model: new Circle({
 						x: 0,
 						y: 0,
-						r: 0.5,
+						r: 0.4,
 					}),
 					x: 10,
 					y: 10,

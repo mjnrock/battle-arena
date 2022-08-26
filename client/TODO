@@ -1,6 +1,24 @@
+@Current
+Score Repo:
+☐ Create "Score Repos" or something dynamic to more easily deal with things like: facing, states, etc.
+	☐ facing: 90, 180, 270, 360
+	☐ states: normal, moving, attacking, casting, damaged
+Key Navigation:
+☐ When navigating with the KEYS, favor the facing direction UNLESS the next velocity_direction === -direction
+	☐ Align facing movement with Sprites
+	☐ 3/4 velocity possibilities continue the *current* until (OR):
+		☐ The next node-center is reached
+			☐ Update facing after
+		☐ A 180-degree velocity is applied
+			☐ Update facing after
+"Image Not Found":
+☐ Create a "no sprite" sprite as a catch-all for any sprite that doesn't exist
+	☐ Maybe create a "Debugger" that records all this kind of stuff to a file for remediation
+
+@Archive
 ✔ Add a "World" component that includes position @done(22-08-11 16:44)
 ✔ Modify InputControllers to utilize events @done(22-08-13 18:52)
 	✔ Key @done(22-08-13 18:52)
 	✔ Mouse @done(22-08-13 18:52)
-	[] Make Game listen to input controls
-		[] Package handlers into generalized "input"
+	✔ Make Game listen to input controls @done(22-08-26 15:33)
+		✔ Package handlers into generalized "input" @done(22-08-26 15:32)
