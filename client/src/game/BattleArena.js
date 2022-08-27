@@ -253,6 +253,7 @@ export function createLayerDebug(game) {
 					text.text += "\r\n" + `${ entity.world.facing }°`
 					text.text += "\r\n" + `[${ Helper.round(entity.world.x, 10).toFixed(1) } ${ Helper.round(entity.world.y, 10).toFixed(1) }]`;
 					text.text += "\r\n" + `(${ Helper.round(entity.world.vx, 10).toFixed(1) } ${ Helper.round(entity.world.vy, 10).toFixed(1) })`;
+					text.text += "\r\n" + `(${ Helper.round(entity.world.mx, 100).toFixed(2) } ${ Helper.round(entity.world.my, 100).toFixed(2) })`;
 					let [ x_dest, y_dest ] = [
 						~~((entity.ai.wayfinder.current || {}).destination || [])[ 0 ] || null,
 						~~((entity.ai.wayfinder.current || {}).destination || [])[ 1 ] || null,
@@ -605,7 +606,7 @@ export const Hooks = {
 			}
 		}
 
-		const [ player, ...squirrels ] = $E.squirrel(50, {
+		const [ player, ...squirrels ] = $E.squirrel(5, {
 			init: {
 				world: {
 					world: overworld.id,
@@ -621,7 +622,7 @@ export const Hooks = {
 				},
 			},
 		});
-		const [ ...bunnies ] = $E.bunny(50, {
+		const [ ...bunnies ] = $E.bunny(5, {
 			init: {
 				world: {
 					world: overworld.id,
@@ -761,6 +762,10 @@ export const Hooks = {
 		}
 
 		if(this.input.key.hasCtrl || this.input.mouse.hasRight) {
+			this.realm.players.current.ai.wayfinder.empty();
+			this.realm.players.current.world.mx = 0;
+			this.realm.players.current.world.my = 0;
+
 			this.dispatch("world:move", this.realm.players.current, {
 				x: ~~(this.realm.worlds.current.width / 2),
 				y: ~~(this.realm.worlds.current.height / 2),

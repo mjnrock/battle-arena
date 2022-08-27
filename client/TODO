@@ -1,6 +1,6 @@
 @Current
-Score Repo:
-☐ Create "Score Repos" or something dynamic to more easily deal with things like: facing, states, etc.
+Track Repo:
+☐ Create "Track Repos" or something dynamic to more easily deal with things like: facing, states, etc.
 	☐ facing: 90, 180, 270, 360
 	☐ states: normal, moving, attacking, casting, damaged
 Key Navigation:

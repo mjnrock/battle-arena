@@ -82,63 +82,98 @@ export class World extends System {
 
 	displace(entities = [], { dt }) {
 		System.Each(entities, (entity) => {
-			let { x, y, vx, vy, facing, speed } = entity.world;
-			let mx = Math.sign(vx);
-			let my = Math.sign(vy);
+			let { x, y, vx, vy, mx, my, facing, speed } = entity.world;
+
+			/**
+			 * IDEA: GENERAL FLOW
+			 * 1. Use "momentum" to cache displacement remainders for tilegrid nudges
+			 * 2. IFF momentum is 0, attempt velocity
+			 * 3. IFF velocity is > 0, displace according to normalized velocity
+			 * 4. IFF velocity is 0, done
+			 */
+
+			// if(mx || my) {
+			// 	/**
+			// 	 * As long as there is momentum, displace according to momentum
+			// 	 * and override velocities.
+			// 	 */
+			// 	let mx_sign = Math.sign(mx),
+			// 		my_sign = Math.sign(my);
+
+			// 	let dx = vx * dt,
+			// 		dy = vy * dt;
+
+			// 	if(mx) {
+			// 		mx -= dx;
+			// 		vx = mx_sign * speed;
+			// 	}
+				
+			// 	if(my) {
+			// 		my -= dy;
+			// 		vy = my_sign * speed;
+			// 	}
+
+			// 	if(mx && (mx_sign * Math.sign(mx)) === -1) {
+			// 		mx = 0;
+			// 		vx = 0;
+			// 	}
+			// 	if(my && (my_sign * Math.sign(my)) === -1) {
+			// 		my = 0;
+			// 		vy = 0;
+			// 	}
+			// } else {
+			// 	/**
+			// 	 * Calculate if there should be momentum
+			// 	 * Round to the nearest 0.5
+			// 	 */
+			// 	if(facing === 0 && vy) {
+			// 		// facing RIGHT, velocity LEFT
+			// 		mx = Helper.ceil(x, 2) - x + 0.5;
+			// 	} else if(facing === 180 && vy) {
+			// 		// facing LEFT, velocity RIGHT
+			// 		mx = -(Helper.ceil(x, 2) - x) + 0.5;
+			// 	} else if(facing === 90 && vx) {
+			// 		// facing UP, velocity DOWN
+			// 		my = Helper.ceil(y, 2) - y + 0.5;
+			// 	} else if(facing === 270 && vx) {
+			// 		// facing DOWN, velocity UP
+			// 		my = -(Helper.ceil(y, 2) - y) + 0.5;
+			// 	}
+			// }
 
 			// Move in 1 direction only, favor Y
 			if(vx && vy) {
 				vx = 0;
 			}
-
-			//TODO: Displace the entity in alignment with momentum for tilegrid nudges (requires: CENTER of shape, not TOPLEFT (currently))
-			//IDEA: Use the Pathfinding system and the KEY MASK and velocity to move the entity (e.g. RIGHT -> [ 1, 0 ] = Destination while MASK -- on destination, repeat, on MASK end delete destination, 0 velocity)
-			//IDEA: Store and use the change in @facing to maintain momemntum (e.g. going DOWN, won't RIGHT until next right is available)
-			let margin = 0.05,
-				scalar = 20,
-				nudge = 0;	// 0 = nudge within tile, 0.5 = nudge to middle of tile
-
-			if(vx) {
-				let div = Helper.floor(y, scalar) % 1;
-
-				if(Helper.near(div, nudge, margin, scalar) || Helper.near(div, -nudge, margin, scalar)) {
-					y = ~~y + nudge;
-					vy = 0;
-				} else {
-					vy = -mx * speed;
-					vx = 0;
-				}
-
-				if(vx > 0) {
-					facing = 0;
-				} else if(vx < 0) {
-					facing = 180;
-				}
-			} else if(vy) {
-				let div = Helper.floor(x, scalar) % 1;
-
-				if(Helper.near(div, nudge, margin, scalar) || Helper.near(div, -nudge, margin, scalar)) {
-					x = ~~x + nudge;
-					vx = 0;
-				} else {
-					vx = -my * speed;
-					vy = 0;
-				}
-				
-				if(vy > 0) {
-					facing = 270;
-				} else if(vy < 0) {
-					facing = 90;
-				}
+			if(mx && my) {
+				mx = 0;
 			}
 
-			x += (vx * dt);
-			y += (vy * dt);
+			if(vx || vy) {
+				if(vx) {
+					if(vx > 0) {
+						facing = 0;
+					} else if(vx < 0) {
+						facing = 180;
+					}
+				} else if(vy) {
+					if(vy > 0) {
+						facing = 270;
+					} else if(vy < 0) {
+						facing = 90;
+					}
+				}
+
+				x += (vx * dt);
+				y += (vy * dt);
+			}
 
 			entity.world.x = x;
 			entity.world.y = y;
 			entity.world.vx = vx;
 			entity.world.vy = vy;
+			entity.world.mx = mx;
+			entity.world.my = my;
 			entity.world.facing = facing;
 		});
 

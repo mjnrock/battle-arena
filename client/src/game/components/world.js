@@ -1,4 +1,4 @@
-export function world({ world, model, x = 0, y = 0, vx = 0, vy = 0, ax = 0, ay = 0, speed = 1.5, facing = 0 } = {}) {
+export function world({ world, model, x = 0, y = 0, vx = 0, vy = 0, mx = 0, my = 0, ax = 0, ay = 0, speed = 1.5, facing = 0 } = {}) {
 	return {
 		/**
 		 * This should either be a reference to the world or a UUID to find it
@@ -33,6 +33,15 @@ export function world({ world, model, x = 0, y = 0, vx = 0, vy = 0, ax = 0, ay =
 		 * The y velocity of the entity in the world
 		 */
 		vy,
+
+		/**
+		 * The x momentum of the entity in the world
+		 */
+		mx,
+		/**
+		 * The y momentum of the entity in the world
+		 */
+		my,
 
 		/**
 		 * The x acceleration of the entity in the world
