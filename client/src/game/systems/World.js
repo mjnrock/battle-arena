@@ -157,12 +157,16 @@ export class World extends System {
 		} else {
 			player.world.vx = dx = 0;
 			player.world.vy = dy = 0;
-			// player.ai.wayfinder.empty();
+			player.ai.wayfinder.empty();
 		}
 
-		if(!player.ai.wayfinder.hasPath || player.ai.wayfinder.current.isDestination(Helper.round(x, 10), Helper.round(y, 10))) {
-			const path = Path.FindPath(Game.Get().realm.worlds.current, [ tx, ty ], [ tx + dx, ty + dy ]);
+		if(!player.ai.wayfinder.hasPath || (player.ai.wayfinder.current && player.ai.wayfinder.current.isDestination(Helper.round(x, 10), Helper.round(y, 10)))) {
+			let destination = [
+				tx + dx,
+				ty + dy
+			];
 
+			const path = Path.FindPath(Game.Get().realm.worlds.current, [ tx, ty ], destination);
 			if(path instanceof Path) {
 				player.ai.wayfinder.set(path);
 			}

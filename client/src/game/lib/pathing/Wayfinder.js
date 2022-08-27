@@ -1,4 +1,5 @@
 import Path, { EnumPathStatus } from "./Path";
+import Helper from "./../../util/helper";
 
 export class Wayfinder {
     constructor(paths = []) {
@@ -9,11 +10,26 @@ export class Wayfinder {
         return this.current && this.current.isActive === true;
     }
     get current() {
-        return this.paths[ 0 ] || {};
+        return this.paths[ 0 ] != null ? this.paths[ 0 ] : false;
     }
     get last() {
-        return this.paths[ this.paths.length ? this.paths.length - 1 : 0 ] || {};
+        return this.paths[ this.paths.length ? this.paths.length - 1 : 0 ] || false;
     }
+
+	pathStart(precision = Path.Precision) {
+		if(this.current) {
+			return [ Helper.round(this.current.origin[ 0 ], precision), Helper.round(this.current.origin[ 1 ], precision) ];
+		}
+
+		return [ null, null ];
+	}
+	pathEnd(precision = Path.Precision) {
+		if(this.current) {
+			return [ Helper.round(this.current.destination[ 0 ], precision), Helper.round(this.current.destination[ 1 ], precision) ];
+		}
+
+		return [ null, null ];
+	}
 
     isCurrentDestination(...args) {
         return Path.isPoint((this.current.destination || []), ...args);

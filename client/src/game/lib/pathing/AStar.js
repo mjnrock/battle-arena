@@ -6,7 +6,7 @@ export function heuristic(p0, p1, p2, isBiased) {
     return Math.abs(p0[ 0 ] - p1[ 0 ]) + Math.abs(p0[ 1 ] - p1[ 1 ]);
 }
 
-export function findPath(world, start = [], goal = []) {
+export function findPath(world, start = [], goal = []) {	
     const frontier = [];
     frontier.push([ start, 0 ]);
 

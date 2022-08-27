@@ -253,11 +253,8 @@ export function createLayerDebug(game) {
 					text.text += "\r\n" + `${ entity.world.facing }°`
 					text.text += "\r\n" + `[${ Helper.round(entity.world.x, 10).toFixed(1) } ${ Helper.round(entity.world.y, 10).toFixed(1) }]`;
 					text.text += "\r\n" + `(${ Helper.round(entity.world.vx, 10).toFixed(1) } ${ Helper.round(entity.world.vy, 10).toFixed(1) })`;
-					let [ x_dest, y_dest ] = [
-						~~((entity.ai.wayfinder.current || {}).destination || [])[ 0 ] || null,
-						~~((entity.ai.wayfinder.current || {}).destination || [])[ 1 ] || null,
-					];
-					text.text += "\r\n" + (x_dest ? `{${ x_dest } ${ y_dest }}` : "");
+					let [ x_dest, y_dest ] = entity.ai.wayfinder.pathEnd(1) || [];
+					text.text += "\r\n" + (x_dest != null ? `{${ x_dest } ${ y_dest }}` : "");
 
 					entity.animation.debug.lineStyle(2, 0x00FF00);
 					entity.animation.debug.drawRing(

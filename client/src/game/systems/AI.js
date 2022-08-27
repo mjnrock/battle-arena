@@ -58,8 +58,8 @@ export class AI extends System {
 				// }
 			}
 
-			entity.world.vx = Vx;
-			entity.world.vy = Vy;
+			entity.world.vx = Vx || 0;
+			entity.world.vy = Vy || 0;
 		});
 
 		return entities;
