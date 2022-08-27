@@ -58,7 +58,8 @@ export class Path {
 		const [ x, y ] = arrPoint;
 		const [ xn, yn ] = Path.NormalizePoint(...point);
 
-		return ~~xn === ~~x && ~~yn === ~~y;
+		return Helper.round(xn, Path.Precision) === Helper.round(x, Path.Precision) && Helper.round(yn, Path.Precision) === Helper.round(y, Path.Precision);
+		// return ~~xn === ~~x && ~~yn === ~~y;
 	}
 
 	isDestination(...point) {

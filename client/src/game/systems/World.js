@@ -1,4 +1,6 @@
+import Game from "../Game";
 import { System } from "./../lib/ecs/System";
+import { Path } from "../lib/pathing/Path";
 
 import Helper from "./../util/helper";
 
@@ -82,71 +84,11 @@ export class World extends System {
 
 	displace(entities = [], { dt }) {
 		System.Each(entities, (entity) => {
-			let { x, y, vx, vy, mx, my, facing, speed } = entity.world;
-
-			/**
-			 * IDEA: GENERAL FLOW
-			 * 1. Use "momentum" to cache displacement remainders for tilegrid nudges
-			 * 2. IFF momentum is 0, attempt velocity
-			 * 3. IFF velocity is > 0, displace according to normalized velocity
-			 * 4. IFF velocity is 0, done
-			 */
-
-			// if(mx || my) {
-			// 	/**
-			// 	 * As long as there is momentum, displace according to momentum
-			// 	 * and override velocities.
-			// 	 */
-			// 	let mx_sign = Math.sign(mx),
-			// 		my_sign = Math.sign(my);
-
-			// 	let dx = vx * dt,
-			// 		dy = vy * dt;
-
-			// 	if(mx) {
-			// 		mx -= dx;
-			// 		vx = mx_sign * speed;
-			// 	}
-				
-			// 	if(my) {
-			// 		my -= dy;
-			// 		vy = my_sign * speed;
-			// 	}
-
-			// 	if(mx && (mx_sign * Math.sign(mx)) === -1) {
-			// 		mx = 0;
-			// 		vx = 0;
-			// 	}
-			// 	if(my && (my_sign * Math.sign(my)) === -1) {
-			// 		my = 0;
-			// 		vy = 0;
-			// 	}
-			// } else {
-			// 	/**
-			// 	 * Calculate if there should be momentum
-			// 	 * Round to the nearest 0.5
-			// 	 */
-			// 	if(facing === 0 && vy) {
-			// 		// facing RIGHT, velocity LEFT
-			// 		mx = Helper.ceil(x, 2) - x + 0.5;
-			// 	} else if(facing === 180 && vy) {
-			// 		// facing LEFT, velocity RIGHT
-			// 		mx = -(Helper.ceil(x, 2) - x) + 0.5;
-			// 	} else if(facing === 90 && vx) {
-			// 		// facing UP, velocity DOWN
-			// 		my = Helper.ceil(y, 2) - y + 0.5;
-			// 	} else if(facing === 270 && vx) {
-			// 		// facing DOWN, velocity UP
-			// 		my = -(Helper.ceil(y, 2) - y) + 0.5;
-			// 	}
-			// }
+			let { x, y, vx, vy, facing, speed } = entity.world;
 
 			// Move in 1 direction only, favor Y
 			if(vx && vy) {
 				vx = 0;
-			}
-			if(mx && my) {
-				mx = 0;
 			}
 
 			if(vx || vy) {
@@ -172,8 +114,6 @@ export class World extends System {
 			entity.world.y = y;
 			entity.world.vx = vx;
 			entity.world.vy = vy;
-			entity.world.mx = mx;
-			entity.world.my = my;
 			entity.world.facing = facing;
 		});
 
@@ -196,21 +136,35 @@ export class World extends System {
 	inputKeyVeloc(entities = [], keyCtrl) {
 		const [ player ] = entities;
 
-		const { speed } = player.world;
+		const { x, y } = player.world;
+		let tx = Helper.round(x, 1),
+			ty = Helper.round(y, 1),
+			dx = 0,
+			dy = 0;
+
 		if(keyCtrl.hasUp) {
-			player.world.vy = -speed;
+			dy = -1;
+			dx = 0
 		} else if(keyCtrl.hasDown) {
-			player.world.vy = speed;
+			dy = 1;
+			dx = 0
+		} else if(keyCtrl.hasLeft) {
+			dx = -1;
+			dy = 0;
+		} else if(keyCtrl.hasRight) {
+			dx = 1;
+			dy = 0;
 		} else {
-			player.world.vy = 0;
+			player.world.vx = dx = 0;
+			player.world.vy = dy = 0;
 		}
 
-		if(keyCtrl.hasLeft) {
-			player.world.vx = -speed;
-		} else if(keyCtrl.hasRight) {
-			player.world.vx = speed;
-		} else {
-			player.world.vx = 0;
+		if(!player.ai.wayfinder.hasPath || player.ai.wayfinder.current.isDestination(Helper.round(x, 10), Helper.round(y, 10))) {
+			const path = Path.FindPath(Game.Get().realm.worlds.current, [ tx, ty ], [ tx + dx, ty + dy ]);
+
+			if(path instanceof Path) {
+				player.ai.wayfinder.set(path);
+			}
 		}
 	}
 };
