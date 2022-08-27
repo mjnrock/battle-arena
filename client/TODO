@@ -4,13 +4,7 @@ Track Repo:
 	☐ facing: 90, 180, 270, 360
 	☐ states: normal, moving, attacking, casting, damaged
 Key Navigation:
-☐ When navigating with the KEYS, favor the facing direction UNLESS the next velocity_direction === -direction
-	☐ Align facing movement with Sprites
-	☐ 3/4 velocity possibilities continue the *current* until (OR):
-		☐ The next node-center is reached
-			☐ Update facing after
-		☐ A 180-degree velocity is applied
-			☐ Update facing after
+☐ Align facing movement with Sprites
 "Image Not Found":
 ☐ Create a "no sprite" sprite as a catch-all for any sprite that doesn't exist
 	☐ Maybe create a "Debugger" that records all this kind of stuff to a file for remediation
