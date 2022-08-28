@@ -1,102 +1,96 @@
-import Collection from "../../../util/Collection";
-import Track from "./Track";
+import { Identity } from "../../../util/Identity";
+import { Timer } from "./Timer";
 
-export class Zone {
-	constructor (x, y, w = true, h = true) {
-		this.x = x;
-		this.y = y;
-		this.width = w;
-		this.height = h;
-	}
-};
+export class Composition extends Identity {
+	constructor ({ sprites = {}, timestep, path, id, tags, ...timer } = {}) {
+		super({ id, tags });
 
-/**
- * The Composition extends Track to put sprite images into a grid with named-boundary zones for dynamic, relative positioning for a given Score.
- * This is useful for SpriteSheets that contain multiple Entity "states" in patterned zones.
- */
-export class Composition extends Track {
-	constructor ({ zones, ...opts } = {}) {
-		super({ ...opts });
+		this.sprites = new Map(sprites);
+
+		this.timer = new Timer({
+			cadence: this.update(timestep),
+			...timer,
+		});
 
 		/**
-		 * This changes the way the SpriteSheet is read, causing all
-		 * queries to be resolved by accounting for the offset and
-		 * boundaries of the current Zone.
-		 * 
-		 * This is useful for things like Game Entity "state" changes (e.g. NORMAL, MOVING, etc.)
-		 * where the Score could be reused, but the tessellation X,Y
-		 * numbers need to be adjusted with a relative offset.
+		 * This is the current sprite path, absent the index.
+		 * e.g. "squirrel.normal.east"
 		 */
-		this.zones = new Collection(zones);
+		this.path = path;
 	}
 
-	//TODO: Modify the Track to accomodate Zones
+	update(timestep) {
+		let counter = {},
+			arr = [];
 
-	get current() {
-		try {
-			// return this.sprites[ this.timer.current ][ 2 ];
-			return this.sprites[ this.timer.current ][ 2 ]();
-		} catch(e) {
-			throw new Error(`Your Track threw a null-pointer exception because it has no Measures -- check your initializations.`);
+		for(let [ alias, texture ] of this.sprites) {
+			let words = alias.split(".");
+			let last = words.pop();
+			let path = words.join(".");
+
+			if(path.length) {	
+				if(path in counter) {
+					counter[ path ] += 1;
+				} else {
+					counter[ path ] = 1;
+				}
+	
+				if(counter[ path ] > arr.length) {
+					arr.push(timestep);
+				}
+			}
 		}
+
+		return arr;
 	}
-	next(time, ...args) {
-		if(args.length) {
-			this.zones.curate(...args);
+
+	setIsTimeout(start = false) {
+		this.timer.stop();
+		this.timer.setIsTimeout();
+
+		if(start) {
+			this.timer.start();
 		}
 
-		return this.timer.next(time);
+		return this;
+	}
+	setIsDelta() {
+		this.timer.stop();
+		this.timer.setIsDelta();
+
+		return this;
 	}
 
 	/**
+	 * Assign or evaluate the current path, using the Timer to
+	 * determine the index.
+	 */
+	current(...pathArgs) {
+		let path = typeof this.path === "function" ? this.path(...pathArgs) : this.path;
+		let alias = `${ path }.${ this.timer.current }`;
+		
+		if(this.sprites instanceof Map) {
+			return this.sprites.get(alias);
+		} else if(typeof this.sprites === "object") {
+			return this.sprites[ alias ];
+		}
+
+		return false;
+	}
+	next(time) {
+		return this.timer.next(time);
+	}
+	
+	/**
 	 * Create a processed Track, based on the given spritesheet and score.
 	 */
-	static Create({ score, spritesheet, zones, autoPlay = false, writeback = false } = {}) {
-		const notes = [];
-		const composition = new Composition({
-			cadence: [ ...score.cadence ],
+	static Create({ spritesheet, timestep, path, autoPlay = false } = {}) {
+		return new Composition({
+			sprites: spritesheet.textures,
+			timestep: timestep,
+			path: path,
 			start: autoPlay,
-			zones: zones,
 		});
-
-
-		score.each((note, i) => {
-			/**
-			 * Optionally write the SpriteSheet's version of the Note (e.g. Texture) *back* into the Note.ref
-			 * This is useful when you want to use the Note as the texture cache, instead of a lookup.
-			 */
-			if(writeback === true && typeof note.ref === "string") {
-				note.ref = spritesheet.get(note.ref);
-			}
-
-			/**
-			 * Add the note data to the notes array.
-			 * [ index, duration, Texture ]
-			 */
-			// notes.push([ i, score.cadence[ i ], spritesheet.get(note.ref) ]);
-			notes.push([ i, score.cadence[ i ], () => {
-				let ref = note.ref;
-
-				/**
-				 * When Grid coordinates are passed, consult the Zone to determine the offset.
-				 */
-				if(typeof ref === "string" && ref.includes(",")) {
-					let [ tx, ty ] = ref.split(",").map(v => parseInt(v));
-					let { x, y } = composition.zones.current || {};
-
-					tx += x || 0;
-					ty += y || 0;
-
-					ref = [ tx, ty ].join(",");
-				}
-
-				return spritesheet.get(ref);
-			} ]);
-		});
-
-		composition.sprites = notes;
-
-		return composition;
 	}
 };
 

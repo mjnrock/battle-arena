@@ -34,11 +34,6 @@ export class AssetManager extends Identity {
 		 * The scores to be used for track creation.
 		 */
 		this.scores = null;
-
-		/**
-		 * This is a registry of { alias: group|Array<canvas> } pairs.
-		 */
-		this.sequences = null;
 	}
 
 	//#region Initialization Methods
@@ -143,7 +138,7 @@ export class AssetManager extends Identity {
 
 	//#region Begin Convenience/Facilitation Methods
 	createTrack(scoreAlias, spritesheetAlias, opts = {}) {
-		return Tile.Animate.Track.CreateWithScore({
+		return Tile.Animate.Track.Create({
 			score: this.scores[ scoreAlias ],
 			spritesheet: this.spritesheets[ spritesheetAlias ],
 			autoPlay: true,
@@ -154,38 +149,23 @@ export class AssetManager extends Identity {
 	createTracks(createTrackArgs = []) {
 		return createTrackArgs.map(args => this.createTrack(...args));
 	}
-
-	/**
-	 * This method is identical .createTrack, except that it uses a Composition
-	 * instead of a Track.
-	 */
-	createComposition(scoreAlias, spritesheetAlias, zones, opts = {}) {
+	
+	createComposition({ spritesheet, timestep = 250, path, ...rest } = {}) {
 		return Tile.Animate.Composition.Create({
-			score: this.scores[ scoreAlias ],
-			spritesheet: this.spritesheets[ spritesheetAlias ],
-			zones,
+			spritesheet: this.spritesheets[ spritesheet ],
+			path: path,
+			timestep: timestep,
 			autoPlay: true,
 
-			...opts,
+			...rest,
 		});
 	}
-	/**
-	 * This method is identical .createComposition, except that it uses an array
-	 * of Composition args instead of a Track args.
-	 * 
-	 * NOTE: This version requires *each* Composition to have @zones defined.
-	 */
-	createCompositions(createCompositionArgs = []) {
-		return createCompositionArgs.map(args => this.createComposition(...args));
-	}
-	/**
-	 * Identical to .createCompositions, except that it uses a "zone factory" that
-	 * creates a dynamic zone for each Compositon.
-	 * 
-	 * NOTE: This version *cannot accept* @opts arguments.
-	 */
-	createCompositions2(zones, createCompositionArgs = []) {
-		return createCompositionArgs.map((args, i) => this.createComposition(...[ ...args, zones(i, args) ]));
+	createCompositions(createCompositionArgs = [], path) {
+		if(path) {
+			return createCompositionArgs.map(args => this.createComposition({ path, ...args }));
+		}
+
+		return createCompositionArgs.map(args => this.createComposition(args));
 	}
 	//#endregion Begin Convenience/Facilitation Methods
 };

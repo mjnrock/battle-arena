@@ -88,7 +88,11 @@ export class World extends System {
 
 			// Move in 1 direction only, favor Y
 			if(vx && vy) {
-				vx = 0;
+				if(Math.abs(x - Helper.round(x, 1)) > Math.abs(y - Helper.round(y, 1))) {
+					vy = 0;
+				} else {
+					vx = 0;
+				}
 			}
 
 			if(vx || vy) {

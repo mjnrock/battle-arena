@@ -59,7 +59,7 @@ export class Track extends Identity {
 	/**
 	 * Create a processed Track, based on the given spritesheet and score.
 	 */
-	static CreateWithScore({ score, spritesheet, autoPlay = false, writeback = false } = {}) {
+	static Create({ score, spritesheet, autoPlay = false, writeback = false } = {}) {
 		const notes = [];
 		score.each((note, i) => {
 			/**
