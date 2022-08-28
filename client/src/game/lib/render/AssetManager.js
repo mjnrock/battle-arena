@@ -179,7 +179,7 @@ export class AssetManager extends Identity {
 	 * 
 	 * NOTE: This version *cannot accept* @opts arguments.
 	 */
-	createZonedCompositions(zones, createCompositionArgs = []) {
+	createCompositions2(zones, createCompositionArgs = []) {
 		return createCompositionArgs.map((args, i) => this.createComposition(...[ ...args, zones(i, args) ]));
 	}
 	//#endregion Begin Convenience/Facilitation Methods

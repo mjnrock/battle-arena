@@ -656,7 +656,7 @@ export const Hooks = {
 			/**
 			 * Pass a "zone factory" that returns the args for Zone
 			 */
-			const [ trSquirrel ] = this.assets.createZonedCompositions((i) => ({
+			const [ trSquirrel ] = this.assets.createCompositions2((i) => ({
 				current: "normal",
 				items: {
 					normal: new Zone(0, 0, true, this.config.tile.height * 4),
