@@ -251,6 +251,7 @@ export function createLayerDebug(game) {
 
 					const [ text ] = entity.animation.debug.children;
 					text.text = "";
+					text.text += "\r\n" + `${ entity.status.state.toUpperCase() }`;
 					text.text += "\r\n" + `${ entity.world.facing }°`
 					text.text += "\r\n" + `[${ Helper.round(entity.world.x, 10).toFixed(1) } ${ Helper.round(entity.world.y, 10).toFixed(1) }]`;
 					text.text += "\r\n" + `(${ Helper.round(entity.world.vx, 10).toFixed(1) } ${ Helper.round(entity.world.vy, 10).toFixed(1) })`;
