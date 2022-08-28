@@ -34,6 +34,11 @@ export class AssetManager extends Identity {
 		 * The scores to be used for track creation.
 		 */
 		this.scores = null;
+
+		/**
+		 * This is a registry of { alias: group|Array<canvas> } pairs.
+		 */
+		this.sequences = null;
 	}
 
 	//#region Initialization Methods
@@ -138,7 +143,7 @@ export class AssetManager extends Identity {
 
 	//#region Begin Convenience/Facilitation Methods
 	createTrack(scoreAlias, spritesheetAlias, opts = {}) {
-		return Tile.Animate.Track.Create({
+		return Tile.Animate.Track.CreateWithScore({
 			score: this.scores[ scoreAlias ],
 			spritesheet: this.spritesheets[ spritesheetAlias ],
 			autoPlay: true,

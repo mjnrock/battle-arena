@@ -657,22 +657,23 @@ export const Hooks = {
 			/**
 			 * Pass a "zone factory" that returns the args for Zone
 			 */
-			const [ trSquirrel ] = this.assets.createCompositions2((i) => ({
-				current: "normal",
-				items: {
-					normal: new Zone(0, 0, true, this.config.tile.height * 4),
-					moving: new Zone(0, 4, true, this.config.tile.height * 4),
-				},
-				curator: function (ent) {
-					//TODO: Account for: entity.world.facing, entity to determine the key;
-					this._current = ent.status.state;
-				},
-			}), [
-				//FIXME: This needs the concept of a Row somehow for each facing relative to its zone
-				[ "rotate360", "squirrel" ],
-			]);
-			const [ trBunny ] = this.assets.createTracks([
+			// const [ trSquirrel ] = this.assets.createCompositions2((i) => ({
+			// 	current: "normal",
+			// 	items: {
+			// 		normal: new Zone(0, 0, true, this.config.tile.height * 4),
+			// 		moving: new Zone(0, 4, true, this.config.tile.height * 4),
+			// 	},
+			// 	curator: function (ent) {
+			// 		//TODO: Account for: entity.world.facing, entity to determine the key;
+			// 		this._current = ent.status.state;
+			// 	},
+			// }), [
+			// 	//FIXME: This needs the concept of a Row somehow for each facing relative to its zone
+			// 	[ "rotate360", "squirrel" ],
+			// ]);
+			const [ trBunny, trSquirrel ] = this.assets.createTracks([
 				[ "rotate360", "bunny" ],
+				[ "rotate360", "squirrel" ],
 			]);
 
 			//STUB: Add some randomness to the squirrels' animation cycle "start"

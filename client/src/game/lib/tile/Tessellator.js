@@ -42,8 +42,7 @@ export class Tessellator {
 						direction: direction,
 						index: index,
 					});
-
-					//FIXME: This current assumes that the source image is saturated -- account for early EOR for @index
+					
 					tileset.addTileData({
 						alias: alias,
 						x,
