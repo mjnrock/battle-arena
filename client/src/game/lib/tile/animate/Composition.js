@@ -1,6 +1,12 @@
 import { Identity } from "../../../util/Identity";
 import { Timer } from "./Timer";
 
+/**
+ * This basically is a highly simplified version of the Track-Score-Spritesheet
+ * paradigm that can be used to create a equally-timed animations with a lookup
+ * table of sprite textures.  This will set the cadence to the length of the
+ * longest animation, determined by a simple path count.
+ */
 export class Composition extends Identity {
 	constructor ({ sprites = {}, timestep, path, id, tags, ...timer } = {}) {
 		super({ id, tags });

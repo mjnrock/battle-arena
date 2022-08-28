@@ -149,7 +149,7 @@ export class AssetManager extends Identity {
 	createTracks(createTrackArgs = []) {
 		return createTrackArgs.map(args => this.createTrack(...args));
 	}
-	
+
 	createComposition({ spritesheet, timestep = 250, path, ...rest } = {}) {
 		return Tile.Animate.Composition.Create({
 			spritesheet: this.spritesheets[ spritesheet ],
