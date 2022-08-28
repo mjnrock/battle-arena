@@ -1,7 +1,7 @@
 import { Registry } from "./Registry";
 
 export class Collection {
-	constructor ({ items = {}, current } = {}) {
+	constructor ({ items = {}, current, curator } = {}) {
 		/**
 		 * The currently selected item in the Collection
 		 */
@@ -16,7 +16,7 @@ export class Collection {
 		/**
 		 * Function STUB, will just maintain status quo until overriden
 		 */
-		this.curator = () => this._current;
+		this.curator = curator || (() => this._current);
 	}
 
 	get current() {

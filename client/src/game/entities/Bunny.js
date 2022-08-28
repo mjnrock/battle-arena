@@ -2,9 +2,9 @@ import { Creature } from "./Creature";
 
 export class Bunny extends Creature {
 	static Alias = "bunny";
-	static Components = [
+	static Components = {
 		...Creature.Components,
-	];
+	};
 
 	constructor ({ components = [], id, tags, alias, init = {} } = {}) {
 		super({

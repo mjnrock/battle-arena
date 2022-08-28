@@ -3,6 +3,7 @@ import { Registry } from "../../util/Registry";
 
 import { Base64 } from "../../util/Base64";
 import Tile from "../tile/package";
+import { Zone } from "../tile/animate/Composition";
 
 /**
  * Due to the intrinsic async nature of external asset loading, the
@@ -147,6 +148,39 @@ export class AssetManager extends Identity {
 	}
 	createTracks(createTrackArgs = []) {
 		return createTrackArgs.map(args => this.createTrack(...args));
+	}
+
+	/**
+	 * This method is identical .createTrack, except that it uses a Composition
+	 * instead of a Track.
+	 */
+	createComposition(scoreAlias, spritesheetAlias, zones, opts = {}) {
+		return Tile.Animate.Composition.Create({
+			score: this.scores[ scoreAlias ],
+			spritesheet: this.spritesheets[ spritesheetAlias ],
+			zones,
+			autoPlay: true,
+
+			...opts,
+		});
+	}
+	/**
+	 * This method is identical .createComposition, except that it uses an array
+	 * of Composition args instead of a Track args.
+	 * 
+	 * NOTE: This version requires *each* Composition to have @zones defined.
+	 */
+	createCompositions(createCompositionArgs = []) {
+		return createCompositionArgs.map(args => this.createComposition(...args));
+	}
+	/**
+	 * Identical to .createCompositions, except that it uses a "zone factory" that
+	 * creates a dynamic zone for each Compositon.
+	 * 
+	 * NOTE: This version *cannot accept* @opts arguments.
+	 */
+	createZonedCompositions(zones, createCompositionArgs = []) {
+		return createCompositionArgs.map((args, i) => this.createComposition(...[ ...args, zones(i, args) ]));
 	}
 	//#endregion Begin Convenience/Facilitation Methods
 };

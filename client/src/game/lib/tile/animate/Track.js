@@ -2,7 +2,7 @@ import { Identity } from "../../../util/Identity";
 import { Timer } from "./Timer";
 
 export class Track extends Identity {
-	constructor ({ sprites, cadence, id, tags, ...timer } = {}) {
+	constructor ({ sprites = [], cadence, id, tags, ...timer } = {}) {
 		super({ id, tags });
 
 		this.sprites = Array.from(sprites);

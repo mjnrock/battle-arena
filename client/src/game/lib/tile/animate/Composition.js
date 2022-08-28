@@ -2,7 +2,7 @@ import Collection from "../../../util/Collection";
 import Track from "./Track";
 
 export class Zone {
-	constructor(x, y, w = true, h = true) {
+	constructor (x, y, w = true, h = true) {
 		this.x = x;
 		this.y = y;
 		this.width = w;
@@ -15,7 +15,7 @@ export class Zone {
  * This is useful for SpriteSheets that contain multiple Entity "states" in patterned zones.
  */
 export class Composition extends Track {
-	constructor ({ zones = {}, ...opts } = {}) {
+	constructor ({ zones, ...opts } = {}) {
 		super({ ...opts });
 
 		/**
@@ -34,12 +34,17 @@ export class Composition extends Track {
 
 	get current() {
 		try {
-			return this.sprites[ this.timer.current ][ 2 ];
+			// return this.sprites[ this.timer.current ][ 2 ];
+			return this.sprites[ this.timer.current ][ 2 ]();
 		} catch(e) {
 			throw new Error(`Your Track threw a null-pointer exception because it has no Measures -- check your initializations.`);
 		}
 	}
-	next(time) {
+	next(time, ...args) {
+		if(args.length) {
+			this.zones.curate(...args);
+		}
+
 		return this.timer.next(time);
 	}
 
@@ -48,8 +53,12 @@ export class Composition extends Track {
 	 */
 	static Create({ score, spritesheet, zones, autoPlay = false, writeback = false } = {}) {
 		const notes = [];
+		const composition = new Composition({
+			cadence: [ ...score.cadence ],
+			start: autoPlay,
+			zones: zones,
+		});
 
-		//TODO: Account for Zones
 
 		score.each((note, i) => {
 			/**
@@ -64,15 +73,30 @@ export class Composition extends Track {
 			 * Add the note data to the notes array.
 			 * [ index, duration, Texture ]
 			 */
-			notes.push([ i, score.cadence[ i ], spritesheet.get(note.ref) ]);
+			// notes.push([ i, score.cadence[ i ], spritesheet.get(note.ref) ]);
+			notes.push([ i, score.cadence[ i ], () => {
+				let ref = note.ref;
+
+				/**
+				 * When Grid coordinates are passed, consult the Zone to determine the offset.
+				 */
+				if(typeof ref === "string" && ref.includes(",")) {
+					let [ tx, ty ] = ref.split(",").map(v => parseInt(v));
+					let { x, y } = composition.zones.current || {};
+
+					tx += x || 0;
+					ty += y || 0;
+
+					ref = [ tx, ty ].join(",");
+				}
+
+				return spritesheet.get(ref);
+			} ]);
 		});
 
-		return new Composition({
-			sprites: notes,
-			cadence: [ ...score.cadence ],
-			start: autoPlay,
-			zones: zones,
-		});
+		composition.sprites = notes;
+
+		return composition;
 	}
 };
 

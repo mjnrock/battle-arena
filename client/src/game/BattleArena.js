@@ -21,6 +21,7 @@ import { Layer } from "./lib/pixi/Layer";
 import { View } from "./lib/pixi/View";
 import { ViewPort } from "./lib/pixi/ViewPort";
 import { Collection } from "./util/Collection";
+import { Zone } from "./lib/tile/animate/Composition";
 
 import { AssetManager } from "./lib/render/AssetManager";
 import { PixelScaleCanvas } from "./util/Base64";
@@ -188,7 +189,7 @@ export function createLayerEntity(game) {
 				if(perspective.test(tx, ty) && entity.animation.track) {
 					entity.animation.sprite.visible = true;
 
-					entity.animation.track.next(now);
+					entity.animation.track.next(now, entity.status.state);
 					entity.animation.sprite.texture = entity.animation.track.current;
 
 					entity.animation.sprite.x = entity.world.x * game.config.tile.width + (game.config.tile.width * 0.5);
@@ -444,28 +445,6 @@ export const Hooks = {
 			({ canvas }) => PixelScaleCanvas(canvas, this.config.tile.width / 32),
 		]);
 
-		//TODO: This commented section should be implemented into the Track, the Tessellator, or the SpriteSheet
-		// import Collection from "../../../util/Collection";
-		
-		// export class Zone {
-		// 	constructor(x, y, w = true, h = true) {
-		// 		this.x = x;
-		// 		this.y = y;
-		// 		this.width = w;
-		// 		this.height = h;
-		// 	}
-		// };
-		
-		// // this.zones = new Collection(zones);
-		// //STUB:
-		// this.zones = new Collection({
-		// 	current: "normal",
-		// 	items: {
-		// 		normal: new Zone(0, 0, true, true),
-		// 		...zones,
-		// 	},
-		// });
-
 		/**
 		 * Create all of the tessellations from the loaded canvases
 		 */
@@ -602,16 +581,6 @@ export const Hooks = {
 			for(let y = 0; y < overworld.height; y++) {
 				const node = overworld.nodes[ `${ x },${ y }` ];
 
-				//NOTE: Because this checks the neighbors bidirectionally, any action will be performed **twice**
-				// As such, if you use this, either maintain a "analyzed nodes" list (currently STUB w/ half the application values)
-				// const neighbors = getNeighbors(node);
-				// for(let [ key, neighbor ] of Object.entries(neighbors)) {
-				// 	if(neighbor && neighbor.terrain.type !== node.terrain.type) {
-				// 		node.terrain.edges |= EnumEdgeFlag[ key ];
-				// 	}
-				// }
-
-				//? Alternative approach:
 				if(!types.includes(node.terrain.type)) {
 					const neighbors = getNeighbors(node);
 
@@ -638,6 +607,9 @@ export const Hooks = {
 					vx: 0.01,
 					vy: 0.01,
 				},
+				status: () => ({
+					state: Math.random() > 0.5 ? "normal" : "moving",
+				}),
 			},
 		});
 		const [ ...bunnies ] = $E.bunny(14, {
@@ -681,8 +653,19 @@ export const Hooks = {
 
 		let now = Date.now();
 		for(let entity of [ player, ...squirrels, ...bunnies ]) {
-			const [ trSquirrel, trBunny ] = this.assets.createTracks([
+			const [ trSquirrel ] = this.assets.createZonedCompositions((i) => ({
+				current: "normal",
+				items: {
+					normal: new Zone(0, 0, true, true),
+					moving: new Zone(0, 4, true, true),
+				},
+				curator: function (key) {
+					this._current = key;
+				},
+			}), [
 				[ "rotate360", "squirrel" ],
+			]);
+			const [ trBunny ] = this.assets.createTracks([
 				[ "rotate360", "bunny" ],
 			]);
 
@@ -825,13 +808,13 @@ export default function CreateGame({ ...opts } = {}) {
 };
 
 //#region Extensions
-PixiJS.Graphics.prototype.drawRing = function(w, h, cx = 0, cy = 0) {
+PixiJS.Graphics.prototype.drawRing = function (w, h, cx = 0, cy = 0) {
 	var lx = cx - w * 0.5;
 	var rx = cx + w * 0.5;
 	var ty = cy - h * 0.5;
 	var by = cy + h * 0.5;
 
-	var magic = 0.551915024494; 
+	var magic = 0.551915024494;
 	var xmagic = magic * w * 0.5;
 	var ymagic = h * magic * 0.5;
 
