@@ -5,16 +5,12 @@ export class Track extends Identity {
 	constructor ({ sprites = [], cadence, id, tags, ...timer } = {}) {
 		super({ id, tags });
 
-		// this.sprites = Array.from(sprites);
-		this.sprites = sprites;
+		this.sprites = Array.from(sprites);
+		
 		this.timer = new Timer({
 			cadence,
 			...timer,
 		});
-
-		this.cache = {
-			current: [],
-		};
 	}
 
 	setIsTimeout(start = false) {
@@ -36,18 +32,7 @@ export class Track extends Identity {
 
 	get current() {
 		try {
-			if(Array.isArray(this.sprites)) {
-				return this.sprites[ this.timer.current ][ 2 ];
-			} else if(typeof this.sprites === "object") {
-				let obj = this.sprites;
-				for(let key of this.cache.current) {
-					obj = obj[ key ];
-				}
-
-				return obj[ this.timer.current ];
-			}
-
-			return false;
+			return this.sprites[ this.timer.current ][ 2 ];
 		} catch(e) {
 			throw new Error(`Your Track threw a null-pointer exception because it has no Measures -- check your initializations.`);
 		}

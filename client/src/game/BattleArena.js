@@ -21,7 +21,7 @@ import { Layer } from "./lib/pixi/Layer";
 import { View } from "./lib/pixi/View";
 import { ViewPort } from "./lib/pixi/ViewPort";
 import { Collection } from "./util/Collection";
-import { Zone } from "./lib/tile/animate/Composition";
+import { Zone } from "./lib/tile/animate/Sequencer";
 
 import { AssetManager } from "./lib/render/AssetManager";
 import { PixelScaleCanvas } from "./util/Base64";
@@ -671,7 +671,7 @@ export const Hooks = {
 
 		let now = Date.now();
 		for(let entity of [ player, ...squirrels, ...bunnies ]) {
-			const [ trBunny, trSquirrel ] = this.assets.createCompositions(
+			const [ trBunny, trSquirrel ] = this.assets.createSequences(
 				[
 					{ spritesheet: "bunny", timestep: 500 },
 					{ spritesheet: "squirrel", timestep: 500 },

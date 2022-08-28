@@ -1,13 +1,13 @@
-import { Identity } from "../../../util/Identity";
 import { Timer } from "./Timer";
+import { Track } from "./Track";
 
 /**
  * This basically is a highly simplified version of the Track-Score-Spritesheet
- * paradigm that can be used to create a equally-timed animations with a lookup
+ * paradigm that can be used to create a *equally-timed animations* with a lookup
  * table of sprite textures.  This will set the cadence to the length of the
  * longest animation, determined by a simple path count.
  */
-export class Composition extends Identity {
+export class Sequencer extends Track {
 	constructor ({ sprites = {}, timestep, path, id, tags, ...timer } = {}) {
 		super({ id, tags });
 
@@ -25,6 +25,9 @@ export class Composition extends Identity {
 		this.path = path;
 	}
 
+	/**
+	 * Update the cadence of the Track, based on the given timestep.
+	 */
 	update(timestep) {
 		let counter = {},
 			arr = [];
@@ -34,13 +37,13 @@ export class Composition extends Identity {
 			let last = words.pop();
 			let path = words.join(".");
 
-			if(path.length) {	
+			if(path.length) {
 				if(path in counter) {
 					counter[ path ] += 1;
 				} else {
 					counter[ path ] = 1;
 				}
-	
+
 				if(counter[ path ] > arr.length) {
 					arr.push(timestep);
 				}
@@ -50,23 +53,6 @@ export class Composition extends Identity {
 		return arr;
 	}
 
-	setIsTimeout(start = false) {
-		this.timer.stop();
-		this.timer.setIsTimeout();
-
-		if(start) {
-			this.timer.start();
-		}
-
-		return this;
-	}
-	setIsDelta() {
-		this.timer.stop();
-		this.timer.setIsDelta();
-
-		return this;
-	}
-
 	/**
 	 * Assign or evaluate the current path, using the Timer to
 	 * determine the index.
@@ -74,7 +60,7 @@ export class Composition extends Identity {
 	current(...pathArgs) {
 		let path = typeof this.path === "function" ? this.path(...pathArgs) : this.path;
 		let alias = `${ path }.${ this.timer.current }`;
-		
+
 		if(this.sprites instanceof Map) {
 			return this.sprites.get(alias);
 		} else if(typeof this.sprites === "object") {
@@ -83,15 +69,12 @@ export class Composition extends Identity {
 
 		return false;
 	}
-	next(time) {
-		return this.timer.next(time);
-	}
-	
+
 	/**
 	 * Create a processed Track, based on the given spritesheet and score.
 	 */
 	static Create({ spritesheet, timestep, path, autoPlay = false } = {}) {
-		return new Composition({
+		return new Sequencer({
 			sprites: spritesheet.textures,
 			timestep: timestep,
 			path: path,
@@ -100,4 +83,4 @@ export class Composition extends Identity {
 	}
 };
 
-export default Composition;
+export default Sequencer;

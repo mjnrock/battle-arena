@@ -3,7 +3,7 @@ import { Registry } from "../../util/Registry";
 
 import { Base64 } from "../../util/Base64";
 import Tile from "../tile/package";
-import { Zone } from "../tile/animate/Composition";
+import { Zone } from "../tile/animate/Sequencer";
 
 /**
  * Due to the intrinsic async nature of external asset loading, the
@@ -150,8 +150,8 @@ export class AssetManager extends Identity {
 		return createTrackArgs.map(args => this.createTrack(...args));
 	}
 
-	createComposition({ spritesheet, timestep = 250, path, ...rest } = {}) {
-		return Tile.Animate.Composition.Create({
+	createSequence({ spritesheet, timestep = 250, path, ...rest } = {}) {
+		return Tile.Animate.Sequencer.Create({
 			spritesheet: this.spritesheets[ spritesheet ],
 			path: path,
 			timestep: timestep,
@@ -160,12 +160,12 @@ export class AssetManager extends Identity {
 			...rest,
 		});
 	}
-	createCompositions(createCompositionArgs = [], path) {
+	createSequences(createSequencerArgs = [], path) {
 		if(path) {
-			return createCompositionArgs.map(args => this.createComposition({ path, ...args }));
+			return createSequencerArgs.map(args => this.createSequence({ path, ...args }));
 		}
 
-		return createCompositionArgs.map(args => this.createComposition(args));
+		return createSequencerArgs.map(args => this.createSequence(args));
 	}
 	//#endregion Begin Convenience/Facilitation Methods
 };
