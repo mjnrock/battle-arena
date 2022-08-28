@@ -1,5 +1,15 @@
 import Note from "./Note";
 
+/**
+ * The Measure class is a musical abstraction for Sprite framing.  The @step property
+ * represents a "unit" of time, and should be evenly divisible by into the @period property.
+ * By default, the Measure @step=250/@period=1000 == 1/4, resolving to a "4-Note-per-second Measure".
+ * While 1000ms is a natural denominator, it can be easily adjusted to fit whatever time
+ * signature you want.
+ * 
+ * NOTE: @step/@period is only relevant for *relative* Notes.  When Note.isRelative=false, the
+ * Note's .duration is used, allowing ms-level precision, when needed.
+ */
 export class Measure {
 	constructor ({ notes = [], step = 250, period = 1000 } = {}) {
 		this.notes = Array.from(notes);
@@ -16,20 +26,28 @@ export class Measure {
 	addNote(note) {
 		this.notes.push(note);
 
+		this.refresh();
+
 		return this;
 	}
 	addNoteAt(note, index) {
 		this.notes.splice(index, 0, note);
+
+		this.refresh();
 
 		return this;
 	}
 	removeNote(note) {
 		this.notes.splice(this.notes.indexOf(note), 1);
 
+		this.refresh();
+
 		return this;
 	}
 	removeNoteAt(index) {
 		this.notes.splice(index, 1);
+
+		this.refresh();
 
 		return this;
 	}
@@ -40,14 +58,23 @@ export class Measure {
 		this.notes[ index1 ] = note2;
 		this.notes[ index2 ] = note1;
 
+		this.refresh();
+
 		return this;
 	}
 	clear() {
 		this.notes = [];
 
+		this.refresh();
+
 		return this;
 	}
 
+	/**
+	 * Recalculate and update the .cadence and .duration properties.
+	 * 
+	 * NOTE: This is run automatically when using relevant internal methods.
+	 */
 	refresh() {
 		this.cadence = [];
 		this.duration = this.notes.reduce((acc, note) => {
@@ -83,7 +110,7 @@ export class Measure {
 		return this.period / this.step;
 	}
 
-	static CreateEqual(...noteRefs) {
+	static CreateEquallyTimed(...noteRefs) {
 		const notes = [];
 		for(let ref of noteRefs) {
 			const note = new Note({
@@ -107,7 +134,7 @@ export class Measure {
 	 * This will pass the refs to the .CreateEqual() method.
 	 */
 	static FromArray(array) {
-		return this.CreateEqual(...array);
+		return this.CreateEquallyTimed(...array);
 	}
 };
 

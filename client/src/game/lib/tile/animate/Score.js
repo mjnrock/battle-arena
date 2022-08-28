@@ -83,9 +83,10 @@ export class Score {
 	 * This will create Measures with equally-spaced cadence.
 	 * TODO: Add a smart check to see if the note-level entries (df. ref) are strings, arrays, or objects.
 	 */
-	static FromArray(array) {
+	static FromArray(array, zones) {
 		return new Score({
 			measures: array.map(measure => Measure.FromArray(measure)),
+			zones,
 		});
 	}
 };

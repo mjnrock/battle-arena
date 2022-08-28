@@ -48,6 +48,7 @@ export class Track extends Identity {
 		score.each((note, i) => {
 			/**
 			 * Optionally write the SpriteSheet's version of the Note (e.g. Texture) *back* into the Note.ref
+			 * This is useful when you want to use the Note as the texture cache, instead of a lookup.
 			 */
 			if(writeback === true && typeof note.ref === "string") {
 				note.ref = spritesheet.get(note.ref);

@@ -444,6 +444,28 @@ export const Hooks = {
 			({ canvas }) => PixelScaleCanvas(canvas, this.config.tile.width / 32),
 		]);
 
+		//TODO: This commented section should be implemented into the Track, the Tessellator, or the SpriteSheet
+		// import Collection from "../../../util/Collection";
+		
+		// export class Zone {
+		// 	constructor(x, y, w = true, h = true) {
+		// 		this.x = x;
+		// 		this.y = y;
+		// 		this.width = w;
+		// 		this.height = h;
+		// 	}
+		// };
+		
+		// // this.zones = new Collection(zones);
+		// //STUB:
+		// this.zones = new Collection({
+		// 	current: "normal",
+		// 	items: {
+		// 		normal: new Zone(0, 0, true, true),
+		// 		...zones,
+		// 	},
+		// });
+
 		/**
 		 * Create all of the tessellations from the loaded canvases
 		 */

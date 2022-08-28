@@ -8,11 +8,11 @@ import Identiy from "../../util/Identity";
  * NOTE: All position information is pixel-based.
  */
 export class Perspective extends Identiy {
-	constructor ({ ref, x, y, width, height, scale = 1.0, ...opts } = {}) {
-		super({ ...opts });
+	constructor ({ ref, x, y, width, height, scale = 1.0, config = {}, ...rest } = {}) {
+		super({ ...rest });
 
 		/**
-		 * This would ypically be the World or Game, depending on the context
+		 * This would typically be the World or Game, depending on the context
 		 */
 		this.ref = ref;
 
@@ -22,6 +22,12 @@ export class Perspective extends Identiy {
 		this.height = height;
 
 		this.scale = scale;
+
+		this.config = {
+			isCenterAligned: true,
+
+			...config,
+		};
 	}
 
 	viewport(asObject = false) {
@@ -48,8 +54,10 @@ export class Perspective extends Identiy {
 		
 		let { x: vx, y: vy, width: vw, height: vh } = this.viewport(true);
 
-		x += vw / 2;
-		y += vh / 2;
+		if(this.config.isCenterAligned) {
+			x += vw / 2;
+			y += vh / 2;
+		}
 
 		return x >= vx
 			&& x < vx + vw

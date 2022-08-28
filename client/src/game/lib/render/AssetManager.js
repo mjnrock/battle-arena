@@ -33,8 +33,6 @@ export class AssetManager extends Identity {
 		 * The scores to be used for track creation.
 		 */
 		this.scores = null;
-
-		//TODO: Create an actual asset initialization for the Game using this new class to help maintain it
 	}
 
 	//#region Initialization Methods
@@ -101,8 +99,17 @@ export class AssetManager extends Identity {
 	async loadScores(scoreObj = {}) {
 		this.scores = new Registry();
 
-		for(let [ alias, args ] of Object.entries(scoreObj)) {
-			const score = new Tile.Animate.Score(...args);
+		for(let [ alias, argsObj ] of Object.entries(scoreObj)) {
+			if(Array.isArray(argsObj)) {
+				/**
+				 * If an array was used, assume it contains the Measures
+				 */
+				argsObj = {
+					measures: argsObj,
+				};
+			}
+
+			const score = new Tile.Animate.Score(argsObj);
 			this.scores.registerWithAlias(score, alias);
 		}
 
@@ -131,10 +138,7 @@ export class AssetManager extends Identity {
 	//#region Begin Convenience/Facilitation Methods
 	createTrack(scoreAlias, spritesheetAlias, opts = {}) {
 		return Tile.Animate.Track.Create({
-			//TODO: Load the score from the registry
 			score: this.scores[ scoreAlias ],
-
-			//TODO: Load the spritesheet from the registry
 			spritesheet: this.spritesheets[ spritesheetAlias ],
 			autoPlay: true,
 
