@@ -27,11 +27,13 @@ export class Tessellator {
 			const tileset = new TileSet({ source: self.source, tw, th });
 			const directions = [ "north", "east", "south", "west" ];
 			
-			//TODO: Profile the image before tessellating, returning [ [ row_i, col_count ], ... ]
-			//TODO: Parameterize this and perhaps only pass ({ x, y, imageProfileResults })
 			const name = ({ entity, state, direction, index }) => `${ entity }.${ state }.${ direction }.${ index }`;
 
 			let diri = 0;
+
+			//FIXME: Per the "entity.status" updates, this needs to be refactored to perform work row-by-column instead of column-by-row, treating each "zone" as a "status-state".
+			//NOTE: This is why the Squirrels are gray right meow.
+
 			for(let y = 0; y < tileset.height; y += th) {
 				let index = 0;
 				for(let x = 0; x < tileset.width; x += tw) {

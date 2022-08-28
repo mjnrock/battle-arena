@@ -594,7 +594,7 @@ export const Hooks = {
 			}
 		}
 
-		const [ player, ...squirrels ] = $E.squirrel(1, {
+		const [ player, ...squirrels ] = $E.squirrel(42, {
 			init: {
 				world: {
 					world: overworld.id,
@@ -614,7 +614,7 @@ export const Hooks = {
 				}),
 			},
 		});
-		const [ ...bunnies ] = $E.bunny(0, {
+		const [ ...bunnies ] = $E.bunny(14, {
 			init: {
 				world: {
 					world: overworld.id,
@@ -652,6 +652,8 @@ export const Hooks = {
 		console.log(this.realm.players.current)
 
 		this.viewport.views.current.subject = this.realm.players.current;
+
+		//FIXME: This needs to exist somewhere as a translation, but not here -- maybe in an EnumDirection?
 		let dirLookup = (dir) => {
 			switch(dir) {
 				case 0:
