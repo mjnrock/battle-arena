@@ -112,6 +112,11 @@ export class World extends System {
 
 				x += (vx * dt);
 				y += (vy * dt);
+
+				//STUB: These should be inter-System events
+				entity.status.state = "moving";
+			} else {
+				entity.status.state = "normal";
 			}
 
 			entity.world.x = x;

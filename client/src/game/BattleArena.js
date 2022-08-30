@@ -609,7 +609,6 @@ export const Hooks = {
 					vy: 0.01,
 				},
 				status: () => ({
-					// state: Math.random() > 0.5 ? "normal" : "moving",
 					state: "normal",
 				}),
 			},

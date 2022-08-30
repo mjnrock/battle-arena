@@ -26,39 +26,97 @@ export class Tessellator {
 
 			const tileset = new TileSet({ source: self.source, tw, th });
 			const directions = [ "north", "east", "south", "west" ];
-			
+
 			const name = ({ entity, state, direction, index }) => `${ entity }.${ state }.${ direction }.${ index }`;
 
-			let diri = 0;
+			//STUB: The @enumStates are only appropriate for *some* sprites (e.g. creatures) -- abstract this as a hyperparameter.
+			if(self.alias === "squirrel" || self.alias === "bunny") {
+				let enumState = [ "normal", "moving" ],		//! This particular row is why this is conditionally scoped right now
+					zones = {},
+					zx = 0,
+					zy = 0;
+				for(let zone of enumState) {
+					zones[ zone ] = {
+						x: zx,
+						y: zy,
+						w: self.source.width,
+						h: th * directions.length,
+					};
 
-			//FIXME: Per the "entity.status" updates, this needs to be refactored to perform work row-by-column instead of column-by-row, treating each "zone" as a "status-state".
-			//NOTE: This is why the Squirrels are gray right meow.
-
-			for(let y = 0; y < tileset.height; y += th) {
-				let index = 0;
-				for(let x = 0; x < tileset.width; x += tw) {
-					const direction = directions[ diri ];
-					const alias = name({
-						entity: self.alias,
-						state: "normal",
-						direction: direction,
-						index: index,
-					});
-					
-					tileset.addTileData({
-						alias: alias,
-						x,
-						y,
-						width: tw,
-						height: th,
-					});
-
-					++index;
+					zy += zones[ zone ].h;
 				}
-				++diri;
 
-				if(diri >= directions.length) {
-					diri = 0;
+				let zi = 0;
+				for(let status_state in zones) {
+					/**
+					 * "zone" is an x,y,w,h range for a given entity's status state.
+					 */
+					let zone = zones[ status_state ];
+					for(let [ diri, dir ] of Object.entries(directions)) {
+						/**
+						 * "row" is the facing direction of the entity.
+						 */
+						let row = Array.apply(null, { length: Math.ceil(zone.w / tw) }).map((v, i) => {
+							let frame = {
+								alias: null,
+								x: zone.x + i * tw,
+								y: zone.y + diri * th,
+								width: tw,
+								height: th,
+							};
+
+							return frame;
+						});
+
+						/**
+						 * "frame" is the animation-step frame.
+						 */
+						for(let i in row) {
+							const frame = row[ i ];
+							const alias = name({
+								entity: self.alias,
+								state: enumState[ zi ],
+								direction: dir,
+								index: i,
+							});
+
+							frame.alias = alias;
+
+							tileset.addTileData(frame);
+						}
+					}
+
+					zi += 1;
+				}
+
+			} else {
+				for(let y = 0; y < tileset.height; y += th) {
+					let index = 0,
+						diri = 0;
+					for(let x = 0; x < tileset.width; x += tw) {
+						const direction = directions[ diri ];
+						const alias = name({
+							entity: self.alias,
+							state: "normal",
+							direction: direction,
+							index: index,
+						});
+
+						tileset.addTileData({
+							alias: alias,
+							x,
+							y,
+							width: tw,
+							height: th,
+						});
+
+						++index;
+					}
+					++diri;
+
+					if(diri >= directions.length) {
+						diri = 0;
+					}
 				}
 			}
 
