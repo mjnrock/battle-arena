@@ -25,13 +25,15 @@ export class Tessellator {
 			}
 
 			const tileset = new TileSet({ source: self.source, tw, th });
+			
+			//! These should probably also be a hyperparameter or something
 			const directions = [ "north", "east", "south", "west" ];
-
 			const name = ({ entity, state, direction, index }) => `${ entity }.${ state }.${ direction }.${ index }`;
 
 			//STUB: The @enumStates are only appropriate for *some* sprites (e.g. creatures) -- abstract this as a hyperparameter.
 			if(self.alias === "squirrel" || self.alias === "bunny") {
-				let enumState = [ "normal", "moving" ],		//! This particular row is why this is conditionally scoped right now
+				//! This particular line is why this is conditionally scoped right now
+				let enumState = [ "normal", "moving" ],
 					zones = {},
 					zx = 0,
 					zy = 0;
