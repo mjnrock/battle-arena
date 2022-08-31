@@ -18,6 +18,13 @@ import { TileSet } from "./TileSet";
  */
 export class Tessellator {
 	static Algorithms = {
+		/**
+		 * This can leverage the @directions parameter to either initialize your own direction array,
+		 * or you can use some convenience shorthands to iterate directions clockwise from "north".
+		 * The @aliaser parameter templates the alias, such as "entity_type.state.facing.frame_index".
+		 * The @zones parameter should ultimate represent an { alias: Rectangle } object, where the
+		 * value is the zone rectangle, composed of rows and indexes.
+		 */
 		GridBased: ({ zones, directions = "D4", aliaser } = {}) => (self, { tw, th } = {}) => {
 			if(self.source.width % tw !== 0 || self.source.height % th !== 0) {
 				throw new Error("Source image dimensions must be evenly divisible by tile dimensions.");
