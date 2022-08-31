@@ -6,6 +6,7 @@ export class Track extends Identity {
 		super({ id, tags });
 
 		this.sprites = Array.from(sprites);
+		
 		this.timer = new Timer({
 			cadence,
 			...timer,

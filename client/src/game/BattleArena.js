@@ -21,7 +21,7 @@ import { Layer } from "./lib/pixi/Layer";
 import { View } from "./lib/pixi/View";
 import { ViewPort } from "./lib/pixi/ViewPort";
 import { Collection } from "./util/Collection";
-import { Zone } from "./lib/tile/animate/Composition";
+import { Zone } from "./lib/tile/animate/Sequencer";
 
 import { AssetManager } from "./lib/render/AssetManager";
 import { PixelScaleCanvas } from "./util/Base64";
@@ -190,7 +190,7 @@ export function createLayerEntity(game) {
 					entity.animation.sprite.visible = true;
 
 					entity.animation.track.next(now, entity);
-					entity.animation.sprite.texture = entity.animation.track.current;
+					entity.animation.sprite.texture = entity.animation.track.current(entity);
 
 					entity.animation.sprite.x = entity.world.x * game.config.tile.width + (game.config.tile.width * 0.5);
 					entity.animation.sprite.y = entity.world.y * game.config.tile.height + (game.config.tile.height * 0.5);
@@ -453,31 +453,31 @@ export const Hooks = {
 			{
 				alias: "grass",
 				canvas: this.assets.canvases.terrain_grass,
-				algorithm: AssetManager.Algorithms.GridBased,
+				algorithm: AssetManager.Algorithms.GridBased({ directions: false }),
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 			{
 				alias: "grass_edge",
 				canvas: this.assets.canvases.terrain_grass_edge,
-				algorithm: AssetManager.Algorithms.GridBased,
+				algorithm: AssetManager.Algorithms.GridBased({ directions: false }),
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 			{
 				alias: "water",
 				canvas: this.assets.canvases.terrain_water,
-				algorithm: AssetManager.Algorithms.GridBased,
+				algorithm: AssetManager.Algorithms.GridBased({ directions: false }),
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 			{
 				alias: "squirrel",
 				canvas: this.assets.canvases.entity_squirrel,
-				algorithm: AssetManager.Algorithms.GridBased,
+				algorithm: AssetManager.Algorithms.GridBased({ zones: [ "normal", "moving" ] }),
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 			{
 				alias: "bunny",
 				canvas: this.assets.canvases.entity_bunny,
-				algorithm: AssetManager.Algorithms.GridBased,
+				algorithm: AssetManager.Algorithms.GridBased({ zones: [ "normal", "moving" ] }),
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 		]);
@@ -609,7 +609,7 @@ export const Hooks = {
 					vy: 0.01,
 				},
 				status: () => ({
-					state: Math.random() > 0.5 ? "normal" : "moving",
+					state: "normal",
 				}),
 			},
 		});
@@ -652,34 +652,37 @@ export const Hooks = {
 
 		this.viewport.views.current.subject = this.realm.players.current;
 
+		//FIXME: This needs to exist somewhere as a translation, but not here -- maybe in an EnumDirection?
+		let dirLookup = (dir) => {
+			switch(dir) {
+				case 0:
+					return "east";
+				case 90:
+					return "north";
+				case 180:
+					return "west";
+				case 270:
+					return "south";
+				default:
+					throw new Error(`Invalid direction: ${ dir }`);
+			}
+		};
+
 		let now = Date.now();
 		for(let entity of [ player, ...squirrels, ...bunnies ]) {
-			/**
-			 * Pass a "zone factory" that returns the args for Zone
-			 */
-			const [ trSquirrel ] = this.assets.createCompositions2((i) => ({
-				current: "normal",
-				items: {
-					normal: new Zone(0, 0, true, this.config.tile.height * 4),
-					moving: new Zone(0, 4, true, this.config.tile.height * 4),
-				},
-				curator: function (ent) {
-					//TODO: Account for: entity.world.facing, entity to determine the key;
-					this._current = ent.status.state;
-				},
-			}), [
-				//FIXME: This needs the concept of a Row somehow for each facing relative to its zone
-				[ "rotate360", "squirrel" ],
-			]);
-			const [ trBunny ] = this.assets.createTracks([
-				[ "rotate360", "bunny" ],
-			]);
+			const [ trBunny, trSquirrel ] = this.assets.createSequences(
+				[
+					{ spritesheet: "bunny", timestep: 500 },
+					{ spritesheet: "squirrel", timestep: 500 },
+				],
+				entity => `${ entity.alias }.${ entity.status.state }.${ dirLookup(entity.world.facing) }`,
+			);
 
 			//STUB: Add some randomness to the squirrels' animation cycle "start"
 			trSquirrel.timer.config.start = now + (Math.random() < 0.5 ? -1 : 1) * Math.random() * 1000;
 
 			entity.animation.track = entity.alias === "squirrel" ? trSquirrel : trBunny;
-			entity.animation.sprite.texture = entity.animation.track.current;
+			entity.animation.sprite.texture = entity.animation.track.current(entity);
 
 			this.dispatch("world:join", entity, { world: this.realm.worlds.current, x: ~~(Math.random() * this.realm.worlds.current.width), y: ~~(Math.random() * this.realm.worlds.current.height) });
 

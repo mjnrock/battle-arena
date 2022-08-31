@@ -4,7 +4,7 @@ import { Chord } from "./Chord";
 import { Measure } from "./Measure";
 import { Score } from "./Score";
 import { Track } from "./Track";
-import { Composition } from "./Composition";
+import { Sequencer } from "./Sequencer";
 
 export default {
 	Timer,
@@ -13,5 +13,5 @@ export default {
 	Measure,
 	Score,
 	Track,
-	Composition,
+	Sequencer,
 };

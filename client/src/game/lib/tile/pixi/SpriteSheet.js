@@ -9,7 +9,7 @@ import { Identity } from "../../../util/Identity";
  * the PIXI data, if the TileSet changes.
  */
 export class SpriteSheet extends Identity {
-	constructor({ tileset, ...rest } = {}) {
+	constructor ({ tileset, ...rest } = {}) {
 		super({ ...rest });
 
 		this.tileset = tileset;
@@ -19,7 +19,7 @@ export class SpriteSheet extends Identity {
 
 	refresh() {
 		this.baseTexture = new PixiJS.BaseTexture(this.tileset.source);
-		
+
 		this.textures = new Map();
 		this.tileset.tiles.forEach(tile => {
 			const texture = new PixiJS.Texture(this.baseTexture, new PixiJS.Rectangle(tile.offset.x, tile.offset.y, tile.offset.width, tile.offset.height));

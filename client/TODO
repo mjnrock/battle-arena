@@ -1,18 +1,19 @@
 @Current
-Track Repo:
-☐ Create "Track Repos" or something dynamic to more easily deal with things like: facing, states, etc.
-	☐ facing: 90, 180, 270, 360
-	☐ states: normal, moving, attacking, casting, damaged
-Key Navigation:
-☐ Align facing movement with Sprites
-"Image Not Found":
-☐ Create a "no sprite" sprite as a catch-all for any sprite that doesn't exist
-	☐ Maybe create a "Debugger" that records all this kind of stuff to a file for remediation
+
 
 @Archive
 ✔ Add a "World" component that includes position @done(22-08-11 16:44)
 ✔ Modify InputControllers to utilize events @done(22-08-13 18:52)
-	✔ Key @done(22-08-13 18:52)
-	✔ Mouse @done(22-08-13 18:52)
-	✔ Make Game listen to input controls @done(22-08-26 15:33)
-		✔ Package handlers into generalized "input" @done(22-08-26 15:32)
+✔ Key @done(22-08-13 18:52)
+✔ Mouse @done(22-08-13 18:52)
+✔ Make Game listen to input controls @done(22-08-26 15:33)
+✔ Package handlers into generalized "input" @done(22-08-26 15:32)
+✔ Create "Track Repos" or something dynamic to more easily deal with things like: facing, states, etc. @done(22-08-28 17:29)
+✔ facing: 90, 180, 270, 360 @done(22-08-28 17:29)
+✔ states: normal, moving, attacking, casting, damaged @done(22-08-28 17:29)
+✔ Align facing movement with Sprites @done(22-08-28 17:29)
+
+@Potential
+"Image Not Found":
+	☐ Create a "no sprite" sprite as a catch-all for any sprite that doesn't exist
+		☐ Maybe create a "Debugger" that records all this kind of stuff to a file for remediation

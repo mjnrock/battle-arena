@@ -18,47 +18,154 @@ import { TileSet } from "./TileSet";
  */
 export class Tessellator {
 	static Algorithms = {
-		GridBased: (self, { tw, th } = {}) => {
-			// console.info(self.source.width, tw, self.source.height, th, self.source.width % tw, self.source.height % th)
+		GridBased: ({ zones, directions = "D4", aliaser } = {}) => (self, { tw, th } = {}) => {
 			if(self.source.width % tw !== 0 || self.source.height % th !== 0) {
 				throw new Error("Source image dimensions must be evenly divisible by tile dimensions.");
+			} else {
+				aliaser = aliaser || (({ entity, state, direction, index }) => `${ entity }.${ state }.${ direction }.${ index }`);
 			}
 
+			/**
+			 * Iterate the main direction types with a convenience flag.
+			 */
+			if(directions === false) {
+				/**
+				 * Use << false >> as the flag to ignore directions.
+				 */
+				directions = [ false ];
+			} else if(directions === "D4") {
+				directions = [
+					"north",
+					"east",
+					"south",
+					"west",
+				];
+			} else if(directions === "D4X") {
+				directions = [
+					"north_east",
+					"south_east",
+					"south_west",
+					"north_west",
+				];
+			} else if(directions === "D8") {
+				directions = [
+					"north",
+					"north_east",
+					"east",
+					"south_east",
+					"south",
+					"south_west",
+					"west",
+					"north_west",
+				];
+			}
+
+			let zoneObj = {},
+				zi = 0;
+			if(Array.isArray(zones)) {
+				/**
+				 * The @zones parameter is an array of keys.
+				 */
+				let zy = 0;
+				for(let state of zones) {
+					zoneObj[ state ] = {
+						x: 0,
+						y: zy,
+						w: self.source.width,
+						h: th * directions.length,
+					};
+
+					zy += zoneObj[ state ].h;
+				}
+			} else if(typeof zones === "object") {
+				/**
+				 * The @zones parameter is a zone-object.
+				 */
+				zoneObj = zones;
+				zones = Object.keys(zones);
+			} else {
+				/**
+				 * The @zones parameter is false and needs an iteration-stub-value.
+				 */
+				zoneObj = {
+					0: {
+						x: 0,
+						y: 0,
+						w: self.source.width,
+						h: self.source.height,
+					},
+				};
+				zones = false;
+			}
+
+			/**
+			 * The main canvas-frame repository.
+			 */
 			const tileset = new TileSet({ source: self.source, tw, th });
-			const directions = [ "north", "east", "south", "west" ];
-			
-			//TODO: Profile the image before tessellating, returning [ [ row_i, col_count ], ... ]
-			//TODO: Parameterize this and perhaps only pass ({ x, y, imageProfileResults })
-			const name = ({ entity, state, direction, index }) => `${ entity }.${ state }.${ direction }.${ index }`;
 
-			let diri = 0;
-			for(let y = 0; y < tileset.height; y += th) {
-				let index = 0;
-				for(let x = 0; x < tileset.width; x += tw) {
-					const direction = directions[ diri ];
-					const alias = name({
-						entity: self.alias,
-						state: "normal",
-						direction: direction,
-						index: index,
+			/**
+			 * Iterate the framed zones.
+			 */
+			for(let zone_key in zoneObj) {
+				/**
+				 * "zone" is an x,y,w,h range for a given entity's status state.
+				 */
+				let zone = zoneObj[ zone_key ];
+
+				/**
+				 * Iterate the directions, using << dir = false && directions.length === 1 >> as the flag to ignore.
+				 */
+				for(let [ diri, dir ] of Object.entries(directions)) {
+					/**
+					 * "row" is the facing direction of the entity.
+					 */
+					let row = Array.apply(null, { length: Math.ceil(zone.w / tw) }).map((v, i) => {
+						/**
+						 * Create a frame usings it respective cell coordinates.
+						 */
+						let frame = {
+							alias: null,
+							x: zone.x + i * tw,
+							y: zone.y + diri * th,
+							width: tw,
+							height: th,
+						};
+
+						return frame;
 					});
 
-					//FIXME: This current assumes that the source image is saturated -- account for early EOR for @index
-					tileset.addTileData({
-						alias: alias,
-						x,
-						y,
-						width: tw,
-						height: th,
-					});
+					/**
+					 * "frame" is the animation-step frame.
+					 */
+					for(let i in row) {
+						/**
+						 * Cache the current frame.
+						 */
+						const frame = row[ i ];
 
-					++index;
-				}
-				++diri;
+						/**
+						 * If @dir is false, then use the index as the alias.
+						 */
+						const alias = dir ? aliaser({
+							entity: self.alias,
+							state: zones[ zi ],
+							direction: dir,
+							index: i,
+						}) : i;
 
-				if(diri >= directions.length) {
-					diri = 0;
+						/**
+						 * Assign the alias to the frame.
+						 */
+						frame.alias = alias;
+
+						/**
+						 * Attach that frame data to the tileset.
+						 */
+						tileset.addTileData(frame);
+					}
 				}
+
+				zi += 1;
 			}
 
 			return tileset;
