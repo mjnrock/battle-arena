@@ -453,31 +453,31 @@ export const Hooks = {
 			{
 				alias: "grass",
 				canvas: this.assets.canvases.terrain_grass,
-				algorithm: AssetManager.Algorithms.GridBased,
+				algorithm: AssetManager.Algorithms.GridBased({ directions: false }),
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 			{
 				alias: "grass_edge",
 				canvas: this.assets.canvases.terrain_grass_edge,
-				algorithm: AssetManager.Algorithms.GridBased,
+				algorithm: AssetManager.Algorithms.GridBased({ directions: false }),
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 			{
 				alias: "water",
 				canvas: this.assets.canvases.terrain_water,
-				algorithm: AssetManager.Algorithms.GridBased,
+				algorithm: AssetManager.Algorithms.GridBased({ directions: false }),
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 			{
 				alias: "squirrel",
 				canvas: this.assets.canvases.entity_squirrel,
-				algorithm: AssetManager.Algorithms.GridBased,
+				algorithm: AssetManager.Algorithms.GridBased({ zones: [ "normal", "moving" ] }),
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 			{
 				alias: "bunny",
 				canvas: this.assets.canvases.entity_bunny,
-				algorithm: AssetManager.Algorithms.GridBased,
+				algorithm: AssetManager.Algorithms.GridBased({ zones: [ "normal", "moving" ] }),
 				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
 			},
 		]);

@@ -18,108 +18,116 @@ import { TileSet } from "./TileSet";
  */
 export class Tessellator {
 	static Algorithms = {
-		GridBased: (self, { tw, th } = {}) => {
-			// console.info(self.source.width, tw, self.source.height, th, self.source.width % tw, self.source.height % th)
+		GridBased: ({ zones, directions = "D4", aliaser } = {}) => (self, { tw, th } = {}) => {
 			if(self.source.width % tw !== 0 || self.source.height % th !== 0) {
 				throw new Error("Source image dimensions must be evenly divisible by tile dimensions.");
+			} else {
+				aliaser = aliaser || (({ entity, state, direction, index }) => `${ entity }.${ state }.${ direction }.${ index }`);
 			}
 
-			const tileset = new TileSet({ source: self.source, tw, th });
-			
-			//! These should probably also be a hyperparameter or something
-			const directions = [ "north", "east", "south", "west" ];
-			const name = ({ entity, state, direction, index }) => `${ entity }.${ state }.${ direction }.${ index }`;
+			if(directions === false) {
+				/**
+				 * Use << false >> as the flag to ignore directions.
+				 */
+				directions = [ false ];
+			} else if(directions === "D4") {
+				directions = [
+					"north",
+					"east",
+					"south",
+					"west",
+				];
+			} else if(directions === "D4X") {
+				directions = [
+					"north_east",
+					"south_east",
+					"south_west",
+					"north_west",
+				];
+			} else if(directions === "D8") {
+				directions = [
+					"north",
+					"north_east",
+					"east",
+					"south_east",
+					"south",
+					"south_west",
+					"west",
+					"north_west",
+				];
+			}
 
-			//STUB: The @enumStates are only appropriate for *some* sprites (e.g. creatures) -- abstract this as a hyperparameter.
-			if(self.alias === "squirrel" || self.alias === "bunny") {
-				//! This particular line is why this is conditionally scoped right now
-				let enumState = [ "normal", "moving" ],
-					zones = {},
-					zx = 0,
-					zy = 0;
-				for(let zone of enumState) {
-					zones[ zone ] = {
-						x: zx,
+			let zoneObj = {},
+				zi = 0;
+			if(Array.isArray(zones)) {
+				let zy = 0;
+				for(let state of zones) {
+					zoneObj[ state ] = {
+						x: 0,
 						y: zy,
 						w: self.source.width,
 						h: th * directions.length,
 					};
 
-					zy += zones[ zone ].h;
+					zy += zoneObj[ state ].h;
 				}
-
-				let zi = 0;
-				for(let status_state in zones) {
-					/**
-					 * "zone" is an x,y,w,h range for a given entity's status state.
-					 */
-					let zone = zones[ status_state ];
-					for(let [ diri, dir ] of Object.entries(directions)) {
-						/**
-						 * "row" is the facing direction of the entity.
-						 */
-						let row = Array.apply(null, { length: Math.ceil(zone.w / tw) }).map((v, i) => {
-							let frame = {
-								alias: null,
-								x: zone.x + i * tw,
-								y: zone.y + diri * th,
-								width: tw,
-								height: th,
-							};
-
-							return frame;
-						});
-
-						/**
-						 * "frame" is the animation-step frame.
-						 */
-						for(let i in row) {
-							const frame = row[ i ];
-							const alias = name({
-								entity: self.alias,
-								state: enumState[ zi ],
-								direction: dir,
-								index: i,
-							});
-
-							frame.alias = alias;
-
-							tileset.addTileData(frame);
-						}
-					}
-
-					zi += 1;
-				}
-
+			} else if(typeof zones === "object") {
+				zoneObj = zones;
+				zones = Object.keys(zones);
 			} else {
-				for(let y = 0; y < tileset.height; y += th) {
-					let index = 0,
-						diri = 0;
-					for(let x = 0; x < tileset.width; x += tw) {
-						const direction = directions[ diri ];
-						const alias = name({
-							entity: self.alias,
-							state: "normal",
-							direction: direction,
-							index: index,
-						});
+				zoneObj = {
+					0: {
+						x: 0,
+						y: 0,
+						w: self.source.width,
+						h: self.source.height,
+					},
+				};
+				zones = false;
+			}
 
-						tileset.addTileData({
-							alias: alias,
-							x,
-							y,
+			const tileset = new TileSet({ source: self.source, tw, th });
+			for(let status_state in zoneObj) {
+				/**
+				 * "zone" is an x,y,w,h range for a given entity's status state.
+				 */
+				let zone = zoneObj[ status_state ];
+				for(let [ diri, dir ] of Object.entries(directions)) {
+
+					/**
+					 * "row" is the facing direction of the entity.
+					 */
+					let row = Array.apply(null, { length: Math.ceil(zone.w / tw) }).map((v, i) => {
+						let frame = {
+							alias: null,
+							x: zone.x + i * tw,
+							y: zone.y + diri * th,
 							width: tw,
 							height: th,
-						});
+						};
 
-						++index;
-					}
-					++diri;
+						return frame;
+					});
 
-					if(diri >= directions.length) {
-						diri = 0;
+					/**
+					 * "frame" is the animation-step frame.
+					 */
+					for(let i in row) {
+						const frame = row[ i ];
+						const alias = dir ? aliaser({
+							entity: self.alias,
+							state: zones[ zi ],
+							direction: dir,
+							index: i,
+						}) : i;
+
+						frame.alias = alias;
+
+						tileset.addTileData(frame);
 					}
 				}
+
+				zi += 1;
 			}
 
 			return tileset;
