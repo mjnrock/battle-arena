@@ -1,30 +1,31 @@
-import { Circle } from "./util/shape/Circle";
-import { PixelScaleCanvas } from "./util/Base64";
-import { Dice } from "./util/Dice";
-import { Collection } from "./util/Collection";
+import { Dice } from "../util/Dice";
+import { Circle } from "../util/shape/Circle";
+import { Collection } from "../util/Collection";
+import { PixelScaleCanvas } from "../util/Base64";
 
-import { Pixi, PixiJS } from "./lib/pixi/Pixi";
-import { ViewPort } from "./lib/pixi/ViewPort";
+import { Pixi } from "../lib/pixi/Pixi";
+import { ViewPort } from "../lib/pixi/ViewPort";
 
-import { AssetManager } from "./lib/render/AssetManager";
-import { Path } from "./lib/pathing/Path";
+import { AssetManager } from "../lib/render/AssetManager";
+import { Path } from "../lib/pathing/Path";
 
-import { Squirrel } from "./data/entities/Squirrel";
-import { Node } from "./data/entities/realm/Node";
-import { World } from "./data/entities/realm/World";
-import { Realm } from "./data/entities/realm/Realm";
-import { EnumEdgeFlag } from "./data/components/terrain";
-import { World as SysWorld } from "./data/systems/World";
-import { Animation as SysAnimation } from "./data/systems/Animation";
-import { Bunny } from "./data/entities/Bunny";
-import { AI as SysAI } from "./data/systems/AI";
-import { createViews } from "./data/render/views";
-import { loadInputControllers } from "./data/input";
+import { AI as SysAI } from "./systems/AI";
+import { Animation as SysAnimation } from "./systems/Animation";
+import { Bunny } from "./entities/Bunny";
+import { createViews } from "./render/views";
+import { EnumEdgeFlag } from "./components/terrain";
+import { loadInputControllers } from "./input";
+import { Node } from "./entities/realm/Node";
+import { Realm } from "./entities/realm/Realm";
+import { Squirrel } from "./entities/Squirrel";
+import { World as SysWorld } from "./systems/World";
+import { World } from "./entities/realm/World";
 
-import { Game } from "./Game";
+import { Game } from "../Game";
 
-//TODO: @window onblur/onfocus to pause/resume, but also ensure the handlers are removed when the window is blurred and replaced when the window is focused (currently, the handlers break after blur)
-//? "WWARNING: Too many active WebGL contexts. Oldest context will be lost." <-- The context-switching may be the reason that handler gets dropped, investigate this
+import dataCanvasSpriteSheets from "./assets/spritesheets";
+import dataTessellations from "./assets/tessellations";
+import dataScores from "./assets/scores";
 
 /**
  ** This is the main data consolidator for the game.  It should contain:
@@ -40,7 +41,6 @@ export const Hooks = {
 	 * all of the system and entity factories.
 	 */
 	async pre() {
-		//TODO: Register / initialize all of the environmental data here
 		this.environment.registerFactorySystems([
 			//NOTE: Add all of the system classes here
 			SysWorld,
@@ -74,16 +74,10 @@ export const Hooks = {
 		/**
 		 * Initialize the ViewPort, Views, and Layers
 		 */
-		//FIXME: Setup and use the Entity.animation component to determine which/if Sprite should be rendered (load images first from file system)
-		console.log(`%c [BATTLE ARENA]: %cWhile the ViewPort appears offset, it is not implemented robustly -- complete the hierarchical associations both at the ECS side and the PIXI side.`, 'background: #ff66a5; padding:5px; color: #fff', 'background: #a363d5; padding:5px; color: #fff');
 
 		let nudge = 0;
 		/**
 		 * Setup the ViewPort and crop the perspective to (a portion of) the world
-		 * 
-		 * TODO: Ensure that children are position-offset viz. the parent PIXI object
-		 * TODO: Build out the render hierarchy for PIXI objects
-		 * TODO: Build a System that un/mounts all children from the Entity.animate component whenever a View is changed
 		 */
 		this.viewport = new ViewPort({
 			ref: this,
@@ -111,8 +105,6 @@ export const Hooks = {
 			},
 		});
 
-		//TODO: Create an EdgeMask evaluator for the World terrain
-
 		/**
 		 * Initialize the AssetManager to maintain a registry of assets
 		 * and facilitate all of the loading processes.
@@ -122,14 +114,7 @@ export const Hooks = {
 		/**
 		 * Load all of the assets needed for the game
 		 */
-		await this.assets.loadCanvasSpriteSheet({
-			"entity_squirrel": "assets/images/squirrel.png",
-			"entity_bunny": "assets/images/bunny.png",
-			"entity_bear": "assets/images/bear.png",
-			"terrain_water": "assets/images/water.png",
-			"terrain_grass": "assets/images/grass.png",
-			"terrain_grass_edge": "assets/images/edge-grass.png",
-		}, [
+		await this.assets.loadCanvasSpriteSheet(dataCanvasSpriteSheets, [
 			/**
 			 * Upsize pixel-scale all of the canvases for better resolution (e.g. 128 -> 4x)
 			 */
@@ -139,58 +124,21 @@ export const Hooks = {
 		/**
 		 * Create all of the tessellations from the loaded canvases
 		 */
-		await this.assets.loadTessellations([
-			{
-				alias: "grass",
-				canvas: this.assets.canvases.terrain_grass,
-				algorithm: AssetManager.Algorithms.GridBased({ directions: false }),
-				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
-			},
-			{
-				alias: "grass_edge",
-				canvas: this.assets.canvases.terrain_grass_edge,
-				algorithm: AssetManager.Algorithms.GridBased({ directions: false }),
-				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
-			},
-			{
-				alias: "water",
-				canvas: this.assets.canvases.terrain_water,
-				algorithm: AssetManager.Algorithms.GridBased({ directions: false }),
-				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
-			},
-			{
-				alias: "squirrel",
-				canvas: this.assets.canvases.entity_squirrel,
-				algorithm: AssetManager.Algorithms.GridBased({ zones: [ "normal", "moving" ] }),
-				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
-			},
-			{
-				alias: "bunny",
-				canvas: this.assets.canvases.entity_bunny,
-				algorithm: AssetManager.Algorithms.GridBased({ zones: [ "normal", "moving" ] }),
-				args: [ { tw: this.config.tile.width, th: this.config.tile.height } ],
-			},
-		]);
+		await this.assets.loadTessellations(dataTessellations.map(({ alias, algorithm, canvas, args } = {}) => {
+			return {
+				alias,
+				canvas: this.assets.canvases[ canvas ],
+				algorithm,
+				args: args || [ { tw: this.config.tile.width, th: this.config.tile.height } ],
+			};
+		}));
 
 		/**
 		 * While the position-scores should probably be the dominant usage method, the specific-naming
 		 * versions are still 1st class citizens behind the scenes ([ [ "grass.normal.north.0" ], ... ])
 		 * and could be similarly generalized with the appropriate naming convention.
 		 */
-		await this.assets.loadScoresFromArray({
-			stationary: [
-				[ "0,0" ],
-			],
-			x4: [
-				[ "0,0", "1,0", "2,0", "3,0" ],
-			],
-			rotate360: [
-				[ "0,0", "1,0" ],
-				[ "0,1", "1,1" ],
-				[ "0,2", "1,2" ],
-				[ "0,3", "1,3" ],
-			],
-		});
+		await this.assets.loadScoresFromArray(dataScores);
 
 		this.config.bootstrap.emit("init", Date.now());
 		this.post();
@@ -380,7 +328,6 @@ export const Hooks = {
 			entity.animation.sprite.anchor.y = 0.5;
 
 			//TODO: This sets up an initial Path, but it the Cooldown/NextPath logic is not implemented yet
-			//FIXME: Something is happening during the path movement that is causing the Squirrels to hump the ground repeatedly (probably caught in a temporary loop)
 			const [ tx, ty ] = [
 				Dice.random(0, overworld.width - 1),
 				Dice.random(0, overworld.height - 1),
@@ -447,8 +394,6 @@ export const Hooks = {
 			}
 		}
 
-		//TODO: Bind a basic mouse controller to the game, click to teleport there
-
 		/**
 		 * Adjust velocities and positions from input controllers
 		 */
@@ -505,24 +450,3 @@ export default function CreateGame({ ...opts } = {}) {
 
 	return game;
 };
-
-//#region Extensions
-PixiJS.Graphics.prototype.drawRing = function (w, h, cx = 0, cy = 0) {
-	var lx = cx - w * 0.5;
-	var rx = cx + w * 0.5;
-	var ty = cy - h * 0.5;
-	var by = cy + h * 0.5;
-
-	var magic = 0.551915024494;
-	var xmagic = magic * w * 0.5;
-	var ymagic = h * magic * 0.5;
-
-	this.moveTo(cx, ty);
-	this.bezierCurveTo(cx + xmagic, ty, rx, cy - ymagic, rx, cy);
-	this.bezierCurveTo(rx, cy + ymagic, cx + xmagic, by, cx, by);
-	this.bezierCurveTo(cx - xmagic, by, lx, cy + ymagic, lx, cy);
-	this.bezierCurveTo(lx, cy - ymagic, cx - xmagic, ty, cx, ty);
-
-	return this;
-};
-//#endregion Extensions

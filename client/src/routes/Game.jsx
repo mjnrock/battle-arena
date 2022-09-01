@@ -2,7 +2,7 @@ import * as PixiJS from "pixi.js";
 import React, { useState, useEffect } from "react";
 
 import Game from "../game/Game";
-import CreateGame from "../game/BattleArena";
+import CreateGame from "./../game/data/BattleArena";
 
 import { PixiCanvas } from "../components/PixiCanvas";
 
