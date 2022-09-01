@@ -1,4 +1,4 @@
-import Invoker from "../util/relay/Invoker";
+import Invoker from "./../../util/relay/Invoker";
 
 export function game({ key, update, render } = {}) {
 	const state = {

@@ -1,5 +1,5 @@
-import { Entity } from "./../../lib/ecs/Entity";
-import { Collection } from "./../../util/Collection";
+import { Entity } from "./../../../lib/ecs/Entity";
+import { Collection } from "./../../../util/Collection";
 
 export class Realm extends Entity {
 	static Alias = "realm";

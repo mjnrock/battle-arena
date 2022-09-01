@@ -1,7 +1,7 @@
-import Helper from "../util/helper";
-import { Dice } from "../util/Dice";
-import { System } from "../lib/ecs/System";
-import { Path } from "../lib/pathing/Path";
+import Helper from "./../../util/helper";
+import { Dice } from "./../../util/Dice";
+import { System } from "./../../lib/ecs/System";
+import { Path } from "./../../lib/pathing/Path";
 
 export class AI extends System {
 	static Alias = "ai";

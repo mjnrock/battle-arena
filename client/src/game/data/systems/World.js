@@ -1,8 +1,8 @@
-import Game from "../Game";
-import { System } from "./../lib/ecs/System";
-import { Path } from "../lib/pathing/Path";
+import Game from "./../../Game"
+import { System } from "./../../lib/ecs/System";
+import { Path } from "./../../lib/pathing/Path";
 
-import Helper from "./../util/helper";
+import Helper from "./../../util/helper";
 
 export class World extends System {
 	static Alias = "world";

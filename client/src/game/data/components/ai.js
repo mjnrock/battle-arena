@@ -1,4 +1,4 @@
-import { Wayfinder } from "../lib/pathing/Wayfinder";
+import { Wayfinder } from "./../../lib/pathing/Wayfinder";
 
 /**
  * Any object-value that contains the function "process" will get invoked

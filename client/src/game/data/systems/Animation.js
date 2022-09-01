@@ -1,4 +1,4 @@
-import { System } from "../lib/ecs/System";
+import { System } from "./../../lib/ecs/System";
 
 export class Animation extends System {
 	static Alias = "animation";
