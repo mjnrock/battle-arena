@@ -11,10 +11,17 @@ import Identity from "../../util/Identity";
  * array to prevent function evaluation in those cases.
  */
 export class Entity extends Identity {
+	/**
+	 * A unique name for the Entity/descendant (or type).
+	 */
 	static Alias = "entity";
+
+	/**
+	 * This is the default set of components for the Entity/descendant.
+	 */
 	static Components = {};
 
-	constructor ({ components = {}, alias, id, tags, init = {} } = {}) {
+	constructor ({ alias, components = {}, id, tags } = {}) {
 		super([], { id, tags });
 
 		/**
@@ -23,10 +30,34 @@ export class Entity extends Identity {
 		this.alias = alias || this.constructor.Alias;
 
 		/**
-		 * Register all of the components and seed them with data from @init
+		 * Register all of the components and seed them with data from @components
 		 */
-		this.register(this.constructor.Components, init);
-		this.register(components, init);
+		this.register(components);
+		this.register(this.constructor.Components, components);
+	}
+
+	/**
+	 * Clean up the Entity before GC
+	 */
+	deconstructor(cascade = false) {
+		super.deconstructor();
+
+		for(let key of Object.keys(this)) {
+			const value = this[ key ];
+			/**
+			 * Optionally destroy any properties with a "deconstructor" method
+			 */
+			if(cascade) {
+				/**
+				 * If a .deconstructor() method exists, call it
+				 */
+				if(typeof this[ key ] === "object" && "deconstructor" in this[ key ]) {
+					value.deconstructor(cascade);
+				}
+			}
+		}
+
+		this.unregister(...Object.keys(this));
 	}
 
 	register(comps, init = {}) {
@@ -55,30 +86,6 @@ export class Entity extends Identity {
 		for(let key of keys) {
 			delete this[ key ];
 		}
-	}
-
-	/**
-	 * Clean up the Entity before GC
-	 */
-	deconstructor(cascade = false) {
-		super.deconstructor();
-
-		for(let key of Object.keys(this)) {
-			const value = this[ key ];
-			/**
-			 * Optionally destroy any properties with a "deconstructor" method
-			 */
-			if(cascade) {
-				/**
-				 * If a .deconstructor() method exists, call it
-				 */
-				if(typeof this[ key ] === "object" && "deconstructor" in this[ key ]) {
-					value.deconstructor(cascade);
-				}
-			}
-		}
-
-		this.unregister(...Object.keys(this));
 	}
 
 	/**

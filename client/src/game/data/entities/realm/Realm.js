@@ -7,10 +7,10 @@ export class Realm extends Entity {
 		worlds: Collection,
 	};
 
-	constructor ({ worlds = {}, each, alias, ...rest } = {}) {
+	constructor ({ worlds = {}, alias, ...rest } = {}) {
 		super({
 			alias: alias || Realm.Alias,
-			init: {
+			components: {
 				worlds,
 			},
 

@@ -156,10 +156,23 @@ export const Hooks = {
 		const { system: $S, entity: $E, component: $C } = factory;
 
 		//TODO: Create the data structures for populating the Environment's Entity Registry
-		//TODO: Reevaluate the Factory setup -- it feels clunky
+
+		/**
+		 * * Factory Note:
+		 * * All factories pass the object directly to the constructor, so the
+		 * * variants in keys reflect the fact that *that* Entity requires *those* args.
+		 * 
+		 * NOTE: This note is mainly here because of the use of @each below.
+		 */
 
 		const [ overworld ] = $E.world(1, {
+			/**
+			 * TW x TH
+			 */
 			size: [ 32, 24 ],
+			/**
+			 * This internal each can perform any additional setup for that node, or the world in general.
+			 */
 			each: ({ alias, node }) => {
 				node.alias = alias;
 				//TODO: Create a map generator
@@ -217,7 +230,7 @@ export const Hooks = {
 		//At its simplest level, dictate creature spawning locations, behaviors, and interactions
 
 		const [ player, ...squirrels ] = $E.squirrel(42, {
-			init: {
+			components: {
 				world: {
 					world: overworld.id,
 					model: new Circle({
@@ -236,7 +249,7 @@ export const Hooks = {
 			},
 		});
 		const [ ...bunnies ] = $E.bunny(14, {
-			init: {
+			components: {
 				world: {
 					world: overworld.id,
 					model: new Circle({
