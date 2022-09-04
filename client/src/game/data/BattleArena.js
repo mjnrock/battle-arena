@@ -155,12 +155,14 @@ export const Hooks = {
 		const { system: systems, entity: entities, factory } = this.environment;
 		const { system: $S, entity: $E, component: $C } = factory;
 
+		//TODO: Create the data structures for populating the Environment's Entity Registry
 		//TODO: Reevaluate the Factory setup -- it feels clunky
 
 		const [ overworld ] = $E.world(1, {
 			size: [ 32, 24 ],
 			each: ({ alias, node }) => {
 				node.alias = alias;
+				//TODO: Create a map generator
 				node.terrain.type = Math.random() > 0.5 ? "grass" : "water";
 
 				/**
@@ -169,6 +171,7 @@ export const Hooks = {
 				this.environment.entity.register(node);
 
 				let track;
+				//TODO: Categorize terrain types into: static or animated for scoring templates
 				if(node.terrain.type === "grass") {
 					track = this.assets.createTrack("stationary", "grass");
 				} else {
@@ -188,31 +191,6 @@ export const Hooks = {
 		});
 
 		/**
-		 * Get a keyed-node list of neighbors, with enumerator keys for each neighbor, and `false` when no neighbor exists.
-		 */
-		function getNeighbors(node) {
-			const coords = {
-				TOP_LEFT: [ node.world.x - 1, node.world.y - 1 ],
-				TOP: [ node.world.x, node.world.y - 1 ],
-				TOP_RIGHT: [ node.world.x + 1, node.world.y - 1 ],
-				LEFT: [ node.world.x - 1, node.world.y ],
-				// NONE: [ node.world.x, node.world.y ],
-				RIGHT: [ node.world.x + 1, node.world.y ],
-				BOTTOM_LEFT: [ node.world.x - 1, node.world.y + 1 ],
-				BOTTOM: [ node.world.x, node.world.y + 1 ],
-				BOTTOM_RIGHT: [ node.world.x + 1, node.world.y + 1 ],
-			};
-
-			let nodes = Object.fromEntries(Object.entries(coords).map(([ alias, [ x, y ] ]) => {
-				const node = overworld.nodes[ `${ x },${ y }` ];
-
-				return [ alias, node || false ];
-			}));
-
-			return nodes;
-		}
-
-		/**
 		 * Calculate the edge masks for terrain
 		 */
 		let types = [ "grass" ];
@@ -221,7 +199,10 @@ export const Hooks = {
 				const node = overworld.nodes[ `${ x },${ y }` ];
 
 				if(!types.includes(node.terrain.type)) {
-					const neighbors = getNeighbors(node);
+					/**
+					 * Get a keyed-node list of neighbors, with enumerator keys for each neighbor, and `false` when no neighbor exists.
+					 */
+					const neighbors = SysWorld.GetNeighbors(overworld, node);
 
 					for(let [ key, neighbor ] of Object.entries(neighbors)) {
 						if(neighbor && types.includes(neighbor.terrain.type)) {
@@ -231,6 +212,9 @@ export const Hooks = {
 				}
 			}
 		}
+
+		//TODO: Create world dynamics: biomes, weather, spawning constraints, etc.
+		//At its simplest level, dictate creature spawning locations, behaviors, and interactions
 
 		const [ player, ...squirrels ] = $E.squirrel(42, {
 			init: {

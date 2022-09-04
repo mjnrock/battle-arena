@@ -1,4 +1,6 @@
 @Current
+Meta:
+[] Create something like an Enumerator class that also incorporates WeightedPool random generators.
 Refactor:
 	[] Begin analysis of consolidation and succinctness improvements
 	[] Play with registry/repository structures that improve flow overall

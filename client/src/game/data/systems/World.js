@@ -11,6 +11,28 @@ export class World extends System {
 		super(opts);
 	}
 
+	static GetNeighbors(world, node) {
+		const coords = {
+			TOP_LEFT: [ node.world.x - 1, node.world.y - 1 ],
+			TOP: [ node.world.x, node.world.y - 1 ],
+			TOP_RIGHT: [ node.world.x + 1, node.world.y - 1 ],
+			LEFT: [ node.world.x - 1, node.world.y ],
+			// NONE: [ node.world.x, node.world.y ],
+			RIGHT: [ node.world.x + 1, node.world.y ],
+			BOTTOM_LEFT: [ node.world.x - 1, node.world.y + 1 ],
+			BOTTOM: [ node.world.x, node.world.y + 1 ],
+			BOTTOM_RIGHT: [ node.world.x + 1, node.world.y + 1 ],
+		};
+
+		let nodes = Object.fromEntries(Object.entries(coords).map(([ alias, [ x, y ] ]) => {
+			const node = world.nodes[ `${ x },${ y }` ];
+
+			return [ alias, node || false ];
+		}));
+
+		return nodes;
+	}
+
 	join(entities = [], { world, x, y } = {}) {
 		System.Each(entities, (entity) => {
 			const next = {
