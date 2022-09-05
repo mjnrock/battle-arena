@@ -159,14 +159,6 @@ export const Hooks = {
 
 		//TODO: Create the data structures for populating the Environment's Entity Registry
 
-		/**
-		 * * Factory Note:
-		 * * All factories pass the object directly to the constructor, so the
-		 * * variants in keys reflect the fact that *that* Entity requires *those* args.
-		 * 
-		 * NOTE: This note is mainly here because of the use of @each below.
-		 */
-
 		// const [ overworld ] = EntWorld.Factory(1, {
 		const [ overworld ] = $E.world(1, {
 			/**
@@ -175,6 +167,8 @@ export const Hooks = {
 			size: [ 32, 24 ],
 			/**
 			 * This internal each can perform any additional setup for that node, or the world in general.
+			 * 
+			 * NOTE: This is **not** the *factory* $each, but rather the "Node" each.
 			 */
 			each: ({ alias, node }) => {
 

@@ -30,7 +30,7 @@ export class Entity extends Identity {
 	static Components = {};
 
 	constructor ({ alias, id, tags, ...components } = {}) {
-		super([], { id, tags });
+		super({ id, tags });
 
 		/**
 		 * A class-unique name for the Entity
@@ -71,6 +71,13 @@ export class Entity extends Identity {
 	register(comps, init = {}) {
 		const nextComps = Array.isArray(comps) ? comps.map((a, i) => [ a.name || a.constructor.name, a ]) : Object.entries(comps);
 		for(let [ name, comp ] of nextComps) {
+			/**
+			 * Do not register keys that contain reserved characters
+			 */
+			if(name[ 0 ] === "_" || name[ 0 ] === "$") {
+				continue;
+			}
+
 			let largs = init[ name ];
 
 			if(typeof largs === "function") {
