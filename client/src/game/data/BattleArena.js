@@ -449,7 +449,9 @@ export default function CreateGame({ ...opts } = {}) {
 		hooks: Hooks,
 	});
 
-	console.log(game.environment)
+	//STUB: General info logs while developing/testing
+	console.log(game);
+	console.log(game.environment);
 
 	return game;
 };
