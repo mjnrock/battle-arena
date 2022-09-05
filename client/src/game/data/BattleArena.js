@@ -168,7 +168,7 @@ export const Hooks = {
 		 */
 
 		const [ overworld ] = $E.world(1, {
-		// const [ overworld ] = EntWorld.Factory(1, {
+			// const [ overworld ] = EntWorld.Factory(1, {
 			/**
 			 * TW x TH
 			 */
@@ -177,8 +177,12 @@ export const Hooks = {
 			 * This internal each can perform any additional setup for that node, or the world in general.
 			 */
 			each: ({ alias, node }) => {
-				node.alias = alias;
+
 				//TODO: Create a map generator
+				//TODO: Create world dynamics: biomes, weather, spawning constraints, etc.
+				//At its simplest level, dictate creature spawning locations, behaviors, and interactions
+
+				node.alias = alias;
 				node.terrain.type = Math.random() > 0.5 ? "grass" : "water";
 
 				/**
@@ -229,11 +233,8 @@ export const Hooks = {
 			}
 		}
 
-		//TODO: Create world dynamics: biomes, weather, spawning constraints, etc.
-		//At its simplest level, dictate creature spawning locations, behaviors, and interactions
-
 		const [ player, ...squirrels ] = $E.squirrel(42, {
-		// const [ player, ...squirrels ] = EntSquirrel.Factory(42, {
+			// const [ player, ...squirrels ] = EntSquirrel.Factory(42, {
 			world: {
 				world: overworld.id,
 				model: new Circle({
@@ -251,7 +252,7 @@ export const Hooks = {
 			}),
 		});
 		const [ ...bunnies ] = $E.bunny(14, {
-		// const [ ...bunnies ] = EntBunny.Factory(14, {
+			// const [ ...bunnies ] = EntBunny.Factory(14, {
 			world: {
 				world: overworld.id,
 				model: new Circle({
@@ -267,7 +268,7 @@ export const Hooks = {
 		});
 
 		const [ realm ] = $E.realm(1, {
-		// const [ realm ] = EntRealm.Factory(1, {
+			// const [ realm ] = EntRealm.Factory(1, {
 			worlds: {	// Collection
 				items: {
 					overworld,
