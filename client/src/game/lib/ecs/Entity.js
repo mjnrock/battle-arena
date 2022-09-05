@@ -94,9 +94,9 @@ export class Entity extends Identity {
 	 * NOTE: This will **always** evaluate the root-level functions
 	 * within the @components parameter, so as not to create collisions.
 	 */
-	static Factory(qty = 1, { $each, ...args } = {}) {
+	static Factory(qty = 1, { $each, ...components } = {}) {
 		return new Array(qty).fill(0).map((v, j) => {
-			const entity = new this({ ...args });
+			const entity = new this({ ...components });
 
 			if($each) {
 				$each(entity, j);
