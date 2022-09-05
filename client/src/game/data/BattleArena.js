@@ -43,13 +43,13 @@ export const Hooks = {
 	 * all of the system and entity factories.
 	 */
 	async pre() {
-		this.environment.registerFactorySystems([
+		this.environment.registerFactorySystems(true, [
 			//NOTE: Add all of the system classes here
 			SysWorld,
 			SysAnimation,
 			SysAI,
 		]);
-		this.environment.registerFactoryEntities([
+		this.environment.registerFactoryEntities(false, [
 			//NOTE: Add all of the entity classes here
 			EntSquirrel,
 			EntBunny,
@@ -57,7 +57,7 @@ export const Hooks = {
 			EntWorld,
 			EntRealm,
 		]);
-		this.environment.registerFactoryComponents([]);
+		this.environment.registerFactoryComponents(false, []);
 
 		this.config.bootstrap.emit("pre", Date.now());
 		this.init();
@@ -162,6 +162,11 @@ export const Hooks = {
 		// const [ overworld ] = EntWorld.Factory(1, {
 		const [ overworld ] = $E.world(1, {
 			/**
+			 * If you register the World, then *all* Nodes will also be registered
+			 */
+			// $env: this.environment,
+
+			/**
 			 * TW x TH
 			 */
 			size: [ 32, 24 ],
@@ -182,7 +187,7 @@ export const Hooks = {
 				/**
 				 * Register the Node with the Environment
 				 */
-				this.environment.entity.register(node);
+				// this.environment.entity.register(node);
 
 				let track;
 				//TODO: Categorize terrain types into: static or animated for scoring templates
@@ -229,6 +234,8 @@ export const Hooks = {
 
 		// const [ player, ...squirrels ] = EntSquirrel.Factory(42, {
 		const [ player, ...squirrels ] = $E.squirrel(42, {
+			// $env: this.environment,
+
 			world: {
 				world: overworld.id,
 				model: new Circle({
@@ -245,6 +252,8 @@ export const Hooks = {
 
 		// const [ ...bunnies ] = EntBunny.Factory(14, {
 		const [ ...bunnies ] = $E.bunny(14, {
+			// $env: this.environment,
+
 			world: {
 				world: overworld.id,
 				model: new Circle({
@@ -261,6 +270,8 @@ export const Hooks = {
 
 		// const [ realm ] = EntRealm.Factory(1, {
 		const [ realm ] = $E.realm(1, {
+			// $env: this.environment,
+
 			worlds: {	// Collection
 				items: {
 					overworld,
@@ -437,6 +448,8 @@ export default function CreateGame({ ...opts } = {}) {
 		},
 		hooks: Hooks,
 	});
+
+	console.log(game.environment)
 
 	return game;
 };

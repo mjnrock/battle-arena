@@ -29,7 +29,7 @@ export class Entity extends Identity {
 	 */
 	static Components = {};
 
-	constructor ({ alias, id, tags, ...components } = {}) {
+	constructor ({ alias, id, tags, $env, ...components } = {}) {
 		super({ id, tags });
 
 		/**
@@ -42,6 +42,13 @@ export class Entity extends Identity {
 		 */
 		this.register(components);
 		this.register(this.constructor.Components, components);
+
+		/**
+		 * Optionally add the Entity to a provided environment
+		 */
+		if($env) {
+			$env.entity.register(this);
+		}
 	}
 
 	/**

@@ -20,16 +20,17 @@ export class World extends Entity {
 		}),
 	};
 
-	constructor ({ size = [ 10, 10 ], nodes = {}, entities = {}, each, alias, ...components } = {}) {
+	constructor ({ size = [ 10, 10 ], nodes = {}, entities = {}, each, alias, $env, ...components } = {}) {
 		super({
 			alias: alias || World.Alias,
+			$env,
+
 			size,
 			nodes,
-
 			...components,
 		});
 
-		this.reseed(each);
+		this.reseed(each, $env);
 	}
 
 	get width() {
@@ -39,7 +40,7 @@ export class World extends Entity {
 		return this.size.height;
 	}
 
-	reseed(each) {
+	reseed(each, $env) {
 		this.nodes.clear();
 
 		const { width, height } = this.size;
@@ -47,6 +48,8 @@ export class World extends Entity {
 			for(let h = 0; h < height; h++) {
 				let alias = `${ w },${ h }`,
 					node = new Node({
+						$env,
+
 						world: {
 							world: this,
 							x: w,

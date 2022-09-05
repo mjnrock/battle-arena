@@ -12,6 +12,19 @@ import { Registry } from "../../util/Registry";
  * is meant to resolve singularly (e.g. "this particular entity").
  */
 export class Environment extends Identity {
+	/**
+	 * Allow for Multiton access to Environment, when needed.
+	 */
+	static Instances = new Map();
+
+	/**
+	 * While it is technically a Multiton, the "default" construction
+	 * is designed to facilitate Singleton usage, as it is a more common
+	 * use-case.
+	 */
+	static Get(key = "default") {
+		return this.Instances.get(key);
+	}
 
 	constructor ({ id, tags, middleware, state = {} } = {}) {
 		super({ id, tags });
@@ -75,6 +88,13 @@ export class Environment extends Identity {
 		 * ? any invocation could be used as a reducer.
 		 */
 		this.state = state;
+
+		/**
+		 * Create a default Environment instance, if one does not exist.
+		 */
+		if(!this.constructor.Get("default")) {
+			this.constructor.Instances.set("default", this);
+		}
 	}
 
 	/**
@@ -123,7 +143,7 @@ export class Environment extends Identity {
 		};
 	}
 
-	_registrationFactoryHelper(environment, results) {
+	_registrationFactoryHelper(results, registerTo) {
 		return Object.fromEntries(results.map(e => [
 			/**
 			 * Create an entry object with e.Alias as the key
@@ -132,14 +152,21 @@ export class Environment extends Identity {
 
 			/**
 			 * Wrap the Entity constructor in a factory function
+			 * 
+			 * NOTE: This is intentionally lexically defined, so as to bind to Environment (IMPORTANT: You must .bind if you change this, as it is intrinsically scopeless).
 			 */
 			(qty, ...args) => {
 				const entities = [];
 				for(let i = 0; i < qty; i++) {
 					const next = new e(...args);
 
-					//TODO: Cleanup any Entities from the environment that are no longer valid, as needed.
-					environment.entity.add(next);
+					if(registerTo) {
+						if("alias" in next || "Alias" in next.constructor) {
+							this[ registerTo ].registerWithAlias(next, next.alias || next.constructor.Alias);
+						} else {
+							this[ registerTo ].add(next);
+						}
+					}
 
 					entities.push(next);
 				}
@@ -148,36 +175,35 @@ export class Environment extends Identity {
 			},
 		]));
 	};
-	registerFactorySystems(systems, ...args) {
+	registerFactorySystems(trackInstances = true, systems, ...args) {
 		if(!Array.isArray(systems)) {
 			systems = [ systems ];
 		}
 
-		this.factory.system.registerMany(this._registrationFactoryHelper(this, systems));
+		this.factory.system.registerMany(this._registrationFactoryHelper(systems, trackInstances ? "system" : false));
 
 		for(let [ id, factory ] of this.factory.system) {
-			const [ system ] = factory(1, ...args);
-
 			/**
-			 * This will become the "selection key" for this system.
+			 * Initialize Systems, (by default) forcing them to be registered.
+			 * 
+			 * NOTE: If @trackInstances is true, they will be registered after initialization.
 			 */
-			this.system.registerWithAlias(system, system.constructor.Alias);
-			// this.system.registerWithAlias(system, system.constructor.name);
+			const [ system ] = factory(1, ...args);
 		}
 	}
-	registerFactoryEntities(entities) {
+	registerFactoryEntities(trackInstances = false, entities) {
 		if(!Array.isArray(entities)) {
 			entities = [ entities ];
 		}
 
-		this.factory.entity.registerMany(this._registrationFactoryHelper(this, entities));
+		this.factory.entity.registerMany(this._registrationFactoryHelper(entities, trackInstances ? "entity" : false));
 	}
-	registerFactoryComponents(components) {
+	registerFactoryComponents(trackInstances = false, components) {
 		if(!Array.isArray(components)) {
 			components = [ components ];
 		}
 
-		this.factory.component.registerMany(this._registrationFactoryHelper(this, components));
+		this.factory.component.registerMany(this._registrationFactoryHelper(components, trackInstances ? "component" : false));
 	}
 
 	/**
@@ -202,7 +228,7 @@ export class Environment extends Identity {
 			 */
 			//TODO: Reconcile the middleware with the environment/system hand-off.  (i.e. Most Systems do not expect any "general" arguments (e.g. a msg, environment, etc.))
 			const msg = this.middleware(event, entities, ...args);
-			
+
 			return system.dispatch(msg.event, msg.entities, ...msg.args);
 		}
 	}
