@@ -3,8 +3,8 @@ import Identity from "../../util/Identity";
 /**
  * Within an Entity descendant, the Components property is a map of component names to component generators.
  * These represent the default components for that Entity.  Additional components can be added to the Entity
- * by passing them to the @components parameter upon instantiation.  The default components can be seeded
- * with data by passing them to the @init parameter, as well.
+ * by passing them to the @components parameter upon instantiation.  If default components exists, then can
+ * be seeded with data by passing them to the @components parameter, as well.
  * 
  * NOTE: Any "root level" function will **always** be evaluated and the local result will be wrapped in an
  * array so that all arguments can be spread into the component generator; therefore, explicitly pass that
@@ -18,6 +18,10 @@ export class Entity extends Identity {
 
 	/**
 	 * This is the default set of components for the Entity/descendant.
+	 * 
+	 * NOTE: When populated, instead of *attaching* @components directly, default components *will pass*
+	 * @components function results (or the static payload when not a funciton) directly to the default
+	 * component generators.
 	 */
 	static Components = {};
 
