@@ -285,8 +285,6 @@ export const Hooks = {
 
 		this.realm = realm;
 
-		console.log(this.realm.players.current)
-
 		this.viewport.views.current.subject = this.realm.players.current;
 
 		//FIXME: This needs to exist somewhere as a translation, but not here -- maybe in an EnumDirection?

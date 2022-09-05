@@ -29,8 +29,6 @@ export class World extends Entity {
 			...components,
 		});
 
-		console.log(size, each, this.constructor.name)
-
 		this.reseed(each);
 	}
 
