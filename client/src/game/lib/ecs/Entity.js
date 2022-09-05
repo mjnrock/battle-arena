@@ -1,6 +1,10 @@
 import Identity from "../../util/Identity";
 
 /**
+ * In general, any property that is not the result of inheritance is treated as a component.  "Components" are
+ * properties that are added to an entity, and are intentionally vaguely defined, as they can be anything.  This
+ * allows for some light infrastructure to be built around them, but also allows for a lot of flexibility.
+ * 
  * Within an Entity descendant, the Components property is a map of component names to component generators.
  * These represent the default components for that Entity.  Additional components can be added to the Entity
  * by passing them to the @components parameter upon instantiation.  If default components exists, then can
