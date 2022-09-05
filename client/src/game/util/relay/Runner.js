@@ -9,7 +9,8 @@ export class Runner {
 	}
 
 	add(listener) {
-		if(typeof listener[ this.name ] === "function" && !this.has(listener)) {
+		// if(typeof listener[ this.name ] === "function" && !this.has(listener)) {		`// Only let listeners that have the event method be added to the Runner.
+		if(!this.has(listener)) {
 			this.listeners.add(listener);
 
 			return true;

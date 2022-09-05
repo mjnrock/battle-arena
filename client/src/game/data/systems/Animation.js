@@ -7,14 +7,14 @@ export class Animation extends System {
 		super(opts);
 	}
 
-	attach(entities = [], parent) {
+	$attach(entities = [], parent) {
 		System.Each(entities, (entity) => {
 			parent.addChild(entity.animation.sprite);
 		});
 
 		return entities;
 	}
-	detach(entities = [], parent) {
+	$detach(entities = [], parent) {
 		System.Each(entities, (entity) => {
 			parent.removeChild(entity.animation.sprite);
 		});

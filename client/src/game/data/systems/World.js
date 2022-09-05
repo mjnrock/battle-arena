@@ -11,29 +11,7 @@ export class World extends System {
 		super(opts);
 	}
 
-	static GetNeighbors(world, node) {
-		const coords = {
-			TOP_LEFT: [ node.world.x - 1, node.world.y - 1 ],
-			TOP: [ node.world.x, node.world.y - 1 ],
-			TOP_RIGHT: [ node.world.x + 1, node.world.y - 1 ],
-			LEFT: [ node.world.x - 1, node.world.y ],
-			// NONE: [ node.world.x, node.world.y ],
-			RIGHT: [ node.world.x + 1, node.world.y ],
-			BOTTOM_LEFT: [ node.world.x - 1, node.world.y + 1 ],
-			BOTTOM: [ node.world.x, node.world.y + 1 ],
-			BOTTOM_RIGHT: [ node.world.x + 1, node.world.y + 1 ],
-		};
-
-		let nodes = Object.fromEntries(Object.entries(coords).map(([ alias, [ x, y ] ]) => {
-			const node = world.nodes[ `${ x },${ y }` ];
-
-			return [ alias, node || false ];
-		}));
-
-		return nodes;
-	}
-
-	join(entities = [], { world, x, y } = {}) {
+	$join(entities = [], { world, x, y } = {}) {
 		System.Each(entities, (entity) => {
 			const next = {
 				world: world.id,
@@ -59,7 +37,7 @@ export class World extends System {
 
 		return entities;
 	}
-	leave(entities = [], { world }) {
+	$leave(entities = [], { world }) {
 		System.Each(entities, (entity) => {
 			if(entity.world.world === world.id) {
 				const next = {
@@ -90,7 +68,7 @@ export class World extends System {
 		return entities;
 	}
 
-	move(entities = [], { x, y, isDelta }) {
+	$move(entities = [], { x, y, isDelta }) {
 		System.Each(entities, (entity) => {
 			if(isDelta) {
 				entity.world.x += x;
@@ -104,7 +82,7 @@ export class World extends System {
 		return entities;
 	}
 
-	displace(entities = [], { dt }) {
+	$displace(entities = [], { dt }) {
 		System.Each(entities, (entity) => {
 			let { x, y, vx, vy, facing, speed } = entity.world;
 
@@ -150,7 +128,7 @@ export class World extends System {
 
 		return entities;
 	}
-	veloc(entities = [], { vx, vy, isDelta }) {
+	$veloc(entities = [], { vx, vy, isDelta }) {
 		System.Each(entities, (entity) => {
 			if(isDelta) {
 				entity.world.vx += vx;
@@ -164,7 +142,7 @@ export class World extends System {
 		return entities;
 	}
 
-	inputKeyVeloc(entities = [], keyCtrl) {
+	$inputKeyVeloc(entities = [], keyCtrl) {
 		const [ player ] = entities;
 
 		const { x, y } = player.world;
@@ -202,6 +180,28 @@ export class World extends System {
 				player.ai.wayfinder.set(path);
 			}
 		}
+	}
+
+	static GetNeighbors(world, node) {
+		const coords = {
+			TOP_LEFT: [ node.world.x - 1, node.world.y - 1 ],
+			TOP: [ node.world.x, node.world.y - 1 ],
+			TOP_RIGHT: [ node.world.x + 1, node.world.y - 1 ],
+			LEFT: [ node.world.x - 1, node.world.y ],
+			// NONE: [ node.world.x, node.world.y ],
+			RIGHT: [ node.world.x + 1, node.world.y ],
+			BOTTOM_LEFT: [ node.world.x - 1, node.world.y + 1 ],
+			BOTTOM: [ node.world.x, node.world.y + 1 ],
+			BOTTOM_RIGHT: [ node.world.x + 1, node.world.y + 1 ],
+		};
+
+		let nodes = Object.fromEntries(Object.entries(coords).map(([ alias, [ x, y ] ]) => {
+			const node = world.nodes[ `${ x },${ y }` ];
+
+			return [ alias, node || false ];
+		}));
+
+		return nodes;
 	}
 };
 

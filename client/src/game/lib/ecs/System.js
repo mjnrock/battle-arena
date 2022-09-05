@@ -5,6 +5,9 @@ import Runner from "../../util/relay/Runner";
  * The System reduces the state of the passed Entity/ies, typically performing work within
  * a specified component.  That being said, the entire Entity is provided to the System,
  * allowing it to modify anything and/or do anything it wants.
+ * 
+ * NOTE: In descendents, methods that will act as listeners should be prefixed with $ (e.g. $join, $leave, etc.).
+ * 		 The "$" will be stripped from the method name when the System is initialized.
  */
 export class System extends Identity {
 	constructor ({ reducers = {}, id, tags, alias } = {}) {
@@ -65,8 +68,19 @@ export class System extends Identity {
 	 */
 	_addMethods() {
 		for(let key of Reflect.ownKeys(this.constructor.prototype)) {
-			if(key !== "constructor") {
-				this.add(key)
+			if(key[ 0 ] === "$") {
+				let newKey = key.slice(1);
+
+				/**
+				 * Add the event to the System, creating a new Runner to handle the event.
+				 */
+				this.add(newKey);
+
+				/**
+				 * Rename functions that start with $ to remove the $.
+				 */
+				this.constructor.prototype[ newKey ] = this.constructor.prototype[ key ].bind(this);
+				delete this.constructor.prototype[ key ];
 			}
 		}
 	}
@@ -177,12 +191,12 @@ export class System extends Identity {
 		if(!Array.isArray(entities)) {
 			entities = [ entities ];
 		}
-		
+
 		const results = [];
 		for(let entity of entities) {
 			results.push(fn(entity, ...args));
 		}
-	
+
 		return results;
 	};
 };

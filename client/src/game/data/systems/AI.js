@@ -10,7 +10,7 @@ export class AI extends System {
 		super(opts);
 	}
 
-	wayfind(entities = [], { world }) {
+	$wayfind(entities = [], { world }) {
 		System.Each(entities, (entity) => {
 			//NOTE: This code changes the Entity's velocity based on its AI Wayfinding component which dictates its current heading
 			const { x, y } = entity.world;
