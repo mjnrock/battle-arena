@@ -167,8 +167,8 @@ export const Hooks = {
 		 * NOTE: This note is mainly here because of the use of @each below.
 		 */
 
+		// const [ overworld ] = EntWorld.Factory(1, {
 		const [ overworld ] = $E.world(1, {
-			// const [ overworld ] = EntWorld.Factory(1, {
 			/**
 			 * TW x TH
 			 */
@@ -233,8 +233,8 @@ export const Hooks = {
 			}
 		}
 
+		// const [ player, ...squirrels ] = EntSquirrel.Factory(42, {
 		const [ player, ...squirrels ] = $E.squirrel(42, {
-			// const [ player, ...squirrels ] = EntSquirrel.Factory(42, {
 			world: {
 				world: overworld.id,
 				model: new Circle({
@@ -247,12 +247,10 @@ export const Hooks = {
 				vx: 0.01,
 				vy: 0.01,
 			},
-			status: () => ({
-				state: "normal",
-			}),
 		});
+
+		// const [ ...bunnies ] = EntBunny.Factory(14, {
 		const [ ...bunnies ] = $E.bunny(14, {
-			// const [ ...bunnies ] = EntBunny.Factory(14, {
 			world: {
 				world: overworld.id,
 				model: new Circle({
@@ -267,8 +265,8 @@ export const Hooks = {
 			},
 		});
 
+		// const [ realm ] = EntRealm.Factory(1, {
 		const [ realm ] = $E.realm(1, {
-			// const [ realm ] = EntRealm.Factory(1, {
 			worlds: {	// Collection
 				items: {
 					overworld,
