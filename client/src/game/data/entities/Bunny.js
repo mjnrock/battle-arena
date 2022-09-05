@@ -6,13 +6,10 @@ export class Bunny extends Creature {
 		...Creature.Components,
 	};
 
-	constructor ({ components = [], id, tags, alias, init = {} } = {}) {
+	constructor ({ alias, ...components } = {}) {
 		super({
 			alias: alias || Bunny.Alias,
-			components,
-			id,
-			tags,
-			init,
+			...components,
 		});
 	}
 };

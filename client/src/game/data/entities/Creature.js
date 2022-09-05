@@ -16,13 +16,10 @@ export class Creature extends Entity {
 		status,
 	};
 
-	constructor ({ components = [], id, tags, alias, init = {} } = {}) {
+	constructor ({ alias, ...components } = {}) {
 		super({
 			alias: alias || Creature.Alias,
-			components,
-			id,
-			tags,
-			init,
+			...components,
 		});
 	}
 };

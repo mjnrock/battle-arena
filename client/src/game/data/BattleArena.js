@@ -9,17 +9,19 @@ import { ViewPort } from "../lib/pixi/ViewPort";
 import { AssetManager } from "../lib/render/AssetManager";
 import { Path } from "../lib/pathing/Path";
 
-import { AI as SysAI } from "./systems/AI";
-import { Animation as SysAnimation } from "./systems/Animation";
-import { Bunny } from "./entities/Bunny";
 import { createViews } from "./render/views";
 import { EnumEdgeFlag } from "./components/terrain";
 import { loadInputControllers } from "./input";
-import { Node } from "./entities/realm/Node";
-import { Realm } from "./entities/realm/Realm";
-import { Squirrel } from "./entities/Squirrel";
+
+import { AI as SysAI } from "./systems/AI";
+import { Animation as SysAnimation } from "./systems/Animation";
 import { World as SysWorld } from "./systems/World";
-import { World } from "./entities/realm/World";
+
+import { Bunny as EntBunny } from "./entities/Bunny";
+import { Node as EntNode } from "./entities/realm/Node";
+import { Realm as EntRealm } from "./entities/realm/Realm";
+import { Squirrel as EntSquirrel } from "./entities/Squirrel";
+import { World as EntWorld } from "./entities/realm/World";
 
 import { Game } from "../Game";
 
@@ -49,11 +51,11 @@ export const Hooks = {
 		]);
 		this.environment.registerFactoryEntities([
 			//NOTE: Add all of the entity classes here
-			Squirrel,
-			Bunny,
-			Node,
-			World,
-			Realm,
+			EntSquirrel,
+			EntBunny,
+			EntNode,
+			EntWorld,
+			EntRealm,
 		]);
 		this.environment.registerFactoryComponents([]);
 
@@ -166,6 +168,7 @@ export const Hooks = {
 		 */
 
 		const [ overworld ] = $E.world(1, {
+		// const [ overworld ] = EntWorld.Factory(1, {
 			/**
 			 * TW x TH
 			 */
@@ -230,42 +233,41 @@ export const Hooks = {
 		//At its simplest level, dictate creature spawning locations, behaviors, and interactions
 
 		const [ player, ...squirrels ] = $E.squirrel(42, {
-			components: {
-				world: {
-					world: overworld.id,
-					model: new Circle({
-						x: 0,
-						y: 0.2,
-						r: 0.25,
-					}),
-					x: 10,
-					y: 10,
-					vx: 0.01,
-					vy: 0.01,
-				},
-				status: () => ({
-					state: "normal",
+		// const [ player, ...squirrels ] = EntSquirrel.Factory(42, {
+			world: {
+				world: overworld.id,
+				model: new Circle({
+					x: 0,
+					y: 0.2,
+					r: 0.25,
 				}),
+				x: 10,
+				y: 10,
+				vx: 0.01,
+				vy: 0.01,
 			},
+			status: () => ({
+				state: "normal",
+			}),
 		});
 		const [ ...bunnies ] = $E.bunny(14, {
-			components: {
-				world: {
-					world: overworld.id,
-					model: new Circle({
-						x: 0,
-						y: 0,
-						r: 0.4,
-					}),
-					x: 10,
-					y: 10,
-					vx: 0.01,
-					vy: 0.01,
-				},
+		// const [ ...bunnies ] = EntBunny.Factory(14, {
+			world: {
+				world: overworld.id,
+				model: new Circle({
+					x: 0,
+					y: 0,
+					r: 0.4,
+				}),
+				x: 10,
+				y: 10,
+				vx: 0.01,
+				vy: 0.01,
 			},
 		});
 
 		const [ realm ] = $E.realm(1, {
+		// const [ realm ] = EntRealm.Factory(1, {
 			worlds: {	// Collection
 				items: {
 					overworld,

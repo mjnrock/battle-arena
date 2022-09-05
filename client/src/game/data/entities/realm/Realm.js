@@ -7,14 +7,12 @@ export class Realm extends Entity {
 		worlds: Collection,
 	};
 
-	constructor ({ worlds = {}, alias, ...rest } = {}) {
+	constructor ({ worlds = {}, alias, ...components } = {}) {
 		super({
-			alias: alias || Realm.Alias,
-			components: {
-				worlds,
-			},
+			alias: alias || Realm.Alias,			
+			worlds,
 
-			...rest,
+			...components,
 		});
 	}
 };

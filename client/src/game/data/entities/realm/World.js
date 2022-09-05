@@ -20,16 +20,16 @@ export class World extends Entity {
 		}),
 	};
 
-	constructor ({ size = [ 10, 10 ], nodes = {}, entities = {}, each, alias, ...rest } = {}) {
+	constructor ({ size = [ 10, 10 ], nodes = {}, entities = {}, each, alias, ...components } = {}) {
 		super({
 			alias: alias || World.Alias,
-			components: {
-				size,
-				nodes,
-			},
+			size,
+			nodes,
 
-			...rest,
+			...components,
 		});
+
+		console.log(size, each, this.constructor.name)
 
 		this.reseed(each);
 	}
@@ -49,12 +49,10 @@ export class World extends Entity {
 			for(let h = 0; h < height; h++) {
 				let alias = `${ w },${ h }`,
 					node = new Node({
-						components: {
-							world: {
-								world: this,
-								x: w,
-								y: h,
-							},
+						world: {
+							world: this,
+							x: w,
+							y: h,
 						},
 					});
 

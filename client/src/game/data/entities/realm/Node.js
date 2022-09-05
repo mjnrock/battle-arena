@@ -14,10 +14,10 @@ export class Node extends Entity {
 		entities: Registry,
 	};
 
-	constructor ({ alias, ...rest } = {}) {
+	constructor ({ alias, ...components } = {}) {
 		super({
 			alias: alias || Node.Alias,
-			...rest,
+			...components,
 		});
 	}
 };

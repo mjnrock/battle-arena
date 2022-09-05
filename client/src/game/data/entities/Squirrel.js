@@ -6,13 +6,10 @@ export class Squirrel extends Creature {
 		...Creature.Components,
 	};
 
-	constructor ({ components = [], id, tags, alias, init = {} } = {}) {
+	constructor ({ alias, ...components } = {}) {
 		super({
 			alias: alias || Squirrel.Alias,
-			components,
-			id,
-			tags,
-			init,
+			...components,
 		});
 	}
 };

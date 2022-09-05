@@ -1,6 +1,30 @@
 @Current
 Meta:
 [] Create something like an Enumerator class that also incorporates WeightedPool random generators.
+[] Create a state-render registry, that holds *all* the information for a given Entity
+	[] Entity factory
+	[] Initial components
+		[] Seed arguments
+	[] Render assets
+		[] TileSets
+		[] Tracks
+[] Master Regitry containers, independent of updating gameplay
+	[] Use as the "source of truth" for *anything* data-related
+	[] Utilize .tags and assign categorical tagging for searches
+		[] Implement master searches using .tags
+		[] Experiment with prefixes
+			[] e.g. alias:squirrel, type:creature, component:world, component:inventory, etc.
+[] Master Schemas for Entity creation?
+	[] Any potential feature for an Entity is determined by its schema data
+		[] Default components
+		[] Expanded components
+		[] Initial arguments
+		[] Render assets
+		[] Tags
+		[] etc.
+[] Experiment with Manager paradigms
+	[] Reconcile System use for differing types of Entities
+
 Refactor:
 	[] Begin analysis of consolidation and succinctness improvements
 	[] Play with registry/repository structures that improve flow overall

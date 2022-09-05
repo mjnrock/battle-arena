@@ -21,7 +21,7 @@ export class Entity extends Identity {
 	 */
 	static Components = {};
 
-	constructor ({ alias, components = {}, id, tags } = {}) {
+	constructor ({ alias, id, tags, ...components } = {}) {
 		super([], { id, tags });
 
 		/**
@@ -94,36 +94,12 @@ export class Entity extends Identity {
 	 * NOTE: This will **always** evaluate the root-level functions
 	 * within the @components parameter, so as not to create collisions.
 	 */
-	static Factory(qty = 1, { components = {}, each, ...rest } = {}) {
-		return new Array(qty).fill(0).map(() => {
-			const entity = new this({ components: [], ...rest });
-			const next = { ...components };
+	static Factory(qty = 1, { $each, ...args } = {}) {
+		return new Array(qty).fill(0).map((v, j) => {
+			const entity = new this({ ...args });
 
-			let i = 0;
-			for(let [ name, input ] of Object.entries(next)) {
-				if(typeof input === "function") {
-					/**
-					 * Evaluate any root-level functions
-					 */
-					entity[ name ] = input(i, entity);
-				} else if(typeof input === "object" && "next" in (input || {})) {
-
-					/**
-					 * Assume its a generator*
-					 */
-					entity[ name ] = input.next().value;
-				} else {
-					/**
-					 * Take value as-is
-					 */
-					entity[ name ] = input;
-				}
-
-				i++;
-			}
-
-			if(each) {
-				each(entity, i);
+			if($each) {
+				$each(entity, j);
 			}
 
 			return entity;
