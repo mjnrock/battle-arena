@@ -22,11 +22,25 @@ import NumberNode from "../game/lib/node/NumberNode";
 // 	data: 9,
 // });
 const nnode = NumberNode.INT8.create({
-	data: 900,
+	data: 9,
+	// data: 900,
+	// events: {
+	// 	"*": [
+	// 		() => console.log("1a"),
+	// 		() => true,
+	// 	],
+	// 	test: () => console.log("test"),
+	// 	"**": [
+	// 		() => console.log("2a"),
+	// 		() => console.log("2b"),
+	// 	],
+	// }
 });
 
 console.log(nnode);
 console.log(nnode.data);
+
+nnode.dispatch("test");
 
 export function Test() {
 	return (

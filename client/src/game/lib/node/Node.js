@@ -2,7 +2,8 @@ import Identity from "./../../util/Identity";
 import Events from "./../../util/relay/Events";
 
 export const EnumType = {
-	EMPTY: "empty",
+	DATA: "data",
+	ROUTER: "router",
 
 	GROUP: "group",
 	BOOLEAN: "boolean",
@@ -44,7 +45,7 @@ export class Node extends Identity {
 		 * A unique identifier for the type of node, exhaustively defined by the
 		 * EnumType object (also accessible via the static property of the same).
 		 */
-		this.type = type || EnumType.EMPTY;
+		this.type = type || EnumType.DATA;
 
 		/**
 		 * A collection of events that can be triggered by the node.  To create attachments

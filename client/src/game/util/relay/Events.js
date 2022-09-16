@@ -69,12 +69,27 @@ export class Events extends Identity {
 		let results = [];
 
 		if(this.events.has(event)) {
+			let pre = this.events.get("*") || [],
+				post = this.events.get("**") || [];
+
+			for(let filter of pre) {
+				let result = filter(event, ...args);
+
+				if(result === true) {
+					return;
+				}
+			}
+
 			this.events.get(event).forEach(listener => {
 				results.push(listener(...args));
 			});
+
+			for(let effect of post) {
+				effect(event, ...args);
+			}
 		}
 
-		return results;
+		return results.length ? results : false;
 	}
 
 	copy() {
