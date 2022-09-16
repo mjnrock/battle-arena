@@ -2,7 +2,7 @@ import { v4 as uuid, validate } from "uuid";
 
 export class Identity {
 	static Registry = new Map();
-	static HasRegistration = false;
+	static EnableTracking = false;
 
 	static Comparators = {
 		/**
@@ -128,12 +128,16 @@ export class Identity {
 		this.id = id || uuid();
 		this.tags = new Set(tags);
 
-		if(Identity.HasRegistration) {
+		if(Identity.EnableTracking) {
 			Identity.Registry.set(this.id, this);
 		}
-		if(this.constructor.HasRegistration) {
+		if(this.constructor.EnableTracking) {
 			this.constructor.Registry.set(this.id, this);
 		}
+	}
+
+	hasTag(...tags) {
+		return tags.every(tag => this.tags.has(tag));
 	}
 
 	toObject() {

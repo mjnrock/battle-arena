@@ -105,7 +105,7 @@ export class Environment extends Identity {
 	 * modify @state in between.
 	 */
 	setState(state = {}) {
-		this.middleware("state", state);
+		this.middleware("@state", state);
 
 		this.state = state;
 
@@ -119,7 +119,7 @@ export class Environment extends Identity {
 	 * modify @state in between.
 	 */
 	mergeState(state = {}) {
-		this.middleware("state", state);
+		this.middleware("@state", state);
 
 		this.state = {
 			...this.state,
@@ -166,6 +166,8 @@ export class Environment extends Identity {
 						} else {
 							this[ registerTo ].add(next);
 						}
+
+						this.middleware("@register", registerTo, next, i, qty, ...args);
 					}
 
 					entities.push(next);

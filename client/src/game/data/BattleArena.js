@@ -43,6 +43,23 @@ export const Hooks = {
 	 * all of the system and entity factories.
 	 */
 	async pre() {
+		//TODO: Make these seeded with Objects, and remove (default) alias from the files (use constructor.name as the default, if no alias is provided)
+		//FIXME: *Everything* should derive its alias/similar from a Master Registry, so that it is 100% data-driven by seed objects
+		//IDEA: Instead of population the internal .alias from the file, use the alias provided to the Registry and overwrite it during instantiation (particularly for Entities)
+		// this.environment.registerFactorySystems(true, {
+		// 	//NOTE: Add all of the system classes here
+		// 	world: SysWorld,
+		// 	animation: SysAnimation,
+		// 	ai: SysAI,
+		// });
+		// this.environment.registerFactoryEntities(false, {
+		// 	//NOTE: Add all of the entity classes here
+		// 	squirrel: EntSquirrel,
+		// 	bunny: EntBunny,
+		// 	node: EntNode,
+		// 	world: EntWorld,
+		// 	realm: EntRealm,
+		// });
 		this.environment.registerFactorySystems(true, [
 			//NOTE: Add all of the system classes here
 			SysWorld,
